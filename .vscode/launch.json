@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: tasksim",
+            "type": "python",
+            "request": "launch",
+            "program": "tasksim/tasksim.py",
+            "args": [
+                "dummy",
+                "workspace/174915/JobOrder.174915.xml",
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: PVML",
             "type": "python",
             "request": "launch",
@@ -12,7 +23,7 @@
             "args": [
                 "pvml/config.xml",
                 "pvml/pvml_job_biomass_l0.xml"
-            ],            
+            ],
             "console": "integratedTerminal"
         },
         {

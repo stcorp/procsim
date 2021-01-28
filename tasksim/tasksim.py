@@ -8,6 +8,7 @@ Usage: tasksim <task_filename> <jobOrder_filename>
 import sys
 import datetime
 import os
+from xml.etree import ElementTree as et
 
 VERSION = "3.2"
 
@@ -64,17 +65,48 @@ class Logger:
             self.pid,
             self.header_separator,
             message_type)
-        # TODO: Filter, according to joborder
+        # TODO: Filter, according to logging levels in job order
         print_stdout(log_prefix, end=' ')
         print_stdout(*args, **kwargs)
         # print_stderr(log_prefix, end=' ')
         # print_stderr(args, kwargs)
 
 
+class JobOrderParser:
+    '''This class is responsible for reading and parsing the JobOrder'''
+    def __init__(self, filename):
+        self.processor_name = ''
+        self.processor_version = ''
+        self._parse(filename)
+
+    def _parse(self, filename):
+        tree = et.parse(filename)
+        root = tree.getroot()
+        self.processor_name = tree.find(".//Processor_Name").text
+        self.processor_version = tree.find(".//Version").text
+
+
+class WorkSimulator:
+    '''This class is responsible for simulating the actual processing,
+    by consuming resources'''
+    def __init__(self, logger, time, nr_cpu, memory, disk_space):
+        self.logger = logger
+        self.time = time
+        self.nr_cpu = nr_cpu
+        self.memory = memory
+        self.disk_space = disk_space
+
+    def start(self):
+        '''Blocks until done (TODO: make non-blocking?)'''
+        for progress in range(0, 100, 20):
+            self.logger.info('Working, progress {}%'.format(progress))
+        self.logger.info('Task complete')
+
+
 def main():
     args = sys.argv[1:]
     config_filename = None
-    jobOrder_filename = None
+    job_filename = None
     if len(args) == 0 or len(args) > 2:
         print(helptext)
         sys.exit(1)
@@ -86,28 +118,35 @@ def main():
         sys.exit()
     if len(args) == 2:
         config_filename = args[0]
-        jobOrder_filename = args[1]
+        job_filename = args[1]
     else:
         print(helptext)
         sys.exit(1)
 
-    # TODO: Derive from config
-    processor_name = 'testproc'
-    processor_version = '01.01'
+    # TODO: Read tasksim configuration for this task
+    
+    job = JobOrderParser(job_filename)
 
-    logger = Logger(processor_name, processor_version)
+    # TODO: Find fitting scenario
+
+    logger = Logger(job.processor_name, job.processor_version)    
     logger.info('Starting, simulating {} v{}, Job Order {}'.format(
-        processor_name,
-        processor_version,
-        jobOrder_filename))
+        job.processor_name,
+        job.processor_version,
+        job_filename))
+    
+    # TODO: Read inputs (optional?)
     logger.info('Inputs: <to be done>')
-    for progress in range(0, 100, 20):
-        logger.info('Working, progress {}%'.format(progress))
-    logger.info('Task complete')
+
+    # Simulate work, consume resources
+    worker = WorkSimulator(logger, 0, 1, 0, 0)
+    worker.start()
+
+    # TODO: Generate output data, according to job order, scenario and configuration
     logger.info('Outputs generated: <to be done>')
 
     exit_code = 0   # 0=ok, 1-127=warning, 128-255=failure
-    logger.info('Stopping, returns {}'.format(exit_code))
+    # logger.info('Stopping, returns {}'.format(exit_code))
     exit(exit_code)
 
 
