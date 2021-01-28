@@ -2,3 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Intermediate files
+workspace/
+data/
+
+# Used, but I don't want to add it to git yet
+.idea/

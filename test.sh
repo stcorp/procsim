@@ -4,5 +4,8 @@ echo test > data/AUX_CN0_AX/AUX_CN0_AXVIEC20030723_000000_19910101_000000_201012
 mkdir -p data/raw
 python raw_generator.py data/raw
 
+# Create workspace root
+mkdir workspace
+
 # Run test job
 python pvml/pvml.py pvml/config.xml pvml/pvml_job_biomass_l0.xml
