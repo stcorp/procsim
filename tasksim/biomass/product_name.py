@@ -58,7 +58,7 @@ class ProductName:
             self.start_time = str_to_datetime(file[15:30])
             self.stop_time = str_to_datetime(file[31:46])
             self.downlink_time = str_to_datetime(file[48:63])
-            self.baseline_identifier = file[64:66]
+            self.baseline_identifier = int(file[64:66])
             self.compact_create_date = file[67:73]
         return True
 

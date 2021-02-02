@@ -83,6 +83,7 @@ class JobOrderParser:
         self.processor_name = ''
         self.processor_version = ''
         self.input_files = []
+        self.outputs = []
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
@@ -97,6 +98,11 @@ class JobOrderParser:
         for input_el in inputs_el.findall('Input'):
             for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
                 self.input_files.append(file_el.text)
+        outputs_el = tree.find('//List_of_Outputs')
+        for output_el in outputs_el.findall('Output'):
+            output_type = output_el.find('File_Type').text
+            output_dir = output_el.find('File_Name').text
+            self.outputs.append({'type': output_type, 'dir': output_dir})
 
 
 class WorkSimulator:
@@ -154,7 +160,8 @@ def main():
 
     # TODO: Find fitting scenario.
     # For now, assume Biomass level0 processor
-    proc = level0_processor_stub.Step1()
+    output_path = job.outputs[0]['dir']
+    proc = level0_processor_stub.Step1(output_path)
     proc.parse_inputs(job.input_files)
 
     # Simulate work, consume resources
