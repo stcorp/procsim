@@ -9,3 +9,4 @@ import datetime
 ANX = datetime.datetime(2021, 1, 1, 0, 0, 0)    # Just an arbitrary value
 ORBIT_DURATION = datetime.timedelta(0, 5890.98)
 SLICE_DURATION = datetime.timedelta(0, 19.003)
+COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)

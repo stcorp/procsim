@@ -6,8 +6,9 @@ Ref: BIO-ESA-EOPG-EEGS-TN-0051
 '''
 
 import datetime
+import common
 from dataclasses import dataclass
-from lxml import etree as et
+from xml.etree import ElementTree as et
 
 mph_namespaces = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",
@@ -69,6 +70,7 @@ class MainProductHeader:
     '''This class is responsible for parsing and creating the Biomass Main
     Product Header (MPH).'''
     def __init__(self):
+        # TODO: From identifier?
         self._is_raw = True
         self._is_hktm = True
         self._is_pid_pc = True
@@ -77,21 +79,20 @@ class MainProductHeader:
         self._is_level2a = True
         self._is_aux = False
 
+        self.satellite_name = 'Biomass'  # Fixed
+        self.sensor_name = 'P-SAR'       # Fixed
+        self.sensor_type = 'RADAR'       # Fixed
+        self.browse_type = 'QUICKLOOK'   # Fixed
+
         self.eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
         self.begin_position = datetime.datetime(2021, 1, 1, 0, 0, 0)
         self.end_position = datetime.datetime.now()
         self.time_position = datetime.datetime.now()
         self.validity_start = datetime.datetime(2021, 1, 1, 0, 0, 0)
         self.validity_end = datetime.datetime.now()
-        self.satellite_name = 'Biomass'  # Fixed
-        self.sensor_name = 'P-SAR'       # Fixed
-        self.sensor_type = 'RADAR'       # Fixed
         self.sensors = [{'type': self.sensor_type, 'mode': 'SM', 'swath_id': 'S2'}]  # Mode is SM, RO, EC, AC
-        acquisition = Acquisition()
-        self.acquisitions = [acquisition]
         self.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
         self.center_points = '-7.492090 -63.27095'
-        self.browse_type = 'QUICKLOOK'   # Fixed
         self.browse_ref_id = 'EPSG:4326'
         self.browse_image_filename = 'browse image filename'
 
@@ -104,10 +105,6 @@ class MainProductHeader:
         self.product_type = 'S1_RAW__0S'
         self.product_status = 'PLANNED'     # REJECTED, etc..
 
-        # Raw
-        self.acquisition_station = 'todo'
-        self.downlink_date = datetime.datetime.now()
-
         self.processing_centre_code = 'ESR'
         self.processing_date = datetime.datetime.now()
         self.processor_name = 'L1 Processor'
@@ -116,19 +113,26 @@ class MainProductHeader:
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
         self.processing_mode = 'OPERATIONAL'
         self.biomass_source_product_ids = ['id']
+        self.reference_documents = ['doc1', 'doc2']
 
-        # L0 and L1 info
-        self.tai_utc_diff = 0
+        # Raw
+        self.acquisition_station = 'SP'  # Spitzbergen, not sure
+        self.downlink_date = datetime.datetime.now()
 
         # Raw HKTM info
         self.nr_transfer_frames = 0
         self.nr_transfer_frames_erroneous = 0
         self.nr_transfer_frames_corrupt = 0
 
-        # Raw PC_PID info
+        # Raw science/ancillary info
         self.nr_instrument_source_packets = 0
         self.nr_instrument_source_packets_erroneous = 0
         self.nr_instrument_source_packets_corrupt = 0
+
+        # L0 and L1 info
+        acquisition = Acquisition()
+        self.acquisitions = [acquisition]
+        self.tai_utc_diff = 0
 
         # L0 info
         self.nr_l0_lines = '387200,387200'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
@@ -137,13 +141,13 @@ class MainProductHeader:
         self.incomplete_l0_slice = False
         self.partial_l0_slice = False
         self.l1_frames_in_l0 = '0,1,2,4,5'
-        
+
         # L1 info
         self.incomplete_l1_frame = False
         self.partial_l1_frame = False
 
-        # Common
-        self.reference_documents = ['doc1', 'doc2']
+        for key, value in mph_namespaces.items():
+            et.register_namespace(key, value)
 
     def _insert_time_period(self, parent, start, stop, id):
         # Insert TimePeriod element
@@ -163,13 +167,13 @@ class MainProductHeader:
 
     def write(self, file_name):
         # Write MPH to file
-        mph = et.Element(bio + 'EarthObservation', nsmap=mph_namespaces)
+        mph = et.Element(bio + 'EarthObservation')
         mph.set(gml + 'id', self.eop_identifier + '_1')
 
         phenomenon_time = et.SubElement(mph, om + 'phenomenonTime')
         self._insert_time_period(phenomenon_time, self.begin_position, self.end_position, 2)
 
-        result_time = et.SubElement(mph, om + 'resultTime')        
+        result_time = et.SubElement(mph, om + 'resultTime')
         time_instant = et.SubElement(result_time, gml + 'TimeInstant')
         time_instant.set(gml + 'id', self.eop_identifier + '_3')
         time_position = et.SubElement(time_instant, gml + 'timePosition')
@@ -237,9 +241,9 @@ class MainProductHeader:
         observed_property.set(xsi + 'nil', 'true')
         observed_property.set('nilReason', 'inapplicable')
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
-        
+
         # Mandatory for L1, *L2A products
-        if True:
+        if self._is_level1 or self._is_level2a:
             footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
             footprint.set(gml + 'id', self.eop_identifier + '_6')
             multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
@@ -257,13 +261,13 @@ class MainProductHeader:
             point.set(gml + 'id', self.eop_identifier + '_9')
             pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
             pos.text = self.center_points
-        
+
         result = et.SubElement(mph, om + 'result')  # Observation result
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
         earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
-        
+
         # Mandatory for L1 products
-        if True:
+        if self._is_level1:
             browse = et.SubElement(earth_observation_result, eop + 'browse')
             browse_info = et.SubElement(browse, eop + 'BrowseInformation')
             browse_type = et.SubElement(browse_info, eop + 'type').text = self.browse_type
@@ -293,7 +297,7 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
 
         # Mandatory for Raw data: Downlink information
-        if True:
+        if self._is_raw:
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
@@ -308,19 +312,19 @@ class MainProductHeader:
         et.SubElement(processing_info, eop + 'processorName').text = self.processor_name
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self.processing_level
-        
+
         if not self._is_aux:
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
-        
-        et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace':'urn:esa:eop:Biomass:class'}).text = self.processing_mode
-        
+
+        et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
+
         if self._is_level0 or self._is_level1 or self._is_level2a:
             for id in self.biomass_source_product_ids:
                 et.SubElement(processing_info, bio + 'sourceProduct').text = id
-        
+
         if self._is_level0 or self._is_level1:
-            et.SubElement(earth_observation_meta_data, bio + 'TAI-UTC').text = str(self.tai_utc_diff)  # Difference between TAI and UTC times of product
+            et.SubElement(earth_observation_meta_data, bio + 'TAI-UTC').text = str(self.tai_utc_diff)
 
         if self._is_raw:
             if self._is_hktm:
@@ -349,4 +353,8 @@ class MainProductHeader:
 
         # Create XML
         tree = et.ElementTree(mph)
-        tree.write(file_name, xml_declaration=True, pretty_print=True, encoding='utf-8')
+        common.indent_xml(tree.getroot())
+        tree.write(file_name, xml_declaration=True, encoding='utf-8')
+
+    def parse(self, file_name):
+        tree = et.parse(file_name)
