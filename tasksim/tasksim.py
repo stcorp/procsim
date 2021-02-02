@@ -31,30 +31,32 @@ def print_stdout(*args, **kwargs):
 
 
 class Logger:
-    def __init__(self, processor_name, processor_version):
+    def __init__(self, processor_name, processor_version, stdout_levels, stderr_levels):
         self.node_name = 'mynode'            # Read from Job order!
         self.processor_name = processor_name
         self.processor_version = processor_version
         self.task_name = 'mytask'            # Read from config
         self.pid = os.getpid()
         self.header_separator = ':'
+        self.stdout_levels = stdout_levels
+        self.stderr_levels = stderr_levels
 
     def debug(self, *args, **kwargs):
-        self._log('[D]', *args, **kwargs)
+        self._log('DEBUG', '[D]', *args, **kwargs)
 
     def info(self, *args, **kwargs):
-        self._log('[I]', *args, **kwargs)
+        self._log('INFO', '[I]', *args, **kwargs)
 
     def progress(self, *args, **kwargs):
-        self._log('[P]', *args, **kwargs)
+        self._log('PROGRESS', '[P]', *args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        self._log('[W]', *args, **kwargs)
+        self._log('WARNING', '[W]', *args, **kwargs)
 
     def error(self, *args, **kwargs):
-        self._log('[E]', *args, **kwargs)
+        self._log('ERROR', '[E]', *args, **kwargs)
 
-    def _log(self, message_type, *args, **kwargs):
+    def _log(self, level, message_type, *args, **kwargs):
         now = datetime.datetime.now()
         log_prefix = '{} {} {} {} {} {:012}{}{}'.format(
             now.isoformat(),
@@ -66,10 +68,12 @@ class Logger:
             self.header_separator,
             message_type)
         # TODO: Filter, according to logging levels in job order
-        print_stdout(log_prefix, end=' ')
-        print_stdout(*args, **kwargs)
-        # print_stderr(log_prefix, end=' ')
-        # print_stderr(args, kwargs)
+        if level in self.stdout_levels:
+            print_stdout(log_prefix, end=' ')
+            print_stdout(*args, **kwargs)
+        if level in self.stderr_levels:
+            print_stderr(log_prefix, end=' ')
+            print_stderr(args, kwargs)
 
 
 class JobOrderParser:
@@ -77,6 +81,8 @@ class JobOrderParser:
     def __init__(self, filename):
         self.processor_name = ''
         self.processor_version = ''
+        self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
+        self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
 
     def _parse(self, filename):
@@ -124,17 +130,16 @@ def main():
         sys.exit(1)
 
     # TODO: Read tasksim configuration for this task
-    
     job = JobOrderParser(job_filename)
-
     # TODO: Find fitting scenario
 
-    logger = Logger(job.processor_name, job.processor_version)    
+    logger = Logger(job.processor_name,
+                    job.processor_version, job.stdout_levels, job.stderr_levels)
     logger.info('Starting, simulating {} v{}, Job Order {}'.format(
         job.processor_name,
         job.processor_version,
         job_filename))
-    
+
     # TODO: Read inputs (optional?)
     logger.info('Inputs: <to be done>')
 
