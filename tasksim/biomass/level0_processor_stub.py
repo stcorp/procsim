@@ -12,12 +12,11 @@ from biomass import product_name
 def generate_slices(self, tstart, tend):
     '''Generate slices for this data take. Slices start and stop on a fixed
     grid, so the first and last slice of a data take can be truncated.'''
-
     while tstart < tend:
         tslice = constants.SLICE_DURATION
         if tstart + tslice > tend:
             tslice = tend - tstart
-        print('Generate slice from {} len {}'.format(tstart, tslice))
+        print('TODO: Generate slice from {} len {}'.format(tstart, tslice))
         tstart += tslice
 
 

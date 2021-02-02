@@ -8,6 +8,7 @@ Usage: tasksim <task_filename> <jobOrder_filename>
 import sys
 import datetime
 import os
+from biomass import level0_processor_stub
 from xml.etree import ElementTree as et
 
 VERSION = "3.2"
@@ -81,15 +82,21 @@ class JobOrderParser:
     def __init__(self, filename):
         self.processor_name = ''
         self.processor_version = ''
+        self.input_files = []
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
 
     def _parse(self, filename):
+        # TODO: This is all for 'old style' XML! Replace (or keep, and create additional class)
         tree = et.parse(filename)
         root = tree.getroot()
         self.processor_name = tree.find(".//Processor_Name").text
         self.processor_version = tree.find(".//Version").text
+        inputs_el = tree.find('//List_of_Inputs')
+        for input_el in inputs_el.findall('Input'):
+            for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
+                self.input_files.append(file_el.text)
 
 
 class WorkSimulator:
@@ -130,9 +137,11 @@ def main():
         sys.exit(1)
 
     # TODO: Read tasksim configuration for this task
-    job = JobOrderParser(job_filename)
-    # TODO: Find fitting scenario
 
+    # Parse JobOrder
+    job = JobOrderParser(job_filename)
+
+    # Create logger
     logger = Logger(job.processor_name,
                     job.processor_version, job.stdout_levels, job.stderr_levels)
     logger.info('Starting, simulating {} v{}, Job Order {}'.format(
@@ -143,11 +152,17 @@ def main():
     # TODO: Read inputs (optional?)
     logger.info('Inputs: <to be done>')
 
+    # TODO: Find fitting scenario.
+    # For now, assume Biomass level0 processor
+    proc = level0_processor_stub.Step1()
+    proc.parse_inputs(job.input_files)
+
     # Simulate work, consume resources
     worker = WorkSimulator(logger, 0, 1, 0, 0)
     worker.start()
 
     # TODO: Generate output data, according to job order, scenario and configuration
+    proc.generate_outputs()
     logger.info('Outputs generated: <to be done>')
 
     exit_code = 0   # 0=ok, 1-127=warning, 128-255=failure
