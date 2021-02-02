@@ -68,7 +68,7 @@
           expressions for this product type, then these expressions will be used to
           determine the start/stop time values. Otherwise, no start/stop time will
           be associated to the input file.-->
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_025_10_20210101T000000_20210101T013000_D20210101T020000_01_ACZ976</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T022243_20210201T022743_D20210201T031621_01_B077R9</file>
         </input>
 
         <input product_type="AUX_CN0_AX">
