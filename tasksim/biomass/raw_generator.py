@@ -10,7 +10,7 @@ import constants
 
 from lxml import etree as et
 
-import biomass_mph
+import mph
 
 
 def get_file_type(mode: str, polarization: str):
@@ -118,8 +118,8 @@ class RawProductGenerator:
 
         # Create MPH file
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        mph = biomass_mph.MainProductHeader()
-        mph.write(file_name)
+        hdr = mph.MainProductHeader()
+        hdr.write(file_name)
 
         # Create binary telemetry file
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Task Table XML Schema, according to ESA-EOPG-EEGS-ID-0083 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+  <xs:element name="Task_Table"> <!-- TODO: add attribs? -->
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Processor_Name" type="xs:string"/>
+        <xs:element name="Processor_Version" type="xs:string"/>
+        <xs:element name="Author" type="xs:string"/>
+        <xs:element name="List_of_Tasks" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Task" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Task_Name" type="xs:string"/>
+                    <xs:element name="Task_Version" type="xs:string"/>
+                    <xs:element name="Executable" type="xs:string"/>
+                    <xs:element name="CPU_Cores">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Number" type="xs:decimal"/>
+                          <xs:element name="Scalable" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="RAM">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Amount" type="xs:positiveInteger"/>
+                          <xs:element name="Scalable" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Disk_Space" type="xs:positiveInteger"/>
+                    <xs:element name="Timeout" type="xs:nonNegativeInteger"/>
+                    <xs:element name="Killing_Signal" type="xs:integer"/>
+                    <xs:element name="Critical" type="xs:string"/>
+                    <xs:element name="List_of_Proc_Parameters" minOccurs="1" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Proc_Parameter" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="Name" type="xs:string"/>
+                                <xs:element name="Default_Value" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Cfg_Files">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Cfg_File" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="Cfg_ID" type="xs:string"/>
+                                <xs:element name="Cfg_File_Name" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Inputs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Input" minOccurs="1" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="Input_ID" type="xs:string"/>
+                                <xs:element name="Mandatory" type="xs:string"/>
+                                <xs:element name="List_of_Input_Alternatives">
+                                  <xs:complexType>    <!-- TODO: not a complex type?-->
+                                    <xs:sequence>
+                                      <xs:element name="Input_Alternative" minOccurs="1" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="Alternative_ID" type="xs:string"/>
+                                            <xs:element name="List_of_Alternative_Types">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element name="Alternative_Type" minOccurs="1" maxOccurs="unbounded">
+                                                    <xs:complexType>
+                                                      <xs:sequence>                                                      
+                                                        <xs:element name="File_Type" type="xs:string"/>
+                                                        <xs:element name="Origin" type="xs:string"/>
+                                                        <xs:element name="Instances" type="xs:string"/>
+                                                        <xs:element name="Selection_Parameters">
+                                                          <xs:complexType>
+                                                            <xs:sequence>
+                                                              <xs:element name="Temporal_Parameters" minOccurs="0">
+                                                                <xs:complexType>
+                                                                  <xs:sequence>
+                                                                    <xs:element name="Start_Offset" type="xs:integer"/>
+                                                                    <xs:element name="Stop_Offset" type="xs:integer"/>
+                                                                    <xs:element name="Overlap" type="xs:string"/>
+                                                                    <xs:element name="Min_Overlap" type="xs:integer"/>
+                                                                  </xs:sequence>
+                                                                </xs:complexType>
+                                                              </xs:element>
+                                                              <xs:element name="Geospatial_Parameters" minOccurs="0">
+                                                                <xs:complexType>
+                                                                  <xs:sequence>
+                                                                    <xs:element name="Geospatial_Offset" type="xs:float"/>
+                                                                    <xs:element name="Overlap" type="xs:string" minOccurs="0"/> <!-- string with restrictions-->
+                                                                    <xs:element name="Min_Overlap" type="xs:integer"/>
+                                                                  </xs:sequence>
+                                                                </xs:complexType>
+                                                              </xs:element>
+                                                              <xs:element name="List_of_Metadata_Names" minOccurs="0">
+                                                                <xs:complexType>
+                                                                  <xs:sequence>
+                                                                    <xs:element name="Metadata_Name" type="xs:string" maxOccurs="unbounded"/>
+                                                                  </xs:sequence>
+                                                                </xs:complexType>
+                                                              </xs:element>
+                                                            </xs:sequence>
+                                                          </xs:complexType>
+                                                        </xs:element>
+                                                        <xs:element name="Max_Number_of_Files" type="xs:string"/>
+                                                        <xs:element name="Max_Number_to_Plugin" type="xs:string" minOccurs="0"/>
+                                                        <xs:element name="Ordering" type="xs:string"/>
+                                                        <xs:element name="Virtual" type="xs:string" minOccurs="0"/>
+                                                      </xs:sequence>
+                                                    </xs:complexType>
+                                                  </xs:element>
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="Filter_Algorithm" type="xs:string" minOccurs="0"/>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Outputs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Output" minOccurs="1" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="File_Type" type="xs:string"/>
+                                <xs:element name="File_Name_Pattern" type="xs:string"/>
+                                <xs:element name="Destination" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Intermediate_Outputs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Intermediate_Output" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="Intermediate_Output_ID" type="xs:string"/>
+                                <xs:element name="Intermediate_Output_File" type="xs:string"/>
+                                <xs:element name="Intermediate_Output_Description" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Exit_Codes">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Exit_Code" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>    <!-- TODO: not a complex type?-->
+                              <xs:sequence>
+                                <xs:element name="Value" type="xs:nonNegativeInteger"/>
+                                <xs:element name="Description" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

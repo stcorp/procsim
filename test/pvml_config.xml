@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<pvmlConfig>
+  <name>Biomass</name>
+  <taskTablePath>tasktables</taskTablePath>
+  <workspaceDirectory>workspace</workspaceDirectory>
+  <taskTableSchema>test/tasktable.xsd</taskTableSchema>
+  <jobOrderSchema>test/joborder.xsd</jobOrderSchema>
+  <processingStation>GAT</processingStation>  <!-- This value will be used to populate the corresponding entry in the JobOrder file.-->
+  <splitLoggingLevel>false</splitLoggingLevel>
+  <globalBreakpointEnable>false</globalBreakpointEnable>
+  <alternateBreakpointElementName>true</alternateBreakpointElementName>
+  <useTroubleshooting>true</useTroubleshooting>
+  <listFilenameUsesOrderId>false</listFilenameUsesOrderId>
+  <productTypes>
+    <!-- For each product type that is included in a TaskTable where `Destination=DB`, there should be an entry -->
+    <!-- Note: the productType names are file_types in the task tables! Consider renaming...-->
+    <productType name="CEOS_PRI">
+      <matchExpression><![CDATA[.*CEOS_PRI.*]]></matchExpression>
+    </productType>
+    <productType name="CEOS_RAW">
+      <matchExpression><![CDATA[.*CEOS_RAW.*]]></matchExpression>
+    </productType>
+    <productType name="CEOS_SLC">
+      <matchExpression><![CDATA[.*CEOS_SLC.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IM__0P">
+      <matchExpression><![CDATA[.*SAR_IM__0P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IMP_0P">
+      <matchExpression><![CDATA[.*SAR_IMP_0P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IM__BP">
+      <matchExpression><![CDATA[.*SAR_IM__BP.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IMG_1P">
+      <matchExpression><![CDATA[.*SAR_IMG_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IMM_1P">
+      <matchExpression><![CDATA[.*SAR_IMM_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IMP_1P">
+      <matchExpression><![CDATA[.*SAR_IMP_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_IMS_1P">
+      <matchExpression><![CDATA[.*SAR_IMS_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_WVI_1P">
+      <matchExpression><![CDATA[.*SAR_WVI_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_WVS_1P">
+      <matchExpression><![CDATA[.*SAR_WVS_1P.*]]></matchExpression>
+    </productType>
+    <productType name="SAR_WVW_2P">
+      <matchExpression><![CDATA[.*SAR_WVW_2P.*]]></matchExpression>
+    </productType>
+    <!-- these entries below need to be replaced by an official file type -->
+    <productType name="TAR">
+      <matchExpression><![CDATA[.*\.tar$]]></matchExpression>
+    </productType>
+    <productType name="HEADER">
+      <matchExpression><![CDATA[.*\.header$]]></matchExpression>
+    </productType>
+    <productType name="PS">
+      <matchExpression><![CDATA[.*\.ps$]]></matchExpression>
+    </productType>
+
+    <!-- Biomass -->
+    <!-- TODO: When/where are these types used?? -->
+    <productType name="RAW___HKTM">
+      <matchExpression><![CDATA[.*RAW___HKTM.*]]></matchExpression>
+    </productType>
+    <productType name="BIO_RAW">
+      <matchExpression><![CDATA[.*RAW_[0-9]{3}_[0-9]{2}.*]]></matchExpression>
+    </productType>
+    <productType name="BIO_RAWS">
+      <matchExpression><![CDATA[.*RAWS[0-9]{3}_[0-9]{2}.*]]></matchExpression>
+    </productType>
+
+  </productTypes>
+</pvmlConfig>

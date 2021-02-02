@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="Ipf_Job_Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Ipf_Conf">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Processor_Name" type="xs:string"/>
+              <xs:element name="Version" type="xs:string"/>
+              <xs:element name="Order_Type">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="OFFL"/>
+                    <xs:enumeration value="OPER"/>
+                    <xs:enumeration value="RPRO"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Logging_Level">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="DEBUG"/>
+                    <xs:enumeration value="INFO"/>
+                    <xs:enumeration value="PROGRESS"/>
+                    <xs:enumeration value="WARNING"/>
+                    <xs:enumeration value="ERROR"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Test" type="xs:boolean"/>
+              <xs:element name="Troubleshooting" type="xs:boolean"/>
+              <xs:element name="Processing_Station" type="xs:string"/>
+              <xs:element name="Config_Files">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Geophysical_Constants" type="xs:string" minOccurs="0"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Sensing_Time">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Start" type="xs:string"/>
+                    <xs:element name="Stop" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Processing_Parameters">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Processing_Parameter" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Name" type="xs:string"/>
+                    <xs:element name="Value" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="List_of_Ipf_Procs">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Ipf_Proc" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Task_Name" type="xs:token"/>
+                    <xs:element name="Task_Version" type="xs:string"/>
+                    <xs:element name="Breakpoint" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Enable" type="xs:string"/>
+                          <xs:element name="List_of_Brk_Files">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Brk_File" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="File_Type" type="xs:string"/>
+                                      <xs:element name="File_Name_Type">
+                                        <xs:simpleType>
+                                          <xs:restriction base="xs:token">
+                                            <xs:enumeration value="Physical"/>
+                                            <xs:enumeration value="Logical"/>
+                                            <xs:enumeration value="Stem"/>
+                                          </xs:restriction>
+                                        </xs:simpleType>
+                                      </xs:element>
+                                      <xs:element name="File_Name" type="xs:token"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Inputs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Input" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="File_Type" type="xs:NMTOKEN"/>
+                                <xs:element name="File_Name_Type">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:token">
+                                      <xs:enumeration value="Physical"/>
+                                      <xs:enumeration value="Logical"/>
+                                      <xs:enumeration value="Regexp"/>
+                                      <xs:enumeration value="Stem"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                                <xs:element name="Input_Source_Data" type="xs:boolean" minOccurs="0"/>
+                                <xs:element name="List_of_File_Names">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="File_Name" type="xs:string" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="count" type="xs:positiveInteger" use="required"/>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="List_of_Time_Intervals">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="Time_Interval" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="Start" type="xs:string"/>
+                                            <xs:element name="Stop" type="xs:string"/>
+                                            <xs:element name="File_Name" type="xs:string"/>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="count" type="xs:nonNegativeInteger" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="List_of_Outputs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Output" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="File_Type" type="xs:string"/>
+                                <xs:element name="File_Name_Type">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:token">
+                                      <xs:enumeration value="Directory"/>
+                                      <xs:enumeration value="Physical"/>
+                                      <xs:enumeration value="Logical"/>
+                                      <xs:enumeration value="Regexp"/>
+                                      <xs:enumeration value="Stem"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                                <xs:element name="File_Name" type="xs:string"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="count" type="xs:positiveInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Processor_Conf">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="File_Name" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
