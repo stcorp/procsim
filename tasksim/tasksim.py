@@ -5,6 +5,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Task simulator for scientific processors.
 Usage: tasksim <task_filename> <jobOrder_filename>
 '''
+from os.path import basename
 import sys
 import datetime
 import os
@@ -94,11 +95,11 @@ class JobOrderParser:
         root = tree.getroot()
         self.processor_name = tree.find(".//Processor_Name").text
         self.processor_version = tree.find(".//Version").text
-        inputs_el = tree.find('//List_of_Inputs')
+        inputs_el = tree.find('.//List_of_Inputs')
         for input_el in inputs_el.findall('Input'):
             for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
                 self.input_files.append(file_el.text)
-        outputs_el = tree.find('//List_of_Outputs')
+        outputs_el = tree.find('.//List_of_Outputs')
         for output_el in outputs_el.findall('Output'):
             output_type = output_el.find('File_Type').text
             output_dir = output_el.find('File_Name').text
@@ -155,8 +156,10 @@ def main():
         job.processor_version,
         job_filename))
 
-    # TODO: Read inputs (optional?)
-    logger.info('Inputs: <to be done>')
+    msg = [os.path.basename(file_name) for file_name in job.input_files]
+    logger.info('Inputs: {}'.format(msg))
+
+    # TODO: Check input files existence (optional)
 
     # TODO: Find fitting scenario.
     # For now, assume Biomass level0 processor
