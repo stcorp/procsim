@@ -12,7 +12,7 @@ mkdir -p data/raw
 python tasksim/raw_generator.py data/raw
 
 # Create workspace root
-mkdir workspace
+mkdir -p workspace
 
 # Run test job
 python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0.xml
