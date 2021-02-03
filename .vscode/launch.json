@@ -10,8 +10,9 @@
             "request": "launch",
             "program": "tasksim/tasksim.py",
             "args": [
-                "dummy",
+                "level0_task1.sh",
                 "workspace/174915/JobOrder.174915.xml",
+                "test/tasksim_config.json",
             ],
             "console": "integratedTerminal"
         },

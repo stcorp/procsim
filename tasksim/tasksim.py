@@ -5,12 +5,14 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Task simulator for scientific processors.
 Usage: tasksim <task_filename> <jobOrder_filename>
 '''
-from os.path import basename
-import sys
 import datetime
+import json
 import os
-from biomass import level0_processor_stub
+import sys
+import time
 from xml.etree import ElementTree as et
+
+from biomass import level0_processor_stub
 
 VERSION = "3.2"
 
@@ -19,9 +21,24 @@ versiontext = "Tasksim v" + VERSION + \
 
 helptext = versiontext + """\
 Usage:
-    tasksim <task_filename> <jobOrder_filename> [options]
+    tasksim <task_filename> <jobOrder_filename> <config_filename>
         Simulate the task as described in the JobOrder file.
 """
+
+
+class ConfigReader:
+    """This class is responsible for reading and parsing the config file."""
+    def __init__(self, filename, logger):
+        self.config = None
+        self.logger = logger
+        self._parse_config_file(filename)
+
+    def _parse_config_file(self, filename):
+        with open(filename) as data_file:
+            try:
+                self.config = json.load(data_file)
+            except json.JSONDecodeError as e:
+                self.logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
 
 
 def print_stderr(*args, **kwargs):
@@ -75,7 +92,7 @@ class Logger:
             print_stdout(*args, **kwargs)
         if level in self.stderr_levels:
             print_stderr(log_prefix, end=' ')
-            print_stderr(args, kwargs)
+            print_stderr(*args, **kwargs)
 
 
 class JobOrderParser:
@@ -109,25 +126,48 @@ class JobOrderParser:
 class WorkSimulator:
     '''This class is responsible for simulating the actual processing,
     by consuming resources'''
-    def __init__(self, logger, time, nr_cpu, memory, disk_space):
+    def __init__(self, logger, task_config):
         self.logger = logger
-        self.time = time
-        self.nr_cpu = nr_cpu
-        self.memory = memory
-        self.disk_space = disk_space
+        self.time = task_config['processing_time']
+        self.nr_cpu = task_config['nr_cpu']
+        self.memory = task_config['memory_usage']
+        self.disk_space = task_config['disk_usage']
 
     def start(self):
         '''Blocks until done (TODO: make non-blocking?)'''
         for progress in range(0, 100, 20):
             self.logger.info('Working, progress {}%'.format(progress))
+            now = time.time()
+            while now + self.time / 5 > time.time():
+                pass
         self.logger.info('Task complete')
+
+
+def get_task_config(cfg, task_file_name):
+    file_name = os.path.basename(task_file_name)
+    for mission_name, mission in cfg.items():
+        for processor_name, proc in mission.items():
+            for task_name, task in proc.items():
+                if task['task_file_name'] == file_name:
+                    return task
+    return None
+
+
+def find_fitting_scenario(task_file_name, cfg, job, logger):
+    # Find out: can we do something with this combination?
+    # 1. The task should be in our config
+    # 2. The input/output as specified in the job should match one of the scenarios
+    task_config = get_task_config(cfg, task_file_name)
+    if task_config is None:
+        logger.error('Task {} is not defined in the configuration'.format(task_file_name))
+        return None
+    print('todo: check scenarios')
+    return task_config
 
 
 def main():
     args = sys.argv[1:]
-    config_filename = None
-    job_filename = None
-    if len(args) == 0 or len(args) > 2:
+    if len(args) == 0 or len(args) > 3:
         print(helptext)
         sys.exit(1)
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":
@@ -136,14 +176,13 @@ def main():
     if sys.argv[1] == "-v" or sys.argv[1] == "--version":
         print(versiontext)
         sys.exit()
-    if len(args) == 2:
-        config_filename = args[0]
+    if len(args) == 3:
+        task_filename = args[0]
         job_filename = args[1]
+        config_filename = args[2]
     else:
         print(helptext)
         sys.exit(1)
-
-    # TODO: Read tasksim configuration for this task
 
     # Parse JobOrder
     job = JobOrderParser(job_filename)
@@ -151,10 +190,18 @@ def main():
     # Create logger
     logger = Logger(job.processor_name,
                     job.processor_version, job.stdout_levels, job.stderr_levels)
-    logger.info('Starting, simulating {} v{}, Job Order {}'.format(
+
+    # Parse configuration.
+    cfg = ConfigReader(config_filename, logger)
+    if cfg.config is None:
+        logger.error('Cannot read tasksim configuration file {}, exiting'.format(config_filename))
+        exit(1)
+
+    logger.info('Starting, simulating Task {} from {} v{}, Job Order {}'.format(
+        os.path.basename(task_filename),
         job.processor_name,
         job.processor_version,
-        job_filename))
+        os.path.basename(job_filename)))
 
     msg = [os.path.basename(file_name) for file_name in job.input_files]
     logger.info('Inputs: {}'.format(msg))
@@ -162,13 +209,17 @@ def main():
     # TODO: Check input files existence (optional)
 
     # TODO: Find fitting scenario.
+    task_config = find_fitting_scenario(task_filename, cfg.config, job, logger)
+    if task_config is None:
+        exit(1)
+
     # For now, assume Biomass level0 processor
     output_path = job.outputs[0]['dir']
     proc = level0_processor_stub.Step1(output_path)
     proc.parse_inputs(job.input_files)
 
     # Simulate work, consume resources
-    worker = WorkSimulator(logger, 0, 1, 0, 0)
+    worker = WorkSimulator(logger, task_config)
     worker.start()
 
     # TODO: Generate output data, according to job order, scenario and configuration
