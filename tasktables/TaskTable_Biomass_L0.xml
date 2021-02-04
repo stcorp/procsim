@@ -59,7 +59,7 @@
       <Killing_Signal>15</Killing_Signal>
       <List_of_Tasks count="3">
         <Task>
-          <Name>INGEST</Name>
+          <Name>Step1</Name>
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
@@ -194,7 +194,7 @@
             <Output>
               <Destination>PROC</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>SAR_WV__0P</File_Type>
+              <File_Type>BIO_RAWS</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>
@@ -488,7 +488,7 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>SAR_WVI_1P</File_Type>
+              <File_Type>BIO_RAWS</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
             <Output>

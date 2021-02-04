@@ -26,6 +26,12 @@ Usage:
 """
 
 
+class Struct(object):
+    """Generic object in which we can set/get any fields we want"""
+    def __repr__(self):
+        return self.__dict__.__repr__()
+
+
 class ConfigReader:
     """This class is responsible for reading and parsing the config file."""
     def __init__(self, filename, logger):
@@ -100,8 +106,7 @@ class JobOrderParser:
     def __init__(self, filename):
         self.processor_name = ''
         self.processor_version = ''
-        self.input_files = []
-        self.outputs = []
+        self.tasks = []
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
@@ -109,18 +114,24 @@ class JobOrderParser:
     def _parse(self, filename):
         # TODO: This is all for 'old style' XML! Replace (or keep, and create additional class)
         tree = et.parse(filename)
-        root = tree.getroot()
         self.processor_name = tree.find(".//Processor_Name").text
         self.processor_version = tree.find(".//Version").text
-        inputs_el = tree.find('.//List_of_Inputs')
-        for input_el in inputs_el.findall('Input'):
-            for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
-                self.input_files.append(file_el.text)
-        outputs_el = tree.find('.//List_of_Outputs')
-        for output_el in outputs_el.findall('Output'):
-            output_type = output_el.find('File_Type').text
-            output_dir = output_el.find('File_Name').text
-            self.outputs.append({'type': output_type, 'dir': output_dir})
+
+        # Build list of tasks
+        for task_el in tree.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
+            task = Struct()
+            task.name = task_el.find('Task_Name').text
+            task.version = task_el.find('Task_Version').text
+            task.input_files = []
+            task.outputs = []
+            for input_el in task_el.find('List_of_Inputs').findall('Input'):
+                for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
+                    task.input_files.append(file_el.text)
+            for output_el in task_el.find('List_of_Outputs').findall('Output'):
+                output_type = output_el.find('File_Type').text
+                output_dir = output_el.find('File_Name').text
+                task.outputs.append({'type': output_type, 'dir': output_dir})
+            self.tasks.append(task)
 
 
 class WorkSimulator:
@@ -143,26 +154,37 @@ class WorkSimulator:
         self.logger.info('Task complete')
 
 
-def get_task_config(cfg, task_file_name):
+def find_task_config(cfg, task_file_name, job: JobOrderParser):
+    # Return the configuration settings and the JobOrder settings for this task.
     file_name = os.path.basename(task_file_name)
     for mission_name, mission in cfg.items():
-        for processor_name, proc in mission.items():
-            for task_name, task in proc.items():
-                if task['task_file_name'] == file_name:
-                    return task
-    return None
+        for processor_name, procn in mission.items():
+            if processor_name != job.processor_name:
+                continue
+            for processor_version, procv in procn.items():
+                if processor_version != job.processor_version:
+                    continue
+                for task_name, taskn in procv.items():
+                    for job_task in job.tasks:
+                        if task_name == job_task.name:
+                            for task_version, task_cfg in taskn.items():
+                                if task_version != job_task.version:
+                                    continue
+                                if task_cfg['task_file_name'] == file_name:
+                                    return task_cfg, job_task
+    return None, None
 
 
 def find_fitting_scenario(task_file_name, cfg, job, logger):
     # Find out: can we do something with this combination?
     # 1. The task should be in our config
     # 2. The input/output as specified in the job should match one of the scenarios
-    task_config = get_task_config(cfg, task_file_name)
+    task_config, job_task = find_task_config(cfg, task_file_name, job)
     if task_config is None:
         logger.error('Task {} is not defined in the configuration'.format(task_file_name))
-        return None
+        return None, None
     print('todo: check scenarios')
-    return task_config
+    return task_config, job_task
 
 
 def main():
@@ -197,26 +219,26 @@ def main():
         logger.error('Cannot read tasksim configuration file {}, exiting'.format(config_filename))
         exit(1)
 
+    # TODO: Find fitting scenario.
+    task_config, job_task = find_fitting_scenario(task_filename, cfg.config, job, logger)
+    if task_config is None:
+        exit(1)
+
+    msg = [os.path.basename(file_name) for file_name in job_task.input_files]
+    logger.info('Inputs: {}'.format(msg))
+
+    # TODO: Check input files existence (optional)
+
     logger.info('Starting, simulating Task {} from {} v{}, Job Order {}'.format(
         os.path.basename(task_filename),
         job.processor_name,
         job.processor_version,
         os.path.basename(job_filename)))
 
-    msg = [os.path.basename(file_name) for file_name in job.input_files]
-    logger.info('Inputs: {}'.format(msg))
-
-    # TODO: Check input files existence (optional)
-
-    # TODO: Find fitting scenario.
-    task_config = find_fitting_scenario(task_filename, cfg.config, job, logger)
-    if task_config is None:
-        exit(1)
-
     # For now, assume Biomass level0 processor
-    output_path = job.outputs[0]['dir']
+    output_path = job_task.outputs[0]['dir']
     proc = level0_processor_stub.Step1(output_path)
-    proc.parse_inputs(job.input_files)
+    proc.parse_inputs(job_task.input_files)
 
     # Simulate work, consume resources
     worker = WorkSimulator(logger, task_config)

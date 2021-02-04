@@ -41,7 +41,7 @@
   configuration file (``task`` entries are mandatory if the task has a
   mandatory input with ``Origin=DB`` and the file backend is used).-->
   <tasks>
-    <task name="INGEST">
+    <task name="Step1">
         <!-- Only inputs for which ``Origin=DB`` in the TaskTable file should be
       described. Whether an input reference is optional or mandatory depends on
       whether the input is defined as Mandatory in the TaskTable file.-->
