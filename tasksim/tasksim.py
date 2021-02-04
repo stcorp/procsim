@@ -6,7 +6,7 @@ Task simulator for scientific processors.
 Usage: tasksim <task_filename> <jobOrder_filename>
 '''
 import datetime
-import json
+import yaml
 import os
 import sys
 import time
@@ -36,9 +36,9 @@ class ConfigReader:
     def _parse_config_file(self, filename):
         with open(filename) as data_file:
             try:
-                self.config = json.load(data_file)
-            except json.JSONDecodeError as e:
-                self.logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
+                self.config = yaml.load(data_file, Loader=yaml.FullLoader)
+            except yaml.YAMLError as e:
+                self.logger.error('Error in configuration file')
 
 
 def print_stderr(*args, **kwargs):
