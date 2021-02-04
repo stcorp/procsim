@@ -7,7 +7,6 @@ Ref: BIO-ESA-EOPG-EEGS-TN-0051
 
 import datetime
 import common
-from dataclasses import dataclass
 from xml.etree import ElementTree as et
 
 mph_namespaces = {
@@ -41,29 +40,29 @@ def _time_as_iso_short(tim):
     return tim.strftime('%Y-%m-%d %H:%M:%S') + 'Z'
 
 
-@dataclass
 class Acquisition:
-    orbit_number: int = 1
-    last_orbit_number: int = 1
-    orbit_direction: str = 'ASCENDING'  # Or DECENDING
-    track_nr: int = 133                 # gml:CodeWithAuthorityType
-    slice_frame_nr = '___'              # or slice/frame number
-    anx_date = datetime.datetime.now()
-    start_time: int = 0                 # in ms since ANX
-    completion_time: int = 0            # in ms since ANX
-    polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
-    polarisation_mode: str = 'Q'        # FIXED
-    antenna_direction: str = 'LEFT'     # FIXED
-    mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
-    instrument_config_id: int = 1
-    data_take_id: int = 0
-    orbit_drift_flag: bool = False
-    global_coverage_id: str = 'NA'      # 1..6 or DR, refer to PDGS Products Naming Convention document
-    major_cycle_id: str = '1'           # 1..7, refer to PDGS Products Naming Convention document
-    repeat_cycle_id: str = 'DR'         # 1..7 or DR, refer to PDGS Products Naming Convention document
+    def __init__(self):
+        self.orbit_number: int = 1
+        self.last_orbit_number: int = 1
+        self.orbit_direction: str = 'ASCENDING'  # Or DECENDING
+        self.track_nr: int = 133                 # gml:CodeWithAuthorityType
+        self.slice_frame_nr = '___'              # or slice/frame number
+        self.anx_date = datetime.datetime.now()
+        self.start_time: int = 0                 # in ms since ANX
+        self.completion_time: int = 0            # in ms since ANX
+        self.polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
+        self.polarisation_mode: str = 'Q'        # FIXED
+        self.antenna_direction: str = 'LEFT'     # FIXED
+        self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
+        self.instrument_config_id: int = 1
+        self.data_take_id: int = 0
+        self.orbit_drift_flag: bool = False
+        self.global_coverage_id: str = 'NA'      # 1..6 or DR, refer to PDGS Products Naming Convention document
+        self.major_cycle_id: str = '1'           # 1..7, refer to PDGS Products Naming Convention document
+        self.repeat_cycle_id: str = 'DR'         # 1..7 or DR, refer to PDGS Products Naming Convention document
 
-    observed_property: str = ''
-    feature_of_interest: str = ''
+        self.observed_property: str = ''
+        self.feature_of_interest: str = ''
 
 
 class MainProductHeader:
