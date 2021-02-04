@@ -37,7 +37,6 @@ class Step1():
             tslice = constants.SLICE_DURATION
             if tstart + tslice > tend:
                 tslice = tend - tstart
-            print('Generate slice from {} len {}'.format(tstart, tslice))
             name_gen = product_name.ProductName()
             name_gen.setup(self.output_type, tstart, tstart + tslice, self.downlink, self.baseline_id)
             self.hdr.eop_identifier = name_gen.generate_path()
@@ -55,7 +54,6 @@ class Step1():
             print('Created directory {}'.format(dir_name))
 
             tstart += tslice
-            pass
 
     def parse_inputs(self, input_files):
         # Extract information from input files.
