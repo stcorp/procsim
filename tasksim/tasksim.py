@@ -26,12 +26,6 @@ Usage:
 """
 
 
-class Struct(object):
-    """Generic object in which we can set/get any fields we want"""
-    def __repr__(self):
-        return self.__dict__.__repr__()
-
-
 class ConfigReader:
     """This class is responsible for reading and parsing the config file."""
     def __init__(self, filename, logger):
@@ -119,7 +113,7 @@ class JobOrderParser:
 
         # Build list of tasks
         for task_el in tree.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
-            task = Struct()
+            task = lambda: 0
             task.name = task_el.find('Task_Name').text
             task.version = task_el.find('Task_Version').text
             task.input_files = []
