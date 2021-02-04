@@ -63,7 +63,7 @@
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../tasksim/level0_task1.sh</File_Name>
+          <File_Name>../../test/level0_task1.sh</File_Name>
           <List_of_Inputs count="4">
             <Input>
               <Mode>ALWAYS</Mode>
@@ -205,7 +205,7 @@
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../tasksim/ProcessStart.sh</File_Name>
+          <File_Name>../../test/ProcessStart.sh</File_Name>
           <List_of_Inputs count="8">
             <Input>
               <Mode>ALWAYS</Mode>
@@ -433,7 +433,7 @@
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../tasksim/OutputStart.sh</File_Name>
+          <File_Name>../../test/OutputStart.sh</File_Name>
           <List_of_Inputs count="3">
             <Input>
               <Mode>ALWAYS</Mode>
