@@ -3,7 +3,6 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 
 Task simulator for scientific processors.
-Usage: tasksim <task_filename> <jobOrder_filename>
 '''
 import datetime
 import json
@@ -12,6 +11,7 @@ import sys
 import time
 from xml.etree import ElementTree as et
 
+# TODO: Import must be dynamic, based on config and job order.
 from biomass import level0_processor_stub
 
 VERSION = "3.2"
@@ -50,11 +50,13 @@ def print_stdout(*args, **kwargs):
 
 
 class Logger:
-    def __init__(self, processor_name, processor_version, stdout_levels, stderr_levels):
-        self.node_name = 'mynode'            # Read from Job order!
+    '''This class is responsible for generating Log messages on stdout and
+    stderr, formatted according to ESA-EOPG-EEGS-ID-0083.'''
+    def __init__(self, node_name, processor_name, processor_version, task_name, stdout_levels, stderr_levels):
+        self.node_name = node_name
         self.processor_name = processor_name
         self.processor_version = processor_version
-        self.task_name = 'mytask'            # Read from config
+        self.task_name = task_name
         self.pid = os.getpid()
         self.header_separator = ':'
         self.stdout_levels = stdout_levels
@@ -96,17 +98,19 @@ class Logger:
 
 
 class JobOrderParser:
-    '''This class is responsible for reading and parsing the JobOrder'''
+    '''This class is responsible for reading and parsing the JobOrder.
+       TODO: This is all for 'old style' XML! Replace (or keep, and create additional class)'''
+
     def __init__(self, filename):
         self.processor_name = ''
         self.processor_version = ''
+        self.node = 'TODO'  # Not in this version of the XML
         self.tasks = []
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
 
     def _parse(self, filename):
-        # TODO: This is all for 'old style' XML! Replace (or keep, and create additional class)
         tree = et.parse(filename)
         self.processor_name = tree.find(".//Processor_Name").text
         self.processor_version = tree.find(".//Version").text
@@ -177,7 +181,6 @@ def find_fitting_scenario(task_file_name, cfg, job, logger):
     if task_config is None:
         logger.error('Task {} is not defined in the configuration'.format(task_file_name))
         return None, None
-    print('todo: check scenarios')
     return task_config, job_task
 
 
@@ -204,8 +207,14 @@ def main():
     job = JobOrderParser(job_filename)
 
     # Create logger
-    logger = Logger(job.processor_name,
-                    job.processor_version, job.stdout_levels, job.stderr_levels)
+    logger = Logger(
+        job.node,
+        job.processor_name,
+        job.processor_version,
+        'Unknown',
+        job.stdout_levels,
+        job.stderr_levels
+    )
 
     # Parse configuration.
     cfg = ConfigReader(config_filename, logger)
@@ -217,6 +226,8 @@ def main():
     task_config, job_task = find_fitting_scenario(task_filename, cfg.config, job, logger)
     if task_config is None:
         exit(1)
+
+    logger.task_name = job_task.name    # This info was not available before
 
     msg = [os.path.basename(file_name) for file_name in job_task.input_files]
     logger.info('Inputs: {}'.format(msg))
@@ -243,7 +254,6 @@ def main():
     logger.info('Outputs generated: <to be done>')
 
     exit_code = 0   # 0=ok, 1-127=warning, 128-255=failure
-    # logger.info('Stopping, returns {}'.format(exit_code))
     exit(exit_code)
 
 
