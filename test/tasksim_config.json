@@ -1,24 +1,22 @@
 {
-  "biomass":
-  {
-    "BIOMASS_Level0_processor":
+  "mission": "biomass",
+  "processors": [
     {
-      "01.01":
-      {
-        "Step1":
+      "name": "BIOMASS_Level0_processor",
+      "version": "01.01",
+      "tasks": [
         {
-          "05.03L01":
-          {
-            "task_file_name": "level0_task1.sh",
-            "processing_time": 5,
-            "nr_cpu": 1,
-            "memory_usage": 4000000,
-            "disk_usage": 0,
-            "output_file_size": 1000000,
-            "exit_code": 0
-          }
+          "name": "Step1",
+          "version": "05.03L01",
+          "file_name": "level0_task1.sh",
+          "processing_time": 5,
+          "nr_cpu": 1,
+          "memory_usage": 4000000,
+          "disk_usage": 0,
+          "output_file_size": 1000000,
+          "exit_code": 0
         }
-      }
+      ]
     }
-  }
+  ]
 }

@@ -26,19 +26,34 @@ Usage:
 """
 
 
-class ConfigReader:
-    """This class is responsible for reading and parsing the config file."""
-    def __init__(self, filename, logger):
-        self.config = None
-        self.logger = logger
-        self._parse_config_file(filename)
-
-    def _parse_config_file(self, filename):
-        with open(filename) as data_file:
-            try:
-                self.config = json.load(data_file)
-            except json.JSONDecodeError as e:
-                self.logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
+def read_config(filename, logger):
+    # Load configuration and check for correctness.
+    ROOT_KEYS = ['processors', 'mission']
+    PROCESSOR_KEYS = ['name', 'version', 'tasks']
+    TASK_KEYS = ['name', 'version', 'file_name', 'processing_time', 'nr_cpu',
+                 'memory_usage', 'disk_usage', 'output_file_size', 'exit_code']
+    with open(filename) as data_file:
+        try:
+            config = json.load(data_file)
+            is_ok = True
+            if set(config.keys()) == set(ROOT_KEYS):
+                for proc in config['processors']:
+                    if set(proc) != set(PROCESSOR_KEYS):
+                        is_ok = False
+                        break
+                    for task in proc['tasks']:
+                        if set(task) != set(TASK_KEYS):
+                            is_ok = False
+                            break
+            else:
+                is_ok = False
+            if not is_ok:
+                logger.error('Configuration file incomplete')
+                return None
+            return config
+        except json.JSONDecodeError as e:
+            logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
+    return None
 
 
 def print_stderr(*args, **kwargs):
@@ -112,8 +127,8 @@ class JobOrderParser:
 
     def _parse(self, filename):
         tree = et.parse(filename)
-        self.processor_name = tree.find(".//Processor_Name").text
-        self.processor_version = tree.find(".//Version").text
+        self.processor_name = tree.find('.//Processor_Name').text
+        self.processor_version = tree.find('.//Version').text
 
         # Build list of tasks
         for task_el in tree.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
@@ -153,23 +168,16 @@ class WorkSimulator:
 
 
 def find_task_config(cfg, task_file_name, job: JobOrderParser):
-    # Return the configuration settings and the JobOrder settings for this task.
+    # Parse configuration, find configuration and job ordersettings for this Task.
     file_name = os.path.basename(task_file_name)
-    for mission_name, mission in cfg.items():
-        for processor_name, procn in mission.items():
-            if processor_name != job.processor_name:
-                continue
-            for processor_version, procv in procn.items():
-                if processor_version != job.processor_version:
-                    continue
-                for task_name, taskn in procv.items():
-                    for job_task in job.tasks:
-                        if task_name == job_task.name:
-                            for task_version, task_cfg in taskn.items():
-                                if task_version != job_task.version:
-                                    continue
-                                if task_cfg['task_file_name'] == file_name:
-                                    return task_cfg, job_task
+    for cfg_proc in cfg['processors']:
+        if cfg_proc['name'] != job.processor_name or cfg_proc['version'] != job.processor_version:
+            continue
+        for cfg_task in cfg_proc['tasks']:
+            for job_task in job.tasks:
+                if cfg_task['name'] == job_task.name and cfg_task['version'] == job_task.version:
+                    if cfg_task['file_name'] == file_name:
+                        return cfg_task, job_task
     return None, None
 
 
@@ -217,13 +225,13 @@ def main():
     )
 
     # Parse configuration.
-    cfg = ConfigReader(config_filename, logger)
-    if cfg.config is None:
+    cfg = read_config(config_filename, logger)
+    if cfg is None:
         logger.error('Cannot read tasksim configuration file {}, exiting'.format(config_filename))
         exit(1)
 
     # TODO: Find fitting scenario.
-    task_config, job_task = find_fitting_scenario(task_filename, cfg.config, job, logger)
+    task_config, job_task = find_fitting_scenario(task_filename, cfg, job, logger)
     if task_config is None:
         exit(1)
 
