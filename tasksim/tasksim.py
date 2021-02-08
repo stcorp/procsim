@@ -244,12 +244,12 @@ def main():
     cfg = read_config(config_filename, logger)
     if cfg is None:
         logger.error('Cannot read tasksim configuration file {}, exiting'.format(config_filename))
-        exit(1)
+        sys.exit(1)
 
     # TODO: Find fitting scenario.
     task_config, job_task = find_fitting_scenario(task_filename, cfg, job, logger)
     if task_config is None:
-        exit(1)
+        sys.exit(1)
 
     logger.task_name = job_task.name    # This info was not available before
 
