@@ -47,22 +47,55 @@ class ProductName:
         self.baseline_identifier: int
         self.create_date: datetime.datetime
 
+    def _get_level(self):
+        # Return either 'raw' or 'level0_1_2a
+        pattern_raw = 'RAW[_S][0-9]{3}_[0-9]{2}'
+        pattern_l012 = ['S[123]_RAW__0[SM]', 'RO_RAW__0[SM]', 'EC_RAW__0[SM]']
+        if self.file_type == 'RAW___HKTM' or re.match(pattern_raw, self.file_type):
+            return 'raw'
+        for pattern in pattern_l012:
+            if re.match(pattern, self.file_type):
+                return 'level0_1_2a'
+
+    def _parse_raw(self, file):
+        self.start_time = str_to_datetime(file[15:30])
+        self.stop_time = str_to_datetime(file[31:46])
+        self.downlink_time = str_to_datetime(file[48:63])
+        self.baseline_identifier = int(file[64:66])
+        self.compact_create_date = file[67:73]
+
+    def _parse_level0_1_2a(self, file):
+        # Format:
+        # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
+        # We can't split using 'split', as the IDs can also contain underscores!
+        self.start_time = str_to_datetime(file[15:30])
+        self.stop_time = str_to_datetime(file[31:46])
+        self.mission_phase_id = file[47]
+        self.global_coverage_id = file[49:51]
+        self.major_cycle_id = file[53:55]
+        self.repeat_cycle_id = file[57:59]
+        self.track_nr = file[61:64]
+        self.frame_slice_nr = file[66:69]
+        self.baseline_identifier = int(file[70:72])
+        self.compact_create_date = file[73:79]
+
     def parse_path(self, path):
         # Extract parameters from path name, return True if succesfull.
         file = os.path.basename(path)
         if file[0:3] != self.SATELLITE_ID:
             return False
         self.file_type = file[4:14]
-        pattern = 'RAW_[0-9]{3}_[0-9]{2}'
-        if re.match(pattern, self.file_type):
-            self.start_time = str_to_datetime(file[15:30])
-            self.stop_time = str_to_datetime(file[31:46])
-            self.downlink_time = str_to_datetime(file[48:63])
-            self.baseline_identifier = int(file[64:66])
-            self.compact_create_date = file[67:73]
+        level = self._get_level()
+        if level == 'raw':
+            self._parse_raw(file)
+        elif level == 'level0_1_2a':
+            self._parse_level0_1_2a(file)
+        else:
+            return False
         return True
 
     def _generate_prefix(self):
+        # First part is the same for all types
         # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_
         name = '{}_{}_{}_{}_'\
             .format(self.SATELLITE_ID,
@@ -71,8 +104,9 @@ class ProductName:
                     self.stop_time.strftime('%Y%m%dT%H%M%S'))
         return name
 
-    # def generate_l0l1(self):
-    #     return self._generate_prefix() + '<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>'
+    def generate_l0l1(self):
+        return self._generate_prefix() + '<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>'
+
     def setup(self, file_type, tstart, tstop, tdownlink, baseline_id):
         # Todo: combine with generate path and generate mph etc.
         self.file_type = file_type
