@@ -7,6 +7,7 @@ Task simulator for scientific processors.
 import datetime
 import json
 import os
+import re
 import sys
 import time
 from xml.etree import ElementTree as et
@@ -125,6 +126,16 @@ class JobOrderParser:
         self.stderr_levels = ['WARNING', 'ERROR']
         self._parse(filename)
 
+    def _find_matching_files(self, pattern):
+        # Return list of all files matching 'pattern'.
+        # For now, assume the path is 'fixed' and the regex does not contiain slashes.
+        rootdir = os.path.dirname(os.path.abspath(pattern))
+        files = []
+        for file in os.scandir(rootdir):
+            if re.match(pattern, file.path):
+                files.append(file.path)
+        return files
+
     def _parse(self, filename):
         tree = et.parse(filename)
         self.processor_name = tree.find('.//Processor_Name').text
@@ -138,8 +149,12 @@ class JobOrderParser:
             task.input_files = []
             task.outputs = []
             for input_el in task_el.find('List_of_Inputs').findall('Input'):
+                file_name_type = input_el.find('File_Name_Type')
                 for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
-                    task.input_files.append(file_el.text)
+                    if file_name_type is not None and file_name_type.text == 'Regexp':
+                        task.input_files.extend(self._find_matching_files(file_el.text))
+                    else:
+                        task.input_files.append(file_el.text)
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
                 output_type = output_el.find('File_Type').text
                 output_dir = output_el.find('File_Name').text
