@@ -216,6 +216,7 @@
                                                             <xs:restriction base="xs:string">
                                                               <xs:enumeration value="Physical"/>
                                                               <xs:enumeration value="Stem"/>
+                                                              <xs:enumeration value="Regexp"/>
                                                             </xs:restriction>
                                                           </xs:simpleType>
                                                         </xs:element>
