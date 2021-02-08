@@ -69,7 +69,6 @@ class RawProductGenerator:
         # Fill in some fixed data
         self.hdr.acquisition_station = ''
         acq = self.hdr.acquisitions[0]
-        acq.anx_date = constants.ANX
 
     def _generate_bin_file(self, file_name):
         file = open(file_name, 'w')
@@ -113,7 +112,7 @@ class RawProductGenerator:
 
     def generate(self, start_time: datetime.datetime, end_time: datetime.datetime):
         '''Generate raw data file(s) over the specified period'''
-        self.orbit_nr = int((start_time - constants.ANX).total_seconds() / constants.ORBIT_DURATION.total_seconds())
+        self.orbit_nr = int((start_time - constants.ORBIT0_START).total_seconds() / constants.ORBIT_DURATION.total_seconds())
         data_take_start = constants.ORBIT_DURATION / 4
         max_data_takes = 5
         data_take_duration = datetime.timedelta(0, 300)  # 'several minutes'
