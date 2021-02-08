@@ -122,8 +122,9 @@ class JobOrderParser:
         self.processor_version = ''
         self.node = 'TODO'  # Not in this version of the XML
         self.tasks = []
+        # TODO: hard coded for now, get from new-style job orders
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
-        self.stderr_levels = ['WARNING', 'ERROR']
+        self.stderr_levels = []
         self._parse(filename)
 
     def _find_matching_files(self, pattern):
