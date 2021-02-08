@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Task Table XML Schema, according to ESA-EOPG-EEGS-ID-0083 -->
+<!-- Task Table XML Schema, according to ESA-EOPG-EEGS-ID-0083.
+     TODO: check, add enumerations. -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" attributeFormDefault="unqualified">
   <xs:element name="Task_Table"> <!-- TODO: add attribs? -->
     <xs:complexType>
