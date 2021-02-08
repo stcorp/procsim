@@ -5,6 +5,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Task simulator for scientific processors.
 '''
 import datetime
+import importlib
 import json
 import os
 import re
@@ -12,8 +13,6 @@ import sys
 import time
 from xml.etree import ElementTree as et
 
-# TODO: Import must be dynamic, based on config and job order.
-from biomass import level0_processor_stub
 
 VERSION = "3.2"
 
@@ -55,6 +54,22 @@ def read_config(filename, logger):
         except json.JSONDecodeError as e:
             logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
     return None
+
+
+def TaskFactory(mission, processor, task, logger):
+    '''Return a Task class for the given parameters.'''
+    try:
+        mod = importlib.import_module(mission + '.' + processor)
+    except ImportError:
+        logger.error('Cannot find plugin for mission {}'.format(mission))
+        return None
+    try:
+        task_class = getattr(mod, task)
+    except AttributeError:
+        logger.error('Processor {} for plugin {} has no task {}'.format(
+            mission, processor, task))
+        return None
+    return task_class
 
 
 def print_stderr(*args, **kwargs):
@@ -264,10 +279,13 @@ def main():
         job.processor_version,
         os.path.basename(job_filename)))
 
-    # For now, assume Biomass level0 processor
     output_path = job_task.outputs[0]['dir']
-    proc = level0_processor_stub.Step1(output_path)
-    proc.parse_inputs(job_task.input_files)
+    proc_class = TaskFactory(cfg['mission'], job.processor_name, job_task.name, logger)
+    if (proc_class is None):
+        sys.exit(1)
+    proc = proc_class(output_path, logger)
+    if not proc.parse_inputs(job_task.input_files):
+        sys.exit(1)
 
     # Simulate work, consume resources
     worker = WorkSimulator(logger, task_config)

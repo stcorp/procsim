@@ -4,7 +4,7 @@
   
   <!-- This is the name of the processor. It is used, together with
   `processorVersion`, to find the appropriate TaskTable file for the job.-->
-  <processorName>BIOMASS_Level0_processor</processorName>
+  <processorName>level0</processorName>
   <processorVersion>01.01</processorVersion>
 
   <!--mode : optional
@@ -49,31 +49,48 @@
         
         <!--The ``product_type`` attribute can be omitted if the PVML global config
         file contains a match expression for the specific product type.-->
-        <input product_type="BIO_RAW_TYPE">
 
-          <!-- An input of a specific product type can consist of one or more products.
-          For each product a full path to the file should be provided. PVML will
-          copy the file to the workspace directory before executing the processor.
-          When a file needs to have an accompanying entry in the
-          ``List_of_Time_Intervals`` section (each file will have its own time
-          interval), then you should provide start and stop attributes containing
-          ISO8601 time references (without time zone indicator) to provide the
-          start/stop times. When the TaskTable entry for the product uses ``Stem``
-          for ``File_Name_Type`` you should provide this stem for the ``file``
-          parameter. Any file that starts with this stem will then be copied to the
-          workspace directory.-->
+        <!-- An input of a specific product type can consist of one or more products.
+        For each product a full path to the file should be provided. PVML will
+        copy the file to the workspace directory before executing the processor.
+        When a file needs to have an accompanying entry in the
+        ``List_of_Time_Intervals`` section (each file will have its own time
+        interval), then you should provide start and stop attributes containing
+        ISO8601 time references (without time zone indicator) to provide the
+        start/stop times. When the TaskTable entry for the product uses ``Stem``
+        for ``File_Name_Type`` you should provide this stem for the ``file``
+        parameter. Any file that starts with this stem will then be copied to the
+        workspace directory.-->
 
-          <!-- The ``start`` and ``stop`` attributes are optional. If the attributes are
-          not set and the PVML global config file contains start/stop time
-          expressions for this product type, then these expressions will be used to
-          determine the start/stop time values. Otherwise, no start/stop time will
-          be associated to the input file.-->
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T022243_20210201T022743_D20210201T031621_01_B077R9</file>
+        <!-- The ``start`` and ``stop`` attributes are optional. If the attributes are
+        not set and the PVML global config file contains start/stop time
+        expressions for this product type, then these expressions will be used to
+        determine the start/stop time values. Otherwise, no start/stop time will
+        be associated to the input file.-->
+
+        <!--
+        <input product_type="RAW_022_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B0737M</file>
         </input>
+        <input product_type="RAW_023_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B0737M</file>
+        </input>
+        -->
 
+        <!--
+        <input product_type="RAW_025_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_B0737M</file>
+        </input>
+        -->
+
+        <input product_type="RAW_026_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_B0737M</file>
+        </input>
+        <!--
         <input product_type="AUX_CN0_AX">
           <file>data/AUX_CN0_AX/AUX_CN0_AXVIEC20030723_000000_19910101_000000_20101231_235959</file>
         </input>
+        -->
 
       </inputs>
       <exitCode>0</exitCode>
