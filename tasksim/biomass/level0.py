@@ -32,10 +32,18 @@ class Step1():
     def _generate_sliced_output(self, type):
         '''Generate slices for this data take. Slices start and stop on a fixed
         grid, so the first and last slice of a data take can be truncated.'''
+
+        # TODO: Move to constants
+        NON_SLICED_TYPES = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10']
+
         tstart = self.start
         tend = self.stop
+        if (type in NON_SLICED_TYPES):
+            slice_size = tend - tstart
+        else:
+            slice_size = constants.SLICE_DURATION
         while tstart < tend:
-            tslice = constants.SLICE_DURATION
+            tslice = slice_size
             if tstart + tslice > tend:
                 tslice = tend - tstart
             name_gen = product_name.ProductName()
