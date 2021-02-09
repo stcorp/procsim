@@ -81,7 +81,7 @@ class RawProductGenerator:
         file_type = get_science_data_file_type(self.mode, 'V')
         self._write_product(file_type, tstart, tend, tdownlink)
 
-    def _generate_housekeeping(self, tstart, tend, tdownlink):
+    def _generate_anc_hk(self, tstart, tend, tdownlink):
         # Generate housekeeping and ancillary data
         file_type = get_housekeeping_type()
         self._write_product(file_type, tstart, tend, tdownlink)
@@ -89,7 +89,7 @@ class RawProductGenerator:
         self._write_product(file_type, tstart, tend, tdownlink)
         file_type = get_ancillary_data_file_type('INSTRUMENT_ANC', 'H')
         self._write_product(file_type, tstart, tend, tdownlink)
-        file_type = get_ancillary_data_file_type('INSTRUMENT_ANC', 'H')
+        file_type = get_ancillary_data_file_type('INSTRUMENT_ANC', 'V')
         self._write_product(file_type, tstart, tend, tdownlink)
 
     def _write_product(self, file_type, start, stop, downlink):
@@ -121,7 +121,7 @@ class RawProductGenerator:
         # Assume tdonwlink is at the start of the next orbit.
         while (start_time < end_time):
             tdownlink = start_time + constants.ORBIT_DURATION
-            self._generate_housekeeping(start_time, start_time + constants.ORBIT_DURATION, tdownlink)
+            self._generate_anc_hk(start_time, start_time + constants.ORBIT_DURATION, tdownlink)
             orbit_time = data_take_start
             nr_data_takes = 0
             while orbit_time + data_take_duration < constants.ORBIT_DURATION and nr_data_takes < max_data_takes:
