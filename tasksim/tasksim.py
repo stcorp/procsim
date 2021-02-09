@@ -58,6 +58,8 @@ def read_config(filename, logger):
 
 def TaskFactory(mission, processor, task, logger):
     '''Return a Task class for the given parameters.'''
+    # HACK!
+    processor = 'level0'
     try:
         mod = importlib.import_module(mission + '.' + processor)
     except ImportError:

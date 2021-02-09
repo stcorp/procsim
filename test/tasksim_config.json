@@ -15,7 +15,13 @@
           "disk_usage": 0,
           "output_file_size": 1000000,
           "exit_code": 0
-        },
+        }
+      ]
+    },
+    {
+      "name": "level0_step2",
+      "version": "01.01",
+      "tasks": [
         {
           "name": "Step2",
           "version": "05.03L01",

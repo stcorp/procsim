@@ -57,18 +57,18 @@
     <Pool>
       <Detached>false</Detached>
       <Killing_Signal>15</Killing_Signal>
-      <List_of_Tasks count="3">
+      <List_of_Tasks count="1">
         <Task>
           <Name>Step1</Name>
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
           <File_Name>../../test/level0_task1.sh</File_Name>
-          <List_of_Inputs count="4">
+          <List_of_Inputs count="1">
             <Input>
               <Mode>ALWAYS</Mode>
               <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="4">
+              <List_of_Alternatives count="9">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -164,7 +164,7 @@
           </List_of_Inputs>
           <List_of_Outputs count="1">
             <Output>
-              <Destination>PROC</Destination>
+              <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
               <!-- Todo: this is a 'wildcard' type (can be either 22, 23, 24..36). Is this correct? Must be a regex? -->
               <File_Type>RAWSxxx_10</File_Type>
@@ -172,183 +172,6 @@
             </Output>
           </List_of_Outputs>
           <List_of_Breakpoints count="0"> </List_of_Breakpoints>
-        </Task>
-        <!-- Step2, 'measurement mode' (=stripmap).
-        What to do with the other modes? Create multiple tasks, with the same executable but another names, for every mode? -->
-        <Task>
-          <Name>Step2</Name>
-          <Version>05.03L01</Version>
-          <Critical>true</Critical>
-          <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../test/level0_task2.sh</File_Name>
-          <List_of_Inputs count="4">
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-
-                  <File_Type>RAWS025_10</File_Type> <!-- instrument science V -->
-                  <File_Name_Type>Regexp</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAWS026_10</File_Type> <!-- instrument science V -->
-                  <File_Name_Type>Regexp</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAWS023_10</File_Type>  <!-- instrument ancillary packet H -->
-                  <File_Name_Type>Regexp</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAWS024_10</File_Type>  <!-- instrument ancillary packet H -->
-                  <File_Name_Type>Regexp</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-          </List_of_Inputs>
-          <List_of_Outputs count="2">
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>Sx_RAW__0S</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DBPROC</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>Sx_RAWP_0M</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-          </List_of_Outputs>
-          <List_of_Breakpoints count="0"> </List_of_Breakpoints>
-        </Task>
-
-        <!-- TODO: Step 3, etc.-->
-        <Task>
-          <Name>OUTPUT</Name>
-          <Version>05.03L01</Version>
-          <Critical>true</Critical>
-          <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../test/OutputStart.sh</File_Name>
-          <List_of_Inputs count="3">
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>SAR_WVI_1P</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>SAR_WVS_1P</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>PROC</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>SAR_WVW_2P</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-          </List_of_Inputs>
-          <List_of_Outputs count="4">
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>RAWSxxx_10</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>SAR_WVS_1P</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>SAR_WVW_2P</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>No</Mandatory>
-              <File_Type>TAR</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-          </List_of_Outputs>
-          <List_of_Breakpoints count="0"/>
         </Task>
       </List_of_Tasks>
     </Pool>
