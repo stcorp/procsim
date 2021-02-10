@@ -13,8 +13,7 @@ import sys
 import time
 from xml.etree import ElementTree as et
 
-
-VERSION = "3.2"
+VERSION = "1.0"
 
 versiontext = "Tasksim v" + VERSION + \
     ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
@@ -142,6 +141,7 @@ class JobOrderParser:
         # TODO: hard coded for now, get from new-style job orders
         self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels = []
+        self.processing_parameters = {}
         self._parse(filename)
 
     def _find_matching_files(self, pattern):
@@ -178,6 +178,10 @@ class JobOrderParser:
                 output_dir = output_el.find('File_Name').text
                 task.outputs.append({'type': output_type, 'dir': output_dir})
             self.tasks.append(task)
+
+        # List of processing parameters
+        for param in tree.find('Processing_Parameters').findall('Processing_Parameter'):
+            self.processing_parameters[param.find('Name').text] = param.find('Value').text
 
 
 class WorkSimulator:
@@ -270,12 +274,16 @@ def main():
 
     logger.task_name = job_task.name    # This info was not available before
 
+    # Log processing parameters
+    for param, value in job.processing_parameters.items():
+        logger.info('Processing parameter {} = {}'.format(param, value))
+
     msg = [os.path.basename(file_name) for file_name in job_task.input_files]
     logger.info('Inputs: {}'.format(msg))
 
     # TODO: Check input files existence (optional)
 
-    logger.info('Starting, simulating Task {} from {} v{}, Job Order {}'.format(
+    logger.info('Starting, simulating {} from {} v{}, Order {}'.format(
         os.path.basename(task_filename),
         job.processor_name,
         job.processor_version,
