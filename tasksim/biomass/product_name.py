@@ -40,12 +40,23 @@ class ProductName:
     SATELLITE_ID = 'BIO'   # FIXED
 
     def __init__(self):
+        # Common
         self.file_type: str
         self.start_time: datetime.datetime
         self.stop_time: datetime.datetime
-        self.downlink_time: datetime.datetime
         self.baseline_identifier: int
-        self.create_date: datetime.datetime
+        self.compact_create_date: str
+
+        # Raw only
+        self.downlink_time: datetime.datetime
+
+        # Level 0/1/2a only
+        self.mission_phase_id: str
+        self.global_coverage_id: str
+        self.major_cycle_id: str
+        self.repeat_cycle_id: str
+        self.track_nr: str
+        self.frame_slice_nr: str
 
     def _get_level(self):
         # Return either 'raw' or 'level0_1_2a
@@ -95,7 +106,7 @@ class ProductName:
         return True
 
     def _generate_prefix(self):
-        # First part is the same for all types
+        # First part is the same for raw and level0/1/2a
         # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_
         name = '{}_{}_{}_{}_'\
             .format(self.SATELLITE_ID,
@@ -104,10 +115,9 @@ class ProductName:
                     self.stop_time.strftime('%Y%m%dT%H%M%S'))
         return name
 
-    def generate_l0l1(self):
-        return self._generate_prefix() + '<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>'
-
-    def setup(self, file_type, tstart, tstop, tdownlink, baseline_id):
+    def setup(self, file_type, tstart, tstop, tdownlink, baseline_id,
+              mission_phase_id='C', global_coverage_id='__', major_cycle_id='__',
+              repeat_cycle_id='__', track_nr='___', frame_slice_nr='___'):
         # Todo: combine with generate path and generate mph etc.
         self.file_type = file_type
         self.start_time = tstart
@@ -115,15 +125,36 @@ class ProductName:
         self.downlink_time = tdownlink
         self.baseline_identifier = baseline_id
         self.compact_create_date = get_compact_creation_date(self.downlink_time)    # TODO: for now.
+        self.mission_phase_id = mission_phase_id
+        self.global_coverage_id = global_coverage_id
+        self.major_cycle_id = major_cycle_id
+        self.repeat_cycle_id = repeat_cycle_id
+        self.track_nr = track_nr
+        self.frame_slice_nr = frame_slice_nr
 
     def generate_path(self):
-        # D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
-        name = self._generate_prefix() + 'D{}_{:02}_{}'\
-            .format(
-                self.downlink_time.strftime('%Y%m%dT%H%M%S'),
-                self.baseline_identifier,
-                self.compact_create_date
-            )
+        # Returns directory name
+        if self._get_level() == 'raw':
+            # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
+            name = self._generate_prefix() + 'D{}_{:02}_{}'\
+                .format(
+                    self.downlink_time.strftime('%Y%m%dT%H%M%S'),
+                    self.baseline_identifier,
+                    self.compact_create_date
+                )
+        else:
+            # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
+            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}_{:02}_{}'\
+                .format(
+                    self.mission_phase_id,
+                    self.global_coverage_id,
+                    self.major_cycle_id,
+                    self.repeat_cycle_id,
+                    self.track_nr,
+                    self.frame_slice_nr,
+                    self.baseline_identifier,
+                    self.compact_create_date
+                )
         return name
 
     def generate_mph_file_name(self):
