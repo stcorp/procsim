@@ -10,7 +10,7 @@ set -e
 
 # Generate test data
 mkdir -p data/raw
-python3 tasksim/raw_generator.py data/raw
+python3 procsim/raw_generator.py data/raw
 
 mkdir -p data/AUX_CN0_AX
 echo test > data/AUX_CN0_AX/AUX_CN0_AXVIEC20030723_000000_19910101_000000_20101231_235959

@@ -17,12 +17,12 @@ import common
 
 VERSION = "1.0"
 
-versiontext = "Tasksim v" + VERSION + \
+versiontext = "procsim v" + VERSION + \
     ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
 
 helptext = versiontext + """\
 Usage:
-    tasksim <task_filename> <jobOrder_filename> <config_filename>
+    procsim <task_filename> <jobOrder_filename> <config_filename>
         Simulate the task as described in the JobOrder file.
 """
 
@@ -296,7 +296,7 @@ def main():
     # Parse configuration.
     cfg = read_config(config_filename, logger)
     if cfg is None:
-        logger.error('Cannot read tasksim configuration file {}, exiting'.format(config_filename))
+        logger.error('Cannot read configuration file {}, exiting'.format(config_filename))
         sys.exit(1)
 
     # TODO: Find fitting scenario.
