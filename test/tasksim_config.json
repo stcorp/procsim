@@ -13,7 +13,37 @@
           "nr_cpu": 1,
           "memory_usage": 4000000,
           "disk_usage": 0,
-          "output_file_size": 1000000,
+
+          // Experimental:
+          "outputs": [
+            {
+              "type": "RAWS022_10",
+              "bin_file_size": 1000000   // default = 0
+            }
+          ],
+          "logging": [
+            {
+              // Add 'time' option (relative to stub start)? And/or 'at_start' and 'at_end'?
+              "level": "debug",    // or debug, warning, progress, error
+              "message": "debug message from stub!"
+            },
+            {
+              "level": "info",    // or debug, warning, progress, error
+              "message": "info message from stub!"
+            },
+            {
+              "level": "progress",    // or debug, warning, progress, error
+              "message": "progress message from stub!"
+            },
+            {
+              "level": "warning",    // or debug, warning, progress, error
+              "message": "warning message from stub!"
+            },
+            {
+              "level": "error",    // or debug, warning, progress, error
+              "message": "error message from stub!"
+            }
+          ],
           "exit_code": 0
         }
       ]

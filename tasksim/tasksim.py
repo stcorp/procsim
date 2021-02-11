@@ -89,6 +89,8 @@ def print_stdout(*args, **kwargs):
 class Logger:
     '''This class is responsible for generating Log messages on stdout and
     stderr, formatted according to ESA-EOPG-EEGS-ID-0083.'''
+    LEVELS = {'debug', 'info', 'progress', 'warning', 'error'}
+
     def __init__(self, node_name, processor_name, processor_version, task_name, stdout_levels, stderr_levels):
         self.node_name = node_name
         self.processor_name = processor_name
@@ -98,6 +100,18 @@ class Logger:
         self.header_separator = ':'
         self.stdout_levels = stdout_levels
         self.stderr_levels = stderr_levels
+
+    def log(self, level: str, *args, **kwargs):
+        if level == 'debug':
+            self.debug(*args, **kwargs)
+        elif level == 'info':
+            self.info(*args, **kwargs)
+        elif level == 'progress':
+            self.progress(*args, **kwargs)
+        elif level == 'warning':
+            self.warning(*args, **kwargs)
+        else:
+            self.error(*args, **kwargs)
 
     def debug(self, *args, **kwargs):
         self._log('DEBUG', '[D]', *args, **kwargs)
@@ -234,6 +248,19 @@ def find_fitting_scenario(task_file_name, cfg, job, logger):
     return task_config, job_task
 
 
+def log_configured_messages(cfg, logger):
+    # Send any log messages in the configuration file to the logger
+    level = 'info'
+    for item in cfg.get('logging', []):
+        level = item.get('level', level)
+        if level not in logger.LEVELS:
+            logger.error('Incorrect log level in configuration file: {}'.format(level))
+        else:
+            message = item.get('message', '')
+            if message:
+                logger.log(level, message)
+
+
 def main():
     args = sys.argv[1:]
     if len(args) == 0 or len(args) > 3:
@@ -278,6 +305,9 @@ def main():
         sys.exit(1)
 
     logger.task_name = job_task.name    # This info was not available before
+
+    # Log messages in config
+    log_configured_messages(task_config, logger)
 
     # Log processing parameters
     for param, value in job.processing_parameters.items():
