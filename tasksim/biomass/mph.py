@@ -41,18 +41,16 @@ def _time_as_iso_short(tim):
 
 
 class Acquisition:
+    '''Data class, hold acquisition parameters for MPH'''
     def __init__(self):
         self.orbit_number: int = 1
         self.last_orbit_number: int = 1
         self.orbit_direction: str = 'ASCENDING'  # Or DECENDING
         self.track_nr: int = 133                 # gml:CodeWithAuthorityType
-        self.slice_frame_nr = '___'              # or slice/frame number
+        self.slice_frame_nr = '___'              # or the actual slice/frame number
         self.anx_date = datetime.datetime.now()
         self.start_time: int = 0                 # in ms since ANX
         self.completion_time: int = 0            # in ms since ANX
-        self.polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
-        self.polarisation_mode: str = 'Q'        # FIXED
-        self.antenna_direction: str = 'LEFT'     # FIXED
         self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
         self.instrument_config_id: int = 1
         self.data_take_id: int = 0
@@ -60,9 +58,12 @@ class Acquisition:
         self.global_coverage_id: str = 'NA'      # 1..6 or DR, refer to PDGS Products Naming Convention document
         self.major_cycle_id: str = '1'           # 1..7, refer to PDGS Products Naming Convention document
         self.repeat_cycle_id: str = 'DR'         # 1..7 or DR, refer to PDGS Products Naming Convention document
+        # self.observed_property: str = ''
+        # self.feature_of_interest: str = ''
 
-        self.observed_property: str = ''
-        self.feature_of_interest: str = ''
+        self._polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
+        self._polarisation_mode: str = 'Q'                    # FIXED
+        self._antenna_direction: str = 'LEFT'                 # FIXED
 
 
 class MainProductHeader:
@@ -225,9 +226,9 @@ class MainProductHeader:
                 et.SubElement(acquisition, eop + 'ascendingNodeDate').text = _time_as_iso(acq.anx_date)
                 et.SubElement(acquisition, eop + 'startTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.start_time)
                 et.SubElement(acquisition, eop + 'completionTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.completion_time)
-                et.SubElement(acquisition, sar + 'polarisationMode').text = acq.polarisation_mode
-                et.SubElement(acquisition, sar + 'polarisationChannels').text = acq.polaristation_channels
-                et.SubElement(acquisition, sar + 'antennaLookDirection').text = acq.antenna_direction
+                et.SubElement(acquisition, sar + 'polarisationMode').text = acq._polarisation_mode
+                et.SubElement(acquisition, sar + 'polarisationChannels').text = acq._polaristation_channels
+                et.SubElement(acquisition, sar + 'antennaLookDirection').text = acq._antenna_direction
                 et.SubElement(acquisition, bio + 'missionPhase').text = acq.mission_phase
                 et.SubElement(acquisition, bio + 'instrumentConfID').text = str(acq.instrument_config_id)
                 et.SubElement(acquisition, bio + 'dataTakeID').text = str(acq.data_take_id)
