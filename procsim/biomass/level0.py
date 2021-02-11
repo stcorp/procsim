@@ -107,9 +107,9 @@ class Step2():
         self.output_path = output_path
         self.logger = logger
         self.input_type = None
-        self.start
-        self.stop
-        self.downlink
+        self.start: datetime.datetime
+        self.stop: datetime.datetime
+        self.downlink: datetime.datetime
         self.baseline_id = 1
         self.hdr = mph.MainProductHeader()
 
