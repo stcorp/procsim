@@ -82,13 +82,13 @@ class ProductName:
         self.start_time = str_to_datetime(file[15:30])
         self.stop_time = str_to_datetime(file[31:46])
         self.mission_phase_id = file[47]
-        self.global_coverage_id = file[49:51]
-        self.major_cycle_id = file[53:55]
-        self.repeat_cycle_id = file[57:59]
-        self.track_nr = file[61:64]
-        self.frame_slice_nr = file[66:69]
-        self.baseline_identifier = int(file[70:72])
-        self.compact_create_date = file[73:79]
+        self.global_coverage_id = file[50:52]
+        self.major_cycle_id = file[54:56]
+        self.repeat_cycle_id = file[58:60]
+        self.track_nr = file[62:65]
+        self.frame_slice_nr = file[67:70]
+        self.baseline_identifier = int(file[71:73])
+        self.compact_create_date = file[74:80]
 
     def parse_path(self, path):
         # Extract parameters from path name, return True if succesfull.
@@ -166,13 +166,28 @@ class ProductName:
         )
         return name.lower()
 
+    def dump_info(self, path=None):
+        if path:
+            self.parse_path(path)
+            print('path:              ', path)
+        print('type:              ', self.file_type)
+        print('start:             ', self.start_time)
+        print('stop:              ', self.stop_time)
+        if self._get_level() == 'raw':
+            print('downlink time:     ', self.downlink_time)
+        else:
+            print('phase ID:          ', self.mission_phase_id)
+            print('global coverage ID:', self.global_coverage_id)
+            print('major cycle ID:    ', self.major_cycle_id)
+            print('repeat cycle ID:   ', self.repeat_cycle_id)
+            print('track nr:          ', self.track_nr)
+            print('frame/slice nr:    ', self.frame_slice_nr)
+        print('baseline ID:       ', self.baseline_identifier)
+        print('compact date:      ', self.compact_create_date)
+
 
 if __name__ == "__main__":
+    # Test parser
     gen = ProductName()
-    gen.parse_path('data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_B09ZHL')
-    print(gen.file_type)
-    print(gen.start_time)
-    print(gen.stop_time)
-    print(gen.downlink_time)
-    print(gen.baseline_identifier)
-    print(gen.compact_create_date)
+    gen.dump_info('data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_B09ZHL')
+    gen.dump_info('data/raw/BIO_S1_RAW__0S_20210201T000000_20210201T013810_C_G___M___C___T____F____01_B0737M')
