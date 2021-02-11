@@ -13,6 +13,8 @@ import sys
 import time
 from xml.etree import ElementTree as et
 
+import common
+
 VERSION = "1.0"
 
 versiontext = "Tasksim v" + VERSION + \
@@ -33,15 +35,18 @@ def read_config(filename, logger):
                  'memory_usage', 'disk_usage', 'output_file_size', 'exit_code']
     with open(filename) as data_file:
         try:
-            config = json.load(data_file)
+            f = open(filename, 'r')
+            commented_json = f.read()
+            clean_json = common.remove_comments(commented_json)
+            config = json.loads(clean_json)
             is_ok = True
             if set(config.keys()) == set(ROOT_KEYS):
                 for proc in config['processors']:
-                    if set(proc) != set(PROCESSOR_KEYS):
+                    if set(proc) < set(PROCESSOR_KEYS):
                         is_ok = False
                         break
                     for task in proc['tasks']:
-                        if set(task) != set(TASK_KEYS):
+                        if set(task) < set(TASK_KEYS):
                             is_ok = False
                             break
             else:
