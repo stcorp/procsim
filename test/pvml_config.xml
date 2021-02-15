@@ -67,7 +67,7 @@
 
     <!-- TODO: does this replace all discrete types? -->
     <productType name="RAWSxxx_10">
-      <matchExpression><![CDATA[.*RAWS[0-9]{3}_[0-9]{2}.*]]></matchExpression>
+      <matchExpression><![CDATA[.*RAWS0[2-3][0-9]_10.*]]></matchExpression>
     </productType>
 
     <productType name="RAW___HKTM">
