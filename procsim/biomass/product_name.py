@@ -160,10 +160,23 @@ class ProductName:
     def generate_mph_file_name(self):
         return self.generate_path().lower() + '.xml'
 
-    def generate_binary_file_name(self):
-        name = self._generate_prefix() + 'D{}.dat'.format(
-            self.downlink_time.strftime('%Y%m%dT%H%M%S')
-        )
+    def generate_binary_file_name(self, suffix=''):
+        if self._get_level() == 'raw':
+            name = self._generate_prefix() + 'D{}.dat'.format(
+                self.downlink_time.strftime('%Y%m%dT%H%M%S')
+            )
+        else:
+            # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
+            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}{}'\
+                .format(
+                    self.mission_phase_id,
+                    self.global_coverage_id,
+                    self.major_cycle_id,
+                    self.repeat_cycle_id,
+                    self.track_nr,
+                    self.frame_slice_nr,
+                    suffix
+                )
         return name.lower()
 
     def dump_info(self, path=None):
