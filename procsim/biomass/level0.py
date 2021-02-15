@@ -1,7 +1,8 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Biomass Level 0 processor simulator
+Biomass Level 0 output product generators,
+format according to BIO-ESA-EOPG-EEGS-TN-0045
 '''
 import datetime
 import os
@@ -12,12 +13,20 @@ from biomass import product_name
 from biomass import mph
 
 
-class Step1():
+def _generate_bin_file(file_name, size=0):
+    file = open(file_name, 'wb')
+    hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
+    file.write(hdr)
+    file.write(os.urandom(max(size - len(hdr), 0)))
+
+
+class RAWSxxx_10():
     '''Raw slice-based products generation. The slice validity start/stop times
     are set.'''
-    def __init__(self, output_path, logger):
+    def __init__(self, output_path, logger, size):
         self.output_path = output_path
         self.logger = logger
+        self.size = size
         self.input_type = None
         self.output_type = None
         self.start: datetime.datetime
@@ -25,10 +34,6 @@ class Step1():
         self.downlink: datetime.datetime
         self.baseline_id = 1
         self.hdr = mph.MainProductHeader()
-
-    def _generate_bin_file(self, file_name):
-        file = open(file_name, 'w')
-        file.write('test')
 
     def _generate_sliced_output(self, type):
         '''Generate slices for this data take. Slices start and stop on a fixed
@@ -58,11 +63,11 @@ class Step1():
             # Create directory and files
             dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
             os.makedirs(dir_name, exist_ok=True)
+            self.logger.info('Create {}'.format(self.hdr.eop_identifier))
             file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
             self.hdr.write(file_name)
             file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-            self._generate_bin_file(file_name)
-            print('Created directory {}'.format(dir_name))
+            _generate_bin_file(file_name, self.size)
 
             tstart += tslice
 
@@ -82,7 +87,7 @@ class Step1():
                 return False
         return True
 
-    def generate_outputs(self):
+    def generate_output(self):
         # Generate sliced versions of the input products
         pattern = 'RAW_[0-9]{3}_[0-9]{2}'
         if re.match(pattern, self.input_type):
@@ -92,9 +97,9 @@ class Step1():
             self._generate_sliced_output(self.output_type)
 
 
-class Step2():
+class Sx_RAW__0x_generator():
     '''Level-0 slice based products generation. Produce types:
-        - Sx_RAW__0S
+        - Sx_RAW__0S    Stripmap Standard
         - Sx_RAWP_0M
         - RO_RAW__0S
         - RO_RAWP_0M
@@ -103,7 +108,7 @@ class Step2():
     Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
 
-    def __init__(self, output_path, logger):
+    def __init__(self, output_path, logger, output_type, size):
         self.output_path = output_path
         self.logger = logger
         self.input_type = None
@@ -112,10 +117,8 @@ class Step2():
         self.downlink: datetime.datetime
         self.baseline_id = 1
         self.hdr = mph.MainProductHeader()
-
-    def _generate_bin_file(self, file_name):
-        file = open(file_name, 'w')
-        file.write('test')
+        self.output_type = output_type
+        self.size = size
 
     def parse_inputs(self, input_files) -> bool:
         # Determine input file type, using the directory name.
@@ -132,82 +135,52 @@ class Step2():
                 return False
         return True
 
-    def generate_outputs(self):
-        output_types = ['S1_RAW__0S', 'S1_RAWP_0M']
+    def generate_output(self):
+        # Level 0 standard product
+
+        # TODO
+        output_type = ''
+        if self.output_type == 'Sx_RAW__0S':
+            output_type = 'S1_RAW__0S'
+        elif self.output_type == 'Sx_RAWP_0M':
+            output_type = 'S1_RAWP_0M'
+
         name_gen = product_name.ProductName()
-        for output_type in output_types:
-            # TODO: Add slice nr, mission phase etc.
-            name_gen.setup(output_type, self.start, self.stop, self.downlink, self.baseline_id)
+        name_gen.setup(output_type, self.start, self.stop, self.downlink, self.baseline_id)
 
-            # TODO: Just copy from input MPH!
-            self.hdr.eop_identifier = name_gen.generate_path()
-            self.hdr.validity_start = self.start
-            self.hdr.validity_end = self.stop
-            self.hdr.downlink_date = self.downlink
+        # TODO: Just copy from input MPH!
+        self.hdr.eop_identifier = name_gen.generate_path()
+        self.hdr.validity_start = self.start
+        self.hdr.validity_end = self.stop
+        self.hdr.downlink_date = self.downlink
 
-            # Create directory and files
-            dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
-            os.makedirs(dir_name, exist_ok=True)
-            file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-            self.hdr.write(file_name)
-            file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-            self._generate_bin_file(file_name)
-            print('Created directory {}'.format(dir_name))
+        # Create directory and files
+        dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
+        os.makedirs(dir_name, exist_ok=True)
+        self.logger.info('Create {}'.format(self.hdr.eop_identifier))
+
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self.hdr.write(file_name)
+
+        # H/V measurement data
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
+        _generate_bin_file(file_name, self.size//2)
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
+        _generate_bin_file(file_name, self.size//2)
+
+        # Ancillary products, low rate
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
+        _generate_bin_file(file_name)
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
+        _generate_bin_file(file_name)
 
 
-class Step3():
-    '''Consolidation of Monitoring products. Produce types:
-        - Sx_RAW__0M
-        - RO_RAW__0M
-        - EC_RAW__0M
-    Copies MPH content, no further actions.'''
-    def __init__(self, output_path, logger):
-        self.output_path = output_path
-        self.logger = logger
-        self.input_type = None
-        self.start: datetime.datetime
-        self.stop: datetime.datetime
-        self.downlink: datetime.datetime
-        self.baseline_id = 1
-        self.hdr = mph.MainProductHeader()
-
-    def _generate_bin_file(self, file_name):
-        file = open(file_name, 'w')
-        file.write('test')
-
-    def parse_inputs(self, input_files) -> bool:
-        # Determine input file type, using the directory name.
-        gen = product_name.ProductName()
-        for file in input_files:
-            if gen.parse_path(file):
-                self.input_type = gen.file_type
-                self.start = gen.start_time
-                self.stop = gen.stop_time
-                self.downlink = gen.downlink_time
-                self.baseline_id = gen.baseline_identifier
-            else:
-                self.logger.error('Filename {} not valid for Biomass'.format(file))
-                return False
-        return True
-
-    def generate_outputs(self):
-        output_types = ['S1_RAW__0M']
-        name_gen = product_name.ProductName()
-        for output_type in output_types:
-            # TODO: Add slice nr, mission phase etc.
-            name_gen.setup(output_type, self.start, self.stop, self.downlink, self.baseline_id)
-
-            # TODO: Just copy from input MPH!
-            self.hdr.eop_identifier = name_gen.generate_path()
-            self.hdr.validity_start = self.start
-            self.hdr.validity_end = self.stop
-            self.hdr.downlink_date = self.downlink
-
-            # Create directory and files
-            dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
-            os.makedirs(dir_name, exist_ok=True)
-            file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-            self.hdr.write(file_name)
-            file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-            self._generate_bin_file(file_name)
-            print('Created directory {}'.format(dir_name))
+def OutputGeneratorFactory(path, logger, type, size):
+    generator = None
+    if type == 'RAWSxxx_10':
+        generator = RAWSxxx_10(path, logger, size)
+    elif type == 'Sx_RAW__0S' or type == 'Sx_RAWP_0M':
+        generator = Sx_RAW__0x_generator(path, logger, type, size)
+    else:
+        logger.error('No generator for type {} in this plugin'.format(type))
+    return generator

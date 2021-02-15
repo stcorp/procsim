@@ -1,69 +1,146 @@
 {
-  "mission": "biomass",
-  "processors": [
+  "mission": "biomass", // Must match the plugin name
+  "scenarios": [
     {
-      "name": "level0",
-      "version": "01.01",
-      "tasks": [
-        {
-          "name": "Step1",
-          "version": "05.03L01",
-          "file_name": "level0_task1.sh",
-          "processing_time": 1,
-          "nr_cpu": 1,
-          "memory_usage": 4000000,
-          "disk_usage": 0,
+      "name": "L0 task1 022",
 
-          // Experimental:
-          "outputs": [
-            {
-              "type": "RAWS022_10",
-              "bin_file_size": 1000000   // default = 0
-            }
-          ],
-          "logging": [
-            {
-              // Add 'time' option (relative to stub start)? And/or 'at_start' and 'at_end'?
-              "level": "debug",    // or debug, warning, progress, error
-              "message": "debug message from stub!"
-            },
-            {
-              "level": "info",    // or debug, warning, progress, error
-              "message": "info message from stub!"
-            },
-            {
-              "level": "progress",    // or debug, warning, progress, error
-              "message": "progress message from stub!"
-            },
-            {
-              "level": "warning",    // or debug, warning, progress, error
-              "message": "warning message from stub!"
-            },
-            {
-              "level": "error",    // or debug, warning, progress, error
-              "message": "error message from stub!"
-            }
-          ],
-          "exit_code": 0
+      // Must match with the first argument of procsim
+      "file_name": "level0_task1.sh",
+
+      // Must match with the job order
+      "processor_name": "level0",
+      "processor_version": "01.01",
+      "task_name": "Step1_022",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 4000000,
+      "disk_usage": 0,
+
+      // Add 'time' option (relative to stub start)? And/or 'at_start' and 'at_end'?
+      "logging": [
+        {
+          "level": "debug",
+          "message": "debug message from stub!"
+        },
+        {
+          "level": "info",
+          "message": "info message from stub!"
+        },
+        {
+          "level": "progress",
+          "message": "progress message from stub!"
+        },
+        {
+          "level": "warning",    // or debug, warning, progress, error
+          "message": "warning message from stub!"
+        },
+        {
+          "level": "error",    // or debug, warning, progress, error
+          "message": "error message from stub!"
         }
-      ]
+      ],
+      "inputs": [
+        {
+          "type": "RAW_022_10"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "RAWS022_10",
+          "size": 10000   // default = 0
+        }
+      ],
+      "exit_code": 0
     },
     {
-      "name": "level0_step2",
-      "version": "01.01",
-      "tasks": [
+      "name": "L0 task1 023",
+      "file_name": "level0_task1.sh",
+      "processor_name": "level0",
+      "processor_version": "01.01",
+      "task_name": "Step1_023",
+      "task_version": "05.03L01",
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 4000000,
+      "disk_usage": 0,
+      "inputs": [
         {
-          "name": "Step2",
-          "version": "05.03L01",
-          "file_name": "level0_task2.sh",
-          "processing_time": 1,
-          "nr_cpu": 1,
-          "memory_usage": 4000000,
-          "disk_usage": 0,
-          "output_file_size": 1000000,
-          "exit_code": 0
+          "type": "RAW_023_10"
         }
-      ]
+      ],
+      "outputs": [
+        {
+          "type": "RAWS023_10",
+          "size": 10000
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "L0 task1 025",
+      "file_name": "level0_task1.sh",
+      "processor_name": "level0",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "05.03L01",
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 4000000,
+      "disk_usage": 0,
+      "inputs": [
+        {
+          "type": "RAW_025_10"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "RAWSxxx_10",
+          "size": 1000000
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "L0 task2 Measurement Mode",
+      "file_name": "level0_task2.sh",
+      "processor_name": "level0_step2",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03L01",
+
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 4000000,
+      "disk_usage": 0,
+      "inputs": [
+        {
+          "type": "RAWS025_10"
+        },
+        {
+          "type": "RAWS026_10"
+        },
+        {
+          "type": "RAWS023_10"
+        },
+        {
+          "type": "RAWS024_10"
+        }
+      ],
+      "mph_source_product": ".*RAWS025_10.*", // This is a regex, the first matching input is used.
+      "outputs": [
+        {
+          "type": "Sx_RAW__0S",
+          "size": 100000
+        },
+        {
+          "type": "Sx_RAWP_0M",
+          "size": 100000
+        }
+      ],
+      "exit_code": 0
     }
   ]
 }

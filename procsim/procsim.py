@@ -29,10 +29,11 @@ Usage:
 
 def read_config(filename, logger):
     # Load configuration and check for correctness.
-    ROOT_KEYS = ['processors', 'mission']
-    PROCESSOR_KEYS = ['name', 'version', 'tasks']
-    TASK_KEYS = ['name', 'version', 'file_name', 'processing_time', 'nr_cpu',
-                 'memory_usage', 'disk_usage', 'output_file_size', 'exit_code']
+    # TODO: Use JSON schema! Yes, that exists...
+    ROOT_KEYS = ['scenarios', 'mission']
+    SCENARIO_KEYS = ['name', 'file_name', 'processor_name', 'processor_version', 'task_name', 'task_version', 'outputs']
+    # TASK_KEYS = ['name', 'version', 'file_name', 'processing_time', 'nr_cpu',
+    #              'memory_usage', 'disk_usage', 'output_file_size', 'exit_code']
     with open(filename) as data_file:
         try:
             f = open(filename, 'r')
@@ -41,14 +42,10 @@ def read_config(filename, logger):
             config = json.loads(clean_json)
             is_ok = True
             if set(config.keys()) == set(ROOT_KEYS):
-                for proc in config['processors']:
-                    if set(proc) < set(PROCESSOR_KEYS):
+                for scenario in config['scenarios']:
+                    if set(scenario) < set(SCENARIO_KEYS):
                         is_ok = False
                         break
-                    for task in proc['tasks']:
-                        if set(task) < set(TASK_KEYS):
-                            is_ok = False
-                            break
             else:
                 is_ok = False
             if not is_ok:
@@ -60,22 +57,22 @@ def read_config(filename, logger):
     return None
 
 
-def TaskFactory(mission, processor, task, logger):
-    '''Return a Task class for the given parameters.'''
-    # HACK!
-    processor = 'level0'
+def OutputFactory(mission, logger, output_path, type, size):
+    '''Return an output generator for the given parameters.'''
+    processor = 'level0'  # TODO!
     try:
         mod = importlib.import_module(mission + '.' + processor)
     except ImportError:
-        logger.error('Cannot find plugin for mission {}'.format(mission))
+        logger.error('Cannot find plugin for mission {}, processor {}'.format(mission, processor))
         return None
     try:
-        task_class = getattr(mod, task)
+        factory = getattr(mod, 'OutputGeneratorFactory')
     except AttributeError:
-        logger.error('Processor {} for plugin {} has no task {}'.format(
-            mission, processor, task))
+        logger.error('Processor {} for plugin {} has no factory'.format(
+            mission, processor))
         return None
-    return task_class
+    generator = factory(output_path, logger, type, size)
+    return generator
 
 
 def print_stderr(*args, **kwargs):
@@ -223,35 +220,50 @@ class WorkSimulator:
         self.logger.info('Task complete')
 
 
-def find_task_config(cfg, task_file_name, job: JobOrderParser):
+def compare_inputs(scenario, task):
+    # Todo! Match types against file names
+    return True
+
+
+def compare_outputs(scenario, task):
+    # Every output type in the scenario should be in the task config
+    scenario_output_types = {op['type'] for op in scenario['outputs']}
+    task_output_types = {op['type'] for op in task.outputs}
+    return scenario_output_types == task_output_types
+
+
+def find_fitting_scenario(task_filename, cfg, job: JobOrderParser):
+    # Find out: do we have a scenario for this combination of JobOrder and filename?
+    #
+    # Compare every scenario with:
+    # 1. The 'File name' argument procsim was called with
+    # 2. The processor and task name/version as specified in the jobOrder
+    # 3. The list of inputs as specified in the jobOrder
+    # 4. The list of outputs as specified in the jobOrder
+
     # Parse configuration, find configuration and job ordersettings for this Task.
-    file_name = os.path.basename(task_file_name)
-    for cfg_proc in cfg['processors']:
-        if cfg_proc['name'] != job.processor_name or cfg_proc['version'] != job.processor_version:
+    file_name = os.path.basename(task_filename)
+    for scenario in cfg['scenarios']:
+        if scenario['file_name'] != file_name or \
+           scenario['processor_name'] != job.processor_name or \
+           scenario['processor_version'] != job.processor_version:
             continue
-        for cfg_task in cfg_proc['tasks']:
-            for job_task in job.tasks:
-                if cfg_task['name'] == job_task.name and cfg_task['version'] == job_task.version:
-                    if cfg_task['file_name'] == file_name:
-                        return cfg_task, job_task
+        for job_task in job.tasks:
+            if scenario['task_name'] != job_task.name or \
+               scenario['task_version'] != job_task.version:
+                continue
+            if not compare_inputs(scenario, job_task):
+                continue
+            if not compare_outputs(scenario, job_task):
+                continue
+            return scenario, job_task
     return None, None
 
 
-def find_fitting_scenario(task_file_name, cfg, job, logger):
-    # Find out: can we do something with this combination?
-    # 1. The task should be in our config
-    # 2. The input/output as specified in the job should match one of the scenarios
-    task_config, job_task = find_task_config(cfg, task_file_name, job)
-    if task_config is None:
-        logger.error('Task {} is not defined in the configuration'.format(task_file_name))
-        return None, None
-    return task_config, job_task
-
-
-def log_configured_messages(cfg, logger):
+def log_configured_messages(scenario, logger):
     # Send any log messages in the configuration file to the logger
     level = 'info'
-    for item in cfg.get('logging', []):
+    for item in scenario.get('logging', []):
         level = item.get('level', level)
         if level not in logger.LEVELS:
             logger.error('Incorrect log level in configuration file: {}'.format(level))
@@ -293,54 +305,48 @@ def main():
         job.stderr_levels
     )
 
-    # Parse configuration.
     cfg = read_config(config_filename, logger)
     if cfg is None:
         logger.error('Cannot read configuration file {}, exiting'.format(config_filename))
         sys.exit(1)
 
-    # TODO: Find fitting scenario.
-    task_config, job_task = find_fitting_scenario(task_filename, cfg, job, logger)
-    if task_config is None:
+    scenario, job_task = find_fitting_scenario(task_filename, cfg, job)
+    if scenario is None:
+        logger.error('A matching scenario for {} is not defined in the configuration'.format(task_filename))
         sys.exit(1)
 
     logger.task_name = job_task.name    # This info was not available before
 
-    # Log messages in config
-    log_configured_messages(task_config, logger)
+    log_configured_messages(scenario, logger)
 
-    # Log processing parameters
     for param, value in job.processing_parameters.items():
         logger.info('Processing parameter {} = {}'.format(param, value))
-
-    msg = [os.path.basename(file_name) for file_name in job_task.input_files]
-    logger.info('Inputs: {}'.format(msg))
-
-    # TODO: Check input files existence (optional)
-
-    logger.info('Starting, simulating {} from {} v{}, Order {}'.format(
-        os.path.basename(task_filename),
-        job.processor_name,
-        job.processor_version,
+    for file_name in job_task.input_files:
+        logger.info('Input file: {}'.format(os.path.basename(file_name)))
+    logger.info('Starting, simulating scenario {}, Order {}'.format(
+        scenario['name'],
         os.path.basename(job_filename)))
 
-    output_path = job_task.outputs[0]['dir']
-    proc_class = TaskFactory(cfg['mission'], job.processor_name, job_task.name, logger)
-    if (proc_class is None):
-        sys.exit(1)
-    proc = proc_class(output_path, logger)
-    if not proc.parse_inputs(job_task.input_files):
-        sys.exit(1)
+    # Create product generators, parse inputs
+    output_path = job_task.outputs[0]['dir']    # TODO: this is not good! How to find output directory?
+    generators = []
+    for output in scenario['outputs']:
+        type = output['type']
+        size = int(output.get('size', 0))   # Default size = 0
+        generator = OutputFactory(cfg['mission'], logger, output_path, type, size)
+        if (generator is None):
+            sys.exit(1)
+        if not generator.parse_inputs(job_task.input_files):
+            sys.exit(1)
+        generators.append(generator)
 
-    # Simulate work, consume resources
-    worker = WorkSimulator(logger, task_config)
+    worker = WorkSimulator(logger, scenario)
     worker.start()
 
-    # TODO: Generate output data, according to job order, scenario and configuration
-    proc.generate_outputs()
-    logger.info('Outputs generated: <to be done>')
+    for gen in generators:
+        gen.generate_output()
 
-    exit_code = 0   # 0=ok, 1-127=warning, 128-255=failure
+    exit_code = scenario['exit_code']
     exit(exit_code)
 
 

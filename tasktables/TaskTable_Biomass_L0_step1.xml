@@ -125,26 +125,6 @@
                   <Retrieval_Mode>LatestValCover</Retrieval_Mode>
                   <T0 units="secs">0</T0>
                   <T1 units="secs">0</T1>
-                  <File_Type>RAW_027_10</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAW_028_10</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
                   <File_Type>RAW_035_10</File_Type>
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
@@ -166,7 +146,6 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <!-- Todo: this is a 'wildcard' type (can be either 22, 23, 24..36). Is this correct? Must be a regex? -->
               <File_Type>RAWSxxx_10</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
