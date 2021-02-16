@@ -31,13 +31,26 @@ ows = "{%s}" % mph_namespaces['ows']
 xlink = "{%s}" % mph_namespaces['xlink']
 
 
+ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+ISO_TIME_FORMAT_SHORT = '%Y-%m-%d %H:%M:%S'
+
 def _time_as_iso(tim):
-    s = tim.strftime('%Y-%m-%d %H:%M:%S.%f')
+    s = tim.strftime(ISO_TIME_FORMAT)
     return s[:-3] + 'Z'
 
 
+def _time_from_iso(timestr):
+    timestr = timestr[:-1]  # strip 'Z'
+    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
+
+
 def _time_as_iso_short(tim):
-    return tim.strftime('%Y-%m-%d %H:%M:%S') + 'Z'
+    return tim.strftime(ISO_TIME_FORMAT_SHORT) + 'Z'
+
+
+def _time_from_iso_short(timestr):
+    timestr = timestr[:-1]  # strip 'Z'
+    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT_SHORT)
 
 
 class Acquisition:
@@ -95,9 +108,10 @@ class MainProductHeader:
         self.center_points = '-7.492090 -63.27095'
         self.browse_ref_id = 'EPSG:4326'
         self.browse_image_filename = 'browse image filename'
-
-        self.product_filename = 'product filename'
-        self.products = [{'file_name': 'filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}]
+        self.products = [
+            {'file_name': 'product filename'},          # First product is mandatory and does not have the size/representation fields?!
+            {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
+        ]
         self.product_baseline = 1
 
         self.doi = 'DOI'    # Digital Object Identifier
@@ -158,6 +172,15 @@ class MainProductHeader:
         end_position = et.SubElement(time_period, gml + 'endPosition')
         end_position.text = _time_as_iso(stop)       # Stop date and time of the product
 
+    def _parse_time_period(self, parent, id):
+        # Parse TimePeriod element, retrieve start/stop
+        time_period = parent.find(gml + 'TimePeriod')
+        begin_position = time_period.find(gml + 'beginPosition')
+        begin = _time_from_iso(begin_position.text)
+        end_position = time_period.find(gml + 'endPosition')
+        end = _time_from_iso(end_position.text)
+        return begin, end
+
     def _insert_file_name(self, parent, file_name):
         # Insert fileName element
         file_name_el = et.SubElement(parent, eop + 'fileName')
@@ -165,8 +188,16 @@ class MainProductHeader:
         service_reference.set(xlink + 'href', file_name)
         et.SubElement(service_reference, ows + 'RequestMessage')  # download request (empty)
 
+    def _parse_file_name(self, parent):
+        # Parse fileName element
+        file_name_el = parent.find(eop + 'fileName')
+        service_reference = file_name_el.find(ows + 'ServiceReference')
+        file_name = service_reference.get(xlink + 'href')
+        # et.SubElement(service_reference, ows + 'RequestMessage')  # download request (empty)
+        return file_name
+
     def write(self, file_name):
-        # Write MPH to file
+        # Create MPH and write to file (TODO: split in generate and write methods?)
         mph = et.Element(bio + 'EarthObservation')
         mph.set(gml + 'id', self.eop_identifier + '_1')
 
@@ -196,7 +227,7 @@ class MainProductHeader:
         short_name.text = self.sensor_name
 
         # Mandatory for L0, L1, L2A products
-        if self.sensors:
+        if (self._is_level0 or self._is_level1 or self._is_level2a) and self.sensors:
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
             for s in self.sensors:
@@ -276,17 +307,16 @@ class MainProductHeader:
             browse_ref_id.text = self.browse_ref_id
             self._insert_file_name(browse_info, self.browse_image_filename)
 
-        product = et.SubElement(earth_observation_result, eop + 'product')
-        product_information = et.SubElement(product, bio + 'ProductInformation')
-        self._insert_file_name(product_information, self.product_filename)
-        baseline = '{:02}'.format(self.product_baseline)
-        et.SubElement(product_information, eop + 'version').text = baseline
         for prod in self.products:
             product = et.SubElement(earth_observation_result, eop + 'product')
             product_information = et.SubElement(product, bio + 'ProductInformation')
             self._insert_file_name(product_information, prod['file_name'])
-            et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-            et.SubElement(product_information, bio + 'rds').text = prod['representation']
+            if 'size' in prod:
+                et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
+                et.SubElement(product_information, bio + 'rds').text = prod['representation']
+            else:
+                baseline = '{:02}'.format(self.product_baseline)
+                et.SubElement(product_information, eop + 'version').text = baseline
 
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = et.SubElement(meta_data_property, bio + 'EarthObservationMetaData')
@@ -357,4 +387,191 @@ class MainProductHeader:
         tree.write(file_name, xml_declaration=True, encoding='utf-8')
 
     def parse(self, file_name):
+        '''Open MPH file and parse contents. Does not check for ID's.'''
         tree = et.parse(file_name)
+        root = tree.getroot()
+        phenomenon_time = root.find(om + 'phenomenonTime')
+        self.begin_position, self.end_position = self._parse_time_period(phenomenon_time, 2)
+
+        result_time = root.find(om + 'resultTime')
+        time_instant = result_time.find(gml + 'TimeInstant')
+        # time_instant.set(gml + 'id', self.eop_identifier + '_3')
+        time_position = time_instant.find(gml + 'timePosition')
+        self.time_position = _time_from_iso(time_position.text)
+
+        valid_time = root.find(om + 'validTime')
+        self.validity_start, self.validity_end = self._parse_time_period(valid_time, 4)
+
+        procedure = root.find(om + 'procedure')  # Procedure used to sense the data
+        earth_observation_equipment = procedure.find(eop + 'EarthObservationEquipment')  # Equipment used to sense the data
+        # earth_observation_equipment.set(gml + 'id', self.eop_identifier + '_5')
+        platform = earth_observation_equipment.find(eop + 'platform')  # Platform description
+        Platform = platform.find(eop + 'Platform')  # Nested element for platform description
+        short_name = Platform.find(eop + 'shortName')
+        self.satellite_name = short_name.text
+
+        instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
+        Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
+        short_name = Instrument.find(eop + 'shortName')
+        self.sensor_name = short_name.text
+
+        # Mandatory for L0, L1, L2A products
+        if self._is_level0 or self._is_level1 or self._is_level2a:
+            self.sensors = []
+            # TODO: check if the 'sensor' element is mandatory, even if there are no sensors.
+            sensor = earth_observation_equipment.find(eop + 'sensor')
+            for Sensor in sensor.findall(eop + 'Sensor'):
+                s = {}
+                sensor_type = Sensor.find(eop + 'sensorType')
+                s['type'] = sensor_type.text
+                sensor_mode = Sensor.find(eop + 'operationalMode')
+                # sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
+                s['mode'] = sensor_mode.text
+                swath_id = Sensor.find(eop + 'swathIdentifier')
+                # swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
+                s['swath_id'] = swath_id.text
+                self.sensors.append(s)
+
+        # Mandatory for L0 and L1 products
+        if self._is_level0 or self._is_level1:
+            self.acquisitions = []
+            acquisition_params = earth_observation_equipment.find(eop + 'acquisitionParameters')
+            for acquisition in acquisition_params.findall(bio + 'Acquisition'):
+                acq = Acquisition()
+                acq.orbit_number = int(acquisition.find(eop + 'orbitNumber').text)
+                acq.last_orbit_number = int(acquisition.find(eop + 'lastOrbitNumber').text)
+                acq.orbit_direction = acquisition.find(eop + 'orbitDirection').text
+                acq.track_nr = acquisition.find(eop + 'wrsLongitudeGrid').text
+                # tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
+                acq.slice_frame_nr = acquisition.find(eop + 'wrsLatitudeGrid').text
+                # framenr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:frames')
+                acq.anx_date = _time_from_iso(acquisition.find(eop + 'ascendingNodeDate').text)
+                acq.start_time = int(acquisition.find(eop + 'startTimeFromAscendingNode').text)    # TODO ={'uom': 'ms'}
+                acq.completion_time = int(acquisition.find(eop + 'completionTimeFromAscendingNode').text)  # TODO ={'uom': 'ms'}
+                acq._polarisation_mode = acquisition.find(sar + 'polarisationMode').text
+                acq._polaristation_channels = acquisition.find(sar + 'polarisationChannels').text
+                acq._antenna_direction = acquisition.find(sar + 'antennaLookDirection').text
+                acq.mission_phase = acquisition.find(bio + 'missionPhase').text
+                acq.instrument_config_id = int(acquisition.find(bio + 'instrumentConfID').text)
+                acq.data_take_id = int(acquisition.find(bio + 'dataTakeID').text)
+                acq.orbit_drift_flag = acquisition.find(bio + 'orbitDriftFlag').text    # TODO: upper case?
+                acq.global_coverage_id = acquisition.find(bio + 'globalCoverageID').text
+                acq.major_cycle_id = acquisition.find(bio + 'majorCycleID').text
+                acq.repeat_cycle_id = acquisition.find(bio + 'repeatCycleID').text
+                self.acquisitions.append(acq)
+
+        # observed_property = root.find(om + 'observedProperty')  # Observed property (Mandatory but empty)
+        # observed_property.set(xsi + 'nil', 'true')
+        # observed_property.set('nilReason', 'inapplicable')
+        feature_of_interest = root.find(om + 'featureOfInterest')  # Observed area
+
+        # Mandatory for L1, *L2A products
+        if self._is_level1 or self._is_level2a:
+            footprint = feature_of_interest.find(eop + 'Footprint')
+            # footprint.set(gml + 'id', self.eop_identifier + '_6')
+            multi_extent_of = footprint.find(eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
+            multi_surface = multi_extent_of.find(gml + 'MultiSurface')
+            # multi_surface.set(gml + 'id', self.eop_identifier + '_7')
+            surface_member = multi_surface.find(gml + 'surfaceMember')
+            polygon = surface_member.find(gml + 'Polygon')
+            # polygon.set(gml + 'id', self.eop_identifier + '_8')
+            exterior = polygon.find(gml + 'exterior')
+            linear_ring = exterior.find(gml + 'LinearRing')
+            pos_list = linear_ring.find(gml + 'posList')  # Footprint points
+            self.footprint_polygon = pos_list.text
+            center_of = feature_of_interest.find(eop + 'centerOf')  # Acquisition centre representation structure
+            point = center_of.find(gml + 'Point')
+            # point.set(gml + 'id', self.eop_identifier + '_9')
+            pos = point.find(gml + 'pos')  # Coordinates of the centre of the acquisition
+            self.center_points = pos.text
+
+        result = root.find(om + 'result')  # Observation result
+        earth_observation_result = result.find(eop + 'EarthObservationResult')
+        # earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
+
+        # Mandatory for L1 products
+        if self._is_level1:
+            browse = earth_observation_result.find(eop + 'browse')
+            browse_info = browse.find(eop + 'BrowseInformation')
+            self.browse_type = browse_info.find(eop + 'type').text
+            browse_ref_id = browse_info.find(eop + 'referenceSystemIdentifier')  # Coordinate reference system name
+            self.browse_ref_id = browse_ref_id.text
+            # browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
+            # self._insert_file_name(browse_info, self.browse_image_filename)
+            self.browse_image_filename = self._parse_file_name(browse_info)
+
+        self.products = []
+        for product in earth_observation_result.findall(eop + 'product'):
+            product_information = product.find(bio + 'ProductInformation')
+            file_name = self._parse_file_name(product_information)
+            version = product_information.find(eop + 'version')
+            if version is not None:
+                self.product_baseline = int(version.text)
+                self.products.append({'file_name': file_name})
+            else:
+                size = int(product_information.find(eop + 'size').text)  # attrib={'uom': 'bytes'}
+                representation = product_information.find(bio + 'rds').text
+                self.products.append({'file_name': file_name, 'size': size, 'representation': representation})
+
+        meta_data_property = root.find(eop + 'metaDataProperty')  # Observation metadata
+        earth_observation_meta_data = meta_data_property.find(bio + 'EarthObservationMetaData')
+        self.eop_identifier = earth_observation_meta_data.find(eop + 'identifier').text
+        self.doi = earth_observation_meta_data.find(eop + 'doi').text  # Digital Object Identifier'
+        self.acquisition_type = earth_observation_meta_data.find(eop + 'acquisitionType').text
+        self.product_type = earth_observation_meta_data.find(eop + 'productType').text
+        self.product_status = earth_observation_meta_data.find(eop + 'status').text
+
+        # Mandatory for Raw data: Downlink information
+        if self._is_raw:
+            downlinked_to = earth_observation_meta_data.find(eop + 'downlinkedTo')
+            downlink_info = downlinked_to.find(eop + 'DownlinkInformation')
+            self.acquisition_station = downlink_info.find(eop + 'acquisitionStation').text
+            self.downlink_date = _time_from_iso(downlink_info.find(eop + 'acquisitionDate').text)
+
+        processing = earth_observation_meta_data.find(eop + 'processing')  # Data processing information
+        processing_info = processing.find(bio + 'ProcessingInformation')
+        proc_center = processing_info.find(eop + 'processingCenter')
+        self.processing_centre_code = proc_center.text
+        # proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
+        self.processing_date = _time_from_iso_short(processing_info.find(eop + 'processingDate').text)
+        self.processor_name = processing_info.find(eop + 'processorName').text
+        self.processor_version = processing_info.find(eop + 'processorVersion').text
+        self.processing_level = processing_info.find(eop + 'processingLevel').text
+
+        if not self._is_aux:
+            self.auxiliary_ds_file_names = []
+            for proc_info in processing_info.findall(eop + 'auxiliaryDataSetFileName'):
+                self.auxiliary_ds_file_names.append(proc_info.text)
+
+        self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codespace': 'urn:esa:eop:Biomass:class'}
+
+        if self._is_level0 or self._is_level1 or self._is_level2a:
+            for source_product in processing_info.findall(bio + 'sourceProduct'):
+                self.biomass_source_product_ids.append(source_product.text)
+
+        if self._is_level0 or self._is_level1:
+            self.tai_utc_diff = int(earth_observation_meta_data.find(bio + 'TAI-UTC').text)
+        if self._is_raw:
+            if self._is_hktm:
+                self.nr_transfer_frames = int(earth_observation_meta_data.find(bio + 'numOfTFs').text)
+                self.nr_transfer_frames_erroneous = int(earth_observation_meta_data.find(bio + 'numOfTFsWithErrors').text)
+                self.nr_transfer_frames_corrupt = int(earth_observation_meta_data.find(bio + 'numOfCorruptedTFs').text)
+            if self._is_pid_pc:
+                self.nr_instrument_source_packets = int(earth_observation_meta_data.find(bio + 'numOfISPs').text)
+                self.nr_instrument_source_packets_erroneous = int(earth_observation_meta_data.find(bio + 'numOfISPsWithErrors').text)
+                self.nr_instrument_source_packets_corrupt = int(earth_observation_meta_data.find(bio + 'numOfCorruptedISPs').text)
+
+        if self._is_level0:
+            self.nr_l0_lines = earth_observation_meta_data.find(bio + 'numOfLines').text
+            self.nr_l0_lines_missing = earth_observation_meta_data.find(bio + 'numOfMissingLines').text
+            self.nr_l0_lines_corrupt = earth_observation_meta_data.find(bio + 'numOfCorruptedLines').text
+            self.incomplete_l0_slice = earth_observation_meta_data.find(bio + 'incompleteSlice').text
+            self.partial_l0_slice = earth_observation_meta_data.find(bio + 'partialSlice').text
+            self.l1_frames_in_l0 = earth_observation_meta_data.find(bio + 'framesList').text
+
+        if self._is_level1:
+            self.incomplete_l1_frame = earth_observation_meta_data.find(bio + 'incompleteFrame').text
+            self.partial_l1_frame = earth_observation_meta_data.find(bio + 'partialFrame').text
+
+        for doc in earth_observation_meta_data.findall(bio + 'refDoc'):
+            self.reference_documents.append(doc.text)
