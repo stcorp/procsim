@@ -162,7 +162,7 @@ class JobOrderParser:
 
     def _find_matching_files(self, pattern):
         # Return list of all files matching 'pattern'.
-        # For now, assume the path is 'fixed' and the regex does not contiain slashes.
+        # For now, assume the path is 'fixed' and the regex does not contain slashes.
         rootdir = os.path.dirname(os.path.abspath(pattern))
         files = []
         for file in os.scandir(rootdir):
@@ -322,7 +322,7 @@ def main():
     for param, value in job.processing_parameters.items():
         logger.info('Processing parameter {} = {}'.format(param, value))
     for file_name in job_task.input_files:
-        logger.info('Input file: {}'.format(os.path.basename(file_name)))
+        logger.info('Input: {}'.format(os.path.basename(file_name)))
     logger.info('Starting, simulating scenario {}, Order {}'.format(
         scenario['name'],
         os.path.basename(job_filename)))
@@ -332,7 +332,7 @@ def main():
     generators = []
     for output in scenario['outputs']:
         type = output['type']
-        size = int(output.get('size', 0))   # Default size = 0
+        size = int(output.get('size', 0))
         generator = OutputFactory(cfg['mission'], logger, output_path, type, size)
         if (generator is None):
             sys.exit(1)
