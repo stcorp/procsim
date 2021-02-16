@@ -71,20 +71,26 @@ class RAWSxxx_10():
 
             tstart += tslice
 
-    def parse_inputs(self, input_files):
+    def parse_inputs(self, input_products):
         # Extract information from input files.
         # First determine input file type, using the directory name.
         gen = product_name.ProductName()
-        for file in input_files:
-            if gen.parse_path(file):
+        for product in input_products:
+            if gen.parse_path(product):
                 self.input_type = gen.file_type
                 self.start = gen.start_time
                 self.stop = gen.stop_time
                 self.downlink = gen.downlink_time
                 self.baseline_id = gen.baseline_identifier
             else:
-                self.logger.error('Filename {} not valid for Biomass'.format(file))
+                self.logger.error('Filename {} not valid for Biomass'.format(product))
                 return False
+            # TODO: Select if this is 'the' input product to parse
+            # TODO: we could make a copy here...
+            hdr = self.hdr
+            # Derive mph file name from product name
+            mph_file_name = os.path.join(product, gen.generate_mph_file_name())
+            hdr.parse(mph_file_name)
         return True
 
     def generate_output(self):
@@ -123,8 +129,8 @@ class Sx_RAW__0x_generator():
     def parse_inputs(self, input_files) -> bool:
         # Determine input file type, using the directory name.
         gen = product_name.ProductName()
-        for file in input_files:
-            if gen.parse_path(file):
+        for product in input_files:
+            if gen.parse_path(product):
                 self.input_type = gen.file_type
                 self.start = gen.start_time
                 self.stop = gen.stop_time
@@ -132,8 +138,14 @@ class Sx_RAW__0x_generator():
                 if (gen.get_level() == 'raw'):
                     self.downlink = gen.downlink_time
             else:
-                self.logger.error('Filename {} not valid for Biomass'.format(file))
+                self.logger.error('Filename {} not valid for Biomass'.format(product))
                 return False
+            # TODO: Select if this is 'the' input product to parse
+            # TODO: we could make a copy here...
+            hdr = self.hdr
+            # Derive mph file name from product name
+            mph_file_name = os.path.join(product, gen.generate_mph_file_name())
+            hdr.parse(mph_file_name)
         return True
 
     def generate_output(self):
