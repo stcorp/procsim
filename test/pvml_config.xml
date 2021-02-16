@@ -78,7 +78,10 @@
     <productType name="Sx_RAW__0S">
       <matchExpression><![CDATA[.*S[1-3]_RAW__[0-9]S.*]]></matchExpression>
     </productType>
-    <productType name="Sx_RAWP_0M">
+    <productType name="S._RAWP_0M">
+      <matchExpression><![CDATA[.*S[1-3]_RAWP_[0-9]S.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_RAW__0M">
       <matchExpression><![CDATA[.*S[1-3]_RAW__[0-9]S.*]]></matchExpression>
     </productType>
 
