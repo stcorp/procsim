@@ -104,7 +104,7 @@ class Sx_RAW__0x_generator():
         - RO_RAW__0S
         - RO_RAWP_0M
         - EC_RAW__0S
-        - EC_RAW_0M
+        - EC_RAWP_0M
     Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
 
@@ -128,8 +128,9 @@ class Sx_RAW__0x_generator():
                 self.input_type = gen.file_type
                 self.start = gen.start_time
                 self.stop = gen.stop_time
-                self.downlink = gen.downlink_time
                 self.baseline_id = gen.baseline_identifier
+                if (gen.get_level() == 'raw'):
+                    self.downlink = gen.downlink_time
             else:
                 self.logger.error('Filename {} not valid for Biomass'.format(file))
                 return False
@@ -144,15 +145,18 @@ class Sx_RAW__0x_generator():
             output_type = 'S1_RAW__0S'
         elif self.output_type == 'Sx_RAWP_0M':
             output_type = 'S1_RAWP_0M'
+        elif self.output_type == 'Sx_RAW__0M':
+            output_type = 'S1_RAW__0M'
 
         name_gen = product_name.ProductName()
-        name_gen.setup(output_type, self.start, self.stop, self.downlink, self.baseline_id)
+        tdownlink = datetime.datetime.now()  # TODO!
+        name_gen.setup(output_type, self.start, self.stop, tdownlink, self.baseline_id)
 
         # TODO: Just copy from input MPH!
         self.hdr.eop_identifier = name_gen.generate_path()
         self.hdr.validity_start = self.start
         self.hdr.validity_end = self.stop
-        self.hdr.downlink_date = self.downlink
+        # self.hdr.downlink_date = self.downlink
 
         # Create directory and files
         dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
@@ -177,9 +181,9 @@ class Sx_RAW__0x_generator():
 
 def OutputGeneratorFactory(path, logger, type, size):
     generator = None
-    if type == 'RAWSxxx_10':
+    if type in ['RAWSxxx_10']:
         generator = RAWSxxx_10(path, logger, size)
-    elif type == 'Sx_RAW__0S' or type == 'Sx_RAWP_0M':
+    elif type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
         generator = Sx_RAW__0x_generator(path, logger, type, size)
     else:
         logger.error('No generator for type {} in this plugin'.format(type))

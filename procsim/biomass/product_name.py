@@ -58,10 +58,11 @@ class ProductName:
         self.track_nr: str
         self.frame_slice_nr: str
 
-    def _get_level(self):
+    def get_level(self):
         # Return either 'raw' or 'level0_1_2a
         pattern_raw = 'RAW[_S][0-9]{3}_[0-9]{2}'
-        pattern_l012 = ['S[123]_RAW__0[SM]', 'RO_RAW__0[SM]', 'EC_RAW__0[SM]']
+        # TODO: We should make a large table somewhere?!
+        pattern_l012 = ['S[123]_RAW__0[SM]', 'RO_RAW__0[SM]', 'EC_RAW__0[SM]', 'S[123]_RAWP_0M', 'RO_RAWP_0M', 'EC_RAWP_0M']
         if self.file_type == 'RAW___HKTM' or re.match(pattern_raw, self.file_type):
             return 'raw'
         for pattern in pattern_l012:
@@ -96,7 +97,7 @@ class ProductName:
         if file[0:3] != self.SATELLITE_ID:
             return False
         self.file_type = file[4:14]
-        level = self._get_level()
+        level = self.get_level()
         if level == 'raw':
             self._parse_raw(file)
         elif level == 'level0_1_2a':
@@ -134,7 +135,7 @@ class ProductName:
 
     def generate_path(self):
         # Returns directory name
-        if self._get_level() == 'raw':
+        if self.get_level() == 'raw':
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
             name = self._generate_prefix() + 'D{}_{:02}_{}'\
                 .format(
@@ -161,7 +162,7 @@ class ProductName:
         return self.generate_path().lower() + '.xml'
 
     def generate_binary_file_name(self, suffix=''):
-        if self._get_level() == 'raw':
+        if self.get_level() == 'raw':
             name = self._generate_prefix() + 'D{}.dat'.format(
                 self.downlink_time.strftime('%Y%m%dT%H%M%S')
             )
@@ -186,7 +187,7 @@ class ProductName:
         print('type:              ', self.file_type)
         print('start:             ', self.start_time)
         print('stop:              ', self.stop_time)
-        if self._get_level() == 'raw':
+        if self.get_level() == 'raw':
             print('downlink time:     ', self.downlink_time)
         else:
             print('phase ID:          ', self.mission_phase_id)
