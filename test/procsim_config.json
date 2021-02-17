@@ -4,10 +4,10 @@
     {
       "name": "L0 task1 022",
 
-      // Must match with the first argument of procsim
+      // File_name must match with the first argument of procsim
       "file_name": "level0_task1.sh",
 
-      // Must match with the job order
+      // Processor/task are used to find the right task in the job order
       "processor_name": "level0",
       "processor_version": "01.01",
       "task_name": "Step1_022",
@@ -50,7 +50,8 @@
       "outputs": [
         {
           "type": "RAWS022_10",
-          "size": 10000   // default = 0
+          "metadata_source": ".*RAW_022_10.*", // Input to use, default is any
+          "size": 10000   // default is a few bytes
         }
       ],
       "exit_code": 0
@@ -129,14 +130,15 @@
           "type": "RAWS024_10"
         }
       ],
-      "mph_source_product": ".*RAWS025_10.*", // This is a regex, the first matching input is used.
       "outputs": [
         {
           "type": "Sx_RAW__0S",
+          "metadata_source": ".*RAWS025_10.*", // Note: regex!
           "size": 100000
         },
         {
           "type": "Sx_RAWP_0M",
+          "metadata_source": ".*RAWS023_10.*",
           "size": 100000
         }
       ],
@@ -163,7 +165,7 @@
         {
           "type": "Sx_RAW__0M",
           "size": 100000,
-          "meta_source_product": ".*S._RAWP_0M.*" // This is a regex, the first matching input is used.
+          "metadata_source": ".*S._RAWP_0M.*"
         }
       ],
       "exit_code": 0
