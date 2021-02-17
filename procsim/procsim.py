@@ -4,6 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Task simulator for scientific processors.
 '''
+import abc
 import datetime
 import importlib
 import json
@@ -57,8 +58,10 @@ def read_config(filename, logger):
     return None
 
 
-def OutputFactory(mission, logger, output_path, type, size):
+def OutputFactory(mission, logger, output_path, output_cfg):
     '''Return an output generator for the given parameters.'''
+
+    # Import plugin for this mission
     processor = 'level0'  # TODO!
     try:
         mod = importlib.import_module(mission + '.' + processor)
@@ -71,7 +74,8 @@ def OutputFactory(mission, logger, output_path, type, size):
         logger.error('Processor {} for plugin {} has no factory'.format(
             mission, processor))
         return None
-    generator = factory(output_path, logger, type, size)
+    # Use plugin factory to create generator
+    generator = factory(output_path, logger, output_cfg)
     return generator
 
 
@@ -81,6 +85,17 @@ def print_stderr(*args, **kwargs):
 
 def print_stdout(*args, **kwargs):
     print(*args, file=sys.stdout, **kwargs)
+
+
+class IProductGenerator(abc.ABC):
+    '''Interface for product generators'''
+    @abc.abstractmethod
+    def parse_inputs(self, inputs) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def generate_output(self):
+        pass
 
 
 class Logger:
@@ -330,10 +345,8 @@ def main():
     # Create product generators, parse inputs
     output_path = job_task.outputs[0]['dir']    # TODO: this is not good! How to find output directory?
     generators = []
-    for output in scenario['outputs']:
-        type = output['type']
-        size = int(output.get('size', 0))
-        generator = OutputFactory(cfg['mission'], logger, output_path, type, size)
+    for output_cfg in scenario['outputs']:
+        generator = OutputFactory(cfg['mission'], logger, output_path, output_cfg)
         if (generator is None):
             sys.exit(1)
         if not generator.parse_inputs(job_task.input_files):

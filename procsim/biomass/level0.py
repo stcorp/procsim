@@ -7,33 +7,36 @@ format according to BIO-ESA-EOPG-EEGS-TN-0045
 import datetime
 import os
 import re
+from typing import Optional
 
-from biomass import constants
-from biomass import product_name
-from biomass import mph
-
-
-def _generate_bin_file(file_name, size=0):
-    '''Generate binary file starting with a short ASCII header, followed by
-    'size' - headersize random data bytes.'''
-    CHUNK_SIZE = 2**20
-    file = open(file_name, 'wb')
-    hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
-    file.write(hdr)
-    size -= len(hdr)
-    while size > 0:
-        amount = min(size, CHUNK_SIZE)
-        file.write(os.urandom(max(amount, 0)))
-        size -= amount
+from procsim import IProductGenerator
+from biomass import constants, mph, product_name
 
 
-class RAWSxxx_10():
+class ProductGeneratorBase(IProductGenerator):
+    '''Biomass product generator (abstract) base class.'''
+
+    def _generate_bin_file(self, file_name, size=0):
+        '''Generate binary file starting with a short ASCII header, followed by
+        'size' - headersize random data bytes.'''
+        CHUNK_SIZE = 2**20
+        file = open(file_name, 'wb')
+        hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
+        file.write(hdr)
+        size -= len(hdr)
+        while size > 0:
+            amount = min(size, CHUNK_SIZE)
+            file.write(os.urandom(max(amount, 0)))
+            size -= amount
+
+
+class RAWSxxx_10(ProductGeneratorBase):
     '''Raw slice-based products generation. The slice validity start/stop times
     are set.'''
-    def __init__(self, output_path, logger, size):
+    def __init__(self, output_path, logger, config: dict):
         self.output_path = output_path
         self.logger = logger
-        self.size = size
+        self.size: int = int(config.get('size', '0'))
         self.input_type = None
         self.output_type = None
         self.start: datetime.datetime
@@ -74,11 +77,11 @@ class RAWSxxx_10():
             file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
             self.hdr.write(file_name)
             file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-            _generate_bin_file(file_name, self.size)
+            self._generate_bin_file(file_name, self.size)
 
             tstart += tslice
 
-    def parse_inputs(self, input_products):
+    def parse_inputs(self, input_products) -> bool:
         # Extract information from input files.
         # First determine input file type, using the directory name.
         gen = product_name.ProductName()
@@ -110,7 +113,7 @@ class RAWSxxx_10():
             self._generate_sliced_output(self.output_type)
 
 
-class Sx_RAW__0x_generator():
+class Sx_RAW__0x_generator(ProductGeneratorBase):
     '''Level-0 slice based products generation. Produce types:
         - Sx_RAW__0S    Stripmap Standard
         - Sx_RAWP_0M
@@ -121,7 +124,7 @@ class Sx_RAW__0x_generator():
     Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
 
-    def __init__(self, output_path, logger, output_type, size):
+    def __init__(self, output_path, logger, config: dict):
         self.output_path = output_path
         self.logger = logger
         self.input_type = None
@@ -130,29 +133,35 @@ class Sx_RAW__0x_generator():
         self.downlink: datetime.datetime
         self.baseline_id = 1
         self.hdr = mph.MainProductHeader()
-        self.output_type = output_type
-        self.size = size
+        self.output_type = config['type']
+        self.size = config['size']
+        self.meta_data_source: str = config.get('metadata_source', '.*')  # default any
 
     def parse_inputs(self, input_files) -> bool:
         # Determine input file type, using the directory name.
         gen = product_name.ProductName()
         for product in input_files:
-            if gen.parse_path(product):
-                self.input_type = gen.file_type
-                self.start = gen.start_time
-                self.stop = gen.stop_time
-                self.baseline_id = gen.baseline_identifier
-                if (gen.get_level() == 'raw'):
-                    self.downlink = gen.downlink_time
-            else:
-                self.logger.error('Filename {} not valid for Biomass'.format(product))
+            if not os.path.isdir(product):
+                self.logger.error('input {} must be a directory'.format(product))
                 return False
-            # TODO: Select if this is 'the' input product to parse
-            # TODO: we could make a copy here...
-            hdr = self.hdr
-            # Derive mph file name from product name
-            mph_file_name = os.path.join(product, gen.generate_mph_file_name())
-            hdr.parse(mph_file_name)
+            pattern = self.meta_data_source
+            if re.match(pattern, product):
+                self.logger.debug('Using {} as metadata source for {}'.format(os.path.basename(product), self.output_type))
+                if gen.parse_path(product):
+                    self.input_type = gen.file_type
+                    self.start = gen.start_time
+                    self.stop = gen.stop_time
+                    self.baseline_id = gen.baseline_identifier
+                    if (gen.get_level() == 'raw'):
+                        self.downlink = gen.downlink_time
+                else:
+                    self.logger.error('Filename {} not valid for Biomass'.format(product))
+                    return False
+
+                hdr = self.hdr
+                # Derive mph file name from product name
+                mph_file_name = os.path.join(product, gen.generate_mph_file_name())
+                hdr.parse(mph_file_name)
         return True
 
     def generate_output(self):
@@ -187,23 +196,24 @@ class Sx_RAW__0x_generator():
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        _generate_bin_file(file_name, self.size//2)
+        self._generate_bin_file(file_name, self.size//2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        _generate_bin_file(file_name, self.size//2)
+        self._generate_bin_file(file_name, self.size//2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
-        _generate_bin_file(file_name)
+        self._generate_bin_file(file_name)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
-        _generate_bin_file(file_name)
+        self._generate_bin_file(file_name)
 
 
-def OutputGeneratorFactory(path, logger, type, size):
+def OutputGeneratorFactory(path, logger, config) -> Optional[IProductGenerator]:
     generator = None
-    if type in ['RAWSxxx_10']:
-        generator = RAWSxxx_10(path, logger, size)
-    elif type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
-        generator = Sx_RAW__0x_generator(path, logger, type, size)
+    product_type = config['type']
+    if product_type in ['RAWSxxx_10']:
+        generator = RAWSxxx_10(path, logger, config)
+    elif product_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
+        generator = Sx_RAW__0x_generator(path, logger, config)
     else:
-        logger.error('No generator for type {} in this plugin'.format(type))
+        logger.error('No generator for product type {} in Biomass plugin'.format(product_type))
     return generator
