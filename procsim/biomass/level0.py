@@ -14,10 +14,17 @@ from biomass import mph
 
 
 def _generate_bin_file(file_name, size=0):
+    '''Generate binary file starting with a short ASCII header, followed by
+    'size' - headersize random data bytes.'''
+    CHUNK_SIZE = 2**20
     file = open(file_name, 'wb')
     hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
     file.write(hdr)
-    file.write(os.urandom(max(size - len(hdr), 0)))
+    size -= len(hdr)
+    while size > 0:
+        amount = min(size, CHUNK_SIZE)
+        file.write(os.urandom(max(amount, 0)))
+        size -= amount
 
 
 class RAWSxxx_10():
