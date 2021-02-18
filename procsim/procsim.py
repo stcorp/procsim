@@ -187,11 +187,18 @@ class JobOrderParser:
 
     def _parse(self, filename):
         tree = et.parse(filename)
-        self.processor_name = tree.find('.//Processor_Name').text
-        self.processor_version = tree.find('.//Version').text
+        root = tree.getroot()
+        if root.tag == 'Job_Order':
+            self._parse_icd_2020(root)
+        else:
+            self._parse_ipf_2009(root)
+
+    def _parse_ipf_2009(self, root: et.Element):
+        self.processor_name = root.find('.//Processor_Name').text
+        self.processor_version = root.find('.//Version').text
 
         # Build list of tasks
-        for task_el in tree.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
+        for task_el in root.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
             task = lambda: 0
             task.name = task_el.find('Task_Name').text
             task.version = task_el.find('Task_Version').text
@@ -211,8 +218,40 @@ class JobOrderParser:
             self.tasks.append(task)
 
         # List of processing parameters
-        for param in tree.find('Processing_Parameters').findall('Processing_Parameter'):
+        for param in root.find('Processing_Parameters').findall('Processing_Parameter'):
             self.processing_parameters[param.find('Name').text] = param.find('Value').text
+
+    def _parse_icd_2020(self, root: et.Element):
+        print('Parsing according to ESA-EOPG-EEGS-ID-0083')
+        proc = root.find('Processor_Configuration')
+        self.processor_name = proc.findtext('Processor_Name')
+        self.processor_version = proc.findtext('Processor_Version')
+
+        # Build list of tasks
+        for task_el in root.find('List_of_Tasks').findall('Task'):
+            task = lambda: 0
+            task.name = task_el.findtext('Task_Name')
+            task.version = task_el.findtext('Task_Version')
+            task.input_files = []
+            task.outputs = []
+            for input_el in task_el.find('List_of_Inputs').findall('Input'):
+                input_id = input_el.findtext('Input_ID')
+                alternative_input_id = input_el.findtext('Alternative_ID')
+                file_types_el = input_el.find('List_of_File_Types')
+                file_type = file_types_el.find('File_Type')
+                for file_el in file_types_el.find('List_of_File_Names').findall('File_Name'):
+                    # File names can contain wildcards. Todo!
+                    task.input_files.extend(self._find_matching_files(file_el.text))
+            for output_el in task_el.find('List_of_Outputs').findall('Output'):
+                output_type = output_el.find('File_Type').text
+                output_dir = output_el.find('File_Dir').text
+                file_name_pattern = output_el.find('File_Name_Pattern').text
+                task.outputs.append({'type': output_type, 'dir': output_dir, 'pattern': file_name_pattern})
+            self.tasks.append(task)
+
+            # List of processing parameters
+            for param in task_el.find('List_of_Proc_Parameters').findall('Proc_Parameter'):
+                self.processing_parameters[param.findtext('Name')] = param.findtext('Value')
 
 
 class WorkSimulator:
