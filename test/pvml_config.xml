@@ -4,8 +4,8 @@
   <taskTablePath>tasktables</taskTablePath>
   <workspaceDirectory>workspace</workspaceDirectory>
   <taskTableSchema>test/tasktable.xsd</taskTableSchema>
-  <jobOrderSchema>test/joborder.xsd</jobOrderSchema>
-  <ProcessorInterfaceVersion>0</ProcessorInterfaceVersion>
+  <jobOrderSchema>test/joborder_new.xsd</jobOrderSchema>
+  <ProcessorInterfaceVersion>1</ProcessorInterfaceVersion>
   <processingStation>GAT</processingStation>  <!-- This value will be used to populate the corresponding entry in the JobOrder file.-->
   <splitLoggingLevel>false</splitLoggingLevel>
   <globalBreakpointEnable>false</globalBreakpointEnable>
