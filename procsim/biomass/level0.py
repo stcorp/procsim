@@ -16,6 +16,19 @@ from biomass import constants, mph, product_name
 class ProductGeneratorBase(IProductGenerator):
     '''Biomass product generator (abstract) base class.'''
 
+    def __init__(self, output_path, logger, config: dict):
+        self.output_path = output_path
+        self.logger = logger
+        self.output_type = config['type']
+        self.size: int = int(config.get('size', '0'))
+        self.meta_data_source: str = config.get('metadata_source', '.*')  # default any
+        self.input_type = None
+        self.start: datetime.datetime
+        self.stop: datetime.datetime
+        self.downlink: datetime.datetime
+        self.baseline_id = 1
+        self.hdr = mph.MainProductHeader()
+
     def _generate_bin_file(self, file_name, size=0):
         '''Generate binary file starting with a short ASCII header, followed by
         'size' - headersize random data bytes.'''
@@ -29,21 +42,39 @@ class ProductGeneratorBase(IProductGenerator):
             file.write(os.urandom(max(amount, 0)))
             size -= amount
 
+    def parse_inputs(self, input_products) -> bool:
+        # Extract metadata from an input product
+        gen = product_name.ProductName()
+        for product in input_products:
+            if not os.path.isdir(product):
+                self.logger.error('input {} must be a directory'.format(product))
+                return False
+            pattern = self.meta_data_source
+            if re.match(pattern, product):
+                self.logger.debug('Using {} as metadata source for {}'.format(os.path.basename(product), self.output_type))
+                if gen.parse_path(product):
+                    self.input_type = gen.file_type
+                    self.start = gen.start_time
+                    self.stop = gen.stop_time
+                    self.baseline_id = gen.baseline_identifier
+                    if (gen.get_level() == 'raw'):
+                        self.downlink = gen.downlink_time
+                else:
+                    self.logger.error('Filename {} not valid for Biomass'.format(product))
+                    return False
+
+                hdr = self.hdr
+                # Derive mph file name from product name
+                mph_file_name = os.path.join(product, gen.generate_mph_file_name())
+                hdr.parse(mph_file_name)
+        return True
+
 
 class RAWSxxx_10(ProductGeneratorBase):
     '''Raw slice-based products generation. The slice validity start/stop times
     are set.'''
     def __init__(self, output_path, logger, config: dict):
-        self.output_path = output_path
-        self.logger = logger
-        self.size: int = int(config.get('size', '0'))
-        self.input_type = None
-        self.output_type = None
-        self.start: datetime.datetime
-        self.stop: datetime.datetime
-        self.downlink: datetime.datetime
-        self.baseline_id = 1
-        self.hdr = mph.MainProductHeader()
+        super().__init__(output_path, logger, config)
 
     def _generate_sliced_output(self, type):
         '''Generate slices for this data take. Slices start and stop on a fixed
@@ -81,28 +112,6 @@ class RAWSxxx_10(ProductGeneratorBase):
 
             tstart += tslice
 
-    def parse_inputs(self, input_products) -> bool:
-        # Extract information from input files.
-        # First determine input file type, using the directory name.
-        gen = product_name.ProductName()
-        for product in input_products:
-            if gen.parse_path(product):
-                self.input_type = gen.file_type
-                self.start = gen.start_time
-                self.stop = gen.stop_time
-                self.downlink = gen.downlink_time
-                self.baseline_id = gen.baseline_identifier
-            else:
-                self.logger.error('Filename {} not valid for Biomass'.format(product))
-                return False
-            # TODO: Select if this is 'the' input product to parse
-            # TODO: we could make a copy here...
-            hdr = self.hdr
-            # Derive mph file name from product name
-            mph_file_name = os.path.join(product, gen.generate_mph_file_name())
-            hdr.parse(mph_file_name)
-        return True
-
     def generate_output(self):
         # Generate sliced versions of the input products
         pattern = 'RAW_[0-9]{3}_[0-9]{2}'
@@ -125,44 +134,7 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
     TODO: Where to get this value from...?'''
 
     def __init__(self, output_path, logger, config: dict):
-        self.output_path = output_path
-        self.logger = logger
-        self.input_type = None
-        self.start: datetime.datetime
-        self.stop: datetime.datetime
-        self.downlink: datetime.datetime
-        self.baseline_id = 1
-        self.hdr = mph.MainProductHeader()
-        self.output_type = config['type']
-        self.size = config['size']
-        self.meta_data_source: str = config.get('metadata_source', '.*')  # default any
-
-    def parse_inputs(self, input_files) -> bool:
-        # Determine input file type, using the directory name.
-        gen = product_name.ProductName()
-        for product in input_files:
-            if not os.path.isdir(product):
-                self.logger.error('input {} must be a directory'.format(product))
-                return False
-            pattern = self.meta_data_source
-            if re.match(pattern, product):
-                self.logger.debug('Using {} as metadata source for {}'.format(os.path.basename(product), self.output_type))
-                if gen.parse_path(product):
-                    self.input_type = gen.file_type
-                    self.start = gen.start_time
-                    self.stop = gen.stop_time
-                    self.baseline_id = gen.baseline_identifier
-                    if (gen.get_level() == 'raw'):
-                        self.downlink = gen.downlink_time
-                else:
-                    self.logger.error('Filename {} not valid for Biomass'.format(product))
-                    return False
-
-                hdr = self.hdr
-                # Derive mph file name from product name
-                mph_file_name = os.path.join(product, gen.generate_mph_file_name())
-                hdr.parse(mph_file_name)
-        return True
+        super().__init__(output_path, logger, config)
 
     def generate_output(self):
         # Level 0 standard product
