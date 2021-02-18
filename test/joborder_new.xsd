@@ -15,14 +15,34 @@
               <xs:element name="List_of_Stdout_Log_Levels">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="Stdout_Log_Level" type="xs:string" minOccurs="0" maxOccurs="5"/>  <!-- TODO: enums -->
+                    <xs:element name="Stdout_Log_Level" minOccurs="0" maxOccurs="5">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:enumeration value="DEBUG"/>
+                          <xs:enumeration value="INFO"/>
+                          <xs:enumeration value="PROGRESS"/>
+                          <xs:enumeration value="WARNING"/>
+                          <xs:enumeration value="ERROR"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
               <xs:element name="List_of_Stderr_Log_Levels">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="Stderr_Log_Level" type="xs:string" minOccurs="0" maxOccurs="5"/>  <!-- TODO: enums -->
+                    <xs:element name="Stderr_Log_Level" minOccurs="0" maxOccurs="5">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:enumeration value="DEBUG"/>
+                          <xs:enumeration value="INFO"/>
+                          <xs:enumeration value="PROGRESS"/>
+                          <xs:enumeration value="WARNING"/>
+                          <xs:enumeration value="ERROR"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

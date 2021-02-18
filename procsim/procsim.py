@@ -169,8 +169,7 @@ class JobOrderParser:
         self.processor_version = ''
         self.node = 'TODO'  # Not in this version of the XML
         self.tasks = []
-        # TODO: hard coded for now, get from new-style job orders
-        self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
+        self.stdout_levels = []
         self.stderr_levels = []
         self.processing_parameters = {}
         self._parse(filename)
@@ -196,6 +195,8 @@ class JobOrderParser:
     def _parse_ipf_2009(self, root: et.Element):
         self.processor_name = root.find('.//Processor_Name').text
         self.processor_version = root.find('.//Version').text
+        # TODO: parse from job order
+        self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
 
         # Build list of tasks
         for task_el in root.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
@@ -226,6 +227,12 @@ class JobOrderParser:
         proc = root.find('Processor_Configuration')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
+        self.stdout_levels = []
+        self.stderr_levels = []
+        for level_el in proc.find('List_of_Stdout_Log_Levels').findall('Stdout_Log_Level'):
+            self.stdout_levels.append(level_el.text)
+        for level_el in proc.find('List_of_Stderr_Log_Levels').findall('Stderr_Log_Level'):
+            self.stderr_levels.append(level_el.text)
 
         # Build list of tasks
         for task_el in root.find('List_of_Tasks').findall('Task'):
