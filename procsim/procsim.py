@@ -223,7 +223,6 @@ class JobOrderParser:
             self.processing_parameters[param.find('Name').text] = param.find('Value').text
 
     def _parse_icd_2020(self, root: et.Element):
-        print('Parsing according to ESA-EOPG-EEGS-ID-0083')
         proc = root.find('Processor_Configuration')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
