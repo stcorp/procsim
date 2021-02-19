@@ -58,7 +58,7 @@ def read_config(filename, logger):
     return None
 
 
-def OutputFactory(mission, logger, output_path, output_cfg):
+def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg):
     '''Return an output generator for the given parameters.'''
 
     # Import plugin for this mission
@@ -75,7 +75,7 @@ def OutputFactory(mission, logger, output_path, output_cfg):
             mission, processor))
         return None
     # Use plugin factory to create generator
-    generator = factory(output_path, logger, output_cfg)
+    generator = factory(logger, job_output_cfg, scenario_output_cfg)
     return generator
 
 
@@ -213,9 +213,12 @@ class JobOrderParser:
                     else:
                         task.input_files.append(file_el.text)
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
-                output_type = output_el.find('File_Type').text
-                output_dir = output_el.find('File_Name').text
-                task.outputs.append({'type': output_type, 'dir': output_dir})
+                output = lambda: 0
+                output.type = output_el.find('File_Type').text
+                output.dir = output_el.find('File_Name').text
+                output.baseline = 0  # Not available
+                output.file_name_pattern = ''  # Not available
+                task.outputs.append(output)
             self.tasks.append(task)
 
         # List of processing parameters
@@ -249,10 +252,12 @@ class JobOrderParser:
                     # File names can contain wildcards. Todo!
                     task.input_files.extend(self._find_matching_files(file_el.text))
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
-                output_type = output_el.find('File_Type').text
-                output_dir = output_el.find('File_Dir').text
-                file_name_pattern = output_el.find('File_Name_Pattern').text
-                task.outputs.append({'type': output_type, 'dir': output_dir, 'pattern': file_name_pattern})
+                output = lambda: 0
+                output.type = output_el.findtext('File_Type')
+                output.dir = output_el.findtext('File_Dir')
+                output.baseline = int(output_el.findtext('Baseline', '0'))
+                output.file_name_pattern = output_el.findtext('File_Name_Pattern')
+                task.outputs.append(output)
             self.tasks.append(task)
 
             # List of processing parameters
@@ -288,7 +293,7 @@ def compare_inputs(scenario, task):
 def compare_outputs(scenario, task):
     # Every output type in the scenario should be in the task config
     scenario_output_types = {op['type'] for op in scenario['outputs']}
-    task_output_types = {op['type'] for op in task.outputs}
+    task_output_types = {op.type for op in task.outputs}
     return scenario_output_types == task_output_types
 
 
@@ -388,10 +393,15 @@ def main():
         os.path.basename(job_filename)))
 
     # Create product generators, parse inputs
-    output_path = job_task.outputs[0]['dir']    # TODO: this is not good! How to find output directory?
     generators = []
     for output_cfg in scenario['outputs']:
-        generator = OutputFactory(cfg['mission'], logger, output_path, output_cfg)
+        # Find corresponding output parameters in JobOrder task config
+        job_output_cfg = None
+        for job_output_cfg in job_task.outputs:
+             if job_output_cfg.type == output_cfg['type']:
+                 break
+
+        generator = OutputFactory(cfg['mission'], logger, job_output_cfg, output_cfg)
         if (generator is None):
             sys.exit(1)
         if not generator.parse_inputs(job_task.input_files):

@@ -16,17 +16,17 @@ from biomass import constants, mph, product_name
 class ProductGeneratorBase(IProductGenerator):
     '''Biomass product generator (abstract) base class.'''
 
-    def __init__(self, output_path, logger, config: dict):
-        self.output_path = output_path
+    def __init__(self, logger, job_config, scenario_config: dict):
+        self.output_path = job_config.dir
+        self.baseline_id = job_config.baseline
         self.logger = logger
-        self.output_type = config['type']
-        self.size: int = int(config.get('size', '0'))
-        self.meta_data_source: str = config.get('metadata_source', '.*')  # default any
+        self.output_type = scenario_config['type']
+        self.size: int = int(scenario_config.get('size', '0'))
+        self.meta_data_source: str = scenario_config.get('metadata_source', '.*')  # default any
         self.input_type = None
         self.start: datetime.datetime
         self.stop: datetime.datetime
         self.downlink: datetime.datetime
-        self.baseline_id = 1
         self.hdr = mph.MainProductHeader()
 
     def _generate_bin_file(self, file_name, size=0):
@@ -56,7 +56,7 @@ class ProductGeneratorBase(IProductGenerator):
                     self.input_type = gen.file_type
                     self.start = gen.start_time
                     self.stop = gen.stop_time
-                    self.baseline_id = gen.baseline_identifier
+                    # self.baseline_id = gen.baseline_identifier  # No, read from job order
                     if (gen.get_level() == 'raw'):
                         self.downlink = gen.downlink_time
                 else:
@@ -73,8 +73,8 @@ class ProductGeneratorBase(IProductGenerator):
 class RAWSxxx_10(ProductGeneratorBase):
     '''Raw slice-based products generation. The slice validity start/stop times
     are set.'''
-    def __init__(self, output_path, logger, config: dict):
-        super().__init__(output_path, logger, config)
+    def __init__(self, logger, job_config, scenario_config: dict):
+        super().__init__(logger, job_config, scenario_config)
 
     def _generate_sliced_output(self, type):
         '''Generate slices for this data take. Slices start and stop on a fixed
@@ -133,8 +133,8 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
     Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
 
-    def __init__(self, output_path, logger, config: dict):
-        super().__init__(output_path, logger, config)
+    def __init__(self, logger, job_config, scenario_config: dict):
+        super().__init__(logger, job_config, scenario_config)
 
     def generate_output(self):
         # Level 0 standard product
@@ -179,13 +179,13 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
         self._generate_bin_file(file_name)
 
 
-def OutputGeneratorFactory(path, logger, config) -> Optional[IProductGenerator]:
+def OutputGeneratorFactory(logger, job_config, scenario_config) -> Optional[IProductGenerator]:
     generator = None
-    product_type = config['type']
+    product_type = scenario_config['type']
     if product_type in ['RAWSxxx_10']:
-        generator = RAWSxxx_10(path, logger, config)
+        generator = RAWSxxx_10(logger, job_config, scenario_config)
     elif product_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
-        generator = Sx_RAW__0x_generator(path, logger, config)
+        generator = Sx_RAW__0x_generator(logger, job_config, scenario_config)
     else:
         logger.error('No generator for product type {} in Biomass plugin'.format(product_type))
     return generator
