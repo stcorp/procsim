@@ -268,21 +268,24 @@ class JobOrderParser:
 class WorkSimulator:
     '''This class is responsible for simulating the actual processing,
     by consuming resources'''
-    def __init__(self, logger, task_config):
+    def __init__(self, logger, task_config: dict):
         self.logger = logger
-        self.time = task_config['processing_time']
-        self.nr_cpu = task_config['nr_cpu']
-        self.memory = task_config['memory_usage']
-        self.disk_space = task_config['disk_usage']
+        self.time = task_config.get('processing_time', 0)
+        self.nr_cpu = task_config.get('nr_cpu', 1)
+        self.memory = task_config.get('memory_usage', 0)
+        self.disk_space = task_config.get('disk_usage', 0)
+        self.nr_progress_log_messages = task_config.get('nr_progress_log_messages', 0)
 
     def start(self):
         '''Blocks until done (TODO: make non-blocking?)'''
-        for progress in range(0, 100, 20):
-            self.logger.info('Working, progress {}%'.format(progress))
+        nr_steps = max(self.nr_progress_log_messages, 1)
+        step = int(100 / nr_steps)
+        for progress in range(0, 100, step):
+            if self.nr_progress_log_messages > 0:
+                self.logger.info('Working, progress {}%'.format(progress))
             now = time.time()
-            while now + self.time / 5 > time.time():
+            while now + self.time / nr_steps > time.time():
                 pass
-        self.logger.info('Task complete')
 
 
 def compare_inputs(scenario, task):
@@ -439,6 +442,7 @@ def main():
         gen.generate_output()
 
     exit_code = scenario['exit_code']
+    logger.info('Task done, exit with code {}'.format(exit_code))
     exit(exit_code)
 
 

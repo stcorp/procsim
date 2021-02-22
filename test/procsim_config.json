@@ -19,6 +19,7 @@
       "memory_usage": 4000000,
       "disk_usage": 0,
 
+      "nr_progress_log_messages": 4,
       "logging": [
         {
           "level": "debug",
