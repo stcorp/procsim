@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import time
+from typing import List, Optional
 from xml.etree import ElementTree as et
 
 import common
@@ -26,6 +27,44 @@ Usage:
     procsim <task_filename> <jobOrder_filename> <config_filename>
         Simulate the task as described in the JobOrder file.
 """
+
+
+class JobOrderInput():
+    '''Data class describing input product'''
+    def __init__(self):
+        self.id: str
+        self.alternative_input_id: str
+        self.file_type: str
+        self.file_names: List[str] = []
+
+
+class JobOrderOutput():
+    '''Data class with list of output products'''
+    def __init__(self):
+        self.type: str
+        self.dir: str
+        self.baseline: int
+        self.file_name_pattern: str
+
+
+class JobOrderTask():
+    '''Data class with list of tasks'''
+    def __init__(self):
+        self.name: str
+        self.version: str
+        self.inputs: List[JobOrderInput] = []
+        self.outputs: List[JobOrderOutput] = []
+
+
+class IProductGenerator(abc.ABC):
+    '''Interface for product generators'''
+    @abc.abstractmethod
+    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def generate_output(self):
+        pass
 
 
 def read_config(filename, logger):
@@ -58,9 +97,8 @@ def read_config(filename, logger):
     return None
 
 
-def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg):
+def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg) -> Optional[IProductGenerator]:
     '''Return an output generator for the given parameters.'''
-
     # Import plugin for this mission
     try:
         mod = importlib.import_module(mission + '.product_generator_factory')
@@ -85,17 +123,6 @@ def print_stdout(*args, **kwargs):
     print(*args, file=sys.stdout, **kwargs)
 
 
-class IProductGenerator(abc.ABC):
-    '''Interface for product generators'''
-    @abc.abstractmethod
-    def parse_inputs(self, inputs) -> bool:
-        pass
-
-    @abc.abstractmethod
-    def generate_output(self):
-        pass
-
-
 class Logger:
     '''This class is responsible for generating Log messages on stdout and
     stderr, formatted according to ESA-EOPG-EEGS-ID-0083.'''
@@ -105,7 +132,7 @@ class Logger:
         self.node_name = node_name
         self.processor_name = processor_name
         self.processor_version = processor_version
-        self.task_name = task_name
+        self.task_name: str = task_name
         self.pid = os.getpid()
         self.header_separator = ':'
         self.stdout_levels = stdout_levels
@@ -165,9 +192,9 @@ class JobOrderParser:
         self.processor_name = ''
         self.processor_version = ''
         self.node = 'N/A'
-        self.tasks = []
-        self.stdout_levels = []
-        self.stderr_levels = []
+        self.tasks: List[JobOrderTask] = []
+        self.stdout_levels: List[str]
+        self.stderr_levels: List[str]
         self.processing_parameters = {}
         self._parse(filename)
 
@@ -190,6 +217,8 @@ class JobOrderParser:
             self._parse_ipf_2009(root)
 
     def _parse_ipf_2009(self, root: et.Element):
+        '''Parse 'old style' JobOrders. Note that this feature is only for test,
+        as many fields do not exists and/or are different in the new ICD.'''
         self.processor_name = root.find('.//Processor_Name').text
         self.processor_version = root.find('.//Version').text
         # TODO: parse from job order
@@ -197,22 +226,26 @@ class JobOrderParser:
 
         # Build list of tasks
         for task_el in root.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
-            task = lambda: 0
-            task.name = task_el.find('Task_Name').text
-            task.version = task_el.find('Task_Version').text
-            task.input_files = []
+            task = JobOrderTask()
+            task.name = task_el.findtext('Task_Name', '')
+            task.version = task_el.findtext('Task_Version', '')
+            task.inputs = []
             task.outputs = []
             for input_el in task_el.find('List_of_Inputs').findall('Input'):
-                file_name_type = input_el.find('File_Name_Type')
+                input = JobOrderInput()
+                input.id = '0'
+                input.alternative_input_id = '0'
+                input.file_type = ''
+                file_name_type_el = input_el.find('File_Name_Type')
                 for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
-                    if file_name_type is not None and file_name_type.text == 'Regexp':
-                        task.input_files.extend(self._find_matching_files(file_el.text))
+                    if file_name_type_el is not None and file_name_type_el.text == 'Regexp':
+                        input.file_names.extend(self._find_matching_files(file_el.text))
                     else:
-                        task.input_files.append(file_el.text)
+                        input.file_names.append(file_el.text or '')
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
-                output = lambda: 0
-                output.type = output_el.find('File_Type').text
-                output.dir = output_el.find('File_Name').text
+                output = JobOrderOutput()
+                output.type = output_el.findtext('File_Type', '')
+                output.dir = output_el.findtext('File_Name', '')
                 output.baseline = 0  # Not available
                 output.file_name_pattern = ''  # Not available
                 task.outputs.append(output)
@@ -230,31 +263,32 @@ class JobOrderParser:
         self.stdout_levels = []
         self.stderr_levels = []
         for level_el in proc.find('List_of_Stdout_Log_Levels').findall('Stdout_Log_Level'):
-            self.stdout_levels.append(level_el.text)
+            self.stdout_levels.append(level_el.text or '')
         for level_el in proc.find('List_of_Stderr_Log_Levels').findall('Stderr_Log_Level'):
-            self.stderr_levels.append(level_el.text)
+            self.stderr_levels.append(level_el.text or '')
 
         # Build list of tasks
         for task_el in root.find('List_of_Tasks').findall('Task'):
-            task = lambda: 0
-            task.name = task_el.findtext('Task_Name')
-            task.version = task_el.findtext('Task_Version')
-            task.input_files = []
+            task = JobOrderTask()
+            task.name = task_el.findtext('Task_Name', '')
+            task.version = task_el.findtext('Task_Version', '')
+            task.inputs = []
             task.outputs = []
             for input_el in task_el.find('List_of_Inputs').findall('Input'):
-                input_id = input_el.findtext('Input_ID')
-                alternative_input_id = input_el.findtext('Alternative_ID')
+                input = JobOrderInput()
+                input.id = input_el.findtext('Input_ID', '')
+                input.alternative_input_id = input_el.findtext('Alternative_ID', '')
                 file_types_el = input_el.find('List_of_File_Types')
-                file_type = file_types_el.find('File_Type')
-                for file_el in file_types_el.find('List_of_File_Names').findall('File_Name'):
-                    # File names can contain wildcards. Todo!
-                    task.input_files.extend(self._find_matching_files(file_el.text))
+                input.file_type = file_types_el.findtext('File_Type', '')
+                for file_name_el in file_types_el.find('List_of_File_Names').findall('File_Name'):
+                    input.file_names.append(file_name_el.text or '')
+                task.inputs.append(input)
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
-                output = lambda: 0
-                output.type = output_el.findtext('File_Type')
-                output.dir = output_el.findtext('File_Dir')
+                output = JobOrderOutput()
+                output.type = output_el.findtext('File_Type', '')
+                output.dir = output_el.findtext('File_Dir', '')  # Can be empty or omitted
                 output.baseline = int(output_el.findtext('Baseline', '0'))
-                output.file_name_pattern = output_el.findtext('File_Name_Pattern')
+                output.file_name_pattern = output_el.findtext('File_Name_Pattern', '')
                 task.outputs.append(output)
             self.tasks.append(task)
 
@@ -411,8 +445,9 @@ def main():
 
     for param, value in job.processing_parameters.items():
         logger.info('Processing parameter {} = {}'.format(param, value))
-    for file_name in job_task.input_files:
-        logger.info('Input: {}'.format(os.path.basename(file_name)))
+    for input in job_task.inputs:
+        for file_name in input.file_names:
+            logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
     logger.info('Starting, simulating scenario {}, Order {}'.format(
         scenario['name'],
         os.path.basename(job_filename)))
@@ -429,7 +464,7 @@ def main():
         generator = OutputFactory(cfg['mission'], logger, job_output_cfg, output_cfg)
         if (generator is None):
             sys.exit(1)
-        if not generator.parse_inputs(job_task.input_files):
+        if not generator.parse_inputs(job_task.inputs):
             sys.exit(1)
         generators.append(generator)
 

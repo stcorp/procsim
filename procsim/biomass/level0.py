@@ -7,8 +7,10 @@ format according to BIO-ESA-EOPG-EEGS-TN-0045
 import datetime
 import os
 import re
+from typing import List
 
-from procsim import IProductGenerator
+from procsim import IProductGenerator, JobOrderInput
+
 from biomass import constants, mph, product_name
 
 
@@ -41,37 +43,46 @@ class ProductGeneratorBase(IProductGenerator):
             file.write(os.urandom(max(amount, 0)))
             size -= amount
 
-    def parse_inputs(self, input_products) -> bool:
-        # Extract metadata from an input product
+    def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
+        # Walk over all files, check if it is a directory (all biomass products
+        # are directories), extract metadata if this product matches
+        # self.meta_data_source.
         gen = product_name.ProductName()
-        for product in input_products:
-            if not os.path.isdir(product):
-                self.logger.error('input {} must be a directory'.format(product))
-                return False
-            pattern = self.meta_data_source
-            if re.match(pattern, product):
-                self.logger.debug('Parse {} for {}'.format(os.path.basename(product), self.output_type))
-                if gen.parse_path(product):
-                    self.input_type = gen.file_type
-                    self.start = gen.start_time
-                    self.stop = gen.stop_time
-                    # self.baseline_id = gen.baseline_identifier  # No, read from job order
-                    if (gen.get_level() == 'raw'):
-                        self.downlink = gen.downlink_time
-                else:
-                    self.logger.error('Filename {} not valid for Biomass'.format(product))
+        pattern = self.meta_data_source
+        mph_is_parsed = False
+        for input in input_products:
+            for file in input.file_names:
+                if not os.path.isdir(file):
+                    self.logger.error('input {} must be a directory'.format(file))
                     return False
-
-                hdr = self.hdr
-                # Derive mph file name from product name
-                mph_file_name = os.path.join(product, gen.generate_mph_file_name())
-                hdr.parse(mph_file_name)
-        return True
+                if not mph_is_parsed and re.match(pattern, file):
+                    self.logger.debug('Parse {} for {}'.format(os.path.basename(file), self.output_type))
+                    if gen.parse_path(file):
+                        self.input_type = gen.file_type
+                        self.start = gen.start_time
+                        self.stop = gen.stop_time
+                        if (gen.get_level() == 'raw'):
+                            self.downlink = gen.downlink_time
+                    else:
+                        self.logger.error('Filename {} not valid for Biomass'.format(file))
+                        return False
+                    # Derive mph file name from product name, parse header
+                    hdr = self.hdr
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr.parse(mph_file_name)
+                    mph_is_parsed = True
+        if not mph_is_parsed:
+            self.logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
+        return mph_is_parsed
 
 
 class RAWSxxx_10(ProductGeneratorBase):
-    '''Raw slice-based products generation. The slice validity start/stop times
-    are set.'''
+    '''Raw slice-based products generation.
+    For every slice, the slice validity start/stop times are set.'''
+    PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
+                'RAWS026_10', 'RAWS027_10', 'RAWS028_10', 'RAWS035_10',
+                'RAWS036_10']
+
     def __init__(self, logger, job_config, scenario_config: dict):
         super().__init__(logger, job_config, scenario_config)
 
@@ -122,15 +133,11 @@ class RAWSxxx_10(ProductGeneratorBase):
 
 
 class Sx_RAW__0x_generator(ProductGeneratorBase):
-    '''Level-0 slice based products generation. Produce types:
-        - Sx_RAW__0S    Stripmap Standard
-        - Sx_RAWP_0M
-        - RO_RAW__0S
-        - RO_RAWP_0M
-        - EC_RAW__0S
-        - EC_RAWP_0M
-    Copies MPH content, but sets the data_take identifier.
+    '''Level-0 slice based products generation. For all products:
+        Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
+    PRODUCTS = ['Sx_RAW__0S', 'Sx_RAWP_0M', 'RO_RAW__0S',
+                'RO_RAWP_0M', 'EC_RAW__0S', 'EC_RAWP_0M']
 
     def __init__(self, logger, job_config, scenario_config: dict):
         super().__init__(logger, job_config, scenario_config)
