@@ -62,17 +62,15 @@ def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg):
     '''Return an output generator for the given parameters.'''
 
     # Import plugin for this mission
-    processor = 'level0'  # TODO!
     try:
-        mod = importlib.import_module(mission + '.' + processor)
+        mod = importlib.import_module(mission + '.product_generator_factory')
     except ImportError:
-        logger.error('Cannot find plugin for mission {}, processor {}'.format(mission, processor))
+        logger.error('Cannot open plugin for mission {}'.format(mission))
         return None
     try:
         factory = getattr(mod, 'OutputGeneratorFactory')
     except AttributeError:
-        logger.error('Processor {} for plugin {} has no factory'.format(
-            mission, processor))
+        logger.error('Plugin {} has no factory'.format(mission))
         return None
     # Use plugin factory to create generator
     generator = factory(logger, job_output_cfg, scenario_output_cfg)

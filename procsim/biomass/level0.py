@@ -7,7 +7,6 @@ format according to BIO-ESA-EOPG-EEGS-TN-0045
 import datetime
 import os
 import re
-from typing import Optional
 
 from procsim import IProductGenerator
 from biomass import constants, mph, product_name
@@ -177,16 +176,3 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
         self._generate_bin_file(file_name)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
         self._generate_bin_file(file_name)
-
-
-def OutputGeneratorFactory(logger, job_config, scenario_config) -> Optional[IProductGenerator]:
-    generator = None
-    product_type = scenario_config['type']
-
-    if product_type in ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10', 'RAWS026_10', 'RAWS027_10', 'RAWS028_10', 'RAWS035_10', 'RAWS036_10']:
-        generator = RAWSxxx_10(logger, job_config, scenario_config)
-    elif product_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
-        generator = Sx_RAW__0x_generator(logger, job_config, scenario_config)
-    else:
-        logger.error('No generator for product type {} in Biomass plugin'.format(product_type))
-    return generator
