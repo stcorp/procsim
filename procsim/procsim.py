@@ -297,7 +297,7 @@ def compare_outputs(scenario, task):
     return scenario_output_types == task_output_types
 
 
-def find_fitting_scenario(task_filename, cfg, job: JobOrderParser):
+def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser):
     # Find out: do we have a scenario for this combination of JobOrder and filename?
     #
     # Compare every scenario with:
@@ -307,21 +307,46 @@ def find_fitting_scenario(task_filename, cfg, job: JobOrderParser):
     # 4. The list of outputs as specified in the jobOrder
 
     # Parse configuration, find configuration and job ordersettings for this Task.
+    exec_found = False
+    proc_found = False
+    task_found = False
+    matching_inputs_found = False
     file_name = os.path.basename(task_filename)
     for scenario in cfg['scenarios']:
-        if scenario['file_name'] != file_name or \
-           scenario['processor_name'] != job.processor_name or \
+        if scenario['file_name'] != file_name:
+            continue
+        exec_found = True
+        if scenario['processor_name'] != job.processor_name or \
            scenario['processor_version'] != job.processor_version:
             continue
+        proc_found = True
         for job_task in job.tasks:
             if scenario['task_name'] != job_task.name or \
                scenario['task_version'] != job_task.version:
                 continue
+            task_found = True
             if not compare_inputs(scenario, job_task):
                 continue
+            matching_inputs_found = True
             if not compare_outputs(scenario, job_task):
                 continue
             return scenario, job_task
+
+    if not exec_found:
+        logger.error('No scenario for {} found'.format(task_filename))
+    elif not proc_found:
+        logger.error('No scenario for {} and processor {} {} found'.format(
+            task_filename, job.processor_name, job.processor_version))
+    elif not task_found:
+        logger.error('No scenario with matching task found for {}.'.format(
+            task_filename))
+    elif not matching_inputs_found:
+        logger.error('No scenario with matching inputs found for {}.'.format(
+            task_filename))
+    else:
+        logger.error('No scenario with matching outputs found for {}.'.format(
+            task_filename))
+
     return None, None
 
 
@@ -375,9 +400,8 @@ def main():
         logger.error('Cannot read configuration file {}, exiting'.format(config_filename))
         sys.exit(1)
 
-    scenario, job_task = find_fitting_scenario(task_filename, cfg, job)
+    scenario, job_task = find_fitting_scenario(logger, task_filename, cfg, job)
     if scenario is None:
-        logger.error('A matching scenario for {} is not defined in the configuration'.format(task_filename))
         sys.exit(1)
 
     logger.task_name = job_task.name    # This info was not available before
@@ -398,8 +422,8 @@ def main():
         # Find corresponding output parameters in JobOrder task config
         job_output_cfg = None
         for job_output_cfg in job_task.outputs:
-             if job_output_cfg.type == output_cfg['type']:
-                 break
+            if job_output_cfg.type == output_cfg['type']:
+                break
 
         generator = OutputFactory(cfg['mission'], logger, job_output_cfg, output_cfg)
         if (generator is None):
