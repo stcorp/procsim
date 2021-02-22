@@ -161,13 +161,12 @@ class Logger:
 
 
 class JobOrderParser:
-    '''This class is responsible for reading and parsing the JobOrder.
-       TODO: This is all for 'old style' XML! Replace (or keep, and create additional class)'''
+    '''This class is responsible for reading and parsing the JobOrder.'''
 
     def __init__(self, filename):
         self.processor_name = ''
         self.processor_version = ''
-        self.node = 'TODO'  # Not in this version of the XML
+        self.node = 'N/A'
         self.tasks = []
         self.stdout_levels = []
         self.stderr_levels = []
@@ -229,6 +228,7 @@ class JobOrderParser:
         proc = root.find('Processor_Configuration')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
+        self.node = proc.findtext('Processing_Node')
         self.stdout_levels = []
         self.stderr_levels = []
         for level_el in proc.find('List_of_Stdout_Log_Levels').findall('Stdout_Log_Level'):
