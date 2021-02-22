@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <pvmlJob>
-  <jobOrderId>2</jobOrderId>
+  <jobOrderId>1</jobOrderId>
   
   <!-- This is the name of the processor. It is used, together with
   `processorVersion`, to find the appropriate TaskTable file for the job.-->
@@ -67,31 +67,21 @@
         expressions for this product type, then these expressions will be used to
         determine the start/stop time values. Otherwise, no start/stop time will
         be associated to the input file.-->
-
-        <!--
         <input product_type="RAW_022_10">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B0737M</file>
         </input>
         <input product_type="RAW_023_10">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B0737M</file>
         </input>
-        -->
-
-        <!--
+        <input product_type="RAW_024_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_B0737M</file>
+        </input>
         <input product_type="RAW_025_10">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_B0737M</file>
         </input>
-        -->
-
         <input product_type="RAW_026_10">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_B0737M</file>
         </input>
-        <!--
-        <input product_type="AUX_CN0_AX">
-          <file>data/AUX_CN0_AX/AUX_CN0_AXVIEC20030723_000000_19910101_000000_20101231_235959</file>
-        </input>
-        -->
-
       </inputs>
       <exitCode>0</exitCode>
     </task>

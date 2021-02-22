@@ -64,11 +64,11 @@
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
           <File_Name>../../test/level0_task1.sh</File_Name>
-          <List_of_Inputs count="1">
+          <List_of_Inputs count="5">
             <Input>
               <Mode>ALWAYS</Mode>
               <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="9">
+              <List_of_Alternatives count="1">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -79,6 +79,12 @@
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -89,6 +95,12 @@
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -99,6 +111,12 @@
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -109,6 +127,12 @@
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
@@ -119,34 +143,38 @@
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAW_035_10</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>RAW_036_10</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
               </List_of_Alternatives>
             </Input>
           </List_of_Inputs>
-          <List_of_Outputs count="1">
+          <List_of_Outputs count="5">
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>RAWSxxx_10</File_Type>
+              <File_Type>RAWS022_10</File_Type>
+              <File_Name_Type>Directory</File_Name_Type>
+            </Output>
+            <Output>
+              <Destination>DB</Destination>
+              <Mandatory>Yes</Mandatory>
+              <File_Type>RAWS023_10</File_Type>
+              <File_Name_Type>Directory</File_Name_Type>
+            </Output>
+            <Output>
+              <Destination>DB</Destination>
+              <Mandatory>Yes</Mandatory>
+              <File_Type>RAWS024_10</File_Type>
+              <File_Name_Type>Directory</File_Name_Type>
+            </Output>
+            <Output>
+              <Destination>DB</Destination>
+              <Mandatory>Yes</Mandatory>
+              <File_Type>RAWS025_10</File_Type>
+              <File_Name_Type>Directory</File_Name_Type>
+            </Output>
+            <Output>
+              <Destination>DB</Destination>
+              <Mandatory>Yes</Mandatory>
+              <File_Type>RAWS026_10</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>

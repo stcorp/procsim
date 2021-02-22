@@ -2,7 +2,7 @@
   "mission": "biomass", // Must match the plugin name
   "scenarios": [
     {
-      "name": "L0 task1 022",
+      "name": "L0 slicer",
 
       // File_name must match with the first argument of procsim
       "file_name": "level0_task1.sh",
@@ -10,7 +10,7 @@
       // Processor/task are used to find the right task in the job order
       "processor_name": "level0",
       "processor_version": "01.01",
-      "task_name": "Step1_022",
+      "task_name": "Step1",
       "task_version": "05.03L01",
 
       // Resources
@@ -19,7 +19,6 @@
       "memory_usage": 4000000,
       "disk_usage": 0,
 
-      // Add 'time' option (relative to stub start)? And/or 'at_start' and 'at_end'?
       "logging": [
         {
           "level": "debug",
@@ -34,11 +33,11 @@
           "message": "progress message from stub!"
         },
         {
-          "level": "warning",    // or debug, warning, progress, error
+          "level": "warning",
           "message": "warning message from stub!"
         },
         {
-          "level": "error",    // or debug, warning, progress, error
+          "level": "error",
           "message": "error message from stub!"
         }
       ],
@@ -50,56 +49,28 @@
       "outputs": [
         {
           "type": "RAWS022_10",
-          "metadata_source": ".*RAW_022_10.*", // Input to use, default is any
-          "size": 10000   // default is a few bytes
-        }
-      ],
-      "exit_code": 0
-    },
-    {
-      "name": "L0 task1 023",
-      "file_name": "level0_task1.sh",
-      "processor_name": "level0",
-      "processor_version": "01.01",
-      "task_name": "Step1_023",
-      "task_version": "05.03L01",
-      "processing_time": 1,
-      "nr_cpu": 1,
-      "memory_usage": 4000000,
-      "disk_usage": 0,
-      "inputs": [
-        {
-          "type": "RAW_023_10"
-        }
-      ],
-      "outputs": [
+          "metadata_source": ".*RAW_022_10.*", // Input to use
+          "size": 100000
+        },
         {
           "type": "RAWS023_10",
-          "size": 10000
-        }
-      ],
-      "exit_code": 0
-    },
-    {
-      "name": "L0 task1 025",
-      "file_name": "level0_task1.sh",
-      "processor_name": "level0",
-      "processor_version": "01.01",
-      "task_name": "Step1",
-      "task_version": "05.03L01",
-      "processing_time": 1,
-      "nr_cpu": 1,
-      "memory_usage": 4000000,
-      "disk_usage": 0,
-      "inputs": [
+          "metadata_source": ".*RAW_023_10.*",
+          "size": 100000
+        },
         {
-          "type": "RAW_025_10"
-        }
-      ],
-      "outputs": [
+          "type": "RAWS024_10",
+          "metadata_source": ".*RAW_024_10.*",
+          "size": 100000
+        },
         {
-          "type": "RAWSxxx_10",
-          "size": 1000000
+          "type": "RAWS025_10",
+          "metadata_source": ".*RAW_025_10.*",
+          "size": 100000
+        },
+        {
+          "type": "RAWS026_10",
+          "metadata_source": ".*RAW_026_10.*",
+          "size": 100000
         }
       ],
       "exit_code": 0
@@ -133,7 +104,7 @@
       "outputs": [
         {
           "type": "Sx_RAW__0S",
-          "metadata_source": ".*RAWS025_10.*", // Note: regex!
+          "metadata_source": ".*RAWS025_10.*",
           "size": 100000
         },
         {
