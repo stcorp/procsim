@@ -7,8 +7,8 @@ The processor is the entity responsible of the data processing and is composed b
 
 Tasks (executables) are called by the PF with a single command line argument: the file name of a JobOrder file. The JobOrder contains information for the Task, such as processing parameters, location of input data and which output data is expected.
 
-Procsim can be used to simulate a generic Task, in order to test the  nterface between the Processing Facility and the software implementing the Task.
-Procsim does not process the input data. However, it reads and interprets the JobOrder, uses resources (CPU, disk and memory) and generates dummy output data.
+Procsim can be used to simulate a generic Task, in order to test the interface between the Processing Facility and the software implementing the Task.
+Procsim does not do the actual processing. However, it reads and interprets the JobOrder, uses resources (CPU, disk and memory) and generates output data with correct directory/file names and valid Main Product Headers.
 
 ## Installation instructions
 To be able to use procsim, you will need:
