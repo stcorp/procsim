@@ -69,13 +69,13 @@ class Acquisition:
     def __init__(self):
         self.orbit_number: int = 1
         self.last_orbit_number: int = 1
-        self.orbit_direction: str = 'ASCENDING'  # Or DECENDING
-        self.track_nr: int = 133                 # gml:CodeWithAuthorityType
-        self.slice_frame_nr = '___'              # or the actual slice/frame number
+        self.orbit_direction: str = 'ASCENDING'     # Or DECENDING
+        self.track_nr: int = 133                    # gml:CodeWithAuthorityType
+        self.slice_frame_nr: Optional[int] = None   # None or the actual slice/frame number
         self.anx_date = datetime.datetime.now()
-        self.start_time: int = 0                 # in ms since ANX
-        self.completion_time: int = 0            # in ms since ANX
-        self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
+        self.start_time: int = 0                    # in ms since ANX
+        self.completion_time: int = 0               # in ms since ANX
+        self.mission_phase: str = 'COMMISSIONING'   # Or INTERFEROMETRIC, TOMOGRAPHIC
         self.instrument_config_id: int = 1
         self.data_take_id: int = 0
         self.orbit_drift_flag: bool = False
@@ -267,7 +267,7 @@ class MainProductHeader:
                 tracknr.text = str(acq.track_nr)
                 tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 framenr = et.SubElement(acquisition, eop + 'wrsLatitudeGrid')
-                framenr.text = acq.slice_frame_nr
+                framenr.text = str(acq.slice_frame_nr) if acq.slice_frame_nr is not None else '___'
                 framenr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:frames')
                 et.SubElement(acquisition, eop + 'ascendingNodeDate').text = _time_as_iso(acq.anx_date)
                 et.SubElement(acquisition, eop + 'startTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.start_time)
@@ -428,7 +428,7 @@ class MainProductHeader:
         self._sensor_name = Instrument.findtext(eop + 'shortName')
 
         # Mandatory for L0, L1, L2A products
-        self.sensors = []
+        self.sensors.clear()
         # TODO: check if the 'sensor' element is mandatory, even if there are no sensors.
         sensor = earth_observation_equipment.find(eop + 'sensor')
         if sensor is not None:
@@ -442,9 +442,9 @@ class MainProductHeader:
                 self.sensors.append(s)
 
         # Mandatory for L0 and L1 products
+        self.acquisitions.clear()
         acquisition_params = earth_observation_equipment.find(eop + 'acquisitionParameters')
         if acquisition_params is not None:
-            self.acquisitions = []
             for acquisition in acquisition_params.findall(bio + 'Acquisition'):
                 acq = Acquisition()
                 acq.orbit_number = int(acquisition.findtext(eop + 'orbitNumber', '0'))
@@ -452,7 +452,8 @@ class MainProductHeader:
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection', '')
                 acq.track_nr = int(acquisition.findtext(eop + 'wrsLongitudeGrid', '0'))
                 # tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
-                acq.slice_frame_nr = acquisition.findtext(eop + 'wrsLatitudeGrid', '')
+                nr = acquisition.findtext(eop + 'wrsLatitudeGrid', '')
+                acq.slice_frame_nr = int(nr) if not nr == '___' else None
                 # framenr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:frames')
                 acq.anx_date = _time_from_iso(acquisition.findtext(eop + 'ascendingNodeDate'))
                 acq.start_time = int(acquisition.findtext(eop + 'startTimeFromAscendingNode', '0'))    # TODO ={'uom': 'ms'}
@@ -506,7 +507,7 @@ class MainProductHeader:
             # self._insert_file_name(browse_info, self.browse_image_filename)
             self.browse_image_filename = self._parse_file_name(browse_info)
 
-        self.products = []
+        self.products.clear()
         for product in earth_observation_result.findall(eop + 'product'):
             product_information = product.find(bio + 'ProductInformation')
             file_name = self._parse_file_name(product_information)
@@ -546,13 +547,15 @@ class MainProductHeader:
         self.processor_version = processing_info.findtext(eop + 'processorVersion')
         self.processing_level = processing_info.findtext(eop + 'processingLevel')
 
-        self.auxiliary_ds_file_names = []
+        self.auxiliary_ds_file_names.clear()
         for proc_info in processing_info.findall(eop + 'auxiliaryDataSetFileName'):
-            self.auxiliary_ds_file_names.append(proc_info.text)
+            if proc_info.text is not None:
+                self.auxiliary_ds_file_names.append(proc_info.text)
 
         self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codespace': 'urn:esa:eop:Biomass:class'}
 
         # Mandatory for level 0, 1 and 2a
+        self.biomass_source_product_ids.clear()
         for source_product in processing_info.findall(bio + 'sourceProduct'):
             if source_product.text is not None:
                 self.biomass_source_product_ids.append(source_product.text)
@@ -583,6 +586,7 @@ class MainProductHeader:
         self.incomplete_l1_frame = earth_observation_meta_data.findtext(bio + 'incompleteFrame')
         self.partial_l1_frame = earth_observation_meta_data.findtext(bio + 'partialFrame')
 
+        self.reference_documents.clear()
         for doc in earth_observation_meta_data.findall(bio + 'refDoc'):
             if doc.text is not None:
                 self.reference_documents.append(doc.text)

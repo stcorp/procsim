@@ -96,6 +96,8 @@ class RawProductGenerator:
         name_gen.setup(file_type, start, stop, self.baseline_id, tcreate, tdownlink)
         self.hdr.set_product_type(file_type)
         self.hdr.eop_identifier = name_gen.generate_path_name()
+        self.hdr.begin_position = start
+        self.hdr.end_position = stop
         self.hdr.validity_start = start
         self.hdr.validity_end = stop
         self.hdr.downlink_date = tdownlink

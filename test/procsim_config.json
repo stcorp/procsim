@@ -51,26 +51,34 @@
         {
           "type": "RAWS022_10",
           "metadata_source": ".*RAW_022_10.*", // Input to use
+          "anx": "2021-02-01 01:38:10.980Z",
+          "enable_slicing": false,
           "size": 100000
         },
         {
           "type": "RAWS023_10",
           "metadata_source": ".*RAW_023_10.*",
+          "anx": "2021-02-01 01:38:10.980Z",
+          "enable_slicing": false,
           "size": 100000
         },
         {
           "type": "RAWS024_10",
           "metadata_source": ".*RAW_024_10.*",
+          "anx": "2021-02-01 01:38:10.980Z",
+          "enable_slicing": false,
           "size": 100000
         },
         {
           "type": "RAWS025_10",
           "metadata_source": ".*RAW_025_10.*",
+          "anx": "2021-02-01 01:38:10.980Z",
           "size": 100000
         },
         {
           "type": "RAWS026_10",
           "metadata_source": ".*RAW_026_10.*",
+          "anx": "2021-02-01 01:38:10.980Z",
           "size": 100000
         }
       ],

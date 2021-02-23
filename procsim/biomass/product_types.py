@@ -34,6 +34,7 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAWS028_10', 'raw', 'Sliced RAW product'),
     ProductType('RAWS035_10', 'raw', 'Sliced RAW product'),
     ProductType('RAWS036_10', 'raw', 'Sliced RAW product'),
+
     ProductType('S1_RAW__0S', 'l0', 'Stripmap Level-0 – Standard product'),
     ProductType('S2_RAW__0S', 'l0', 'Stripmap Level-0 – Standard product'),
     ProductType('S3_RAW__0S', 'l0', 'Stripmap Level-0 – Standard product'),
