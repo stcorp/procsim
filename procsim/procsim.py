@@ -5,7 +5,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Task simulator for scientific processors.
 '''
 import abc
-import datetime
 import importlib
 import json
 import os
@@ -16,6 +15,7 @@ from typing import List, Optional
 from xml.etree import ElementTree as et
 
 import common
+from logger import Logger
 
 VERSION = "1.0"
 
@@ -113,76 +113,6 @@ def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg) -> Optio
     # Use plugin factory to create generator
     generator = factory(logger, job_output_cfg, scenario_output_cfg)
     return generator
-
-
-def print_stderr(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-
-def print_stdout(*args, **kwargs):
-    print(*args, file=sys.stdout, **kwargs)
-
-
-class Logger:
-    '''This class is responsible for generating Log messages on stdout and
-    stderr, formatted according to ESA-EOPG-EEGS-ID-0083.'''
-    LEVELS = {'debug', 'info', 'progress', 'warning', 'error'}
-
-    def __init__(self, node_name, processor_name, processor_version, task_name, stdout_levels, stderr_levels):
-        self.node_name = node_name
-        self.processor_name = processor_name
-        self.processor_version = processor_version
-        self.task_name: str = task_name
-        self.pid = os.getpid()
-        self.header_separator = ':'
-        self.stdout_levels = stdout_levels
-        self.stderr_levels = stderr_levels
-
-    def log(self, level: str, *args, **kwargs):
-        if level == 'debug':
-            self.debug(*args, **kwargs)
-        elif level == 'info':
-            self.info(*args, **kwargs)
-        elif level == 'progress':
-            self.progress(*args, **kwargs)
-        elif level == 'warning':
-            self.warning(*args, **kwargs)
-        else:
-            self.error(*args, **kwargs)
-
-    def debug(self, *args, **kwargs):
-        self._log('DEBUG', '[D]', *args, **kwargs)
-
-    def info(self, *args, **kwargs):
-        self._log('INFO', '[I]', *args, **kwargs)
-
-    def progress(self, *args, **kwargs):
-        self._log('PROGRESS', '[P]', *args, **kwargs)
-
-    def warning(self, *args, **kwargs):
-        self._log('WARNING', '[W]', *args, **kwargs)
-
-    def error(self, *args, **kwargs):
-        self._log('ERROR', '[E]', *args, **kwargs)
-
-    def _log(self, level, message_type, *args, **kwargs):
-        now = datetime.datetime.now()
-        log_prefix = '{} {} {} {} {} {:012}{}{}'.format(
-            now.isoformat(),
-            self.node_name,
-            self.processor_name,
-            self.processor_version,
-            self.task_name,
-            self.pid,
-            self.header_separator,
-            message_type)
-        # TODO: Filter, according to logging levels in job order
-        if level in self.stdout_levels:
-            print_stdout(log_prefix, end=' ')
-            print_stdout(*args, **kwargs)
-        if level in self.stderr_levels:
-            print_stderr(log_prefix, end=' ')
-            print_stderr(*args, **kwargs)
 
 
 class JobOrderParser:
@@ -425,7 +355,6 @@ def main():
         job.node,
         job.processor_name,
         job.processor_version,
-        'Unknown',
         job.stdout_levels,
         job.stderr_levels
     )
@@ -439,7 +368,7 @@ def main():
     if scenario is None:
         sys.exit(1)
 
-    logger.task_name = job_task.name    # This info was not available before
+    logger.set_task_name(job_task.name)    # This info was not available before
 
     log_configured_messages(scenario, logger)
 
