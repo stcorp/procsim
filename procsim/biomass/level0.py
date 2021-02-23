@@ -9,7 +9,8 @@ import os
 import re
 from typing import List
 
-from procsim import IProductGenerator, JobOrderInput
+from procsim import IProductGenerator
+from job_order import JobOrderInput
 
 from biomass import constants, mph, product_name
 
