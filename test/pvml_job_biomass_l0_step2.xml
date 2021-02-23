@@ -68,16 +68,16 @@
         determine the start/stop time values. Otherwise, no start/stop time will
         be associated to the input file.-->
         <input product_type="RAWS025_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS025_10_20210201T002432_20210201T002451_D20210201T013810_00_B0737M</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS025_10_20210201T002432_20210201T002451_D20210201T013810_00_B06ZSW</file>
         </input>
         <input product_type="RAWS026_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS026_10_20210201T002432_20210201T002451_D20210201T013810_00_B0737M</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS026_10_20210201T002432_20210201T002451_D20210201T013810_00_B06ZSW</file>
         </input>
         <input product_type="RAWS023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B0737M</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0</file>
         </input>
         <input product_type="RAWS024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B0737M</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

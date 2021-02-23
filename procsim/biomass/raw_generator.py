@@ -22,7 +22,7 @@ import datetime
 import os
 import sys
 
-from biomass import constants, mph, product_name, product_types
+from biomass import constants, mph, product_name
 
 
 def get_science_data_file_type(mode: str, polarization: str):
@@ -66,7 +66,6 @@ class RawProductGenerator:
 
         # Fill in some fixed data
         self.hdr.acquisition_station = ''
-        acq = self.hdr.acquisitions[0]
 
     def _generate_bin_file(self, file_name):
         file = open(file_name, 'w')
@@ -90,18 +89,16 @@ class RawProductGenerator:
         file_type = get_ancillary_data_file_type('INSTRUMENT_ANC', 'V')
         self._write_product(file_type, tstart, tend, tdownlink)
 
-    def _write_product(self, file_type, start, stop, downlink):
+    def _write_product(self, file_type, start, stop, tdownlink):
         # Construct eop (file name), setup main product header
-        product_type = product_types.find_product(file_type)
-        if product_type is None:
-            return
         name_gen = product_name.ProductName()
-        name_gen.setup(file_type, start, stop, downlink, self.baseline_id)
-        self.hdr.product_type = product_type
-        self.hdr.eop_identifier = name_gen.generate_path()
+        tcreate = start  # HACK - use current date?
+        name_gen.setup(file_type, start, stop, self.baseline_id, tcreate, tdownlink)
+        self.hdr.set_product_type(file_type)
+        self.hdr.eop_identifier = name_gen.generate_path_name()
         self.hdr.validity_start = start
         self.hdr.validity_end = stop
-        self.hdr.downlink_date = downlink
+        self.hdr.downlink_date = tdownlink
 
         # Create directory and files
         dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)

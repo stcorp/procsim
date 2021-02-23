@@ -27,6 +27,7 @@ class ProductGeneratorBase(IProductGenerator):
         self.input_type = None
         self.start: datetime.datetime
         self.stop: datetime.datetime
+        self.create_date: datetime.datetime
         self.downlink: datetime.datetime
         self.hdr = mph.MainProductHeader()
 
@@ -58,11 +59,11 @@ class ProductGeneratorBase(IProductGenerator):
                 if not mph_is_parsed and re.match(pattern, file):
                     self.logger.debug('Parse {} for {}'.format(os.path.basename(file), self.output_type))
                     if gen.parse_path(file):
-                        self.input_type = gen.file_type
-                        self.start = gen.start_time
-                        self.stop = gen.stop_time
+                        self.input_type = gen._file_type
+                        self.start = gen._start_time
+                        self.stop = gen._stop_time
                         if (gen.get_level() == 'raw'):
-                            self.downlink = gen.downlink_time
+                            self.downlink = gen._downlink_time
                     else:
                         self.logger.error('Filename {} not valid for Biomass'.format(file))
                         return False
@@ -94,6 +95,7 @@ class RAWSxxx_10(ProductGeneratorBase):
         # TODO: Move to constants
         NON_SLICED_TYPES = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10']
 
+        self.create_date = self.start   # HACK: fill in current date?
         tstart = self.start
         tend = self.stop
         if (type in NON_SLICED_TYPES):
@@ -105,8 +107,9 @@ class RAWSxxx_10(ProductGeneratorBase):
             if tstart + tslice > tend:
                 tslice = tend - tstart
             name_gen = product_name.ProductName()
-            name_gen.setup(self.output_type, tstart, tstart + tslice, self.downlink, self.baseline_id)
-            self.hdr.eop_identifier = name_gen.generate_path()
+            name_gen.setup(self.output_type, tstart, tstart + tslice, self.baseline_id, self.create_date, self.downlink)
+            self.hdr.set_product_type(self.output_type)
+            self.hdr.eop_identifier = name_gen.generate_path_name()
             self.hdr.validity_start = tstart
             self.hdr.validity_end = tstart + tslice
             self.hdr.downlink_date = self.downlink
@@ -133,9 +136,8 @@ class RAWSxxx_10(ProductGeneratorBase):
 
 
 class Sx_RAW__0x_generator(ProductGeneratorBase):
-    '''Level-0 slice based products generation. For all products:
-        Copies MPH content, but sets the data_take identifier.
-    TODO: Where to get this value from...?'''
+    '''Level-0 slice based products generation. Sets the data_take identifier'''
+
     PRODUCTS = ['S1_RAW__0S', 'S1_RAWP_0M', 'S1_RAW__0M',
                 'S2_RAW__0S', 'S2_RAWP_0M', 'S2_RAW__0M',
                 'S3_RAW__0S', 'S3_RAWP_0M', 'S3_RAW__0M',
@@ -146,16 +148,15 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config)
 
     def generate_output(self):
-        # Level 0 standard product
+        self.create_date = self.start   # HACK: fill in current date?
         name_gen = product_name.ProductName()
-        tdownlink = datetime.datetime.now()  # TODO!
-        name_gen.setup(self.output_type, self.start, self.stop, tdownlink, self.baseline_id)
+        name_gen.setup(self.output_type, self.start, self.stop, self.baseline_id, self.create_date)
 
         # TODO: Just copy from input MPH!
-        self.hdr.eop_identifier = name_gen.generate_path()
+        self.hdr.set_product_type(self.output_type)
+        self.hdr.eop_identifier = name_gen.generate_path_name()
         self.hdr.validity_start = self.start
         self.hdr.validity_end = self.stop
-        # self.hdr.downlink_date = self.downlink
 
         # Create directory and files
         dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)

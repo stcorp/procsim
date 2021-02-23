@@ -117,7 +117,7 @@ class MainProductHeader:
             {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
         ]
 
-        # self.product_type: product_types.ProductType
+        self._product_type: product_types.ProductType
         self.product_baseline = 1
         self.doi = 'DOI'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
@@ -166,6 +166,17 @@ class MainProductHeader:
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
+
+    def get_product_type(self) -> str:
+        return self._product_type.type
+
+    def set_product_type(self, type: str) -> bool:
+        product_type = product_types.find_product(type)
+        if product_type is not None:
+            self._product_type = product_type
+            return True
+        else:
+            return False
 
     def _insert_time_period(self, parent, start, stop, id):
         # Insert TimePeriod element
@@ -231,7 +242,7 @@ class MainProductHeader:
         short_name.text = self._sensor_name
 
         # Mandatory for L0, L1, L2A products
-        if (self.product_type.level == 'l0' or self.product_type.level == 'l1' or self.product_type.level == 'l2a') and self.sensors:
+        if (self._product_type.level == 'l0' or self._product_type.level == 'l1' or self._product_type.level == 'l2a') and self.sensors:
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
             for s in self.sensors:
@@ -278,7 +289,7 @@ class MainProductHeader:
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
 
         # Mandatory for L1, *L2A products
-        if self.product_type.level == 'l1' or self.product_type.level == 'l2a':
+        if self._product_type.level == 'l1' or self._product_type.level == 'l2a':
             footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
             footprint.set(gml + 'id', self.eop_identifier + '_6')
             multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
@@ -302,7 +313,7 @@ class MainProductHeader:
         earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
 
         # Mandatory for L1 products
-        if self.product_type.level == 'l1':
+        if self._product_type.level == 'l1':
             browse = et.SubElement(earth_observation_result, eop + 'browse')
             browse_info = et.SubElement(browse, eop + 'BrowseInformation')
             browse_type = et.SubElement(browse_info, eop + 'type').text = self._browse_type
@@ -327,11 +338,11 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'identifier').text = self.eop_identifier
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier'
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
-        et.SubElement(earth_observation_meta_data, eop + 'productType').text = self.product_type.type
+        et.SubElement(earth_observation_meta_data, eop + 'productType').text = self._product_type.type
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
 
         # Mandatory for Raw data: Downlink information
-        if self.product_type.level == 'raw':
+        if self._product_type.level == 'raw':
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
@@ -347,21 +358,21 @@ class MainProductHeader:
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self.processing_level
 
-        if not self.product_type.level == 'aux':
+        if not self._product_type.level == 'aux':
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
 
         et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
 
-        if self.product_type.level == 'l0' or self.product_type.level == 'l1' or self.product_type.level == '2a':
+        if self._product_type.level == 'l0' or self._product_type.level == 'l1' or self._product_type.level == '2a':
             for id in self.biomass_source_product_ids:
                 et.SubElement(processing_info, bio + 'sourceProduct').text = id
 
-        if self.product_type.level == 'l0' or self.product_type.level == 'l1':
+        if self._product_type.level == 'l0' or self._product_type.level == 'l1':
             et.SubElement(earth_observation_meta_data, bio + 'TAI-UTC').text = str(self.tai_utc_diff)
 
-        if self.product_type.level == 'raw':
-            if self.product_type.type == 'RAW___HKTM':
+        if self._product_type.level == 'raw':
+            if self._product_type.type == 'RAW___HKTM':
                 et.SubElement(earth_observation_meta_data, bio + 'numOfTFs').text = str(self.nr_transfer_frames)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt)
@@ -370,7 +381,7 @@ class MainProductHeader:
                 et.SubElement(earth_observation_meta_data, bio + 'numOfISPsWithErrors').text = str(self.nr_instrument_source_packets_erroneous)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedISPs').text = str(self.nr_instrument_source_packets_corrupt)
 
-        if self.product_type.level == 'l0':
+        if self._product_type.level == 'l0':
             et.SubElement(earth_observation_meta_data, bio + 'numOfLines').text = self.nr_l0_lines
             et.SubElement(earth_observation_meta_data, bio + 'numOfMissingLines').text = self.nr_l0_lines_missing
             et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedLines').text = self.nr_l0_lines_corrupt
@@ -378,7 +389,7 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, bio + 'partialSlice').text = str(self.partial_l0_slice).lower()
             et.SubElement(earth_observation_meta_data, bio + 'framesList').text = self.l1_frames_in_l0
 
-        if self.product_type.level == 'l1':
+        if self._product_type.level == 'l1':
             et.SubElement(earth_observation_meta_data, bio + 'incompleteFrame').text = str(self.incomplete_l1_frame).lower()
             et.SubElement(earth_observation_meta_data, bio + 'partialFrame').text = str(self.partial_l1_frame).lower()
 
@@ -516,7 +527,7 @@ class MainProductHeader:
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
         type = product_types.find_product(type_code)
         if type is not None:
-            self.product_type = type
+            self._product_type = type
         self.product_status = earth_observation_meta_data.findtext(eop + 'status')
 
         # Mandatory for Raw data: Downlink information
@@ -556,7 +567,7 @@ class MainProductHeader:
         self.nr_transfer_frames_erroneous = _to_int(earth_observation_meta_data.findtext(bio + 'numOfTFsWithErrors'))
         self.nr_transfer_frames_corrupt = _to_int(earth_observation_meta_data.findtext(bio + 'numOfCorruptedTFs'))
 
-        self.nr_instrument_source_packets = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPs', ''))
+        self.nr_instrument_source_packets = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPs'))
         self.nr_instrument_source_packets_erroneous = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPsWithErrors'))
         self.nr_instrument_source_packets_corrupt = _to_int(earth_observation_meta_data.findtext(bio + 'numOfCorruptedISPs'))
 
