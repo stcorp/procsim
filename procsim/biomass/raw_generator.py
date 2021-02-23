@@ -18,13 +18,11 @@ Assumptions:
 - Data is 'downlinked' at the start of every orbit.
 - Several data takes produce science data
 '''
-import enum
+import datetime
 import os
 import sys
-import datetime
-from biomass import constants
-from biomass import product_name
-from biomass import mph
+
+from biomass import constants, mph, product_name, product_types
 
 
 def get_science_data_file_type(mode: str, polarization: str):
@@ -94,8 +92,12 @@ class RawProductGenerator:
 
     def _write_product(self, file_type, start, stop, downlink):
         # Construct eop (file name), setup main product header
+        product_type = product_types.find_product(file_type)
+        if product_type is None:
+            return
         name_gen = product_name.ProductName()
         name_gen.setup(file_type, start, stop, downlink, self.baseline_id)
+        self.hdr.product_type = product_type
         self.hdr.eop_identifier = name_gen.generate_path()
         self.hdr.validity_start = start
         self.hdr.validity_end = stop
