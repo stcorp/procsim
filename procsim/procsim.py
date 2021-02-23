@@ -211,7 +211,12 @@ class JobOrderParser:
                 file_types_el = input_el.find('List_of_File_Types')
                 input.file_type = file_types_el.findtext('File_Type', '')
                 for file_name_el in file_types_el.find('List_of_File_Names').findall('File_Name'):
-                    input.file_names.append(file_name_el.text or '')
+                    # input.file_names.append(file_name_el.text or '')
+
+                    # HACK alert: in ICD2020, there are NO regex filenames, all file names must be fully specified!
+                    # This must be patched in the PF (PVML in this case)
+                    input.file_names.extend(self._find_matching_files(file_name_el.text))
+
                 task.inputs.append(input)
             for output_el in task_el.find('List_of_Outputs').findall('Output'):
                 output = JobOrderOutput()

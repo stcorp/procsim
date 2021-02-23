@@ -136,27 +136,20 @@ class Sx_RAW__0x_generator(ProductGeneratorBase):
     '''Level-0 slice based products generation. For all products:
         Copies MPH content, but sets the data_take identifier.
     TODO: Where to get this value from...?'''
-    PRODUCTS = ['Sx_RAW__0S', 'Sx_RAWP_0M', 'RO_RAW__0S',
-                'RO_RAWP_0M', 'EC_RAW__0S', 'EC_RAWP_0M']
+    PRODUCTS = ['S1_RAW__0S', 'S1_RAWP_0M', 'S1_RAW__0M',
+                'S2_RAW__0S', 'S2_RAWP_0M', 'S2_RAW__0M',
+                'S3_RAW__0S', 'S3_RAWP_0M', 'S3_RAW__0M',
+                'RO_RAW__0S', 'RO_RAWP_0M',
+                'EC_RAW__0S', 'EC_RAWP_0M']
 
     def __init__(self, logger, job_config, scenario_config: dict):
         super().__init__(logger, job_config, scenario_config)
 
     def generate_output(self):
         # Level 0 standard product
-
-        # TODO
-        output_type = ''
-        if self.output_type == 'Sx_RAW__0S':
-            output_type = 'S1_RAW__0S'
-        elif self.output_type == 'Sx_RAWP_0M':
-            output_type = 'S1_RAWP_0M'
-        elif self.output_type == 'Sx_RAW__0M':
-            output_type = 'S1_RAW__0M'
-
         name_gen = product_name.ProductName()
         tdownlink = datetime.datetime.now()  # TODO!
-        name_gen.setup(output_type, self.start, self.stop, tdownlink, self.baseline_id)
+        name_gen.setup(self.output_type, self.start, self.stop, tdownlink, self.baseline_id)
 
         # TODO: Just copy from input MPH!
         self.hdr.eop_identifier = name_gen.generate_path()
