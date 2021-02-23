@@ -14,7 +14,7 @@ import time
 from typing import List, Optional
 from xml.etree import ElementTree as et
 
-import common
+import utils
 from logger import Logger
 
 VERSION = "1.0"
@@ -78,7 +78,7 @@ def read_config(filename, logger):
         try:
             f = open(filename, 'r')
             commented_json = f.read()
-            clean_json = common.remove_comments(commented_json)
+            clean_json = utils.json_remove_comments(commented_json)
             config = json.loads(clean_json)
             is_ok = True
             if set(config.keys()) == set(ROOT_KEYS):

@@ -24,7 +24,7 @@ def indent_xml(element, level=0):
             element.tail = i
 
 
-def remove_comments(json_like):
+def json_remove_comments(json_like):
     """
     Removes C-style comments from *json_like* and returns the result.  Example::
         >>> test_json = '''\

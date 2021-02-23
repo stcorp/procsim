@@ -9,7 +9,7 @@ import datetime
 from typing import Optional
 from xml.etree import ElementTree as et
 
-import common
+import utils
 
 from biomass import product_types
 
@@ -387,7 +387,7 @@ class MainProductHeader:
 
         # Create XML
         tree = et.ElementTree(mph)
-        common.indent_xml(tree.getroot())
+        utils.indent_xml(tree.getroot())
         tree.write(file_name, xml_declaration=True, encoding='utf-8')
 
     def parse(self, file_name):
