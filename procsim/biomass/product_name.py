@@ -123,6 +123,18 @@ class ProductName:
     def setup(self, file_type, tstart, tstop, baseline_id, create_date, tdownlink=None,
               mission_phase_id='C', global_coverage_id='__', major_cycle_id='__',
               repeat_cycle_id='__', track_nr='___', frame_slice_nr='___'):
+        '''
+        Setup path/filename generator.
+        - start/stop are UTC start date and time:
+            - Acquisition sensing time for L0
+            - Acquisition Zero Doppler Time for L1
+            - Acquisition Zero Doppler Time, start of first image in the Stack for L2A
+        - mission_phase_id: C, I or T
+        - global_coverage_id: 1-6 or __
+        - major_cycle_id: 1-7 or __
+        - track_nr: frame/slice id or ___
+        - create_date: creation event time
+        '''
         self._set_compact_creation_date(create_date)
         self._file_type = file_type
         self._start_time = tstart
@@ -148,7 +160,7 @@ class ProductName:
                 )
         else:
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}_{:02}_{}'\
+            name = self._generate_prefix() + '{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'\
                 .format(
                     self._mission_phase_id,
                     self._global_coverage_id,
