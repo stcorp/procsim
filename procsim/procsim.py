@@ -326,7 +326,7 @@ def log_configured_messages(scenario, logger):
     for item in scenario.get('logging', []):
         level = item.get('level', level)
         if level not in logger.LEVELS:
-            logger.error('Incorrect log level in configuration file: {}'.format(level))
+            logger.error('Incorrect log level {} in configuration file'.format(level))
         else:
             message = item.get('message', '')
             if message:
