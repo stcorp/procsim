@@ -9,7 +9,7 @@ from typing import List
 from job_order import JobOrderInput, JobOrderOutput, JobOrderTask
 from procsim import IProductGenerator
 
-from biomass import constants, mph, product_name
+from biomass import constants, main_product_header, product_name
 
 
 class ProductGeneratorBase(IProductGenerator):
@@ -31,7 +31,7 @@ class ProductGeneratorBase(IProductGenerator):
         self.stop: datetime.datetime
         self.create_date: datetime.datetime
         self.downlink: datetime.datetime
-        self.hdr = mph.MainProductHeader()
+        self.hdr = main_product_header.MainProductHeader()
 
     def _generate_bin_file(self, file_name, size=0):
         '''Generate binary file starting with a short ASCII header, followed by

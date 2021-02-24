@@ -17,12 +17,15 @@ Settings:
 Assumptions:
 - Data is 'downlinked' at the start of every orbit.
 - Several data takes produce science data
+
+
+TODO: Refactor, add RAW_xxx_10_generator class to raw_product_generator.
 '''
 import datetime
 import os
 import sys
 
-from biomass import constants, mph, product_name
+from biomass import constants, main_product_header, product_name
 
 
 def get_science_data_file_type(mode: str, polarization: str):
@@ -61,7 +64,7 @@ class RawProductGenerator:
         self.output_path = output_path
         self.mission_phase = mission_phase  # INTERFEROMETRIC, TOMOGRAPHIC
         self.mode = 'MEASUREMENT'
-        self.hdr = mph.MainProductHeader()
+        self.hdr = main_product_header.MainProductHeader()
         self.baseline_id = 1
 
         # Fill in some fixed data
