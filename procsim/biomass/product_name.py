@@ -15,6 +15,7 @@ class ProductName:
     '''
     This class is responsible for creating and parsing directory/file names.
     '''
+    COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
 
     @classmethod
@@ -52,7 +53,7 @@ class ProductName:
         corresponds to “00:00:00 01/01/2020” having as reference epoch “00:00:00 of
         01/01/2000”, i.e. there are 631152000 seconds between the two dates and such number is
         then converted to base 36. The reference epoch to be used for the BIOMASS data is TBD.'''
-        sec = int((time - constants.COMPACT_DATE_EPOCH).total_seconds())
+        sec = int((time - self.COMPACT_DATE_EPOCH).total_seconds())
         date36 = ''
         for i in range(6):
             sec, x = divmod(sec, 36)
