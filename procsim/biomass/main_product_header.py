@@ -6,6 +6,7 @@ Ref: BIO-ESA-EOPG-EEGS-TN-0051
 '''
 
 import datetime
+from logging import raiseExceptions
 from typing import Optional
 from xml.etree import ElementTree as et
 
@@ -65,64 +66,64 @@ def _to_int(val: Optional[str]) -> Optional[int]:
 
 
 class Acquisition:
-    '''Data class, hold acquisition parameters for MPH'''
+    '''
+    Data class, hold acquisition parameters for MPH
+    '''
+    _polarisation_mode: str = 'Q'                    # FIXED
+    _polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
+    _antenna_direction: str = 'LEFT'                 # FIXED
+
     def __init__(self):
+        # L0, L1
         self.orbit_number: int = 1
         self.last_orbit_number: int = 1
-        self.orbit_direction: str = 'ASCENDING'     # Or DECENDING
-        self.track_nr: int = 133                    # gml:CodeWithAuthorityType
-        self.slice_frame_nr: Optional[int] = None   # None or the actual slice/frame number
         self.anx_date = datetime.datetime.now()
-        self.start_time: int = 0                    # in ms since ANX
-        self.completion_time: int = 0               # in ms since ANX
-        self.mission_phase: str = 'COMMISSIONING'   # Or INTERFEROMETRIC, TOMOGRAPHIC
+        self.start_time: int = 0                     # in ms since ANX
+        self.completion_time: int = 0                # in ms since ANX
         self.instrument_config_id: int = 1
-        self.data_take_id: int = 0
         self.orbit_drift_flag: bool = False
-        self.global_coverage_id: str = 'NA'      # 1..6 or DR, refer to PDGS Products Naming Convention document
-        self.major_cycle_id: str = '1'           # 1..7, refer to PDGS Products Naming Convention document
-        self.repeat_cycle_id: str = 'DR'         # 1..7 or DR, refer to PDGS Products Naming Convention document
-        # self.observed_property: str = ''
+        self.repeat_cycle_id: str = 'DR'             # 1..7 or DR, refer to PDGS Products Naming Convention document
+        # RAWS, L0, L1, L2a
+        self.slice_frame_nr: Optional[int] = None    # None or the actual slice/frame number
+        # L0, L1, L2a
+        self.orbit_direction: str = 'ASCENDING'      # Or DECENDING
+        self.track_nr: int = 133                     # gml:CodeWithAuthorityType
+        self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
+        self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
+        self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
+        # AUT_ATT___, AUX_ORB___, L0, L1
+        self.data_take_id: int = 0
         # self.feature_of_interest: str = ''
-
-        self._polaristation_channels: str = 'HH, HV, VH, VV'  # FIXED
-        self._polarisation_mode: str = 'Q'                    # FIXED
-        self._antenna_direction: str = 'LEFT'                 # FIXED
 
 
 class MainProductHeader:
-    '''This class is responsible for parsing and creating the Biomass Main
-    Product Header (MPH).'''
+    '''
+    This class is responsible for parsing and creating the Biomass Main Product Header (MPH).
+    '''
 
     # Fixed for Biomass
-    _satellite_name = 'Biomass'
+    _platform_shortname = 'Biomass'
     _sensor_name = 'P-SAR'
     _sensor_type = 'RADAR'
     _browse_type = 'QUICKLOOK'
 
     def __init__(self):
-        self.eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
-        self.begin_position = datetime.datetime(2021, 1, 1, 0, 0, 0)
-        self.end_position = datetime.datetime.now()
-        self.time_position = datetime.datetime.now()
-        self.validity_start = datetime.datetime(2021, 1, 1, 0, 0, 0)
-        self.validity_end = datetime.datetime.now()
-        self.sensors = [{'type': self._sensor_type, 'mode': 'SM', 'swath_id': 'S2'}]  # Mode is SM, RO, EC, AC
-        self.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
-        self.center_points = '-7.492090 -63.27095'
-        self.browse_ref_id = 'EPSG:4326'
-        self.browse_image_filename = 'browse image filename'
+        self._eop_identifier: Optional[str] = None
+        self._begin_position: Optional[datetime.datetime] = None
+        self._end_position: Optional[datetime.datetime] = None
+        self._time_position: Optional[datetime.datetime] = None
+        self._validity_start: Optional[datetime.datetime] = None
+        self._validity_end: Optional[datetime.datetime] = None
+        self._product_type: Optional[product_types.ProductType] = None
+        self._product_baseline: Optional[int] = None
+
         self.products = [
-            {'file_name': 'product filename'},          # First product is mandatory and does not have the size/representation fields
+            {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
             {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
         ]
-
-        self._product_type: product_types.ProductType
-        self.product_baseline = 1
         self.doi = 'DOI'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
         self.product_status = 'PLANNED'     # REJECTED, etc..
-
         self.processing_centre_code = 'ESR'
         self.processing_date = datetime.datetime.now()
         self.processor_name = 'L1 Processor'
@@ -131,28 +132,21 @@ class MainProductHeader:
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
         self.processing_mode = 'OPERATIONAL'
         self.biomass_source_product_ids = ['id']
-        self.reference_documents = ['doc1', 'doc2']
+        self.reference_documents = []
 
-        # Raw
-        self.acquisition_station = 'SP'  # Spitzbergen, not sure
-        self.downlink_date = datetime.datetime.now()
-
-        # Raw HKTM info
+        # Raw only
+        self.acquisition_station = 'SP'  # Spitzbergen
+        self._downlink_date = datetime.datetime.now()
+        # Raw, HKTM only
         self.nr_transfer_frames = 0
         self.nr_transfer_frames_erroneous = 0
         self.nr_transfer_frames_corrupt = 0
-
-        # Raw science/ancillary info
+        # Raw, science/ancillary only
         self.nr_instrument_source_packets = 0
         self.nr_instrument_source_packets_erroneous = 0
         self.nr_instrument_source_packets_corrupt = 0
 
-        # L0 and L1 info
-        acquisition = Acquisition()
-        self.acquisitions = [acquisition]
-        self.tai_utc_diff = 0
-
-        # L0 info
+        # L0 only
         self.nr_l0_lines = '387200,387200'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_missing = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_corrupt = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
@@ -160,28 +154,93 @@ class MainProductHeader:
         self.partial_l0_slice = False
         self.l1_frames_in_l0 = '0,1,2,4,5'
 
-        # L1 info
+        # L1 only
         self.incomplete_l1_frame = False
         self.partial_l1_frame = False
+        self.browse_ref_id = 'EPSG:4326'    # Or 'Unknown'
+        self.browse_image_filename = 'browse image filename'
+
+        # L0 and L1
+        acquisition = Acquisition()
+        self.acquisitions = [acquisition]
+        self.tai_utc_diff = 0
+
+        # L0, L1, L2a
+        self.sensors = [{'type': self._sensor_type, 'mode': 'SM', 'swath_id': 'S1'}]  # Mode is SM, RO, EC, AC, swath is S1, S2, S3
+
+        # L1, L2a
+        self.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
+        self.center_points = '-7.492090 -63.27095'
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
 
-    def get_product_type(self) -> str:
+    def get_product_type(self):
         return self._product_type.type
 
-    def set_product_type(self, type: str) -> bool:
+    def get_phenomenon_times(self):
+        if self._begin_position is None or self._end_position is None:
+            raise Exception('Times were not set')
+        return self._begin_position, self._end_position
+
+    def set_product_type(self, type: str, baseline: int):
+        '''
+        Type must be one of the predefined BIOMASS types
+        '''
         product_type = product_types.find_product(type)
         if product_type is not None:
             self._product_type = product_type
-            return True
+            self._product_baseline = baseline
         else:
-            return False
+            raise Exception('Unknown product type {}'.format(type))
+
+    def set_product_filename(self, filename: str):
+        '''
+        Must be the directory name (without path)
+        '''
+        self._eop_identifier = filename
+        self.products[0] = {'file_name': filename}
+
+    def set_phenomenon_times(self, start: datetime.datetime, end: datetime.datetime):
+        '''
+        Start/stop are UTC start date and time:
+            - Acquisition sensing time for RAW, L0
+            - Acquisition Zero Doppler Time for L1
+            - Validity start time for AUX
+            - Acquisition Zero Doppler Time, start of first image in the Stack for L2A
+        '''
+        self._begin_position = start
+        self._end_position = end
+        self._time_position = end  # According to MPH definition
+
+    def set_validity_times(self, start: datetime.datetime, end: datetime.datetime):
+        '''
+        Start/stop are UTC start date and time:
+            - Acquisition sensing time for RAW_<PID>_<PC>, RAW___HKTM
+            - Slice start time for RAWS<PID>_<PC>, L0
+            - Frame start time for L1
+            - Validity start time for AUX
+            - Frame start time of first image in the Stack for *L2A
+        '''
+        self._validity_start = start
+        self._validity_end = end
+
+    def set_slice_nr(self, slice_nr: Optional[int]):
+        '''
+        For level0 products only. Slicenr may be None!
+        '''
+        self.acquisitions[0].slice_frame_nr = slice_nr
+
+    def set_downlink_time(self, downlink_time):
+        '''
+        For raw products only
+        '''
+        self._downlink_date = downlink_time
 
     def _insert_time_period(self, parent, start, stop, id):
         # Insert TimePeriod element
         time_period = et.SubElement(parent, gml + 'TimePeriod')
-        time_period.set(gml + 'id', self.eop_identifier + '_' + str(id))
+        time_period.set(gml + 'id', self._eop_identifier + '_' + str(id))
         begin_position = et.SubElement(time_period, gml + 'beginPosition')
         begin_position.text = _time_as_iso(start)    # Start date and time of the product
         end_position = et.SubElement(time_period, gml + 'endPosition')
@@ -214,27 +273,27 @@ class MainProductHeader:
     def write(self, file_name):
         # Create MPH and write to file (TODO: split in generate and write methods?)
         mph = et.Element(bio + 'EarthObservation')
-        mph.set(gml + 'id', self.eop_identifier + '_1')
+        mph.set(gml + 'id', self._eop_identifier + '_1')
 
         phenomenon_time = et.SubElement(mph, om + 'phenomenonTime')
-        self._insert_time_period(phenomenon_time, self.begin_position, self.end_position, 2)
+        self._insert_time_period(phenomenon_time, self._begin_position, self._end_position, 2)
 
         result_time = et.SubElement(mph, om + 'resultTime')
         time_instant = et.SubElement(result_time, gml + 'TimeInstant')
-        time_instant.set(gml + 'id', self.eop_identifier + '_3')
+        time_instant.set(gml + 'id', self._eop_identifier + '_3')
         time_position = et.SubElement(time_instant, gml + 'timePosition')
-        time_position.text = _time_as_iso(self.time_position)
+        time_position.text = _time_as_iso(self._time_position)
 
         valid_time = et.SubElement(mph, om + 'validTime')
-        self._insert_time_period(valid_time, self.validity_start, self.validity_end, 4)
+        self._insert_time_period(valid_time, self._validity_start, self._validity_end, 4)
 
         procedure = et.SubElement(mph, om + 'procedure')  # Procedure used to sense the data
         earth_observation_equipment = et.SubElement(procedure, eop + 'EarthObservationEquipment')  # Equipment used to sense the data
-        earth_observation_equipment.set(gml + 'id', self.eop_identifier + '_5')
+        earth_observation_equipment.set(gml + 'id', self._eop_identifier + '_5')
         platform = et.SubElement(earth_observation_equipment, eop + 'platform')  # Platform description
         Platform = et.SubElement(platform, eop + 'Platform')  # Nested element for platform description
         short_name = et.SubElement(Platform, eop + 'shortName')
-        short_name.text = self._satellite_name
+        short_name.text = self._platform_shortname
 
         instrument = et.SubElement(earth_observation_equipment, eop + 'instrument')  # Instrument description
         Instrument = et.SubElement(instrument, eop + 'Instrument')  # Nested element for instrument description
@@ -291,26 +350,26 @@ class MainProductHeader:
         # Mandatory for L1, *L2A products
         if self._product_type.level == 'l1' or self._product_type.level == 'l2a':
             footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
-            footprint.set(gml + 'id', self.eop_identifier + '_6')
+            footprint.set(gml + 'id', self._eop_identifier + '_6')
             multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
             multi_surface = et.SubElement(multi_extent_of, gml + 'MultiSurface')
-            multi_surface.set(gml + 'id', self.eop_identifier + '_7')
+            multi_surface.set(gml + 'id', self._eop_identifier + '_7')
             surface_member = et.SubElement(multi_surface, gml + 'surfaceMember')
             polygon = et.SubElement(surface_member, gml + 'Polygon')
-            polygon.set(gml + 'id', self.eop_identifier + '_8')
+            polygon.set(gml + 'id', self._eop_identifier + '_8')
             exterior = et.SubElement(polygon, gml + 'exterior')
             linear_ring = et.SubElement(exterior, gml + 'LinearRing')
             pos_list = et.SubElement(linear_ring, gml + 'posList')  # Footprint points
             pos_list.text = self.footprint_polygon
             center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
             point = et.SubElement(center_of, gml + 'Point')
-            point.set(gml + 'id', self.eop_identifier + '_9')
+            point.set(gml + 'id', self._eop_identifier + '_9')
             pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
             pos.text = self.center_points
 
         result = et.SubElement(mph, om + 'result')  # Observation result
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
-        earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
+        earth_observation_result.set(gml + 'id', self._eop_identifier + '_10')
 
         # Mandatory for L1 products
         if self._product_type.level == 'l1':
@@ -330,14 +389,16 @@ class MainProductHeader:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
                 et.SubElement(product_information, bio + 'rds').text = prod['representation']
             else:
-                baseline = '{:02}'.format(self.product_baseline)
+                baseline = '{:02}'.format(self._product_baseline)
                 et.SubElement(product_information, eop + 'version').text = baseline
 
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = et.SubElement(meta_data_property, bio + 'EarthObservationMetaData')
-        et.SubElement(earth_observation_meta_data, eop + 'identifier').text = self.eop_identifier
+        et.SubElement(earth_observation_meta_data, eop + 'identifier').text = self._eop_identifier
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier'
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
+        # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
+        # are available within a single collection, this is ground segment specific definition"
         et.SubElement(earth_observation_meta_data, eop + 'productType').text = self._product_type.type
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
 
@@ -346,7 +407,7 @@ class MainProductHeader:
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
-            et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self.downlink_date)
+            et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self._downlink_date)
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, bio + 'ProcessingInformation')
@@ -406,22 +467,22 @@ class MainProductHeader:
         tree = et.parse(file_name)
         root = tree.getroot()
         phenomenon_time = root.find(om + 'phenomenonTime')
-        self.begin_position, self.end_position = self._parse_time_period(phenomenon_time, 2)
+        self._begin_position, self._end_position = self._parse_time_period(phenomenon_time, 2)
 
         result_time = root.find(om + 'resultTime')
         time_instant = result_time.find(gml + 'TimeInstant')
         # time_instant.set(gml + 'id', self.eop_identifier + '_3')
-        self.time_position = _time_from_iso(time_instant.findtext(gml + 'timePosition', ''))
+        self._time_position = _time_from_iso(time_instant.findtext(gml + 'timePosition', ''))
 
         valid_time = root.find(om + 'validTime')
-        self.validity_start, self.validity_end = self._parse_time_period(valid_time, 4)
+        self._validity_start, self._validity_end = self._parse_time_period(valid_time, 4)
 
         procedure = root.find(om + 'procedure')  # Procedure used to sense the data
         earth_observation_equipment = procedure.find(eop + 'EarthObservationEquipment')  # Equipment used to sense the data
         # earth_observation_equipment.set(gml + 'id', self.eop_identifier + '_5')
         platform = earth_observation_equipment.find(eop + 'platform')  # Platform description
         Platform = platform.find(eop + 'Platform')  # Nested element for platform description
-        self._satellite_name = Platform.findtext(eop + 'shortName')
+        self._platform_shortname = Platform.findtext(eop + 'shortName')
 
         instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
@@ -513,7 +574,7 @@ class MainProductHeader:
             file_name = self._parse_file_name(product_information)
             version = product_information.findtext(eop + 'version')
             if version is not None:
-                self.product_baseline = int(version)
+                self._product_baseline = int(version)
                 self.products.append({'file_name': file_name})
             else:
                 size = int(product_information.findtext(eop + 'size', '0'))  # attrib={'uom': 'bytes'}
@@ -522,7 +583,7 @@ class MainProductHeader:
 
         meta_data_property = root.find(eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = meta_data_property.find(bio + 'EarthObservationMetaData')
-        self.eop_identifier = earth_observation_meta_data.findtext(eop + 'identifier')
+        self._eop_identifier = earth_observation_meta_data.findtext(eop + 'identifier')
         self.doi = earth_observation_meta_data.find(eop + 'doi').text  # Digital Object Identifier'
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
@@ -536,7 +597,7 @@ class MainProductHeader:
         if downlinked_to is not None:
             downlink_info = downlinked_to.find(eop + 'DownlinkInformation')
             self.acquisition_station = downlink_info.findtext(eop + 'acquisitionStation')
-            self.downlink_date = _time_from_iso(downlink_info.findtext(eop + 'acquisitionDate'))
+            self._downlink_date = _time_from_iso(downlink_info.findtext(eop + 'acquisitionDate'))
 
         processing = earth_observation_meta_data.find(eop + 'processing')  # Data processing information
         processing_info = processing.find(bio + 'ProcessingInformation')

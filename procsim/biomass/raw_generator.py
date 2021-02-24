@@ -67,9 +67,6 @@ class RawProductGenerator:
         self.hdr = main_product_header.MainProductHeader()
         self.baseline_id = 1
 
-        # Fill in some fixed data
-        self.hdr.acquisition_station = ''
-
     def _generate_bin_file(self, file_name):
         file = open(file_name, 'w')
         file.write('test')
@@ -97,22 +94,22 @@ class RawProductGenerator:
         name_gen = product_name.ProductName()
         tcreate = start  # HACK - use current date?
         name_gen.setup(file_type, start, stop, self.baseline_id, tcreate, tdownlink)
-        self.hdr.set_product_type(file_type)
-        self.hdr.eop_identifier = name_gen.generate_path_name()
-        self.hdr.begin_position = start
-        self.hdr.end_position = stop
-        self.hdr.validity_start = start
-        self.hdr.validity_end = stop
-        self.hdr.downlink_date = tdownlink
+        dir_name = name_gen.generate_path_name()
+
+        self.hdr.set_product_type(file_type, self.baseline_id)
+        self.hdr.set_product_filename(dir_name)
+        self.hdr.set_phenomenon_times(start, stop)
+        self.hdr.set_validity_times(start, stop)
+        self.hdr.set_downlink_time(tdownlink)
 
         # Create directory and files
-        dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
+        print('Create {}'.format(dir_name))
+        dir_name = os.path.join(self.output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self.hdr.write(file_name)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
         self._generate_bin_file(file_name)
-        print('Created directory {}'.format(dir_name))
 
     def generate(self, start_time: datetime.datetime, end_time: datetime.datetime):
         '''Generate raw data file(s) over the specified period'''

@@ -1,8 +1,7 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Biomass raw output product generators,
-format according to BIO-ESA-EOPG-EEGS-TN-0073
+Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import datetime
 import os
@@ -24,10 +23,7 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
     This class implements the ProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    Slicing is done using a slice grid aligned to ANX.
-    For every slice, the following metadata is set:
-    - validTime start/stop times
-    - wrsLatitudeGrid, the slice number.
+    Slicing is done using a slice grid, aligned to ANX.
     '''
 
     PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
@@ -39,42 +35,43 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
         self.anx = _time_from_iso(scenario_config.get('anx'))
         self.enable_slicing = scenario_config.get('enable_slicing', True)
 
-    def _generate_sliced_output(self, type):
-        self.create_date = self.hdr.begin_position   # HACK: fill in current date!
-        tstart = self.hdr.begin_position
-        tend = self.hdr.end_position
-        slice_nr = 1
+    def generate_output(self):
+        self.create_date = self.start   # HACK: fill in current date?
         if self.enable_slicing:
-            slice_size = constants.SLICE_DURATION - (tstart - self.anx) % constants.SLICE_DURATION
+            self._generate_sliced_output()
         else:
-            slice_size = tend - tstart
+            self._create_product(self.start, self.stop, None)
 
+    def _create_product(self, tstart, tend, slice_nr):
+        # Construct product name and set metadata fields
+        name_gen = product_name.ProductName()
+        name_gen.setup(self.output_type, tstart, tend, self.baseline_id, self.create_date, self.downlink)
+        dir_name = name_gen.generate_path_name()
+        self.hdr.set_product_type(self.output_type, self.baseline_id)
+        self.hdr.set_product_filename(dir_name)
+        self.hdr.set_validity_times(tstart, tend)
+        self.hdr.set_slice_nr(slice_nr)
+
+        # create directory with files
+        self.logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self.output_path, dir_name)
+        os.makedirs(dir_name, exist_ok=True)
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self.hdr.write(file_name)
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        self._generate_bin_file(file_name, self.size)
+
+    def _generate_sliced_output(self):
+        tstart, tend = self.hdr.get_phenomenon_times()
+
+        slice_size = constants.SLICE_DURATION - (tstart - self.anx) % constants.SLICE_DURATION
+        slice_nr = 1
         while tstart < tend:
+            # TODO: OVERLAPS! See Production Model.
             tslice = slice_size
             if tstart + tslice > tend:
                 tslice = tend - tstart
             slice_size = constants.SLICE_DURATION
-
-            # Construct product name and set metadata fields
-            name_gen = product_name.ProductName()
-            name_gen.setup(self.output_type, tstart, tstart + tslice, self.baseline_id, self.create_date, self.downlink)
-            self.hdr.set_product_type(self.output_type)
-            self.hdr.eop_identifier = name_gen.generate_path_name()
-            self.hdr.validity_start = tstart
-            self.hdr.validity_end = tstart + tslice
-            self.hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._create_product(tstart, tstart + tslice, slice_nr)
             slice_nr = slice_nr + 1
-
-            # Create directory with files
-            dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
-            os.makedirs(dir_name, exist_ok=True)
-            self.logger.info('Create {}'.format(self.hdr.eop_identifier))
-            file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-            self.hdr.write(file_name)
-            file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-            self._generate_bin_file(file_name, self.size)
-
             tstart += tslice
-
-    def generate_output(self):
-        self._generate_sliced_output(self.output_type)

@@ -29,20 +29,20 @@ class Sx_RAW__0x_generator(product_generator.ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config)
 
     def generate_output(self):
-        self.create_date = self.hdr.begin_position   # HACK: fill in current date?
+        self.create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
+
         name_gen = product_name.ProductName()
         name_gen.setup(self.output_type, self.start, self.stop, self.baseline_id, self.create_date)
+        dir_name = name_gen.generate_path_name()
 
-        # TODO: Just copy from input MPH!
-        self.hdr.set_product_type(self.output_type)
-        self.hdr.eop_identifier = name_gen.generate_path_name()
-        self.hdr.validity_start = self.start
-        self.hdr.validity_end = self.stop
+        self.hdr.set_product_type(self.output_type, self.baseline_id)
+        self.hdr.set_product_filename(dir_name)
+        self.hdr.set_validity_times(self.start, self.stop)
 
         # Create directory and files
-        dir_name = os.path.join(self.output_path, self.hdr.eop_identifier)
+        self.logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self.output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
-        self.logger.info('Create {}'.format(self.hdr.eop_identifier))
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self.hdr.write(file_name)
