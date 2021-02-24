@@ -25,8 +25,8 @@ class Sx_RAW__0x_generator(product_generator.ProductGeneratorBase):
                 'RO_RAW__0S', 'RO_RAWP_0M',
                 'EC_RAW__0S', 'EC_RAWP_0M']
 
-    def __init__(self, logger, job_config, scenario_config: dict):
-        super().__init__(logger, job_config, scenario_config)
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
 
     def generate_output(self):
         self.create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?

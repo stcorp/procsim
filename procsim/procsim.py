@@ -29,7 +29,9 @@ Usage:
 
 
 class IProductGenerator(abc.ABC):
-    '''Interface for product generators'''
+    '''
+    Interface for product generators
+    '''
     @abc.abstractmethod
     def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
         pass
@@ -44,8 +46,6 @@ def read_config(filename, logger):
     # TODO: Use JSON schema! Yes, that exists...
     ROOT_KEYS = ['scenarios', 'mission']
     SCENARIO_KEYS = ['name', 'file_name', 'processor_name', 'processor_version', 'task_name', 'task_version', 'outputs']
-    # TASK_KEYS = ['name', 'version', 'file_name', 'processing_time', 'nr_cpu',
-    #              'memory_usage', 'disk_usage', 'output_file_size', 'exit_code']
     with open(filename) as data_file:
         try:
             f = open(filename, 'r')
@@ -69,7 +69,7 @@ def read_config(filename, logger):
     return None
 
 
-def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg) -> Optional[IProductGenerator]:
+def OutputFactory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
     '''Return an output generator for the given parameters.'''
     # Import plugin for this mission
     try:
@@ -83,7 +83,7 @@ def OutputFactory(mission, logger, job_output_cfg, scenario_output_cfg) -> Optio
         logger.error('Plugin {} has no factory'.format(mission))
         return None
     # Use plugin factory to create generator
-    generator = factory(logger, job_output_cfg, scenario_output_cfg)
+    generator = factory(logger, job_output_cfg, scenario_cfg, output_cfg)
     return generator
 
 
@@ -227,7 +227,7 @@ def main():
             if job_output_cfg.type == output_cfg['type']:
                 break
 
-        generator = OutputFactory(cfg['mission'], logger, job_output_cfg, output_cfg)
+        generator = OutputFactory(cfg['mission'], logger, job_output_cfg, scenario, output_cfg)
         if (generator is None):
             sys.exit(1)
         if not generator.parse_inputs(job_task.inputs):

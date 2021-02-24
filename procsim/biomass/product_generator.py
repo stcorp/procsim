@@ -19,13 +19,13 @@ class ProductGeneratorBase(IProductGenerator):
     This base class handles parsing input products to retrieve metadata.
     '''
 
-    def __init__(self, logger, job_config: JobOrderOutput, scenario_config: dict):
+    def __init__(self, logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self.output_path = job_config.dir
         self.baseline_id = job_config.baseline
         self.logger = logger
-        self.output_type = scenario_config['type']
-        self.size: int = int(scenario_config.get('size', '0'))
-        self.meta_data_source: str = scenario_config.get('metadata_source', '.*')  # default any
+        self.output_type = output_config['type']
+        self.size: int = int(output_config.get('size', '0'))
+        self.meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
         self.input_type = None
         self.start: datetime.datetime
         self.stop: datetime.datetime
