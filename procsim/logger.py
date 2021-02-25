@@ -20,7 +20,8 @@ class Logger:
     def _print_stdout(*args, **kwargs):
         print(*args, file=sys.stdout, **kwargs)
 
-    def __init__(self, node_name, processor_name, processor_version, stdout_levels, stderr_levels, task_name=None):
+    def __init__(self, node_name, processor_name, processor_version,
+                 stdout_levels, stderr_levels, task_name=None):
         self._node_name = node_name
         self._processor_name = processor_name
         self._processor_version = processor_version
