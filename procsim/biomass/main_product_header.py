@@ -3,6 +3,12 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Parse and generate Biomass Main Product Headers.
 Ref: BIO-ESA-EOPG-EEGS-TN-0051
+
+TODO:
+- Product URI
+- Product size
+- acquisitionType
+- Product status
 '''
 
 import datetime
@@ -106,6 +112,7 @@ class MainProductHeader:
     _sensor_name = 'P-SAR'
     _sensor_type = 'RADAR'
     _browse_type = 'QUICKLOOK'
+    _processing_mode = 'OPERATIONAL'
 
     def __init__(self):
         self._eop_identifier: Optional[str] = None
@@ -116,6 +123,9 @@ class MainProductHeader:
         self._validity_end: Optional[datetime.datetime] = None
         self._product_type: Optional[product_types.ProductType] = None
         self._product_baseline: Optional[int] = None
+        self._processing_date: Optional[datetime.datetime] = None
+        self._processor_name: Optional[str] = None
+        self._processor_version: Optional[str] = None
 
         self.products = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
@@ -125,29 +135,25 @@ class MainProductHeader:
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
         self.product_status = 'PLANNED'     # REJECTED, etc..
         self.processing_centre_code = 'ESR'
-        self.processing_date = datetime.datetime.now()
-        self.processor_name = 'L1 Processor'
-        self.processor_version = '1.0'
         self.processing_level = 'Other: L1'
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
-        self.processing_mode = 'OPERATIONAL'
         self.biomass_source_product_ids = ['id']
         self.reference_documents = []
 
         # Raw only
-        self.acquisition_station = 'SP'  # Spitzbergen
-        self._downlink_date = datetime.datetime.now()
+        self._acquisition_station: Optional[str] = None
+        self._acquisition_date: Optional[datetime.datetime] = None
         # Raw, HKTM only
         self.nr_transfer_frames = 0
         self.nr_transfer_frames_erroneous = 0
         self.nr_transfer_frames_corrupt = 0
         # Raw, science/ancillary only
-        self.nr_instrument_source_packets = 0
-        self.nr_instrument_source_packets_erroneous = 0
-        self.nr_instrument_source_packets_corrupt = 0
+        self._nr_instrument_source_packets = None
+        self._nr_instrument_source_packets_erroneous = None
+        self._nr_instrument_source_packets_corrupt = None
 
         # L0 only
-        self.nr_l0_lines = '387200,387200'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
+        self.nr_l0_lines = '0,0'          # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_missing = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_corrupt = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.incomplete_l0_slice = False
@@ -190,6 +196,7 @@ class MainProductHeader:
         product_type = product_types.find_product(type)
         if product_type is not None:
             self._product_type = product_type
+            self.processing_level = 'other: {}'.format(product_type.level.upper())
             self._product_baseline = baseline
         else:
             raise Exception('Unknown product type {}'.format(type))
@@ -211,7 +218,7 @@ class MainProductHeader:
         '''
         self._begin_position = start
         self._end_position = end
-        self._time_position = end  # According to MPH definition
+        self._time_position = end  # = end, according to MPH definition
 
     def set_validity_times(self, start: datetime.datetime, end: datetime.datetime):
         '''
@@ -231,11 +238,38 @@ class MainProductHeader:
         '''
         self.acquisitions[0].slice_frame_nr = slice_nr
 
-    def set_downlink_time(self, downlink_time):
+    def set_acquisition_date(self, acquisition_date):
         '''
         For raw products only
         '''
-        self._downlink_date = downlink_time
+        self._acquisition_date = acquisition_date
+
+    def set_acquisition_station(self, acquisition_station):
+        '''
+        For raw products only
+        '''
+        self._acquisition_station = acquisition_station
+
+    def set_num_of_isp(self, num_isp, num_isp_erroneous, num_isp_corrupt):
+        '''
+        For raw products only
+        '''
+        self._nr_instrument_source_packets = num_isp
+        self._nr_instrument_source_packets_erroneous = num_isp_erroneous
+        self._nr_instrument_source_packets_corrupt = num_isp_corrupt
+
+    def set_num_of_lines(self, num_of_lines, num_of_lines_corrupt, num_of_lines_missing):
+        '''
+        For L0 product only
+        '''
+        self.nr_l0_lines = num_of_lines
+        self.nr_l0_lines_corrupt = num_of_lines_corrupt
+        self.nr_l0_lines_missing = num_of_lines_missing
+
+    def set_processing_parameters(self, name: str, version: str, date: datetime.datetime):
+        self._processor_name = name
+        self._processor_version = version
+        self._processing_date = date
 
     def _insert_time_period(self, parent, start, stop, id):
         # Insert TimePeriod element
@@ -389,8 +423,7 @@ class MainProductHeader:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
                 et.SubElement(product_information, bio + 'rds').text = prod['representation']
             else:
-                baseline = '{:02}'.format(self._product_baseline)
-                et.SubElement(product_information, eop + 'version').text = baseline
+                et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self._product_baseline)
 
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = et.SubElement(meta_data_property, bio + 'EarthObservationMetaData')
@@ -406,24 +439,24 @@ class MainProductHeader:
         if self._product_type.level == 'raw':
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
-            et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
-            et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self._downlink_date)
+            et.SubElement(downlink_info, eop + 'acquisitionStation').text = self._acquisition_station
+            et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self._acquisition_date)
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, bio + 'ProcessingInformation')
         proc_center = et.SubElement(processing_info, eop + 'processingCenter')
         proc_center.text = self.processing_centre_code
         proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
-        et.SubElement(processing_info, eop + 'processingDate').text = _time_as_iso_short(self.processing_date)
-        et.SubElement(processing_info, eop + 'processorName').text = self.processor_name
-        et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
+        et.SubElement(processing_info, eop + 'processingDate').text = _time_as_iso_short(self._processing_date)
+        et.SubElement(processing_info, eop + 'processorName').text = self._processor_name
+        et.SubElement(processing_info, eop + 'processorVersion').text = self._processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self.processing_level
 
         if not self._product_type.level == 'aux':
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
 
-        et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
+        et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace': 'urn:esa:eop:Biomass:class'}).text = self._processing_mode
 
         if self._product_type.level == 'l0' or self._product_type.level == 'l1' or self._product_type.level == '2a':
             for id in self.biomass_source_product_ids:
@@ -438,9 +471,9 @@ class MainProductHeader:
                 et.SubElement(earth_observation_meta_data, bio + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt)
             else:
-                et.SubElement(earth_observation_meta_data, bio + 'numOfISPs').text = str(self.nr_instrument_source_packets)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfISPsWithErrors').text = str(self.nr_instrument_source_packets_erroneous)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedISPs').text = str(self.nr_instrument_source_packets_corrupt)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfISPs').text = str(self._nr_instrument_source_packets)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfISPsWithErrors').text = str(self._nr_instrument_source_packets_erroneous)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedISPs').text = str(self._nr_instrument_source_packets_corrupt)
 
         if self._product_type.level == 'l0':
             et.SubElement(earth_observation_meta_data, bio + 'numOfLines').text = self.nr_l0_lines
@@ -596,16 +629,16 @@ class MainProductHeader:
         downlinked_to = earth_observation_meta_data.find(eop + 'downlinkedTo')
         if downlinked_to is not None:
             downlink_info = downlinked_to.find(eop + 'DownlinkInformation')
-            self.acquisition_station = downlink_info.findtext(eop + 'acquisitionStation')
-            self._downlink_date = _time_from_iso(downlink_info.findtext(eop + 'acquisitionDate'))
+            self._acquisition_station = downlink_info.findtext(eop + 'acquisitionStation')
+            self._acquisition_date = _time_from_iso(downlink_info.findtext(eop + 'acquisitionDate'))
 
         processing = earth_observation_meta_data.find(eop + 'processing')  # Data processing information
         processing_info = processing.find(bio + 'ProcessingInformation')
         self.processing_centre_code = processing_info.findtext(eop + 'processingCenter')
         # proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
-        self.processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
-        self.processor_name = processing_info.findtext(eop + 'processorName')
-        self.processor_version = processing_info.findtext(eop + 'processorVersion')
+        self._processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
+        self._processor_name = processing_info.findtext(eop + 'processorName')
+        self._processor_version = processing_info.findtext(eop + 'processorVersion')
         self.processing_level = processing_info.findtext(eop + 'processingLevel')
 
         self.auxiliary_ds_file_names.clear()
@@ -613,7 +646,7 @@ class MainProductHeader:
             if proc_info.text is not None:
                 self.auxiliary_ds_file_names.append(proc_info.text)
 
-        self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codespace': 'urn:esa:eop:Biomass:class'}
+        self._processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codespace': 'urn:esa:eop:Biomass:class'}
 
         # Mandatory for level 0, 1 and 2a
         self.biomass_source_product_ids.clear()
@@ -631,9 +664,9 @@ class MainProductHeader:
         self.nr_transfer_frames_erroneous = _to_int(earth_observation_meta_data.findtext(bio + 'numOfTFsWithErrors'))
         self.nr_transfer_frames_corrupt = _to_int(earth_observation_meta_data.findtext(bio + 'numOfCorruptedTFs'))
 
-        self.nr_instrument_source_packets = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPs'))
-        self.nr_instrument_source_packets_erroneous = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPsWithErrors'))
-        self.nr_instrument_source_packets_corrupt = _to_int(earth_observation_meta_data.findtext(bio + 'numOfCorruptedISPs'))
+        self._nr_instrument_source_packets = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPs'))
+        self._nr_instrument_source_packets_erroneous = _to_int(earth_observation_meta_data.findtext(bio + 'numOfISPsWithErrors'))
+        self._nr_instrument_source_packets_corrupt = _to_int(earth_observation_meta_data.findtext(bio + 'numOfCorruptedISPs'))
 
         # Mandatory for level 0. Note: these are all pairs of numbers
         self.nr_l0_lines = earth_observation_meta_data.findtext(bio + 'numOfLines')

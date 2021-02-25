@@ -30,8 +30,8 @@ class JobOrderOutput():
 class JobOrderTask():
     '''Data class with task parameters'''
     def __init__(self):
-        self.name: str
-        self.version: str
+        self.name: str = ''
+        self.version: str = ''
         self.inputs: List[JobOrderInput] = []
         self.outputs: List[JobOrderOutput] = []
 
@@ -44,8 +44,8 @@ class JobOrderParser:
         self.processor_version = ''
         self.node = 'N/A'
         self.tasks: List[JobOrderTask] = []
-        self.stdout_levels: List[str]
-        self.stderr_levels: List[str]
+        self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
+        self.stderr_levels: List[str] = []
         self.processing_parameters = {}
         if filename is not None:
             self._parse(filename)
@@ -73,8 +73,7 @@ class JobOrderParser:
         as many fields do not exists and/or are different in the new ICD.'''
         self.processor_name = root.find('.//Processor_Name').text
         self.processor_version = root.find('.//Version').text
-        # TODO: parse from job order
-        self.stdout_levels = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
+        # TODO: parse stdout_levels from job order
 
         # Build list of tasks
         for task_el in root.find('List_of_Ipf_Procs').findall('Ipf_Proc'):

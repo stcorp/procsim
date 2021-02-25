@@ -2,6 +2,80 @@
   "mission": "biomass", // Must match the plugin name
   "scenarios": [
     {
+      /*
+      This scenario is used to generate dummy raw data, to test the
+      other procsim output product generators.
+      Note that this scenario takes no inputs, nor JobOrder.
+      */
+      "name": "Raw data generator",
+
+      "file_name": "N/A",
+      "processor_name": "rawgenerator",
+      "processor_version": "01.00",
+      "task_name": "generate",
+      "task_version": "01.00",
+      "num_isp": 387200,
+      "num_isp_erroneous": 0,
+      "num_isp_corrupt": 0,
+
+      "logging": [
+        {
+          "level": "info",
+          "message": "Generate (dummy) raw data"
+        }
+      ],
+
+      // Metadata, common for all outputs
+      "output_path": "data/raw",
+      "baseline": "1",
+      "validity_start": "2021-02-01 00:00:00.000Z",
+      "validity_stop": "2021-02-01 01:38:10.000Z",
+      "acquisition_date": "2021-02-01 01:38:10.000Z",
+      "acquisition_station": "SP",
+
+      // Outputs to generate
+      "outputs": [
+        {
+          "type": "RAW_022_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_023_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_024_10",
+          "size": 0
+        },
+        {
+          "validity_start": "2021-02-01 00:24:32.000Z",
+          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "type": "RAW_025_10",
+          "size": 0
+        },
+        {
+          "validity_start": "2021-02-01 00:29:32.000Z",
+          "validity_stop": "2021-02-01 00:34:32.000Z",
+          "type": "RAW_025_10",
+          "size": 0
+        },
+        {
+          "validity_start": "2021-02-01 00:24:32.000Z",
+          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "type": "RAW_026_10",
+          "size": 0
+        },
+        {
+          "validity_start": "2021-02-01 00:29:32.000Z",
+          "validity_stop": "2021-02-01 00:34:32.000Z",
+          "type": "RAW_026_10",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
       "name": "L0 slicer",
 
       // File_name must match with the first argument of procsim
@@ -19,29 +93,9 @@
       "memory_usage": 4000000,
       "disk_usage": 0,
 
+      // Logging
       "nr_progress_log_messages": 4,
-      "logging": [
-        {
-          "level": "debug",
-          "message": "debug message from stub!"
-        },
-        {
-          "level": "info",
-          "message": "info message from stub!"
-        },
-        {
-          "level": "progress",
-          "message": "progress message from stub!"
-        },
-        {
-          "level": "warning",
-          "message": "warning message from stub!"
-        },
-        {
-          "level": "error",
-          "message": "error message from stub!"
-        }
-      ],
+
       "inputs": [
         {
           "type": "RAW_022_10"
@@ -110,6 +164,12 @@
           "type": "RAWS024_10"
         }
       ],
+
+      // Mandatory metadata for level 0 product
+      "num_l0_lines": "387200, 387200",
+      "num_l0_lines_missing": "0, 0",
+      "num_l0_lines_corrupt": "0, 0",
+
       "outputs": [
         {
           "type": "S1_RAW__0S",

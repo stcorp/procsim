@@ -29,19 +29,21 @@ class Sx_RAW__0x_generator(product_generator.ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config, output_config)
 
     def generate_output(self):
-        self.create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
+        super(Sx_RAW__0x_generator, self).generate_output()
+        self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
         name_gen = product_name.ProductName()
-        name_gen.setup(self.output_type, self.start, self.stop, self.baseline_id, self.create_date)
+        name_gen.setup(self._output_type, self._start, self._stop, self._baseline_id, self._create_date)
         dir_name = name_gen.generate_path_name()
 
-        self.hdr.set_product_type(self.output_type, self.baseline_id)
+        self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
-        self.hdr.set_validity_times(self.start, self.stop)
+        self.hdr.set_validity_times(self._start, self._stop)
+        self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
 
         # Create directory and files
-        self.logger.info('Create {}'.format(dir_name))
-        dir_name = os.path.join(self.output_path, dir_name)
+        self._logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
@@ -49,9 +51,9 @@ class Sx_RAW__0x_generator(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self.size//2)
+        self._generate_bin_file(file_name, self._size//2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self.size//2)
+        self._generate_bin_file(file_name, self._size//2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))

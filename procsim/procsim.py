@@ -29,6 +29,10 @@ class IProductGenerator(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def read_scenario_metadata_parameters(self):
+        pass
+
+    @abc.abstractmethod
     def generate_output(self):
         pass
 
@@ -193,7 +197,7 @@ Usage: procsim [-t TASK_FILENAME] [-j JOBORDER_FILE] [-s SCENARIO_NAME] CONFIG_F
 
 def parse_command_line(argv):
     config_filename = None
-    task_filename = None
+    task_filename = ''
     job_filename = None
     scenario_name = None
     try:
@@ -250,12 +254,10 @@ def main(argv):
     for input in job_task.inputs:
         for file_name in input.file_names:
             logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
-    logger.info('Starting, simulating scenario {}, Order {}'.format(
-        scenario['name'],
-        os.path.basename(job_filename)))
+    logger.info('Starting, simulating scenario {}'.format(scenario['name']))
 
     # Create product generators, parse inputs
-    generators = []
+    generators: List[IProductGenerator] = []
     for output_cfg in scenario['outputs']:
         # Find corresponding output parameters in JobOrder task config
         job_output_cfg = None
@@ -266,7 +268,7 @@ def main(argv):
         generator = OutputFactory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
         if (generator is None):
             sys.exit(1)
-        if not generator.parse_inputs(job_task.inputs):
+        if job_task.inputs and not generator.parse_inputs(job_task.inputs):
             sys.exit(1)
         generators.append(generator)
 
@@ -274,6 +276,7 @@ def main(argv):
     worker.start()
 
     for gen in generators:
+        gen.read_scenario_metadata_parameters()
         gen.generate_output()
 
     exit_code = scenario['exit_code']
