@@ -47,7 +47,8 @@ class JobOrderParser:
         self.stdout_levels: List[str]
         self.stderr_levels: List[str]
         self.processing_parameters = {}
-        self._parse(filename)
+        if filename is not None:
+            self._parse(filename)
 
     def _find_matching_files(self, pattern):
         # Return list of all files matching 'pattern'.
