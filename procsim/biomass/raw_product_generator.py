@@ -11,7 +11,6 @@ from biomass import constants, product_name
 from biomass import product_generator
 
 ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-ISO_TIME_FORMAT_SHORT = '%Y-%m-%d %H:%M:%S'
 
 
 def _time_from_iso(timestr):
