@@ -5,6 +5,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Task simulator for scientific processors.
 '''
 import abc
+import getopt
 import importlib
 import json
 import os
@@ -14,18 +15,9 @@ from typing import List, Optional
 import utils
 from logger import Logger
 from work_simulator import WorkSimulator
-from job_order import JobOrderParser, JobOrderInput
+from job_order import JobOrderParser, JobOrderInput, JobOrderTask
 
 VERSION = "1.0"
-
-versiontext = "procsim v" + VERSION + \
-    ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
-
-helptext = versiontext + """\
-Usage:
-    procsim <task_filename> <jobOrder_filename> <config_filename>
-        Simulate the task as described in the JobOrder file.
-"""
 
 
 class IProductGenerator(abc.ABC):
@@ -66,6 +58,7 @@ def read_config(filename, logger):
             return config
         except json.JSONDecodeError as e:
             logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
+    logger.error('Cannot read configuration file {}, exiting'.format(filename))
     return None
 
 
@@ -99,10 +92,13 @@ def compare_outputs(scenario, task):
     return scenario_output_types == task_output_types
 
 
-def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser):
-    # Find out: do we have a scenario for this combination of JobOrder and filename?
+def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scenario_name):
+    # Find scenario from the list of scenarios in the cfg.
     #
-    # Compare every scenario with:
+    # If an explicit scenario name is given, use that and try to find a matching
+    # task in the JobOrder.
+    #
+    # Else, compare every scenario with:
     # 1. The 'File name' argument procsim was called with
     # 2. The processor and task name/version as specified in the jobOrder
     # 3. The list of inputs as specified in the jobOrder
@@ -115,13 +111,24 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser):
     matching_inputs_found = False
     file_name = os.path.basename(task_filename)
     for scenario in cfg['scenarios']:
-        if scenario['file_name'] != file_name:
-            continue
-        exec_found = True
-        if scenario['processor_name'] != job.processor_name or \
-           scenario['processor_version'] != job.processor_version:
-            continue
-        proc_found = True
+        if scenario_name is not None:
+            if scenario['name'] != scenario_name:
+                continue
+            exec_found = True
+            proc_found = True
+            task_found = True
+            if not job.tasks:
+                return scenario, JobOrderTask()  # Return empty jobordertask
+        else:
+            if scenario['file_name'] != file_name:
+                continue
+            exec_found = True
+            if scenario['processor_name'] != job.processor_name or \
+               scenario['processor_version'] != job.processor_version:
+                continue
+            proc_found = True
+
+        # Find matching job
         for job_task in job.tasks:
             if scenario['task_name'] != job_task.name or \
                scenario['task_version'] != job_task.version:
@@ -165,29 +172,60 @@ def log_configured_messages(scenario, logger):
                 logger.log(level, message)
 
 
-def main():
-    args = sys.argv[1:]
-    if len(args) == 0 or len(args) > 3:
-        print(helptext)
-        sys.exit(1)
-    if sys.argv[1] == "-h" or sys.argv[1] == "--help":
-        print(helptext)
-        sys.exit()
-    if sys.argv[1] == "-v" or sys.argv[1] == "--version":
-        print(versiontext)
-        sys.exit()
-    if len(args) == 3:
-        task_filename = args[0]
-        job_filename = args[1]
-        config_filename = args[2]
-    else:
-        print(helptext)
-        sys.exit(1)
+def log_processor_parameters(parameters, logger):
+    for param, value in parameters.items():
+        logger.info('Processing parameter {} = {}'.format(param, value))
 
-    # Parse JobOrder
+
+versiontext = "procsim v" + VERSION + \
+    ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
+
+helptext = versiontext + """\
+Usage: procsim [-t TASK_FILENAME] [-j JOBORDER_FILE] [-s SCENARIO_NAME] CONFIG_FILE
+  or:  procsim -h
+  or:  procsim -v
+
+    Simulate a scenario from CONFIG_FILE. The scenario is selected using
+    TASK_FILENAME (the name of the task as called by the CPF)
+    or specified explicitly by SCENARIO_NAME.
+"""
+
+
+def parse_command_line(argv):
+    config_filename = None
+    task_filename = None
+    job_filename = None
+    scenario_name = None
+    try:
+        opts, args = getopt.getopt(argv, 'hvt:j:s:', ['help', 'version', 'task_filename=', 'joborder=', 'scenario='])
+    except getopt.GetoptError:
+        print(helptext)
+        sys.exit()
+    for opt, arg in opts:
+        if opt in ('-h', '--help'):
+            print(helptext)
+            sys.exit()
+        elif opt in ('-v', '--version'):
+            print(versiontext)
+            sys.exit()
+        elif opt in ('-t', '--task_filename'):
+            task_filename = arg
+        elif opt in ('-j', '--joborder_filename'):
+            job_filename = arg
+        elif opt in ('-s', '--scenario_name'):
+            scenario_name = arg
+    if not args:
+        print(helptext)
+        sys.exit()
+    config_filename = args[0]
+    return task_filename, job_filename, config_filename, scenario_name
+
+
+def main(argv):
+    task_filename, job_filename, config_filename, scenario_name = parse_command_line(argv)
+
     job = JobOrderParser(job_filename)
 
-    # Create logger
     logger = Logger(
         job.node,
         job.processor_name,
@@ -196,21 +234,19 @@ def main():
         job.stderr_levels
     )
 
-    cfg = read_config(config_filename, logger)
-    if cfg is None:
-        logger.error('Cannot read configuration file {}, exiting'.format(config_filename))
+    config = read_config(config_filename, logger)
+    if config is None:
         sys.exit(1)
 
-    scenario, job_task = find_fitting_scenario(logger, task_filename, cfg, job)
+    scenario, job_task = find_fitting_scenario(logger, task_filename, config, job, scenario_name)
     if scenario is None:
         sys.exit(1)
 
-    logger.set_task_name(job_task.name)    # This info was not available before
+    logger.set_task_name(job_task.name)    # This info was not available yet
 
     log_configured_messages(scenario, logger)
+    log_processor_parameters(job.processing_parameters, logger)
 
-    for param, value in job.processing_parameters.items():
-        logger.info('Processing parameter {} = {}'.format(param, value))
     for input in job_task.inputs:
         for file_name in input.file_names:
             logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
@@ -227,7 +263,7 @@ def main():
             if job_output_cfg.type == output_cfg['type']:
                 break
 
-        generator = OutputFactory(cfg['mission'], logger, job_output_cfg, scenario, output_cfg)
+        generator = OutputFactory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
         if (generator is None):
             sys.exit(1)
         if not generator.parse_inputs(job_task.inputs):
@@ -246,4 +282,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
