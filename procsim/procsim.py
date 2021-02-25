@@ -46,7 +46,8 @@ def read_config(filename, logger):
         try:
             f = open(filename, 'r')
             commented_json = f.read()
-            clean_json = utils.json_remove_comments(commented_json)
+            uncommented_json = utils.json_remove_comments(commented_json)
+            clean_json = utils.remove_trailing_commas(uncommented_json)
             config = json.loads(clean_json)
             is_ok = True
             if set(config.keys()) == set(ROOT_KEYS):
