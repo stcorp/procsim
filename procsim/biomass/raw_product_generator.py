@@ -128,8 +128,11 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
             start_overlapped = max(slice_start - constants.SLICE_OVERLAP_START, acq_start)
             end_overlapped = min(slice_start + slice_size + constants.SLICE_OVERLAP_END, acq_end)
 
-            # Generate product
-            self._create_product(start_overlapped, end_overlapped, slice_nr)
+            # Generate product.
+            # Assumption: start/stop validity times are WITHOUT overlap. The
+            # overlap is only in the raw data.
+            end_non_overlapped = min(slice_start + slice_size, acq_end)
+            self._create_product(slice_start, end_non_overlapped, slice_nr)
 
             # Align start of next slice to the grid.
             # If the end of the previous slice (including overlap) falls after a
