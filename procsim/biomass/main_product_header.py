@@ -258,6 +258,12 @@ class MainProductHeader:
         self._nr_instrument_source_packets_erroneous = num_isp_erroneous
         self._nr_instrument_source_packets_corrupt = num_isp_corrupt
 
+    def set_data_take_id(self, data_take_id):
+        '''
+        For AUT_ATT___, AUX_ORB___, L0, L1 products only
+        '''
+        self.acquisitions[0].data_take_id = data_take_id
+
     def set_num_of_lines(self, num_of_lines, num_of_lines_corrupt, num_of_lines_missing):
         '''
         For L0 product only
