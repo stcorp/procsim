@@ -76,6 +76,9 @@
     },
 
     {
+      /*
+      L0 slicer scenario.
+      */
       "name": "L0 slicer",
 
       // File_name must match with the first argument of procsim
@@ -139,6 +142,10 @@
       "exit_code": 0
     },
     {
+      /*
+      L0 slice-based product generation.
+      Measurement mode (i.e. stripmap standard products)
+      */
       "name": "L0 task2 Measurement Mode",
       "file_name": "level0_task2.sh",
       "processor_name": "level0_step2",
@@ -165,10 +172,33 @@
         }
       ],
 
-      // Mandatory metadata for level 0 product
+      // Some metadata for level 0 product (can be omitted)
       "num_l0_lines": "387200, 387200",
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
+
+      // Must be the same as in the previous step!
+      "anx": [
+        "2021-01-31 22:47:21.765Z",
+        "2021-02-01 00:25:33.745Z", // 1 second too late
+        "2021-02-01 02:03:43.725Z"  // 1 second too early
+      ],
+
+      // Data take info (times copied from raw product generator).
+      "data_takes": [
+        {
+          "id": 10,
+          "swath": 1,
+          "validity_start": "2021-02-01 00:24:32.000Z",
+          "validity_stop": "2021-02-01 00:29:32.000Z"
+        },
+        {
+          "id": 11,
+          "swath": 1,
+          "validity_start": "2021-02-01 00:29:32.000Z",
+          "validity_stop": "2021-02-01 00:34:32.000Z"
+        }
+      ],
 
       "outputs": [
         {
@@ -178,7 +208,7 @@
         },
         {
           "type": "S1_RAWP_0M",
-          "metadata_source": ".*RAWS023_10.*",
+          "metadata_source": ".*RAWS025_10.*",  // TODO: is this correct?
           "size": 100000
         }
       ],
@@ -186,6 +216,7 @@
     },
 
     {
+      // Task #3
       "name": "L0 task3 Measurement Mode",
       "file_name": "level0_task3.sh",
       "processor_name": "level0_step2",
