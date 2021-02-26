@@ -8,6 +8,7 @@ from typing import List, Optional
 
 from job_order import JobOrderInput, JobOrderOutput
 from procsim import IProductGenerator
+from logger import Logger
 
 from biomass import main_product_header, product_name
 
@@ -20,7 +21,7 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
-    def __init__(self, logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
+    def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
         self._output_path = scenario_config.get('output_path') or output_config.get('output_path') or job_config.dir
