@@ -83,14 +83,11 @@ class ProductGeneratorBase(IProductGenerator):
                     return False
                 if not mph_is_parsed and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
-                    if gen.parse_path(file):
-                        self._start = gen._start_time
-                        self._stop = gen._stop_time
-                        if (gen.get_level() == 'raw'):
-                            self._acquisition_date = gen._downlink_time  # We can also get this from MPH...
-                    else:
-                        self._logger.error('Filename {} not valid for Biomass'.format(file))
-                        return False
+                    gen.parse_path(file)
+                    self._start = gen._start_time
+                    self._stop = gen._stop_time
+                    if (gen._level == 'raw'):
+                        self._acquisition_date = gen._downlink_time  # We can also get this from MPH...
                     # Derive mph file name from product name, parse header
                     hdr = self.hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())

@@ -8,7 +8,7 @@ import datetime
 import os
 import re
 
-from biomass import constants
+from biomass import constants, product_types
 
 
 class ProductName:
@@ -29,6 +29,7 @@ class ProductName:
     def __init__(self):
         # Common
         self._file_type: str
+        self._level: str
         self._start_time: datetime.datetime
         self._stop_time: datetime.datetime
         self._baseline_identifier: int
@@ -63,17 +64,6 @@ class ProductName:
                 date36 = chr(x + 65 - 10) + date36
         self._compact_create_date = date36
 
-    def get_level(self):
-        # Return either 'raw' or 'level0_1_2a
-        pattern_raw = 'RAW[_S][0-9]{3}_[0-9]{2}'
-        # TODO: We should make a large table somewhere?!
-        pattern_l012 = ['S[123]_RAW__0[SM]', 'RO_RAW__0[SM]', 'EC_RAW__0[SM]', 'S[123]_RAWP_0M', 'RO_RAWP_0M', 'EC_RAWP_0M']
-        if self._file_type == 'RAW___HKTM' or re.match(pattern_raw, self._file_type):
-            return 'raw'
-        for pattern in pattern_l012:
-            if re.match(pattern, self._file_type):
-                return 'level0_1_2a'
-
     def _parse_raw(self, file):
         self._start_time = self.str_to_time(file[15:30])
         self._stop_time = self.str_to_time(file[31:46])
@@ -99,17 +89,21 @@ class ProductName:
     def parse_path(self, path):
         # Extract parameters from path name, return True if succesfull.
         file = os.path.basename(path)
-        if file[0:3] != constants.SATELLITE_ID:
-            return False
-        self._file_type = file[4:14]
-        level = self.get_level()
+        id = file[0:3]
+        if id != constants.SATELLITE_ID:
+            raise Exception('Incorrect satellite ID in file path {}, must be {}'.format(id, constants.SATELLITE_ID))
+        type_code = file[4:14]
+        type = product_types.find_product(type_code)
+        if type is None:
+            raise Exception('Type code {} not valid for Biomass'.format(type_code))
+        self._file_type = type.type
+        level = self._level = type.level
         if level == 'raw':
             self._parse_raw(file)
-        elif level == 'level0_1_2a':
+        elif level == 'l0' or level == 'l1' or level == '2a' or level == 'aux':
             self._parse_level0_1_2a(file)
         else:
-            return False
-        return True
+            raise Exception('Cannot handle type {}'.format(type_code))
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
@@ -121,7 +115,7 @@ class ProductName:
                     self.time_to_str(self._stop_time))
         return name
 
-    def setup(self, file_type, tstart, tstop, baseline_id, create_date, tdownlink=None,
+    def setup(self, type_code, tstart, tstop, baseline_id, create_date, tdownlink=None,
               mission_phase_id='C', global_coverage_id='__', major_cycle_id='__',
               repeat_cycle_id='__', track_nr='___', frame_slice_nr='___'):
         '''
@@ -136,8 +130,12 @@ class ProductName:
         - track_nr: frame/slice id or ___
         - create_date: creation event time
         '''
+        type = product_types.find_product(type_code)
+        if type is None:
+            raise Exception('Type code {} not valid for Biomass'.format(type_code))
         self._set_compact_creation_date(create_date)
-        self._file_type = file_type
+        self._file_type = type.type
+        self._level = type.level
         self._start_time = tstart
         self._stop_time = tstop
         self._downlink_time = tdownlink
@@ -151,7 +149,7 @@ class ProductName:
 
     def generate_path_name(self):
         # Returns directory name
-        if self.get_level() == 'raw':
+        if self._level == 'raw':
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
             name = self._generate_prefix() + 'D{}_{:02}_{}'\
                 .format(
@@ -178,13 +176,15 @@ class ProductName:
         return self.generate_path_name().lower() + '.xml'
 
     def generate_binary_file_name(self, suffix=''):
-        if self.get_level() == 'raw':
+        if self._level == 'raw':
             name = self._generate_prefix() + 'D{}.dat'.format(
                 self.time_to_str(self._downlink_time)
             )
         else:
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
-            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}{}'\
+            if suffix is None:
+                suffix = ''
+            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}{}.dat'\
                 .format(
                     self._mission_phase_id,
                     self._global_coverage_id,
@@ -201,9 +201,10 @@ class ProductName:
             self.parse_path(path)
             print('path:              ', path)
         print('type:              ', self._file_type)
+        print('level:             ', self._level)
         print('start:             ', self._start_time)
         print('stop:              ', self._stop_time)
-        if self.get_level() == 'raw':
+        if self._level == 'raw':
             print('downlink time:     ', self._downlink_time)
         else:
             print('phase ID:          ', self._mission_phase_id)

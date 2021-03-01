@@ -78,9 +78,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             if input.file_type in HV_PRODUCTS:
                 for file in input.file_names:
                     gen = product_name.ProductName()
-                    if gen.parse_path(file):
-                        self._start = min(self._start, gen._start_time)
-                        self._stop = max(self._stop, gen._stop_time)
+                    gen.parse_path(file)
+                    self._start = min(self._start, gen._start_time)
+                    self._stop = max(self._stop, gen._stop_time)
         return True
 
     def _generate_product(self, start, stop, data_take_id):
