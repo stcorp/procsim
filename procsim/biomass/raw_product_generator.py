@@ -38,7 +38,15 @@ class RAW_xxx_10(product_generator.ProductGeneratorBase):
         start = self._start
         stop = self._stop
         name_gen = product_name.ProductName()
-        name_gen.setup(self._output_type, start, stop, self._baseline_id, self._create_date, self._acquisition_date)
+
+        # Setup mandatory Raw data
+        name_gen.file_type = self._output_type
+        name_gen.start_time = start
+        name_gen.stop_time = stop
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.downlink_time = self._acquisition_date
+
         dir_name = name_gen.generate_path_name()
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
@@ -92,7 +100,12 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
     def _create_product(self, tstart, tend, slice_nr):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName()
-        name_gen.setup(self._output_type, tstart, tend, self._baseline_id, self._create_date, self._acquisition_date)
+        name_gen.file_type = self._output_type
+        name_gen.start_time = tstart
+        name_gen.stop_time = tend
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.downlink_time = self._acquisition_date
         dir_name = name_gen.generate_path_name()
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)

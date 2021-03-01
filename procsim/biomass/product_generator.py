@@ -30,9 +30,9 @@ class ProductGeneratorBase(IProductGenerator):
         self._output_type = output_config['type']
         self._size: int = int(output_config.get('size', '0'))
         self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
-        self._start: datetime.datetime
-        self._stop: datetime.datetime
-        self._create_date: datetime.datetime
+        self._start: Optional[datetime.datetime] = None
+        self._stop: Optional[datetime.datetime] = None
+        self._create_date: Optional[datetime.datetime] = None
 
         # Raw only
         self._acquisition_date: Optional[datetime.datetime] = None
@@ -84,10 +84,10 @@ class ProductGeneratorBase(IProductGenerator):
                 if not mph_is_parsed and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)
-                    self._start = gen._start_time
-                    self._stop = gen._stop_time
+                    self._start = gen.start_time
+                    self._stop = gen.stop_time
                     if (gen._level == 'raw'):
-                        self._acquisition_date = gen._downlink_time  # We can also get this from MPH...
+                        self._acquisition_date = gen.downlink_time  # We can also get this from MPH...
                     # Derive mph file name from product name, parse header
                     hdr = self.hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
@@ -101,21 +101,29 @@ class ProductGeneratorBase(IProductGenerator):
         # Try to read from either scenario or output
         val = default
         if self._output_config.get(name) is not None:
-            return self._output_config.get(name)
-        if self._scenario_config.get(name) is not None:
-            return self._scenario_config.get(name)
+            val = self._output_config.get(name)
+        elif self._scenario_config.get(name) is not None:
+            val = self._scenario_config.get(name)
+        return val
+
+    def _read_time(self, name, default):
+        val = default
+        if self._output_config.get(name) is not None:
+            val = self._time_from_iso_or_none(self._output_config.get(name))
+        elif self._scenario_config.get(name) is not None:
+            val = self._time_from_iso_or_none(self._scenario_config.get(name))
+        return val
 
     def read_scenario_metadata_parameters(self):
         '''
-        Parse metadata parameters from scenario_config (either 'global' or for this output)
+        Parse metadata parameters from scenario_config (either 'global' or for this output).
         '''
-        scfg = self._scenario_config
-        ocfg = self._output_config
-        self._start = self._time_from_iso_or_none(ocfg.get('validity_start') or scfg.get('validity_start')) or self._start
-        self._stop = self._time_from_iso_or_none(ocfg.get('validity_stop') or scfg.get('validity_stop')) or self._stop
+        self._start = self._read_time('validity_start', self._start)
+        self._stop = self._read_time('validity_stop', self._stop)
+
         # Override header parameters
-        self._acquisition_date = self._time_from_iso_or_none(ocfg.get('acquisition_date') or scfg.get('acquisition_date')) or self._acquisition_date
-        self._acquisition_station = ocfg.get('acquisition_station') or scfg.get('acquisition_station') or self.hdr._acquisition_station
+        self._acquisition_date = self._read_time('acquisition_date', self._acquisition_date)
+        self._acquisition_station = self._read_cfg('acquisition_station', self.hdr._acquisition_station)
         self._num_isp = self._read_cfg('num_isp', self.hdr._nr_instrument_source_packets)
         self._num_isp_erroneous = self._read_cfg('num_isp_erroneous', self.hdr._nr_instrument_source_packets_erroneous)
         self._num_isp_corrupt = self._read_cfg('num_isp_corrupt', self.hdr._nr_instrument_source_packets_corrupt)

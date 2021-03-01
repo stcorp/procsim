@@ -88,12 +88,12 @@ class Acquisition:
         self.completion_time: int = 0                # in ms since ANX
         self.instrument_config_id: int = 1
         self.orbit_drift_flag: bool = False
-        self.repeat_cycle_id: str = 'DR'             # 1..7 or DR, refer to PDGS Products Naming Convention document
+        self.repeat_cycle_id: str = '1'              # 1..7 or DR or __, refer to PDGS Products Naming Convention document
         # RAWS, L0, L1, L2a
         self.slice_frame_nr: Optional[int] = None    # None or the actual slice/frame number
         # L0, L1, L2a
         self.orbit_direction: str = 'ASCENDING'      # Or DECENDING
-        self.track_nr: int = 133                     # gml:CodeWithAuthorityType
+        self.track_nr: int = 0                       # gml:CodeWithAuthorityType
         self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
         self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
@@ -208,7 +208,7 @@ class MainProductHeader:
         self._eop_identifier = filename
         self.products[0] = {'file_name': filename}
 
-    def set_phenomenon_times(self, start: datetime.datetime, end: datetime.datetime):
+    def set_phenomenon_times(self, start, end):
         '''
         Start/stop are UTC start date and time:
             - Acquisition sensing time for RAW, L0
@@ -220,7 +220,7 @@ class MainProductHeader:
         self._end_position = end
         self._time_position = end  # = end, according to MPH definition
 
-    def set_validity_times(self, start: datetime.datetime, end: datetime.datetime):
+    def set_validity_times(self, start, end):
         '''
         Start/stop are UTC start date and time:
             - Acquisition sensing time for RAW_<PID>_<PC>, RAW___HKTM

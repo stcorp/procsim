@@ -1,19 +1,16 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Biomass raw output product generators,
+Biomass Level 0 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0073
-
-Biomass Level 0 output product generators,
-format according to BIO-ESA-EOPG-EEGS-TN-0045
 '''
 import datetime
 import os
 from typing import List
 
-from biomass import product_name
-from biomass import product_generator
-from job_order import JobOrderInput, JobOrderOutput
+from job_order import JobOrderInput
+
+from biomass import product_generator, product_name
 
 ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -21,11 +18,6 @@ ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 def _time_from_iso(timestr):
     timestr = timestr[:-1]  # strip 'Z'
     return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
-
-
-def _is_intersection(t1start, t1end, t2start, t2end):
-    # Returns True if time 1 is (partly) within time 2
-    return (t1start <= t2start <= t1end) or (t2start <= t1start <= t2end)
 
 
 class Sx_RAW__0x(product_generator.ProductGeneratorBase):
@@ -69,7 +61,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
-
         # 'Merge' partial H or V slices. If either H or V (or both?) consists of
         # multiple parts, then use the overall time as validity period for the
         # output.
@@ -79,14 +70,28 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 for file in input.file_names:
                     gen = product_name.ProductName()
                     gen.parse_path(file)
-                    self._start = min(self._start, gen._start_time)
-                    self._stop = max(self._stop, gen._stop_time)
+                    self._start = min(self._start, gen.start_time)
+                    self._stop = max(self._stop, gen.stop_time)
         return True
 
     def _generate_product(self, start, stop, data_take_id):
         self._logger.debug('Create product for datatake {}, {}-{}'.format(data_take_id, start, stop))
         name_gen = product_name.ProductName()
-        name_gen.setup(self._output_type, start, stop, self._baseline_id, self._create_date)
+
+        # Setup all fields mandatory for a level0 product.
+        acq = self.hdr.acquisitions[0]
+        name_gen.file_type = self._output_type
+        name_gen.start_time = start
+        name_gen.stop_time = stop
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+
         dir_name = name_gen.generate_path_name()
 
         self.hdr.set_product_type(self._output_type, self._baseline_id)
@@ -150,7 +155,21 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
     def _generate_product(self, start, stop):
         name_gen = product_name.ProductName()
-        name_gen.setup(self._output_type, start, stop, self._baseline_id, self._create_date)
+
+        # Setup all fields mandatory for a level0 product.
+        acq = self.hdr.acquisitions[0]
+        name_gen.file_type = self._output_type
+        name_gen.start_time = start
+        name_gen.stop_time = stop
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+
         dir_name = name_gen.generate_path_name()
 
         self.hdr.set_product_type(self._output_type, self._baseline_id)
