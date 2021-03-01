@@ -12,7 +12,7 @@ from biomass import raw_product_generator as raw
 from biomass import level0_product_generator as level0
 
 
-def OutputGeneratorFactory(logger, job_config, scenario_config, output_config) -> Optional[IProductGenerator]:
+def ProductGeneratorFactory(logger, job_config, scenario_config, output_config) -> Optional[IProductGenerator]:
     generator = None
     product_type = output_config['type']
 

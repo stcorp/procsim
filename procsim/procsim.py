@@ -71,12 +71,12 @@ def OutputFactory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> 
     '''Return an output generator for the given parameters.'''
     # Import plugin for this mission
     try:
-        mod = importlib.import_module(mission + '.product_generator_factory')
+        mod = importlib.import_module(mission)
     except ImportError:
         logger.error('Cannot open plugin for mission {}'.format(mission))
         return None
     try:
-        factory = getattr(mod, 'OutputGeneratorFactory')
+        factory = getattr(mod, 'ProductGeneratorFactory')
     except AttributeError:
         logger.error('Plugin {} has no factory'.format(mission))
         return None
