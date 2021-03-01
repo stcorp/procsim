@@ -215,10 +215,3 @@ class ProductName:
             print('frame/slice nr:    ', self._frame_slice_nr)
         print('baseline ID:       ', self._baseline_identifier)
         print('compact date:      ', self._compact_create_date)
-
-
-if __name__ == "__main__":
-    # Test parser
-    gen = ProductName()
-    gen.dump_info('data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_B09ZHL')
-    gen.dump_info('data/raw/BIO_S1_RAW__0S_20210201T000000_20210201T013810_C_G___M___C___T____F____01_B0737M')
