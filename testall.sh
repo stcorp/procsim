@@ -2,7 +2,7 @@
 set -e
 
 cd procsim
-python -m unittest
+python3 -m unittest
 
 cd ..
 test/test.sh
