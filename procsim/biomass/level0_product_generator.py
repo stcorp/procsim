@@ -4,13 +4,14 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass Level 0 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
+import bisect
 import datetime
 import os
 from typing import List
 
 from job_order import JobOrderInput
 
-from biomass import product_generator, product_name
+from biomass import main_product_header, product_generator, product_name, constants
 
 ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -35,7 +36,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 'S2_RAW__0S', 'S2_RAWP_0M',
                 'S3_RAW__0S', 'S3_RAWP_0M',
                 'RO_RAW__0S', 'RO_RAWP_0M',
-                'EC_RAW__0S', 'EC_RAWP_0M']
+                'EC_RAWP_0M', 'EC_RAWP_0S'
+                ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -46,16 +48,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             raise Exception('ANX must be configured for {} product'.format(self._output_type))
         self.anx_list = [_time_from_iso(anx) for anx in anx_list]
         self.anx_list.sort()
-        self._data_takes = self._read_data_takes_from_config()
-
-    def _read_data_takes_from_config(self):
-        data_takes = []
-        for dt in self._scenario_config.get('data_takes'):
-            id = dt['id']
-            start = _time_from_iso(dt['validity_start'])
-            stop = _time_from_iso(dt['validity_stop'])
-            data_takes.append({'id': id, 'start': start, 'stop': stop})
-        return sorted(data_takes, key=lambda k: k['start'])
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -70,15 +62,58 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 for file in input.file_names:
                     gen = product_name.ProductName()
                     gen.parse_path(file)
-                    self._start = min(self._start, gen.start_time)
-                    self._stop = max(self._stop, gen.stop_time)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    self._start = min(self._start, hdr._validity_start)
+                    self._stop = max(self._stop, hdr._validity_end)
         return True
 
-    def _generate_product(self, start, stop, data_take_id):
-        self._logger.debug('Create product for datatake {}, {}-{}'.format(data_take_id, start, stop))
-        name_gen = product_name.ProductName()
+    def _get_anx(self, t):
+        # Returns the latest ANX before the given time
+        idx = bisect.bisect(self.anx_list, t) - 1  # anx_list[idx-1] <= tstart
+        return self.anx_list[min(max(idx, 0), len(self.anx_list) - 1)]
 
-        # Setup all fields mandatory for a level0 product.
+    def _is_incomplete_slice(self, slice_start, slice_end):
+        '''
+        Returns True if a slice does not start or ends on a 'node', a point on
+        the grid starting from ANX.
+        '''
+        anx = self._get_anx(slice_start)
+        SIGMA = datetime.timedelta(0, 0.1)
+        rest = ((slice_start - anx + SIGMA) % constants.SLICE_GRID_SPACING)
+        start_is_aligned = rest < SIGMA * 2
+        rest = ((slice_end - anx + SIGMA) % constants.SLICE_GRID_SPACING)
+        end_is_aligned = rest < SIGMA * 2
+        if not start_is_aligned and not end_is_aligned:
+            self._logger.debug('Incomplete slice, start and end unaligned to anx={}'.format(anx))
+        elif not start_is_aligned:
+            self._logger.debug('Incomplete slice, start unaligned to anx={}'.format(anx))
+        elif not end_is_aligned:
+            self._logger.debug('Incomplete slice, end unaligned to anx={}'.format(anx))
+        return not start_is_aligned or not end_is_aligned
+
+    def _generate_product(self, start, stop, data_take_config):
+        if data_take_config.get('data_take_id') is None:
+            self._logger.error('data_take_id is mandatory in data_take section')
+            return
+
+        for param, hdr_field in self.HDR_PARAMS:
+            self._read_config_param(data_take_config, param, self.hdr, hdr_field)
+        for param, acq_field in self.ACQ_PARAMS:
+            self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field)
+        self._logger.debug('Create product for datatake {}, {}-{}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
+
+        # Setup MPH fields
+        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_validity_times(start, stop)
+        # self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
+        self.hdr.incomplete_l0_slice = self._is_incomplete_slice(start, stop)
+        self.hdr.partial_l0_slice = False  # TODO!
+
+        # Create name generator and setup all fields mandatory for a level0 product.
+        # TODO: Move to helper method (code is duplicated for every output!)
+        name_gen = product_name.ProductName()
         acq = self.hdr.acquisitions[0]
         name_gen.file_type = self._output_type
         name_gen.start_time = start
@@ -93,11 +128,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         name_gen.frame_slice_nr = acq.slice_frame_nr
 
         dir_name = name_gen.generate_path_name()
-
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
-        self.hdr.set_validity_times(start, stop)
-        self.hdr.set_data_take_id(data_take_id)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -124,13 +155,14 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
         # Find data take(s) in this slice and create products for each segment.
-        # TODO: partial/incomplete slice flags!
         start = self._start
         stop = self._stop
-        for dt in self._data_takes:
-            if dt['start'] <= start <= dt['stop']:  # Segment starts within this data take
-                stop = min(stop, dt['stop'])
-                self._generate_product(start, stop, dt['id'])
+        for dt in self._scenario_config.get('data_takes'):
+            dt_start = _time_from_iso(dt['validity_start'])
+            dt_stop = _time_from_iso(dt['validity_stop'])
+            if dt_start <= start <= dt_stop:  # Segment starts within this data take
+                stop = min(stop, dt_stop)
+                self._generate_product(start, stop, dt)
                 if stop >= self._stop:
                     break
                 start = stop
@@ -147,10 +179,11 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     transitions within the slice period.
     '''
 
-    PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M']
+    PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M',
+                'RO_RAW__0M', 'EC_RAW__0S', 'EC_RAW__0M']
 
-    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
-        super().__init__(logger, job_config, scenario_config, output_config)
+    # def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+    #     super().__init__(logger, job_config, scenario_config, output_config)
 
     def _generate_product(self, start, stop):
         name_gen = product_name.ProductName()
