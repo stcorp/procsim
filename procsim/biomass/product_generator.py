@@ -20,6 +20,30 @@ class ProductGeneratorBase(IProductGenerator):
     This base class handles parsing input products to retrieve metadata.
     '''
     ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+    HDR_PARAMS = [
+        # Raw only
+        ('acquisition_date', '_acquisition_date'),
+        ('acquisition_station', '_acquisition_station'),
+        ('num_isp', '_nr_instrument_source_packets'),
+        ('num_isp_erroneous', '_nr_instrument_source_packets_erroneous'),
+        ('num_isp_corrupt', '_nr_instrument_source_packets_corrupt'),
+        # Level 0
+        ('num_l0_lines', 'nr_l0_lines'),
+        ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt'),
+        ('num_l0_lines_missing', 'nr_l0_lines_missing'),
+        ('swath', 'sensor_swath'),
+        ('operational_mode', 'sensor_mode'),
+    ]
+    ACQ_PARAMS = [
+        # Level 0
+        ('mission_phase', 'mission_phase'),
+        ('data_take_id', 'data_take_id'),
+        ('global_coverage_id', 'global_coverage_id'),
+        ('major_cycle_id', 'major_cycle_id'),
+        ('repeat_cycle_id', 'repeat_cycle_id'),
+        ('track_nr', 'track_nr'),
+        ('slice_frame_nr', 'slice_frame_nr')
+    ]
 
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
@@ -33,19 +57,6 @@ class ProductGeneratorBase(IProductGenerator):
         self._start: Optional[datetime.datetime] = None
         self._stop: Optional[datetime.datetime] = None
         self._create_date: Optional[datetime.datetime] = None
-
-        # Raw only
-        self._acquisition_date: Optional[datetime.datetime] = None
-        self._acquisition_station = None
-        self._num_isp: Optional[int] = None
-        self._num_isp_erroneous: Optional[int] = None
-        self._num_isp_corrupt: Optional[int] = None
-
-        # L0 only
-        self._num_l0_lines: Optional[str] = None
-        self._num_l0_lines_corrupt: Optional[str] = None
-        self._num_l0_lines_missing: Optional[str] = None
-
         self.hdr = main_product_header.MainProductHeader()
 
     def _time_from_iso_or_none(self, timestr):
@@ -84,27 +95,18 @@ class ProductGeneratorBase(IProductGenerator):
                 if not mph_is_parsed and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)
-                    self._start = gen.start_time
-                    self._stop = gen.stop_time
-                    if (gen._level == 'raw'):
-                        self._acquisition_date = gen.downlink_time  # We can also get this from MPH...
                     # Derive mph file name from product name, parse header
                     hdr = self.hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
                     mph_is_parsed = True
+                    self._start = hdr._validity_start
+                    self._stop = hdr._validity_end
+                    self._acquisition_date = hdr._acquisition_date
+
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
         return mph_is_parsed
-
-    def _read_cfg(self, name, default):
-        # Try to read from either scenario or output
-        val = default
-        if self._output_config.get(name) is not None:
-            val = self._output_config.get(name)
-        elif self._scenario_config.get(name) is not None:
-            val = self._scenario_config.get(name)
-        return val
 
     def _read_time(self, name, default):
         val = default
@@ -114,22 +116,35 @@ class ProductGeneratorBase(IProductGenerator):
             val = self._time_from_iso_or_none(self._scenario_config.get(name))
         return val
 
+    def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str):
+        '''
+        If param_name is in config, read and set in obj.hdr_field.
+        '''
+        if config.get(param_name) is None:
+            return
+        if 'date' in param_name:
+            val = self._time_from_iso_or_none(config.get(param_name))
+        else:
+            val = config.get(param_name)
+        self._logger.debug('Set header field {} to {}'.format(param_name, val))
+        setattr(obj, hdr_field, val)
+
+    def list_scenario_metadata_parameters(self):
+        return [param for param, _ in self.HDR_PARAMS + self.ACQ_PARAMS]
+
     def read_scenario_metadata_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
+        TODO: Also get params from root level
         '''
         self._start = self._read_time('validity_start', self._start)
         self._stop = self._read_time('validity_stop', self._stop)
 
-        # Override header parameters
-        self._acquisition_date = self._read_time('acquisition_date', self._acquisition_date)
-        self._acquisition_station = self._read_cfg('acquisition_station', self.hdr._acquisition_station)
-        self._num_isp = self._read_cfg('num_isp', self.hdr._nr_instrument_source_packets)
-        self._num_isp_erroneous = self._read_cfg('num_isp_erroneous', self.hdr._nr_instrument_source_packets_erroneous)
-        self._num_isp_corrupt = self._read_cfg('num_isp_corrupt', self.hdr._nr_instrument_source_packets_corrupt)
-        self._num_l0_lines = self._read_cfg('num_l0_lines', self.hdr.nr_l0_lines)
-        self._num_l0_lines_corrupt = self._read_cfg('num_l0_lines_corrupt', self.hdr.nr_l0_lines_corrupt)
-        self._num_l0_lines_missing = self._read_cfg('num_l0_lines_missing', self.hdr.nr_l0_lines_missing)
+        for config in self._output_config, self._scenario_config:
+            for param, hdr_field in self.HDR_PARAMS:
+                self._read_config_param(config, param, self.hdr, hdr_field)
+            for param, acq_field in self.ACQ_PARAMS:
+                self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field)
 
     def generate_output(self):
         '''

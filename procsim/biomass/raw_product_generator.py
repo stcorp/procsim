@@ -45,16 +45,13 @@ class RAW_xxx_10(product_generator.ProductGeneratorBase):
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._baseline_id
         name_gen.set_creation_date(self._create_date)
-        name_gen.downlink_time = self._acquisition_date
+        name_gen.downlink_time = self.hdr._acquisition_date
 
         dir_name = name_gen.generate_path_name()
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_phenomenon_times(start, stop)
         self.hdr.set_validity_times(start, stop)
-        self.hdr.set_acquisition_date(self._acquisition_date)
-        self.hdr.set_acquisition_station(self._acquisition_station)
-        self.hdr.set_num_of_isp(self._num_isp, self._num_isp_erroneous, self._num_isp_corrupt)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -145,6 +142,7 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
             # overlap is only in the raw data.
             end_non_overlapped = min(slice_start + slice_size, acq_end)
             self._create_product(slice_start, end_non_overlapped, slice_nr)
+            self._logger.debug('Create product {}-{}'.format(slice_start, end_non_overlapped))
 
             # Align start of next slice to the grid.
             # If the end of the previous slice (including overlap) falls after a

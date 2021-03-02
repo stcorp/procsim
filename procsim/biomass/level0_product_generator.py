@@ -98,7 +98,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(start, stop)
         self.hdr.set_data_take_id(data_take_id)
-        self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -175,7 +174,6 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(start, stop)
-        self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))

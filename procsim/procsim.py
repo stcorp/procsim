@@ -29,6 +29,10 @@ class IProductGenerator(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def list_scenario_metadata_parameters(self) -> List[str]:
+        pass
+
+    @abc.abstractmethod
     def read_scenario_metadata_parameters(self):
         pass
 
