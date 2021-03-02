@@ -4,28 +4,31 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass output product generator factory.
 '''
 
-from typing import Optional
+from typing import Optional, List
 
 from procsim import IProductGenerator
 
-from biomass import raw_product_generator as raw
 from biomass import level0_product_generator as level0
+from biomass import raw_product_generator as raw
+
+_GENERATORS = [
+    raw.RAW_xxx_10, raw.RAWSxxx_10,
+    level0.Sx_RAW__0x, level0.Sx_RAW__0M
+]
 
 
-def ProductGeneratorFactory(logger, job_config, scenario_config, output_config) -> Optional[IProductGenerator]:
-    generator = None
+def list_supported_products():
+    list = []
+    for gen in _GENERATORS:
+        list.extend(gen.PRODUCTS)
+    return list
+
+
+def product_generator_factory(logger, job_config, scenario_config, output_config) -> Optional[IProductGenerator]:
     product_type = output_config['type']
-
-    if product_type in raw.RAW_xxx_10.PRODUCTS:
-        generator = raw.RAW_xxx_10(logger, job_config, scenario_config, output_config)
-    elif product_type in raw.RAWSxxx_10.PRODUCTS:
-        generator = raw.RAWSxxx_10(logger, job_config, scenario_config, output_config)
-
-    elif product_type in level0.Sx_RAW__0x.PRODUCTS:
-        generator = level0.Sx_RAW__0x(logger, job_config, scenario_config, output_config)
-    elif product_type in level0.Sx_RAW__0M.PRODUCTS:
-        generator = level0.Sx_RAW__0M(logger, job_config, scenario_config, output_config)
-
-    else:
-        logger.error('No generator for product type {} in Biomass plugin'.format(product_type))
-    return generator
+    for gen in _GENERATORS:
+        if product_type in gen.PRODUCTS:
+            return gen(logger, job_config, scenario_config, output_config)
+    logger.error('No generator for product \'{}\' in Biomass plugin. Supported types are: {}'.format(
+        product_type, list_supported_products()))
+    return None

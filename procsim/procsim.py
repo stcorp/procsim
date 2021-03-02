@@ -71,7 +71,7 @@ def read_config(filename, logger):
     return None
 
 
-def OutputFactory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
+def output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
     '''Return an output generator for the given parameters.'''
     # Import plugin for this mission
     try:
@@ -80,7 +80,7 @@ def OutputFactory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> 
         logger.error('Cannot open plugin for mission {}'.format(mission))
         return None
     try:
-        factory = getattr(mod, 'ProductGeneratorFactory')
+        factory = getattr(mod, 'product_generator_factory')
     except AttributeError:
         logger.error('Plugin {} has no factory'.format(mission))
         return None
@@ -270,7 +270,7 @@ def main(argv):
             if job_output_cfg.type == output_cfg['type']:
                 break
 
-        generator = OutputFactory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
+        generator = output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
         if (generator is None):
             sys.exit(1)
         if job_task.inputs and not generator.parse_inputs(job_task.inputs):
