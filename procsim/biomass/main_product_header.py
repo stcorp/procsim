@@ -172,7 +172,8 @@ class MainProductHeader:
         self.tai_utc_diff = 0
 
         # L0, L1, L2a
-        self.sensors = [{'type': self._sensor_type, 'mode': 'SM', 'swath_id': 'S1'}]  # Mode is SM, RO, EC, AC, swath is S1, S2, S3
+        self.sensor_swath = None    # Mode is SM, RO, EC, AC, swath is S1, S2, S3
+        self.sensor_mode = None
 
         # L1, L2a
         self.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
@@ -341,10 +342,11 @@ class MainProductHeader:
         short_name.text = self._sensor_name
 
         # Mandatory for L0, L1, L2A products
-        if (self._product_type.level == 'l0' or self._product_type.level == 'l1' or self._product_type.level == 'l2a') and self.sensors:
+        sensors = [{'type': self._sensor_type, 'mode': self.sensor_mode, 'swath_id': self.sensor_swath}]
+        if (self._product_type.level == 'l0' or self._product_type.level == 'l1' or self._product_type.level == 'l2a'):
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
-            for s in self.sensors:
+            for s in sensors:
                 sensor_type = et.SubElement(Sensor, eop + 'sensorType')
                 sensor_type.text = s['type']
                 sensor_mode = et.SubElement(Sensor, eop + 'operationalMode')
@@ -528,7 +530,7 @@ class MainProductHeader:
         self._sensor_name = Instrument.findtext(eop + 'shortName')
 
         # Mandatory for L0, L1, L2A products
-        self.sensors.clear()
+        sensors = []
         # TODO: check if the 'sensor' element is mandatory, even if there are no sensors.
         sensor = earth_observation_equipment.find(eop + 'sensor')
         if sensor is not None:
@@ -539,7 +541,12 @@ class MainProductHeader:
                 # sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
                 s['swath_id'] = Sensor.findtext(eop + 'swathIdentifier')
                 # swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
-                self.sensors.append(s)
+                sensors.append(s)
+
+        # Assume there are 0 or 1 sensors
+        if sensors:
+            self.sensor_swath = sensors[0]['swath_id']
+            self.sensor_mode = sensors[0]['mode']
 
         # Mandatory for L0 and L1 products
         self.acquisitions.clear()
