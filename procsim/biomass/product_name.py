@@ -201,7 +201,11 @@ class ProductName:
 
     def generate_path_name(self):
         # Returns directory name
+        if self.baseline_identifier is None:
+            raise Exception('baseline_id must be set')
         if self._level == 'raw':
+            if self.downlink_time is None:
+                raise Exception('acquisition_date must be set')
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
             name = self._generate_prefix() + 'D{}_{:02}_{}'\
                 .format(
