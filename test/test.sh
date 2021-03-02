@@ -27,4 +27,5 @@ mkdir -p workspace
 python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1.xml
 
 # Step2 and 3: Create Sx_RAW__0S and Sx_RAW__0M products (Measurement mode)
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b.xml

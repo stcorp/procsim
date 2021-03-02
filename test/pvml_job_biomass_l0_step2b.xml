@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<pvmlJob>
+  <jobOrderId>1001</jobOrderId>
+  <processorName>level0_step2</processorName>
+  <processorVersion>01.01</processorVersion>
+  <orderType>OFFL</orderType>
+  <sensingStart>2002-07-17T01:58:01</sensingStart>
+  <sensingStop>2002-07-17T03:34:45</sensingStop>
+  <processingParameters>
+    <parameter name="Product_Counter">0</parameter>
+    <parameter name="Acquisition_Station">ESRIN</parameter>
+    <parameter name="originator_ID">TST</parameter>
+  </processingParameters>
+  <tasks>
+    <task name="Step2">
+      <inputs>
+        <input product_type="RAWS025_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS025_10_20210201T002533_20210201T002708_D20210201T013810_00_B06ZSW</file>
+        </input>
+        <input product_type="RAWS026_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS026_10_20210201T002533_20210201T002708_D20210201T013810_00_B06ZSW</file>
+        </input>
+        <input product_type="RAWS023_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0</file>
+        </input>
+        <input product_type="RAWS024_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0</file>
+        </input>
+      </inputs>
+      <exitCode>0</exitCode>
+    </task>
+  </tasks>
+</pvmlJob>
