@@ -92,6 +92,15 @@
     <productType name="Sx_RAW__0M">
       <matchExpression><![CDATA[.*S[x123]_RAW__[0-9]M.*]]></matchExpression>
     </productType>
+    <productType name="RO_RAW__0S">
+      <matchExpression><![CDATA[.*RO_RAW__0S.*]]></matchExpression>
+    </productType>
+    <productType name="RO_RAWP_0M">
+      <matchExpression><![CDATA[.*RO_RAWP_0M.*]]></matchExpression>
+    </productType>
+    <productType name="RO_RAW__0M">
+      <matchExpression><![CDATA[.*RO_RAW__0M.*]]></matchExpression>
+    </productType>
     <productType name="AC_RAW__0A">
       <matchExpression><![CDATA[.*AC_RAW__0A.*]]></matchExpression>
     </productType>
