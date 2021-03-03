@@ -27,17 +27,17 @@ python3 procsim/procsim.py -s "Raw data generator, measurement mode" test/procsi
 
 # Step1: Create RAWS_023,024,025,026 products (TODO: All 9 products?)
 echo '  *** L0 step 1a (measurement mode)'
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1a.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1a_sm.xml
 echo '  *** L0 step 1b (measurement mode)'
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1b.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1b_sm.xml
 
 # Step2 and 3: Create Sx_RAW__0S and Sx_RAW__0M products (Measurement mode)
 echo '  *** L0 step 2, 3, 4 (measurement mode)'
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a_sm.xml
 echo '  *** L0 step 2, 3, 4 incomplete slice (measurement mode)'
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b_sm.xml
 echo '  *** L0 step 2, 3, 4 split slice (measurement mode)'
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c.xml
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c_sm.xml
 
 # --------------------------------
 # EC mode
