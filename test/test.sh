@@ -24,8 +24,15 @@ mkdir -p workspace
 # --------------------------------
 
 # Step1: Create RAWS_023,024,025,026 products (TODO: All 9 products?)
-python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1.xml
+echo '  *** L0 step 1a'
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1a.xml
+echo '  *** L0 step 1b'
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1b.xml
 
 # Step2 and 3: Create Sx_RAW__0S and Sx_RAW__0M products (Measurement mode)
+echo '  *** L0 step 2,3'
 python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a.xml
+echo '  *** L0 step 2,3 incomplete slice'
 python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b.xml
+echo '  *** L0 step 2,3 split slice'
+python pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c.xml
