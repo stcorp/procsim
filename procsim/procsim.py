@@ -151,19 +151,22 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scena
             return scenario, job_task
 
     if not exec_found:
-        logger.error('No scenario for {} found'.format(os.path.basename(task_filename)))
+        if task_filename:
+            logger.error('No scenario for {} found'.format(os.path.basename(task_filename)))
+        else:
+            logger.error('No scenario "{}" found'.format(scenario_name))
     elif not proc_found:
         logger.error('No scenario for {} and processor {} {} found'.format(
-            task_filename, job.processor_name, job.processor_version))
+            os.path.basename(task_filename), job.processor_name, job.processor_version))
     elif not task_found:
         logger.error('No scenario with matching task found for {}.'.format(
-            task_filename))
+            os.path.basename(task_filename)))
     elif not matching_inputs_found:
         logger.error('No scenario with matching inputs found for {}.'.format(
-            task_filename))
+            os.path.basename(task_filename)))
     else:
         logger.error('No scenario with matching outputs found for {}.'.format(
-            task_filename))
+            os.path.basename(task_filename)))
 
     return None, None
 
@@ -259,7 +262,7 @@ def main(argv):
     for input in job_task.inputs:
         for file_name in input.file_names:
             logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
-    logger.info('Starting, simulating scenario {}'.format(scenario['name']))
+    logger.info('Simulate scenario {}'.format(scenario['name']))
 
     # Create product generators, parse inputs
     generators: List[IProductGenerator] = []
