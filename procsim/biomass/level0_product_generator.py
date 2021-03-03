@@ -183,7 +183,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     '''
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
-                'RO_RAW__0M', 'EC_RAW__0M']  # TODO: 'EC_RAW__0S'
+                'RO_RAW__0M', 'EC_RAW__0M', 'EC_RAW__0S']
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         # Retrieves the metadata
