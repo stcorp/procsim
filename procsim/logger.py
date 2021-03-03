@@ -1,5 +1,8 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
+
+Logging class, messages formatted according to ESA-EOPG-EEGS-ID-0083.
+NB: Note that the space after the colon is not specified, only shown in the examples
 '''
 
 import datetime
@@ -8,8 +11,7 @@ import sys
 
 
 class Logger:
-    '''This class is responsible for generating Log messages on stdout and
-    stderr, formatted according to ESA-EOPG-EEGS-ID-0083.'''
+    '''This class is responsible for generating Log messages on stdout and stderr'''
     LEVELS = {'debug', 'info', 'progress', 'warning', 'error'}
 
     @staticmethod
@@ -47,23 +49,23 @@ class Logger:
             self.error(*args, **kwargs)
 
     def debug(self, *args, **kwargs):
-        self._log('DEBUG', '[D]', *args, **kwargs)
+        self._log('DEBUG', *args, **kwargs)
 
     def info(self, *args, **kwargs):
-        self._log('INFO', '[I]', *args, **kwargs)
+        self._log('INFO', *args, **kwargs)
 
     def progress(self, *args, **kwargs):
-        self._log('PROGRESS', '[P]', *args, **kwargs)
+        self._log('PROGRESS', *args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        self._log('WARNING', '[W]', *args, **kwargs)
+        self._log('WARNING', *args, **kwargs)
 
     def error(self, *args, **kwargs):
-        self._log('ERROR', '[E]', *args, **kwargs)
+        self._log('ERROR', *args, **kwargs)
 
-    def _log(self, level, message_type, *args, **kwargs):
+    def _log(self, level, *args, **kwargs):
         now = datetime.datetime.now()
-        log_prefix = '{} {} {} {} {} {:012}{}{}'.format(
+        log_prefix = '{} {} {} {} {} [{:012}]{} [{}]'.format(
             now.isoformat(),
             self._node_name,
             self._processor_name,
@@ -71,7 +73,7 @@ class Logger:
             self._task_name,
             self._pid,
             self._header_separator,
-            message_type)
+            level[0])
         if level in self._stdout_levels:
             self._print_stdout(log_prefix, end=' ')
             self._print_stdout(*args, **kwargs)
