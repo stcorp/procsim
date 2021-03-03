@@ -30,5 +30,13 @@
       </inputs>
       <exitCode>0</exitCode>
     </task>
+    <task name="Step4">
+      <inputs>
+        <input product_type="RAWS022_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0</file>
+        </input>
+      </inputs>
+      <exitCode>0</exitCode>
+    </task>
   </tasks>
 </pvmlJob>

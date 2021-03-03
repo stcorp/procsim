@@ -81,7 +81,7 @@
       /*
       L0 slicer scenario.
       */
-      "name": "L0 slicer",
+      "name": "L0 step 1, Raw slice-based products",
 
       // File_name must match with the first argument of procsim
       "file_name": "level0_task1.sh",
@@ -148,7 +148,7 @@
       L0 slice-based product generation.
       Measurement mode (i.e. stripmap standard products)
       */
-      "name": "L0 task2 Measurement Mode",
+      "name": "L0 step 2, Slice-based products generation (Measurement Mode)",
       "file_name": "level0_task2.sh",
       "processor_name": "level0_step2",
       "processor_version": "01.01",
@@ -227,7 +227,7 @@
 
     {
       // Task #3
-      "name": "L0 task3 Measurement Mode",
+      "name": "L0 step 3, consolidation of Monitoring products (Measurement Mode)",
       "file_name": "level0_task3.sh",
       "processor_name": "level0_step2",
       "processor_version": "01.01",
@@ -250,6 +250,29 @@
         }
       ],
       "exit_code": 0
+    },
+
+    {
+      // Task #4
+      "name": "L0 step 4, Consolidation of Ancillary products",
+      "file_name": "level0_task4.sh",
+      "processor_name": "level0_step2",
+      "processor_version": "01.01",
+      "task_name": "Step4",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "type": "AC_RAW__0A",
+          "size": 100000,
+          "metadata_source": ".*.._RAW__0M.*"
+        }
+      ],
+      "exit_code": 0
     }
+
   ]
 }
