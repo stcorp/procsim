@@ -205,12 +205,12 @@
 
       "outputs": [
         {
-          "type": "S1_RAW__0S",
+          "type": "Sx_RAW__0S",
           "metadata_source": ".*RAWS025_10.*",
           "size": 100000
         },
         {
-          "type": "S1_RAWP_0M",
+          "type": "Sx_RAWP_0M",
           "metadata_source": ".*RAWS025_10.*",  // TODO: is this correct?
           "size": 100000
         }
@@ -232,12 +232,12 @@
       "disk_usage": 0,
       "inputs": [
         {
-          "type": "S1_RAWP_0M"
+          "type": "Sx_RAWP_0M"
         }
       ],
       "outputs": [
         {
-          "type": "S1_RAW__0M",
+          "type": "Sx_RAW__0M",
           "size": 100000,
           "metadata_source": ".*S._RAWP_0M.*"
         }

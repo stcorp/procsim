@@ -3,6 +3,8 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Biomass Level 0 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0073
+
+TODO: Remove all duplicated code!
 '''
 import bisect
 import datetime
@@ -32,9 +34,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     transitions within the slice period.
     '''
 
-    PRODUCTS = ['S1_RAW__0S', 'S1_RAWP_0M',
-                'S2_RAW__0S', 'S2_RAWP_0M',
-                'S3_RAW__0S', 'S3_RAWP_0M',
+    PRODUCTS = ['S1_RAW__0S', 'S2_RAW__0S', 'S3_RAW__0S', 'Sx_RAW__0S',
+                'S1_RAWP_0M', 'S2_RAWP_0M', 'S3_RAWP_0M', 'Sx_RAWP_0M',
                 'RO_RAW__0S', 'RO_RAWP_0M',
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
@@ -93,6 +94,15 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._logger.debug('Incomplete slice, end unaligned to anx={}'.format(anx))
         return not start_is_aligned or not end_is_aligned
 
+    def _fix_wildcard_product_type(self):
+        # Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
+        # In that case, select the correct type using the swath (which must be known now).
+        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M']:
+            swath = self.hdr.sensor_swath
+            if swath is None or swath not in ['S1', 'S2', 'S3']:
+                raise Exception('Swath must be configured to S1, S2 or S3')
+            self._output_type = self._output_type.replace('Sx', swath)
+
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
             self._logger.error('data_take_id is mandatory in data_take section')
@@ -102,6 +112,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._read_config_param(data_take_config, param, self.hdr, hdr_field)
         for param, acq_field in self.ACQ_PARAMS:
             self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field)
+
+        self._fix_wildcard_product_type()
+
         self._logger.debug('Create product for datatake {}, {}-{}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
 
         # Setup MPH fields
@@ -152,6 +165,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super(Sx_RAW__0x, self).generate_output()
+
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
         # Find data take(s) in this slice and create products for each segment.
@@ -179,14 +193,22 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     transitions within the slice period.
     '''
 
-    PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M',
+    PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
                 'RO_RAW__0M', 'EC_RAW__0S', 'EC_RAW__0M']
 
-    # def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
-    #     super().__init__(logger, job_config, scenario_config, output_config)
+    def _fix_wildcard_product_type(self):
+        # Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
+        # In that case, select the correct type using the swath (which must be known now).
+        if self._output_type in ['Sx_RAW__0M']:
+            swath = self.hdr.sensor_swath
+            if swath is None or swath not in ['S1', 'S2', 'S3']:
+                raise Exception('Swath must be configured to S1, S2 or S3')
+            self._output_type = self._output_type.replace('Sx', swath)
 
     def _generate_product(self, start, stop):
         name_gen = product_name.ProductName()
+
+        self._fix_wildcard_product_type()
 
         # Setup all fields mandatory for a level0 product.
         acq = self.hdr.acquisitions[0]

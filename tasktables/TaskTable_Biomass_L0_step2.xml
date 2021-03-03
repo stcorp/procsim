@@ -136,13 +136,13 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>S1_RAW__0S</File_Type>
+              <File_Type>Sx_RAW__0S</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
             <Output>
               <Destination>PROC</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>S1_RAWP_0M</File_Type>
+              <File_Type>Sx_RAWP_0M</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>
@@ -180,7 +180,7 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>S1_RAW__0M</File_Type>
+              <File_Type>Sx_RAW__0M</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>
