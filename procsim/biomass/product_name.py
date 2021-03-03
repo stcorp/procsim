@@ -160,6 +160,12 @@ class ProductName:
         self.baseline_identifier = int(file[64:66])
         self._compact_create_date = file[67:73]
 
+    def _parse_aux(self, file):
+        self.start_time = self.str_to_time(file[15:30])
+        self.stop_time = self.str_to_time(file[31:46])
+        self.baseline_identifier = int(file[47:49])
+        self._compact_create_date = file[50:56]
+
     def _parse_level0_1_2a(self, file):
         # Format:
         # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
@@ -184,6 +190,8 @@ class ProductName:
         self.file_type = file[4:14]
         if self._level == 'raw':
             self._parse_raw(file)
+        elif self._level == 'aux':
+            self._parse_aux(file)
         elif self._level == 'l0' or self._level == 'l1' or self._level == '2a' or self._level == 'aux':
             self._parse_level0_1_2a(file)
         else:
@@ -191,8 +199,8 @@ class ProductName:
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
-        # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_
-        name = '{}_{}_{}_{}_'\
+        # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>
+        name = '{}_{}_{}_{}'\
             .format(constants.SATELLITE_ID,
                     self._file_type,
                     self.time_to_str(self.start_time),
@@ -207,9 +215,16 @@ class ProductName:
             if self.downlink_time is None:
                 raise Exception('acquisition_date must be set')
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + 'D{}_{:02}_{}'\
+            name = self._generate_prefix() + '_D{}_{:02}_{}'\
                 .format(
                     self.time_to_str(self.downlink_time),
+                    self.baseline_identifier,
+                    self._compact_create_date
+                )
+        elif self._level == 'aux':
+            # Add _<BB>_<DDDDDD>
+            name = self._generate_prefix() + '_{:02}_{}'\
+                .format(
                     self.baseline_identifier,
                     self._compact_create_date
                 )
@@ -227,7 +242,7 @@ class ProductName:
             if self._frame_slice_nr_str is None:
                 raise Exception('frame_slice_nr must be set')
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'\
+            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'\
                 .format(
                     self._mission_phase_id,
                     self._global_coverage_id_str,
@@ -243,16 +258,26 @@ class ProductName:
     def generate_mph_file_name(self):
         return self.generate_path_name().lower() + '.xml'
 
-    def generate_binary_file_name(self, suffix=''):
+    def generate_binary_file_name(self, suffix='', extension='.dat'):
+        if suffix is None:
+            suffix = ''
+        if extension is None:
+            extension = ''
+        if len(extension) >= 1 and extension[0] != '.':
+            extension = '.' + extension
+
         if self._level == 'raw':
-            name = self._generate_prefix() + 'D{}.dat'.format(
+            name = self._generate_prefix() + '_D{}.dat'.format(
                 self.time_to_str(self.downlink_time)
+            )
+        elif self._level == 'aux':
+            name = self._generate_prefix() + '{}{}'.format(
+                suffix,
+                extension
             )
         else:
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
-            if suffix is None:
-                suffix = ''
-            name = self._generate_prefix() + '{}_G{}_M{}_C{}_T{}_F{}{}.dat'\
+            name = self._generate_prefix() + '_{}_G{}_M{}_C{}_T{}_F{}{}{}'\
                 .format(
                     self._mission_phase_id,
                     self._global_coverage_id_str,
@@ -260,7 +285,8 @@ class ProductName:
                     self._repeat_cycle_id_str,
                     self._track_nr_str,
                     self._frame_slice_nr_str,
-                    suffix
+                    suffix,
+                    extension
                 )
         return name.lower()
 

@@ -96,6 +96,20 @@ _TEST_DATA: List[_TestData] = [
         'Interferometric', 'NA', '03', '03', '022', None,
         None
     ),
+    _TestData(
+        # AUX
+        'aux',
+        'BIO_AUX_ATT____20190123T143831_20190123T143852_01_AFRS00',
+        'bio_aux_att____20190123t143831_20190123t143852.dat',
+        'AUX_ATT___',
+        datetime.datetime(2019, 1, 23, 14, 38, 31),
+        datetime.datetime(2019, 1, 23, 14, 38, 52),
+        datetime.datetime(2020, 1, 1, 0, 0, 0),
+        1,
+        None,
+        'Interferometric', 'NA', '03', '03', '022', None,
+        None
+    )
 ]
 
 
@@ -113,6 +127,8 @@ class ProductNameTest(unittest.TestCase):
             pn.set_creation_date(d.create)
             if d.level == 'raw':
                 pn.downlink_time = d.downlink
+            elif d.level == 'aux':
+                pass
             else:
                 pn.mission_phase = str(d.mission_phase)
                 pn.global_coverage_id = d.global_coverage_id
@@ -140,6 +156,8 @@ class ProductNameTest(unittest.TestCase):
             self.assertEqual(pn._compact_create_date, d.dir[-6:])
             if d.level == 'raw':
                 self.assertEqual(pn.downlink_time, d.downlink)
+            elif d.level == 'aux':
+                pass
             elif d.level == 'l0':
                 self.assertEqual(pn.mission_phase, d.mission_phase)
                 self.assertEqual(pn.global_coverage_id, d.global_coverage_id)
