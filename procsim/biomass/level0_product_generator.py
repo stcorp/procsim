@@ -205,7 +205,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
                 input_id = hdr.acquisitions[0].data_take_id
                 # Sanity check: do all products belong to the same data take?
                 if input_id != id:
-                    self._logger.warning('Data take ID {} of {} differs from {}'.format(input_id, os.path.basename(file), id))
+                    self._logger.warning('Data take ID {} differs from {} in {}, product ignored'.format(input_id, os.path.basename(file), id))
                     continue
                 self._logger.debug('Data take id {} of {} matches'.format(input_id, os.path.basename(file)))
                 start = min(start, hdr._validity_start)
@@ -267,3 +267,67 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         start = self._start
         stop = self._stop
         self._generate_product(start, stop)
+
+
+class AC_RAW__0A(product_generator.ProductGeneratorBase):
+    '''
+    This class implements the ProductGeneratorBase and is responsible for
+    generating Level-0 ancillary products.
+
+    Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
+    data take.
+    The output reads the validity times of the monitoring product and adds the
+    lead/trailing margins as specified in the job order, or the defaults.
+    '''
+
+    PRODUCTS = ['AC_RAW__0A']
+    DEFAULT_LEAD_MARGIN = datetime.timedelta(0, 16.0)
+    DEFAULT_TRAILING_MARGIN = datetime.timedelta(0, 0)
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+        # TODO: read lead time from JobOrder!
+        self._lead_margin = self.DEFAULT_LEAD_MARGIN
+        self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
+
+    def generate_output(self):
+        super().generate_output()
+        self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
+
+        start = self._start - self._lead_margin
+        stop = self._stop + self._trailing_margin
+
+        # Setup MPH
+        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_validity_times(start, stop)
+        # self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
+        self.hdr.incomplete_l0_slice = False
+        self.hdr.partial_l0_slice = False
+
+        # Setup all fields mandatory for a level0 product.
+        name_gen = product_name.ProductName()
+        acq = self.hdr.acquisitions[0]
+        name_gen.file_type = self._output_type
+        name_gen.start_time = start
+        name_gen.stop_time = stop
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+
+        dir_name = name_gen.generate_path_name()
+        self.hdr.set_product_filename(dir_name)
+
+        # Create directory and files
+        self._logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self._output_path, dir_name)
+        os.makedirs(dir_name, exist_ok=True)
+
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self.hdr.write(file_name)
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        self._generate_bin_file(file_name, self._size)
