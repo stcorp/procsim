@@ -94,31 +94,31 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._logger.debug('Incomplete slice, end unaligned to anx={}'.format(anx))
         return not start_is_aligned or not end_is_aligned
 
-    def _fix_wildcard_product_type(self):
+    def _resolve_wildcard_product_type(self) -> str:
         # Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
         # In that case, select the correct type using the swath (which must be known now).
         if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M']:
             swath = self.hdr.sensor_swath
             if swath is None or swath not in ['S1', 'S2', 'S3']:
                 raise Exception('Swath must be configured to S1, S2 or S3')
-            self._output_type = self._output_type.replace('Sx', swath)
+            return self._output_type.replace('Sx', swath)
+        else:
+            return self._output_type
 
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
-            self._logger.error('data_take_id is mandatory in data_take section')
-            return
+            raise Exception('data_take_id is mandatory in data_take section')
 
         for param, hdr_field in self.HDR_PARAMS:
             self._read_config_param(data_take_config, param, self.hdr, hdr_field)
         for param, acq_field in self.ACQ_PARAMS:
             self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field)
 
-        self._fix_wildcard_product_type()
-
-        self._logger.debug('Create product for datatake {}, {}-{}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
+        type = self._resolve_wildcard_product_type()
+        self._logger.debug('Datatake {} from {} to {}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
 
         # Setup MPH fields
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(type, self._baseline_id)
         self.hdr.set_validity_times(start, stop)
         # self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
         self.hdr.incomplete_l0_slice = self._is_incomplete_slice(start, stop)
@@ -128,7 +128,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # TODO: Move to helper method (code is duplicated for every output!)
         name_gen = product_name.ProductName()
         acq = self.hdr.acquisitions[0]
-        name_gen.file_type = self._output_type
+        name_gen.file_type = type
         name_gen.start_time = start
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._baseline_id
@@ -175,7 +175,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             dt_start = _time_from_iso(dt['validity_start'])
             dt_stop = _time_from_iso(dt['validity_stop'])
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
-                stop = min(stop, dt_stop)
+                stop = min(self._stop, dt_stop)
                 self._generate_product(start, stop, dt)
                 if stop >= self._stop:
                     break
