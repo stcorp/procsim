@@ -59,6 +59,21 @@ class ProductGeneratorBase(IProductGenerator):
         self._create_date: Optional[datetime.datetime] = None
         self.hdr = main_product_header.MainProductHeader()
 
+    def _resolve_wildcard_product_type(self) -> str:
+        '''
+        Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
+        In that case, select the correct type using the swath (which must be known now).
+        '''
+        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
+            swath = self.hdr.sensor_swath
+            if swath is None:
+                raise Exception('Swath must be configured to resolve Sx_ type')
+            if swath not in ['S1', 'S2', 'S3']:
+                raise ValueError('Swath must be S1, S2 or S3')
+            return self._output_type.replace('Sx', swath)
+        else:
+            return self._output_type
+
     def _time_from_iso_or_none(self, timestr):
         if timestr is None:
             return None

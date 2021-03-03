@@ -94,17 +94,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._logger.debug('Incomplete slice, end unaligned to anx={}'.format(anx))
         return not start_is_aligned or not end_is_aligned
 
-    def _resolve_wildcard_product_type(self) -> str:
-        # Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
-        # In that case, select the correct type using the swath (which must be known now).
-        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M']:
-            swath = self.hdr.sensor_swath
-            if swath is None or swath not in ['S1', 'S2', 'S3']:
-                raise Exception('Swath must be configured to S1, S2 or S3')
-            return self._output_type.replace('Sx', swath)
-        else:
-            return self._output_type
-
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
             raise Exception('data_take_id is mandatory in data_take section')
@@ -185,34 +174,56 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
-    generating Level-0 slice based products.
+    generating Level0 Monitoring products.
 
-    Input is a set of (partial) RAWSxxx_10 slices.
-    If one or more slices are incomplete (due to dump transitions), they are
-    merged. The output is a single product, or multiple if there are data take
-    transitions within the slice period.
+    Input is a set of sliced monitoring products.
+    The product:
+    - removes overlaps between adjacent monitoring products
+    - stitches the resulting products
     '''
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
-                'RO_RAW__0M', 'EC_RAW__0S', 'EC_RAW__0M']
+                'RO_RAW__0M', 'EC_RAW__0M']  # TODO: 'EC_RAW__0S'
 
-    def _fix_wildcard_product_type(self):
-        # Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
-        # In that case, select the correct type using the swath (which must be known now).
-        if self._output_type in ['Sx_RAW__0M']:
-            swath = self.hdr.sensor_swath
-            if swath is None or swath not in ['S1', 'S2', 'S3']:
-                raise Exception('Swath must be configured to S1, S2 or S3')
-            self._output_type = self._output_type.replace('Sx', swath)
+    def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
+        # Retrieves the metadata
+        if not super().parse_inputs(input_products):
+            return False
+
+        # The final product should cover the complete data take.
+        id = self.hdr.acquisitions[0].data_take_id
+        start = self._start
+        stop = self._stop
+        for input in input_products:
+            for file in input.file_names:
+                gen = product_name.ProductName()
+                gen.parse_path(file)
+                # Derive mph file name from product name, parse header
+                hdr = self.hdr
+                mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                hdr.parse(mph_file_name)
+                input_id = hdr.acquisitions[0].data_take_id
+                # Sanity check: do all products belong to the same data take?
+                if input_id != id:
+                    self._logger.warning('Data take ID {} of {} differs from {}'.format(input_id, os.path.basename(file), id))
+                    continue
+                self._logger.debug('Data take id {} of {} matches'.format(input_id, os.path.basename(file)))
+                start = min(start, hdr._validity_start)
+                stop = max(stop, hdr._validity_end)
+        if start != self._start or stop != self._stop:
+            self._logger.debug('Adjust validity times to {} - {}'.format(start, stop))
+        self._start = start
+        self._stop = stop
+        return True
 
     def _generate_product(self, start, stop):
         name_gen = product_name.ProductName()
 
-        self._fix_wildcard_product_type()
+        type = self._resolve_wildcard_product_type()
 
         # Setup all fields mandatory for a level0 product.
         acq = self.hdr.acquisitions[0]
-        name_gen.file_type = self._output_type
+        name_gen.file_type = type
         name_gen.start_time = start
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._baseline_id
@@ -226,7 +237,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         dir_name = name_gen.generate_path_name()
 
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(start, stop)
 
