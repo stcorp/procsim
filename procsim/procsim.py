@@ -151,7 +151,7 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scena
             return scenario, job_task
 
     if not exec_found:
-        logger.error('No scenario for {} found'.format(task_filename))
+        logger.error('No scenario for {} found'.format(os.path.basename(task_filename)))
     elif not proc_found:
         logger.error('No scenario for {} and processor {} {} found'.format(
             task_filename, job.processor_name, job.processor_version))
