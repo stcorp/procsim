@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<pvmlJob>
+  <jobOrderId>10</jobOrderId>
+  <processorName>l0preproc_ec</processorName>
+  <processorVersion>01.01</processorVersion>
+  <orderType>OFFL</orderType>
+  <sensingStart>2002-07-17T01:58:01</sensingStart>
+  <sensingStop>2002-07-17T03:34:45</sensingStop>
+  <processingParameters>
+    <parameter name="Acquisition_Station">ESRIN</parameter>
+    <parameter name="Product_Counter">0</parameter>
+    <parameter name="Orbit_Number">37847</parameter>
+    <parameter name="Processing_Stage_Flag">N</parameter>
+    <parameter name="originator_ID">TST</parameter>
+  </processingParameters>
+  <tasks>
+    <task name="Step1">
+      <inputs>
+        <input product_type="RAW_022_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_ec/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+        </input>
+        <input product_type="RAW_023_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_ec/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+        </input>
+        <input product_type="RAW_024_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_ec/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+        </input>
+        <input product_type="RAW_035_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_ec/BIO_RAW_035_10_20210201T002432_20210201T002932_D20210201T013810_01_B06ZSW</file>
+        </input>
+        <input product_type="RAW_036_10">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_ec/BIO_RAW_036_10_20210201T002432_20210201T002932_D20210201T013810_01_B06ZSW</file>
+        </input>
+      </inputs>
+      <exitCode>0</exitCode>
+    </task>
+  </tasks>
+</pvmlJob>

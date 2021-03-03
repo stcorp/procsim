@@ -42,6 +42,12 @@
     <productType name="RAW_028_10">
       <matchExpression><![CDATA[.*RAW_028_10.*]]></matchExpression>
     </productType>
+    <productType name="RAW_035_10">
+      <matchExpression><![CDATA[.*RAW_035_10.*]]></matchExpression>
+    </productType>
+    <productType name="RAW_036_10">
+      <matchExpression><![CDATA[.*RAW_036_10.*]]></matchExpression>
+    </productType>
 
     <productType name="RAWS025_10">
       <matchExpression><![CDATA[.*RAWS025_10.*]]></matchExpression>
@@ -55,6 +61,12 @@
     <productType name="RAWS028_10">
       <matchExpression><![CDATA[.*RAWS028_10.*]]></matchExpression>
     </productType>
+    <productType name="RAWS035_10">
+      <matchExpression><![CDATA[.*RAWS035_10.*]]></matchExpression>
+    </productType>
+    <productType name="RAWS036_10">
+      <matchExpression><![CDATA[.*RAWS036_10.*]]></matchExpression>
+    </productType>
 
     <productType name="RAWS022_10">
       <matchExpression><![CDATA[.*RAWS022_10.*]]></matchExpression>
@@ -64,11 +76,6 @@
     </productType>
     <productType name="RAWS024_10">
       <matchExpression><![CDATA[.*RAWS024_10.*]]></matchExpression>
-    </productType>
-
-    <!-- TODO: does this replace all discrete types? -->
-    <productType name="RAWSxxx_10">
-      <matchExpression><![CDATA[.*RAWS0[2-3][0-9]_10.*]]></matchExpression>
     </productType>
 
     <productType name="RAW___HKTM">
@@ -87,6 +94,18 @@
     </productType>
     <productType name="AC_RAW__0A">
       <matchExpression><![CDATA[.*AC_RAW__0A.*]]></matchExpression>
+    </productType>
+    <productType name="EC_RAWP_0S">
+      <matchExpression><![CDATA[.*EC_RAWP_0S.*]]></matchExpression>
+    </productType>
+    <productType name="EC_RAW__0S">
+      <matchExpression><![CDATA[.*EC_RAW__0S.*]]></matchExpression>
+    </productType>
+    <productType name="EC_RAWP_0M">
+      <matchExpression><![CDATA[.*EC_RAWP_0M.*]]></matchExpression>
+    </productType>
+    <productType name="EC_RAW__0M">
+      <matchExpression><![CDATA[.*EC_RAW__0M.*]]></matchExpression>
     </productType>
 
   </productTypes>

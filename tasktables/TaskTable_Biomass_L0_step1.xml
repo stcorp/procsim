@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Task_Table>
-  <Processor_Name>level0</Processor_Name>
+  <Processor_Name>l0preproc_sm</Processor_Name>
   <Version>01.01</Version>
   <Test>No</Test>
   <Min_Disk_Space units="MB">1500</Min_Disk_Space>

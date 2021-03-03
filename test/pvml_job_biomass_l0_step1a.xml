@@ -4,7 +4,7 @@
   
   <!-- This is the name of the processor. It is used, together with
   `processorVersion`, to find the appropriate TaskTable file for the job.-->
-  <processorName>level0</processorName>
+  <processorName>l0preproc_sm</processorName>
   <processorVersion>01.01</processorVersion>
 
   <!--mode : optional

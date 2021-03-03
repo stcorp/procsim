@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <pvmlJob>
   <jobOrderId>1002</jobOrderId>
-  <processorName>level0_step2</processorName>
+  <processorName>l0_sm</processorName>
   <processorVersion>01.01</processorVersion>
   <orderType>OFFL</orderType>
   <sensingStart>2002-07-17T01:58:01</sensingStart>
