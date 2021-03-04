@@ -65,7 +65,7 @@ class Logger:
 
     def _log(self, level, *args, **kwargs):
         now = datetime.datetime.now()
-        log_prefix = '{} {} {} {} {} [{:012}]{} [{}]'.format(
+        log_prefix = '{} {} {} {} {} [{:010}]{} [{}]'.format(
             now.isoformat(),
             self._node_name,
             self._processor_name,
