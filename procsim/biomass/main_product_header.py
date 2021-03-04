@@ -239,40 +239,6 @@ class MainProductHeader:
         '''
         self.acquisitions[0].slice_frame_nr = slice_nr
 
-    def set_acquisition_date(self, acquisition_date):
-        '''
-        For raw products only
-        '''
-        self._acquisition_date = acquisition_date
-
-    def set_acquisition_station(self, acquisition_station):
-        '''
-        For raw products only
-        '''
-        self._acquisition_station = acquisition_station
-
-    def set_num_of_isp(self, num_isp, num_isp_erroneous, num_isp_corrupt):
-        '''
-        For raw products only
-        '''
-        self._nr_instrument_source_packets = num_isp
-        self._nr_instrument_source_packets_erroneous = num_isp_erroneous
-        self._nr_instrument_source_packets_corrupt = num_isp_corrupt
-
-    def set_data_take_id(self, data_take_id):
-        '''
-        For AUT_ATT___, AUX_ORB___, L0, L1 products only
-        '''
-        self.acquisitions[0].data_take_id = data_take_id
-
-    def set_num_of_lines(self, num_of_lines, num_of_lines_corrupt, num_of_lines_missing):
-        '''
-        For L0 product only
-        '''
-        self.nr_l0_lines = num_of_lines
-        self.nr_l0_lines_corrupt = num_of_lines_corrupt
-        self.nr_l0_lines_missing = num_of_lines_missing
-
     def set_processing_parameters(self, name: str, version: str, date: datetime.datetime):
         self._processor_name = name
         self._processor_version = version
