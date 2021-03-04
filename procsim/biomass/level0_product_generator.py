@@ -109,7 +109,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # Setup MPH fields
         self.hdr.set_product_type(type, self._baseline_id)
         self.hdr.set_validity_times(start, stop)
-        # self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
         self.hdr.incomplete_l0_slice = self._is_incomplete_slice(start, stop)
         self.hdr.partial_l0_slice = False  # TODO!
 
@@ -300,7 +299,6 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         # Setup MPH
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_validity_times(start, stop)
-        # self.hdr.set_num_of_lines(self._num_l0_lines, self._num_l0_lines_corrupt, self._num_l0_lines_missing)
         self.hdr.incomplete_l0_slice = False
         self.hdr.partial_l0_slice = False
 
