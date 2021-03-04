@@ -24,7 +24,7 @@ class WorkSimulator:
         step = int(100 / nr_steps)
         for progress in range(0, 100, step):
             if self.nr_progress_log_messages > 0:
-                self.logger.info('Working, progress {}%'.format(progress))
+                self.logger.progress('Working, progress {}%'.format(progress))
             now = time.time()
             while now + self.time / nr_steps > time.time():
                 pass
