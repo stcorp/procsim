@@ -1,12 +1,16 @@
 {
   "mission": "biomass", // Must match the plugin name
+
   "scenarios": [
+    // A list of scenario descrptions.
+    // Multiple scenarios are allowed in a single configuration file.
+    // The scenario to use can be specified on the command line, or is selected
+    // automatically using the combination of file_name, processor/task and
+    // output products.
     {
-      /*
-      This scenario is used to generate dummy raw data, to test the
-      other procsim output product generators.
-      Note that this scenario takes no inputs, nor JobOrder.
-      */
+      // This scenario is used to generate dummy raw data, to test the other
+      // output product generators.
+      // Note that this scenario takes no inputs, nor JobOrder.
       "name": "Raw data generator, measurement mode",
 
       "file_name": "N/A",
@@ -22,11 +26,20 @@
         }
       ],
 
-      // Common for all outputs
+      // Resources
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 4000000,
+      "disk_usage": 0,
+
+      // Mandatory, as we have no JobOrder nor input files. These settings are
+      // common for all outputs, but can be overridden in each output section.
       "output_path": "data/raw",
       "baseline": "1",
       "validity_start": "2021-02-01 00:00:00.000Z",
       "validity_stop": "2021-02-01 01:38:10.000Z",
+
+      // Some metadata for level 0 product (can be omitted, then defaults are used)
       "acquisition_date": "2021-02-01 01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
@@ -47,7 +60,7 @@
           "type": "RAW_024_10",
           "size": 0
         },
-        // Data take #1
+        // 'Data take' #1
         {
           "validity_start": "2021-02-01 00:24:32.000Z",
           "validity_stop": "2021-02-01 00:29:32.000Z",
@@ -60,7 +73,7 @@
           "type": "RAW_026_10",
           "size": 0
         },
-        // Data take #2 and #3
+        // 'Data take' #2 and #3
         {
           "validity_start": "2021-02-01 00:34:32.000Z",
           "validity_stop": "2021-02-01 00:39:32.000Z",
@@ -77,9 +90,7 @@
       "exit_code": 0
     },
     {
-      /*
-      L0 slicer scenario.
-      */
+      // L0 slicer scenario.
       "name": "L0 step 1, Raw slice-based products",
 
       // File_name must match with the first argument of procsim
@@ -100,11 +111,6 @@
       // Logging
       "nr_progress_log_messages": 4,
 
-      "inputs": [ // Not used yet
-        {
-          "type": "RAW_022_10"
-        }
-      ],
       "anx": [
         "2021-01-31 22:47:21.765Z",
         "2021-02-01 00:25:33.745Z", // 1 second too late
@@ -115,38 +121,36 @@
           "type": "RAWS022_10",
           "metadata_source": ".*RAW_022_10.*", // Input to use
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS023_10",
           "metadata_source": ".*RAW_023_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS024_10",
           "metadata_source": ".*RAW_024_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS025_10",
           "metadata_source": ".*RAW_025_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS026_10",
           "metadata_source": ".*RAW_026_10.*",
-          "size": 100000
+          "size": 0
         }
       ],
       "exit_code": 0
     },
     {
-      /*
-      L0 slice-based product generation.
-      Measurement mode (i.e. stripmap standard products)
-      */
+      // L0 slice-based product generation.
+      // Measurement mode (i.e. stripmap standard products)
       "name": "L0 step 2, Slice-based products generation (Measurement Mode)",
       "file_name": "level0_task2.sh",
       "processor_name": "l0_sm",
@@ -158,22 +162,8 @@
       "nr_cpu": 1,
       "memory_usage": 4000000,
       "disk_usage": 0,
-      "inputs": [
-        {
-          "type": "RAWS025_10"
-        },
-        {
-          "type": "RAWS026_10"
-        },
-        {
-          "type": "RAWS023_10"
-        },
-        {
-          "type": "RAWS024_10"
-        }
-      ],
 
-      // Some metadata for level 0 product (can be omitted)
+      // Some metadata for level 0 product (most can be omitted, defaults are used)
       "num_l0_lines": "387200, 387200",
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
@@ -190,20 +180,23 @@
       // 'block' is split up in two data takes.
       "data_takes": [
         {
-          "data_take_id": 10,
+          "data_take_id": 1,
           "swath": "S1",
+          "operational_mode": "SM",
           "validity_start": "2021-02-01 00:24:32.000Z",
           "validity_stop": "2021-02-01 00:29:32.000Z"
         },
         {
-          "data_take_id": 11,
+          "data_take_id": 2,
           "swath": "S1",
+          "operational_mode": "SM",
           "validity_start": "2021-02-01 00:34:32.000Z",
           "validity_stop": "2021-02-01 00:35:32.000Z"
         },
         {
-          "data_take_id": 12,
+          "data_take_id": 3,
           "swath": "S2",
+          "operational_mode": "SM",
           "validity_start": "2021-02-01 00:35:32.000Z",
           "validity_stop": "2021-02-01 00:39:32.000Z"
         }
@@ -213,12 +206,12 @@
         {
           "type": "Sx_RAW__0S",
           "metadata_source": ".*RAWS025_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "Sx_RAWP_0M",
-          "metadata_source": ".*RAWS025_10.*",  // TODO: is this correct?
-          "size": 100000
+          "metadata_source": ".*RAWS025_10.*",
+          "size": 0
         }
       ],
       "exit_code": 0
@@ -236,15 +229,10 @@
       "nr_cpu": 1,
       "memory_usage": 4000000,
       "disk_usage": 0,
-      "inputs": [
-        {
-          "type": "Sx_RAWP_0M"
-        }
-      ],
       "outputs": [
         {
           "type": "Sx_RAW__0M",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*S._RAWP_0M.*"
         }
       ],
@@ -265,8 +253,10 @@
       "disk_usage": 0,
       "outputs": [
         {
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
           "type": "AC_RAW__0A",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*.._RAW__0M.*"
         }
       ],
@@ -401,11 +391,6 @@
       // Logging
       "nr_progress_log_messages": 4,
 
-      "inputs": [ // Not used yet
-        {
-          "type": "RAW_022_10"
-        }
-      ],
       "anx": [
         "2021-01-31 22:47:21.765Z",
         "2021-02-01 00:25:33.745Z", // 1 second too late
@@ -416,29 +401,29 @@
           "type": "RAWS022_10",
           "metadata_source": ".*RAW_022_10.*", // Input to use
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS023_10",
           "metadata_source": ".*RAW_023_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS024_10",
           "metadata_source": ".*RAW_024_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS027_10",
           "metadata_source": ".*RAW_027_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS028_10",
           "metadata_source": ".*RAW_028_10.*",
-          "size": 100000
+          "size": 0
         }
       ],
       "exit_code": 0
@@ -478,19 +463,22 @@
       "data_takes": [
         {
           "data_take_id": 10,
-          "swath": "S1",
+          "swath": "RO",
+          "operational_mode": "RO",
           "validity_start": "2021-02-01 00:24:32.000Z",
           "validity_stop": "2021-02-01 00:29:32.000Z"
         },
         {
           "data_take_id": 11,
-          "swath": "S1",
+          "swath": "RO",
+          "operational_mode": "RO",
           "validity_start": "2021-02-01 00:34:32.000Z",
           "validity_stop": "2021-02-01 00:35:32.000Z"
         },
         {
           "data_take_id": 12,
-          "swath": "S2",
+          "operational_mode": "RO",
+          "swath": "RO",
           "validity_start": "2021-02-01 00:35:32.000Z",
           "validity_stop": "2021-02-01 00:39:32.000Z"
         }
@@ -500,12 +488,12 @@
         {
           "type": "RO_RAW__0S",
           "metadata_source": ".*RAWS027_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RO_RAWP_0M",
           "metadata_source": ".*RAWS027_10.*",  // TODO: is this correct?
-          "size": 100000
+          "size": 0
         }
       ],
       "exit_code": 0
@@ -523,15 +511,10 @@
       "nr_cpu": 1,
       "memory_usage": 4000000,
       "disk_usage": 0,
-      "inputs": [
-        {
-          "type": "RO_RAWP_0M"
-        }
-      ],
       "outputs": [
         {
           "type": "RO_RAW__0M",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*RO_RAWP_0M.*"
         }
       ],
@@ -552,8 +535,10 @@
       "disk_usage": 0,
       "outputs": [
         {
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
           "type": "AC_RAW__0A",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*RO_RAW__0M.*"
         }
       ],
@@ -661,29 +646,29 @@
           "type": "RAWS022_10",
           "metadata_source": ".*RAW_022_10.*", // Input to use
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS023_10",
           "metadata_source": ".*RAW_023_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS024_10",
           "metadata_source": ".*RAW_024_10.*",
           "enable_slicing": false,
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS035_10",
           "metadata_source": ".*RAW_035_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "RAWS036_10",
           "metadata_source": ".*RAW_036_10.*",
-          "size": 100000
+          "size": 0
         }
       ],
       "exit_code": 0
@@ -719,19 +704,22 @@
       "data_takes": [
         {
           "data_take_id": 10,
-          "swath": "S1",  // TODO: Makes no sense in EC mode?
+          "swath": "EC",
+          "operational_mode": "EC",
           "validity_start": "2021-02-01 00:24:32.000Z",
           "validity_stop": "2021-02-01 00:29:32.000Z"
         },
         {
           "data_take_id": 11,
-          "swath": "S1",
+          "swath": "EC",
+          "operational_mode": "EC",
           "validity_start": "2021-02-01 00:34:32.000Z",
           "validity_stop": "2021-02-01 00:35:32.000Z"
         },
         {
           "data_take_id": 12,
-          "swath": "S2",
+          "swath": "EC",
+          "operational_mode": "EC",
           "validity_start": "2021-02-01 00:35:32.000Z",
           "validity_stop": "2021-02-01 00:39:32.000Z"
         }
@@ -741,12 +729,12 @@
         {
           "type": "EC_RAWP_0S",
           "metadata_source": ".*RAWS035_10.*",
-          "size": 100000
+          "size": 0
         },
         {
           "type": "EC_RAWP_0M",
           "metadata_source": ".*RAWS035_10.*",
-          "size": 100000
+          "size": 0
         }
       ],
       "exit_code": 0
@@ -764,15 +752,10 @@
       "nr_cpu": 1,
       "memory_usage": 4000000,
       "disk_usage": 0,
-      "inputs": [
-        {
-          "type": "EC_RAWP_0M"
-        }
-      ],
       "outputs": [
         {
           "type": "EC_RAW__0M",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*EC_RAWP_0M.*"
         }
       ],
@@ -793,8 +776,10 @@
       "disk_usage": 0,
       "outputs": [
         {
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
           "type": "AC_RAW__0A",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*EC_RAW__0M.*"
         }
       ],
@@ -816,7 +801,7 @@
       "outputs": [
         {
           "type": "EC_RAW__0S",
-          "size": 100000,
+          "size": 0,
           "metadata_source": ".*EC_RAWP_0S.*"
         }
       ],
