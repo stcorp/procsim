@@ -384,6 +384,8 @@ class Aux(product_generator.ProductGeneratorBase):
         file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_attitude', '.xml'))
         self._generate_bin_file(file_name, self._size // 2)
 
+        # This component has to be considered optional because
+        # it shall not be used in case AUX data format is not XML
         os.makedirs(support_dir, exist_ok=True)
         file_name = os.path.join(support_dir, name_gen.generate_binary_file_name('_schema', '.xsd'))
         self._generate_bin_file(file_name, self._size // 2)
