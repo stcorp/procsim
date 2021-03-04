@@ -117,5 +117,13 @@
       <matchExpression><![CDATA[.*EC_RAW__0M.*]]></matchExpression>
     </productType>
 
+    <!-- Aux (level 0) -->
+    <productType name="AUX_ATT___">
+      <matchExpression><![CDATA[.*AUX_ATT___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_ORB___">
+      <matchExpression><![CDATA[.*AUX_ORB___.*]]></matchExpression>
+    </productType>
+
   </productTypes>
 </pvmlConfig>
