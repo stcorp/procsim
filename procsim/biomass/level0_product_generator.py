@@ -327,5 +327,63 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self.hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())  # TODO: SUFFIX?!
         self._generate_bin_file(file_name, self._size)
+
+
+class Aux(product_generator.ProductGeneratorBase):
+    '''
+    This class implements the ProductGeneratorBase and is responsible for
+    generating Level-0 Auxiliary products.
+    '''
+
+    PRODUCTS = ['AUX_ATT___', 'AUX_ORB___']
+
+    def generate_output(self):
+        super().generate_output()
+        self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
+
+        start = self._start
+        stop = self._stop
+
+        # Setup MPH
+        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_validity_times(start, stop)
+
+        # TODO: Which MPH fields should be set?
+
+        # Setup all fields mandatory for an auxiliary product.
+        name_gen = product_name.ProductName()
+        acq = self.hdr.acquisitions[0]
+        name_gen.file_type = self._output_type
+        name_gen.start_time = start
+        name_gen.stop_time = stop
+        name_gen.baseline_identifier = self._baseline_id
+        name_gen.set_creation_date(self._create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+
+        dir_name = name_gen.generate_path_name()
+        self.hdr.set_product_filename(dir_name)
+
+        # Create directories and files
+        self._logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self._output_path, dir_name)
+        os.makedirs(dir_name, exist_ok=True)
+
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self.hdr.write(file_name)
+        data_dir = os.path.join(dir_name, 'data')
+        support_dir = os.path.join(dir_name, 'support')
+
+        os.makedirs(data_dir, exist_ok=True)
+        file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_attitude', '.xml'))
+        self._generate_bin_file(file_name, self._size // 2)
+
+        os.makedirs(support_dir, exist_ok=True)
+        file_name = os.path.join(support_dir, name_gen.generate_binary_file_name('_schema', '.xsd'))
+        self._generate_bin_file(file_name, self._size // 2)
