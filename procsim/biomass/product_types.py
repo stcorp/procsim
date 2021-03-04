@@ -90,6 +90,18 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('AUX_TEC___', 'aux', 'Total Electron Content Product')
 ]
 
+RAWS_PRODUCT_TYPES: List[str] = [
+    'RAWS022_10',
+    'RAWS023_10',
+    'RAWS024_10',
+    'RAWS025_10',
+    'RAWS026_10',
+    'RAWS027_10',
+    'RAWS028_10',
+    'RAWS035_10',
+    'RAWS036_10',
+]
+
 
 def find_product(product_type_code: str) -> Optional[ProductType]:
     '''Return ProductType for a given product_type_code, or None if not found'''
