@@ -12,7 +12,7 @@ import sys
 
 class Logger:
     '''This class is responsible for generating Log messages on stdout and stderr'''
-    LEVELS = {'debug', 'info', 'progress', 'warning', 'error'}
+    LEVELS = {'DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR'}
 
     @staticmethod
     def _print_stderr(*args, **kwargs):
@@ -36,34 +36,22 @@ class Logger:
     def set_task_name(self, task_name):
         self._task_name = task_name
 
-    def log(self, level: str, *args, **kwargs):
-        if level == 'debug':
-            self.debug(*args, **kwargs)
-        elif level == 'info':
-            self.info(*args, **kwargs)
-        elif level == 'progress':
-            self.progress(*args, **kwargs)
-        elif level == 'warning':
-            self.warning(*args, **kwargs)
-        else:
-            self.error(*args, **kwargs)
-
     def debug(self, *args, **kwargs):
-        self._log('DEBUG', *args, **kwargs)
+        self.log('DEBUG', *args, **kwargs)
 
     def info(self, *args, **kwargs):
-        self._log('INFO', *args, **kwargs)
+        self.log('INFO', *args, **kwargs)
 
     def progress(self, *args, **kwargs):
-        self._log('PROGRESS', *args, **kwargs)
+        self.log('PROGRESS', *args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        self._log('WARNING', *args, **kwargs)
+        self.log('WARNING', *args, **kwargs)
 
     def error(self, *args, **kwargs):
-        self._log('ERROR', *args, **kwargs)
+        self.log('ERROR', *args, **kwargs)
 
-    def _log(self, level, *args, **kwargs):
+    def log(self, level: str, *args, **kwargs):
         now = datetime.datetime.now()
         log_prefix = '{} {} {} {} {} [{:010}]{} [{}]'.format(
             now.isoformat(),

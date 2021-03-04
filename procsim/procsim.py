@@ -173,9 +173,9 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scena
 
 def log_configured_messages(scenario, logger):
     # Send any log messages in the configuration file to the logger
-    level = 'info'
+    level = 'INFO'
     for item in scenario.get('logging', []):
-        level = item.get('level', level)
+        level = item.get('level', level).upper()
         if level not in logger.LEVELS:
             logger.error('Incorrect log level {} in configuration file'.format(level))
         else:
