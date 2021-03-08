@@ -66,9 +66,10 @@ class WorkSimulatorTest(unittest.TestCase):
 
     def testAll(self):
         # Test with all available cores
-        TEST_TIME = 5
+        TEST_TIME = 10
         NR_PROGRESS_MESSAGES = 5
         MEMORY_MB = 250
+        DISK_SPACE_MB = 100
 
         nr_cpu = multiprocessing.cpu_count()
         self.assertGreaterEqual(nr_cpu, 2)
@@ -79,16 +80,21 @@ class WorkSimulatorTest(unittest.TestCase):
             time=TEST_TIME,
             nr_cpu=nr_cpu,
             memory=MEMORY_MB * _MB,
-            disk_space=0,
+            disk_space=DISK_SPACE_MB * _MB,
             nr_progress_log_messages=NR_PROGRESS_MESSAGES
         )
 
         def meas_task(process_time, q: queue.Queue):
             mem_before, _ = _meas_resource_usage()
-            q.put((0, 0))
-            time.sleep(process_time / 4)
-            mem, cpu = _meas_resource_usage(process_time / 2)
-            q.put((mem - mem_before, cpu))
+            q.put((0))
+            time.sleep(process_time / 2)
+            mem, cpu = _meas_resource_usage(process_time / 4)
+
+            tmpfile = sim.get_temp_file_name()
+            disk_space = 0
+            if tmpfile is not None:
+                disk_space = os.path.getsize(tmpfile) // _MB
+            q.put((mem - mem_before, cpu, disk_space))
 
         q = queue.Queue()
         meas = threading.Thread(target=meas_task, args=(TEST_TIME, q))
@@ -97,11 +103,12 @@ class WorkSimulatorTest(unittest.TestCase):
         tstart = datetime.datetime.now()
         sim.start()
         ttest = datetime.datetime.now() - tstart
-        mem, cpu = q.get()
+        mem, cpu, disk_space = q.get()
 
-        self.assertAlmostEqual(ttest.total_seconds(), TEST_TIME, delta=2)
+        self.assertAlmostEqual(ttest.total_seconds(), TEST_TIME, delta=5)  # Creating temp file is slow on HDD
         self.assertEqual(logger.count, NR_PROGRESS_MESSAGES)
         self.assertAlmostEqual(mem, MEMORY_MB, delta=10)
+        self.assertAlmostEqual(disk_space, DISK_SPACE_MB, delta=1)
 
 
 if __name__ == '__main__':
