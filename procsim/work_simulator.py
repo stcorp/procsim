@@ -9,14 +9,19 @@ import logger
 class WorkSimulator:
     '''
     This class is responsible for consuming memory, CPU cycles and disk space.
+
+    It allocates memory and launches additional processes for each next CPU to
+    stress.
     '''
-    def __init__(self, logger: logger.Logger, task_config: dict):
+    def __init__(self, logger: logger.Logger, time, nr_cpu, memory, disk_space,
+                 nr_progress_log_messages):
         self.logger = logger
-        self.time = task_config.get('processing_time', 0)
-        self.nr_cpu = task_config.get('nr_cpu', 1)
-        self.memory = task_config.get('memory_usage', 0)
-        self.disk_space = task_config.get('disk_usage', 0)
-        self.nr_progress_log_messages = task_config.get('nr_progress_log_messages', 0)
+        self.time = time
+        self.nr_cpu = int(nr_cpu)
+        self.memory = int(memory)
+        self.disk_space = disk_space
+        self.nr_progress_log_messages = nr_progress_log_messages
+
 
     def start(self):
         '''Blocks until done (TODO: make non-blocking?)'''

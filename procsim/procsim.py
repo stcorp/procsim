@@ -41,7 +41,7 @@ class IProductGenerator(abc.ABC):
         pass
 
 
-def read_config(filename, logger):
+def _read_config(filename, logger):
     # Load configuration and check for correctness.
     # TODO: Use JSON schema! Yes, that exists...
     ROOT_KEYS = ['scenarios', 'mission']
@@ -71,7 +71,7 @@ def read_config(filename, logger):
     return None
 
 
-def output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
+def _output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
     '''Return an output generator for the given parameters.'''
     # Import plugin for this mission
     try:
@@ -89,19 +89,19 @@ def output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) ->
     return generator
 
 
-def compare_inputs(scenario, task):
+def _compare_inputs(scenario, task):
     # Todo! Match types against file names
     return True
 
 
-def compare_outputs(scenario, task):
+def _compare_outputs(scenario, task):
     # Every output type in the scenario should be in the task config
     scenario_output_types = {op['type'] for op in scenario['outputs']}
     task_output_types = {op.type for op in task.outputs}
     return scenario_output_types == task_output_types
 
 
-def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scenario_name):
+def _find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scenario_name):
     # Find scenario from the list of scenarios in the cfg.
     #
     # If an explicit scenario name is given, use that and try to find a matching
@@ -143,10 +143,10 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scena
                scenario['task_version'] != job_task.version:
                 continue
             task_found = True
-            if not compare_inputs(scenario, job_task):
+            if not _compare_inputs(scenario, job_task):
                 continue
             matching_inputs_found = True
-            if not compare_outputs(scenario, job_task):
+            if not _compare_outputs(scenario, job_task):
                 continue
             return scenario, job_task
 
@@ -171,7 +171,7 @@ def find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scena
     return None, None
 
 
-def log_configured_messages(scenario, logger):
+def _log_configured_messages(scenario, logger):
     # Send any log messages in the configuration file to the logger
     level = 'INFO'
     for item in scenario.get('logging', []):
@@ -184,9 +184,20 @@ def log_configured_messages(scenario, logger):
                 logger.log(level, message)
 
 
-def log_processor_parameters(parameters, logger):
+def _log_processor_parameters(parameters, logger):
     for param, value in parameters.items():
         logger.info('Processing parameter {} = {}'.format(param, value))
+
+
+def _do_work(logger, config):
+    time = config.get('processing_time', 0)
+    nr_cpu = config.get('nr_cpu', 1)
+    memory = config.get('memory_usage', 0)
+    disk_space = config.get('disk_usage', 0)
+    nr_progress_log_messages = config.get('nr_progress_log_messages', 0)
+    worker = WorkSimulator(logger, time, nr_cpu, memory, disk_space,
+                           nr_progress_log_messages)
+    worker.start()
 
 
 versiontext = "procsim v" + VERSION + \
@@ -246,18 +257,18 @@ def main(argv):
         job.stderr_levels
     )
 
-    config = read_config(config_filename, logger)
+    config = _read_config(config_filename, logger)
     if config is None:
         sys.exit(1)
 
-    scenario, job_task = find_fitting_scenario(logger, task_filename, config, job, scenario_name)
+    scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
     if scenario is None:
         sys.exit(1)
 
     logger.set_task_name(job_task.name)    # This info was not available yet
 
-    log_configured_messages(scenario, logger)
-    log_processor_parameters(job.processing_parameters, logger)
+    _log_configured_messages(scenario, logger)
+    _log_processor_parameters(job.processing_parameters, logger)
 
     for input in job_task.inputs:
         for file_name in input.file_names:
@@ -273,15 +284,14 @@ def main(argv):
             if job_output_cfg.type == output_cfg['type']:
                 break
 
-        generator = output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
+        generator = _output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
         if (generator is None):
             sys.exit(1)
         if job_task.inputs and not generator.parse_inputs(job_task.inputs):
             sys.exit(1)
         generators.append(generator)
 
-    worker = WorkSimulator(logger, scenario)
-    worker.start()
+    _do_work(logger, scenario)
 
     for gen in generators:
         gen.read_scenario_metadata_parameters()
