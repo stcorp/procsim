@@ -90,7 +90,7 @@ class WorkSimulatorTest(unittest.TestCase):
             time.sleep(process_time / 2)
             mem, cpu = _meas_resource_usage(process_time / 4)
 
-            tmpfile = sim.get_temp_file_name()
+            tmpfile = sim.temp_file_name
             disk_space = 0
             if tmpfile is not None:
                 disk_space = os.path.getsize(tmpfile) // _MB
