@@ -101,7 +101,7 @@ class ProductName:
 
     @property
     def repeat_cycle_id(self):
-        return self._repeat_cycle_id_str if self._repeat_cycle_id_str is not '__' else None
+        return self._repeat_cycle_id_str if self._repeat_cycle_id_str != '__' else None
 
     @repeat_cycle_id.setter
     def repeat_cycle_id(self, id):
@@ -113,7 +113,7 @@ class ProductName:
 
     @property
     def track_nr(self):
-        if self._track_nr_str is '___':
+        if self._track_nr_str == '___':
             return None
         return self._track_nr_str
 
