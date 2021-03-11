@@ -7,8 +7,6 @@ import sys
 import tempfile
 import time
 
-import logger
-
 
 class WorkSimulator:
     '''
@@ -17,7 +15,7 @@ class WorkSimulator:
     It allocates memory and launches additional processes for each next CPU to
     stress.
     '''
-    def __init__(self, logger: logger.Logger, time, nr_cpu, memory, disk_space,
+    def __init__(self, logger, time, nr_cpu, memory, disk_space,
                  nr_progress_log_messages, tmp_dir=''):
         self._logger = logger
         self._time = time
