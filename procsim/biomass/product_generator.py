@@ -61,10 +61,11 @@ class ProductGeneratorBase(IProductGenerator):
 
     def _resolve_wildcard_product_type(self) -> str:
         '''
-        Type code can be a 'wildcard' type here: Sx_RAW__0S or Sx_RAWP_0M.
+        Type code can be a 'wildcard' type, such as Sx_RAW__0S.
         In that case, select the correct type using the swath (which must be known now).
         '''
-        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M']:
+        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M',
+                                 'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S']:
             swath = self.hdr.sensor_swath
             if swath is None:
                 raise Exception('Swath must be configured to resolve Sx_ type')
