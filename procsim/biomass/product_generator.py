@@ -4,6 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 import datetime
 import os
 import re
+import zipfile
 from typing import List, Optional
 
 from job_order import JobOrderInput, JobOrderOutput
@@ -94,17 +95,34 @@ class ProductGeneratorBase(IProductGenerator):
             file.write(os.urandom(max(amount, 0)))
             size -= amount
 
+    def _unzip(self, archive_name):
+        # Sanity check: only raw products should be zipped
+        name_gen = product_name.ProductName()
+        name_gen.parse_path(archive_name)
+        if name_gen.level != 'raw':
+            self._logger.warning('{} should not be a zip!'.format(os.path.basename(archive_name)))
+        # Unzip and delete archive
+        with zipfile.ZipFile(archive_name, mode='r') as zipped:
+            self._logger.debug('Unzip archive {}'.format(os.path.basename(archive_name)))
+            zipped.extractall()
+            os.remove(archive_name)
+
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         '''
-        Walk over all files, check if it is a directory (all biomass products
-        are directories), extract metadata if this product matches
-        self.meta_data_source.
+        For all files:
+            - check if it is a (zipped) directory (all biomass products are directories)
+            - unzip product if it's a zip archive
+            - extract metadata if this product matches self.meta_data_source
         '''
         gen = product_name.ProductName()
         pattern = self._meta_data_source
         mph_is_parsed = False
         for input in input_products:
             for file in input.file_names:
+                root, ext = os.path.splitext(file)
+                if os.path.isfile(file) and ext == '.zip':
+                    self._unzip(file)
+                file = root
                 if not os.path.isdir(file):
                     self._logger.error('input {} must be a directory'.format(file))
                     return False

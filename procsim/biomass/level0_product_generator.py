@@ -72,6 +72,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         for input in input_products:
             if input.file_type in hv_products:
                 for file in input.file_names:
+                    file, _ = os.path.splitext(file)    # Remove possible '.zip'
                     gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())

@@ -68,19 +68,19 @@
         determine the start/stop time values. Otherwise, no start/stop time will
         be associated to the input file.-->
         <input product_type="RAW_022_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
         </input>
         <input product_type="RAW_023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
         </input>
         <input product_type="RAW_024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
         </input>
         <input product_type="RAW_025_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_025_10_20210201T003432_20210201T003932_D20210201T013810_01_B0709K</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_025_10_20210201T003432_20210201T003932_D20210201T013810_01_B0709K.zip</file>
         </input>
         <input product_type="RAW_026_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T003432_20210201T003932_D20210201T013810_01_B0709K</file>
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw/BIO_RAW_026_10_20210201T003432_20210201T003932_D20210201T013810_01_B0709K.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

@@ -6,9 +6,11 @@ Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 import bisect
 import datetime
 import os
+import shutil
+import zipfile
+from typing import List
 
-from biomass import constants, product_name
-from biomass import product_generator
+from biomass import constants, product_generator, product_name
 
 ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -18,7 +20,33 @@ def _time_from_iso(timestr):
     return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
 
 
-class RAW_xxx_10(product_generator.ProductGeneratorBase):
+class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
+
+    def _create_raw_product(self, dir_name, name_gen):
+        self._logger.debug('Output directory is {}'.format(self._output_path))
+        self._logger.info('Create {}'.format(dir_name))
+        full_dir_name = os.path.join(self._output_path, dir_name)
+        os.makedirs(full_dir_name, exist_ok=True)
+        mph_file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        full_mph_file_name = os.path.join(self._output_path, mph_file_name)
+        self.hdr.write(full_mph_file_name)
+        bin_file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        full_bin_file_name = os.path.join(self._output_path, bin_file_name)
+        self._generate_bin_file(full_bin_file_name)
+        # TODO: Zip optional?
+        self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [mph_file_name, bin_file_name])
+
+    def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):
+        # Note: Deletes input files afterwards
+        self._logger.debug('Archive to .zip')
+        with zipfile.ZipFile(dir_name + '.zip', 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
+            for filename, arcname in zip(filenames, arcnames):
+                zipped.write(filename, arcname)
+            zipped.close()
+            shutil.rmtree(dir_name)
+
+
+class RAW_xxx_10(RawProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     the raw products generation.
@@ -53,17 +81,10 @@ class RAW_xxx_10(product_generator.ProductGeneratorBase):
         self.hdr.set_phenomenon_times(start, stop)
         self.hdr.set_validity_times(start, stop)
 
-        # Create directory and files
-        self._logger.info('Create {}'.format(dir_name))
-        dir_name = os.path.join(self._output_path, dir_name)
-        os.makedirs(dir_name, exist_ok=True)
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self.hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-        self._generate_bin_file(file_name)
+        self._create_raw_product(dir_name, name_gen)
 
 
-class RAWSxxx_10(product_generator.ProductGeneratorBase):
+class RAWSxxx_10(RawProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     the raw slice-based products generation.
@@ -109,14 +130,7 @@ class RAWSxxx_10(product_generator.ProductGeneratorBase):
         self.hdr.set_validity_times(tstart, tend)
         self.hdr.set_slice_nr(slice_nr)
 
-        # create directory with files
-        self._logger.info('Create {}'.format(dir_name))
-        dir_name = os.path.join(self._output_path, dir_name)
-        os.makedirs(dir_name, exist_ok=True)
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self.hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-        self._generate_bin_file(file_name, self._size)
+        self._create_raw_product(dir_name, name_gen)
 
     def _get_anx(self, t):
         # Returns the latest ANX before the given time
