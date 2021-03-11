@@ -45,6 +45,8 @@ def _meas_resource_usage(meas_time: float = 0.2):
 
 class WorkSimulatorTest(unittest.TestCase):
 
+    MIN_CPU_LOAD = 90   # should be 100, but could fluctuate a bit (especially with many cores)
+
     def testMemory(self):
         TEST_TIME = 0
         NR_PROGRESS_MESSAGES = 0
@@ -109,6 +111,7 @@ class WorkSimulatorTest(unittest.TestCase):
         self.assertEqual(logger.count, NR_PROGRESS_MESSAGES)
         self.assertAlmostEqual(mem, MEMORY_MB, delta=10)
         self.assertAlmostEqual(disk_space, DISK_SPACE_MB, delta=1)
+        self.assertGreater(cpu, self.MIN_CPU_LOAD)
 
 
 if __name__ == '__main__':
