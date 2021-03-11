@@ -7,8 +7,8 @@ import re
 from typing import List, Optional
 
 from job_order import JobOrderInput, JobOrderOutput
-from procsim import IProductGenerator
 from logger import Logger
+from procsim import IProductGenerator
 
 from biomass import main_product_header, product_name
 
@@ -27,7 +27,7 @@ class ProductGeneratorBase(IProductGenerator):
         ('num_isp', '_nr_instrument_source_packets'),
         ('num_isp_erroneous', '_nr_instrument_source_packets_erroneous'),
         ('num_isp_corrupt', '_nr_instrument_source_packets_corrupt'),
-        # Level 0
+        # Level 0 only
         ('num_l0_lines', 'nr_l0_lines'),
         ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt'),
         ('num_l0_lines_missing', 'nr_l0_lines_missing'),
@@ -35,7 +35,7 @@ class ProductGeneratorBase(IProductGenerator):
         ('operational_mode', 'sensor_mode'),
     ]
     ACQ_PARAMS = [
-        # Level 0
+        # Level 0 only
         ('mission_phase', 'mission_phase'),
         ('data_take_id', 'data_take_id'),
         ('global_coverage_id', 'global_coverage_id'),
@@ -52,7 +52,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._baseline_id = int(scenario_config.get('baseline') or output_config.get('baseline') or job_config.baseline)
         self._logger = logger
         self._output_type = output_config['type']
-        self._size: int = int(output_config.get('size', '0'))
+        self._size = int(output_config.get('size', '0'))
         self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
         self._start: Optional[datetime.datetime] = None
         self._stop: Optional[datetime.datetime] = None
@@ -115,10 +115,10 @@ class ProductGeneratorBase(IProductGenerator):
                     hdr = self.hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
-                    mph_is_parsed = True
                     self._start = hdr._validity_start
                     self._stop = hdr._validity_end
                     self._acquisition_date = hdr._acquisition_date
+                    mph_is_parsed = True
 
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
