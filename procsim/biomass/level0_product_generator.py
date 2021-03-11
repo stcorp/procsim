@@ -13,7 +13,8 @@ from typing import List
 
 from job_order import JobOrderInput
 
-from biomass import main_product_header, product_generator, product_name, constants
+from biomass import (constants, main_product_header, product_generator,
+                     product_name)
 
 ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -54,12 +55,22 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
+
         # 'Merge' partial H or V slices. If either H or V (or both?) consists of
         # multiple parts, then use the overall time as validity period for the
         # output.
-        HV_PRODUCTS = ['RAWS025_10', 'RAWS026_10']  # TODO: extend!
+        if self._output_type in [
+                'S1_RAW__0S', 'S2_RAW__0S', 'S3_RAW__0S', 'Sx_RAW__0S',
+                'S1_RAWP_0M', 'S2_RAWP_0M', 'S3_RAWP_0M', 'Sx_RAWP_0M']:
+            hv_products = ['RAWS025_10', 'RAWS026_10']
+        elif self._output_type in ['RO_RAW__0S', 'RO_RAWP_0M']:
+            hv_products = ['RAWS027_10', 'RAWS028_10']
+        else:
+            hv_products = ['RAWS035_10', 'RAWS036_10']
+
+        nr_hv_found = [0, 0]
         for input in input_products:
-            if input.file_type in HV_PRODUCTS:
+            if input.file_type in hv_products:
                 for file in input.file_names:
                     gen = product_name.ProductName()
                     gen.parse_path(file)
@@ -68,6 +79,12 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     self._start = min(self._start, hdr._validity_start)
                     self._stop = max(self._stop, hdr._validity_end)
+                    # Diagnostics
+                    idx = hv_products.index(input.file_type)
+                    nr_hv_found[idx] += 1
+        self._logger.debug('Merged {} H, V input products of type {}'.format(
+            nr_hv_found, hv_products)
+        )
         return True
 
     def _get_anx(self, t):
