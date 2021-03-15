@@ -22,7 +22,7 @@ mkdir -p workspace
 
 # Generate test data
 echo '  *** Generate raw data (measurement mode)'
-mkdir -p data/raw
+mkdir -p data
 python3 procsim/procsim.py -s "Raw data generator, measurement mode" test/procsim_config.json
 
 # Level 0 steps

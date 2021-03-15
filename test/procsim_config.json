@@ -34,7 +34,7 @@
 
       // Mandatory, as we have no JobOrder nor input files. These settings are
       // common for all outputs, but can be overridden in each output section.
-      "output_path": "data/raw",
+      "output_path": "data/raw_sm",
       "baseline": "1",
       "validity_start": "2021-02-01 00:00:00.000Z",
       "validity_stop": "2021-02-01 01:38:10.000Z",
@@ -314,7 +314,7 @@
       ],
 
       // Common for all outputs
-      "output_path": "data/raw",
+      "output_path": "data/raw_ro",
       "baseline": "1",
       "validity_start": "2021-02-01 00:00:00.000Z",
       "validity_stop": "2021-02-01 01:38:10.000Z",
