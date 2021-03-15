@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bio:EarthObservation
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ows="http://www.opengis.net/ows/2.0"
+    xmlns:bio="http://earth.esa.int/biomass/1.0"
+    xmlns:sar="http://www.opengis.net/sar/2.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:om="http://www.opengis.net/om/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:eop="http://www.opengis.net/eop/2.1" 
+gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_1">
+    <om:phenomenonTime>
+        <gml:TimePeriod gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_2">
+            <gml:beginPosition>2023-01-01T12:00:00.000Z</gml:beginPosition>
+            <gml:endPosition>2023-01-01T12:00:21.000Z</gml:endPosition>
+        </gml:TimePeriod>
+    </om:phenomenonTime>
+    <om:resultTime>
+        <gml:TimeInstant gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_3">
+            <gml:timePosition>2023-01-01T12:00:21.000Z</gml:timePosition>
+        </gml:TimeInstant>
+    </om:resultTime>
+    <om:validTime>
+        <gml:TimePeriod gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_4">
+            <gml:beginPosition>2023-01-01T12:00:00.000Z</gml:beginPosition>
+            <gml:endPosition>2023-01-01T12:00:21.000Z</gml:endPosition>
+        </gml:TimePeriod>
+    </om:validTime>
+    <om:procedure>
+        <eop:EarthObservationEquipment gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_5">
+            <eop:platform>
+                <eop:Platform>
+                    <eop:shortName>Biomass</eop:shortName>
+                </eop:Platform>
+            </eop:platform>
+            <eop:instrument>
+                <eop:Instrument>
+                    <eop:shortName>P-SAR</eop:shortName>
+                </eop:Instrument>
+            </eop:instrument>
+            <eop:sensor>
+                <eop:Sensor>
+                    <eop:sensorType>RADAR</eop:sensorType>
+                    <eop:operationalMode codeSpace="urn:esa:eop:PSAR:operationalMode">SM</eop:operationalMode>
+                    <eop:swathIdentifier codeSpace="urn:esa:eop:PSAR:swathIdentifier">S2</eop:swathIdentifier>
+                </eop:Sensor>
+            </eop:sensor>
+            <eop:acquisitionParameters>
+                <bio:Acquisition>
+                    <eop:orbitNumber>1</eop:orbitNumber>
+                    <eop:lastOrbitNumber>1</eop:lastOrbitNumber>
+                    <eop:orbitDirection>ASCENDING</eop:orbitDirection>
+                    <eop:wrsLongitudeGrid codeSpace="urn:esa:eop:Biomass:relativeOrbits">131</eop:wrsLongitudeGrid>
+                    <eop:wrsLatitudeGrid codeSpace="urn:esa:eop:Biomass:frames">155</eop:wrsLatitudeGrid>
+                    <eop:ascendingNodeDate>2023-01-01T10:54:37.264Z</eop:ascendingNodeDate>
+                    <eop:startTimeFromAscendingNode uom="ms">3922736</eop:startTimeFromAscendingNode>
+                    <eop:completionTimeFromAscendingNode uom="ms">3943736</eop:completionTimeFromAscendingNode>
+                    <sar:polarisationMode>Q</sar:polarisationMode>
+                    <sar:polarisationChannels>HH, HV, VH, VV</sar:polarisationChannels>
+                    <sar:antennaLookDirection>LEFT</sar:antennaLookDirection>
+                    <bio:missionPhase>INTERFEROMETRIC</bio:missionPhase>
+                    <bio:instrumentConfID>1</bio:instrumentConfID>
+                    <bio:dataTakeID>1234</bio:dataTakeID>
+                    <bio:orbitDriftFlag>false</bio:orbitDriftFlag>
+                    <bio:globalCoverageID>3</bio:globalCoverageID>
+                    <bio:majorCycleID>3</bio:majorCycleID>
+                    <bio:repeatCycleID>3</bio:repeatCycleID>
+                </bio:Acquisition>
+            </eop:acquisitionParameters>
+        </eop:EarthObservationEquipment>
+    </om:procedure>
+    <om:observedProperty xsi:nil="true" nilReason="inapplicable"/>
+    <om:featureOfInterest>
+        <eop:Footprint gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_6">
+            <eop:multiExtentOf>
+                <gml:MultiSurface gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_7">
+                    <gml:surfaceMember>
+                        <gml:Polygon gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_8">
+                            <gml:exterior>
+                                <gml:LinearRing>
+                                    <gml:posList>-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648</gml:posList>
+                                </gml:LinearRing>
+                            </gml:exterior>
+                        </gml:Polygon>
+                    </gml:surfaceMember>
+                </gml:MultiSurface>
+            </eop:multiExtentOf>
+            <eop:centerOf>
+                <gml:Point gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_9">
+                    <gml:pos>-7.492090 -63.27095</gml:pos>
+                </gml:Point>
+            </eop:centerOf>
+        </eop:Footprint>
+    </om:featureOfInterest>
+    <om:result>
+        <eop:EarthObservationResult gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976_10">
+            <eop:browse>
+                <eop:BrowseInformation>
+                    <eop:type>QUICKLOOK</eop:type>
+                    <eop:referenceSystemIdentifier codeSpace="urn:esa:eop:crs">EPSG:4326</eop:referenceSystemIdentifier>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                </eop:BrowseInformation>
+            </eop:browse>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:version>01</eop:version>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_annot.xml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">1721590</eop:size>
+                    <bio:rds>./schema/bio_l1_product.xsd</bio:rds>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/calibration/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_cal.xml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">1024231</eop:size>
+                    <bio:rds>./schema/bio_l1_cal.xsd</bio:rds>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/calibration/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_noise.dat">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">101940516</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/calibration/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ant.dat">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">101940516</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/navigation/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_att.xml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">1339130</eop:size>
+                    <bio:rds>./schema/bio_l1_attitude.xsd</bio:rds>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/navigation/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_orb.xml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">1258937</eop:size>
+                    <bio:rds>./schema/bio_l1_orbit.xsd</bio:rds>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/geometry/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_geoloc.xml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">2000</eop:size>
+                    <bio:rds>./schema/bio_l1_geoloc.xsd</bio:rds>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./annotation/geometry/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_geoloc.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">976000</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_i_hh.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">407762064</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_i_hv.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">407762064</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_i_vv.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">407762064</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_i_vh.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">407762064</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/ionosphere/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_iono.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">50970258</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./measurement/rfi/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_rfi.tiff">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">6796034</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">290816</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <bio:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_map.kml">
+                            <ows:RequestMessage/>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">1016</eop:size>
+                </bio:ProductInformation>
+            </eop:product>
+        </eop:EarthObservationResult>
+    </om:result>
+    <eop:metaDataProperty>
+        <bio:EarthObservationMetaData>
+            <eop:identifier>BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976</eop:identifier>
+            <eop:doi>DOI</eop:doi>
+            <eop:acquisitionType>NOMINAL</eop:acquisitionType>
+            <eop:productType>S2_SCS__1S</eop:productType>
+            <eop:status>ARCHIVED</eop:status>
+            <eop:processing>
+                <bio:ProcessingInformation>
+                    <eop:processingCenter codeSpace="urn:esa:eop:Biomass:facility">ESR</eop:processingCenter>
+                    <eop:processingDate>2023-01-01T12:12:53Z</eop:processingDate>
+                    <eop:processorName>L1 Processor</eop:processorName>
+                    <eop:processorVersion>1.0</eop:processorVersion>
+                    <eop:processingLevel>other: L1</eop:processingLevel>
+                    <eop:auxiliaryDataSetFileName>AUX_ORB_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:auxiliaryDataSetFileName>AUX_ATT_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:auxiliaryDataSetFileName>AUX_GMF_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:auxiliaryDataSetFileName>AUX_INS_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:auxiliaryDataSetFileName>AUX_TEC_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:auxiliaryDataSetFileName>AUX_PP1_Filename</eop:auxiliaryDataSetFileName>
+                    <eop:processingMode codeSpace="urn:esa:eop:Biomass:class">OPERATIONAL</eop:processingMode>
+                    <bio:sourceProduct>BIO_S2_RAW__0S_20230101T120000_20230101T120203_I_G03_M03_C03_T131_F026</bio:sourceProduct>
+                </bio:ProcessingInformation>
+            </eop:processing>
+            <bio:TAI-UTC>37</bio:TAI-UTC>
+            <bio:incompleteFrame>false</bio:incompleteFrame>
+            <bio:partialFrame>false</bio:partialFrame>
+            <bio:refDoc>BIOMASS L1 PRODUCT FORMAT SPECIFICATION</bio:refDoc>
+            <bio:refDoc>BIOMASS L1 PRODUCT FORMAT DEFINITION</bio:refDoc>
+        </bio:EarthObservationMetaData>
+    </eop:metaDataProperty>
+</bio:EarthObservation>
