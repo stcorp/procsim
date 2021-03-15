@@ -44,7 +44,7 @@ def _meas_resource_usage(meas_time: float = 0.2):
 
 class WorkSimulatorTest(unittest.TestCase):
 
-    MIN_CPU_LOAD = 80   # should be 100, but could fluctuate a bit (especially with many cores)
+    MIN_CPU_LOAD = 70   # should be 100, but could fluctuate a bit (especially with many cores)
 
     def testMemory(self):
         TEST_TIME = 0
