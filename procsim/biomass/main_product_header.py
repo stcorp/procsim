@@ -44,8 +44,8 @@ ows = "{%s}" % mph_namespaces['ows']
 xlink = "{%s}" % mph_namespaces['xlink']
 
 
-ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-ISO_TIME_FORMAT_SHORT = '%Y-%m-%d %H:%M:%S'
+ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+ISO_TIME_FORMAT_SHORT = '%Y-%m-%dT%H:%M:%S'
 
 
 def _time_as_iso(tim: datetime.datetime) -> str:
@@ -596,7 +596,14 @@ class MainProductHeader:
             exterior = polygon.find(gml + 'exterior')
             linear_ring = exterior.find(gml + 'LinearRing')
             self.footprint_polygon = linear_ring.findtext(gml + 'posList')  # Footprint points
-            center_of = feature_of_interest.find(eop + 'centerOf')  # Acquisition centre representation structure
+
+            #
+            # TODO! This is a discrepancy between spec and example!!
+            #
+
+            # center_of = feature_of_interest.find(eop + 'centerOf')  # Acquisition centre representation structure
+            center_of = footprint.find(eop + 'centerOf')  # Acquisition centre representation structure
+
             point = center_of.find(gml + 'Point')
             # point.set(gml + 'id', self.eop_identifier + '_9')
             self.center_points = point.findtext(gml + 'pos')  # Coordinates of the centre of the acquisition
