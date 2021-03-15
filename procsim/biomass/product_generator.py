@@ -105,9 +105,13 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.warning('{} should not be a zip!'.format(os.path.basename(archive_name)))
         # Unzip and delete archive
         with zipfile.ZipFile(archive_name, mode='r') as zipped:
-            self._logger.debug('Unzip archive {}'.format(os.path.basename(archive_name)))
-            zipped.extractall()
-            os.remove(archive_name)
+            keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
+            self._logger.debug('Extract {}archive {}'.format(
+                '' if keep_zip else 'and delete ',
+                os.path.basename(archive_name)))
+            zipped.extractall(self._output_path)
+            if not keep_zip:
+                os.remove(archive_name)
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         '''

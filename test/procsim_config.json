@@ -116,6 +116,7 @@
         "2021-02-01 00:25:33.745Z", // 1 second too late
         "2021-02-01 02:03:43.725Z"  // 1 second too early
       ],
+      // "keep_zip": true,  // For diagnostics only
       "outputs": [
         {
           "type": "RAWS022_10",
