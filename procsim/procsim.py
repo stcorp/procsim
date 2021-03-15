@@ -41,7 +41,7 @@ class IProductGenerator(abc.ABC):
         pass
 
 
-def _read_config(filename, logger):
+def _read_config(logger, filename):
     # Load configuration and check for correctness.
     # TODO: Use JSON schema! Yes, that exists...
     ROOT_KEYS = ['scenarios', 'mission']
@@ -268,7 +268,14 @@ def parse_command_line(argv):
 def main(argv):
     task_filename, job_filename, config_filename, scenario_name = parse_command_line(argv)
 
-    job = JobOrderParser(job_filename)
+    logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
+
+    config = _read_config(logger, config_filename)
+    if config is None:
+        sys.exit(1)
+
+    job_schema = config.get('job_order_schema')
+    job = JobOrderParser(logger, job_filename, job_schema)
 
     logger = Logger(
         job.node,
@@ -278,22 +285,21 @@ def main(argv):
         job.stderr_levels
     )
 
-    config = _read_config(config_filename, logger)
-    if config is None:
-        sys.exit(1)
-
     scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
     if scenario is None:
         sys.exit(1)
 
     logger.set_task_name(job_task.name)    # This info was not available yet
 
+    logger.info('Simulate scenario {}'.format(scenario['name']))
     if job_filename:
         logger.info('Read JobOrder {}'.format(job_filename))
-    _log_configured_messages(scenario, logger)
-    _log_processor_parameters(job.processing_parameters, logger)
+        if job_schema is not None and job._is_validated:
+            logger.debug('JobOrder validation against schema: OK')
+        logger.info('Read task {} from the JobOrder'.format(job_task.name))
+    _log_processor_parameters(job_task.processing_parameters, logger)
     _log_inputs(job_task.inputs, logger)
-    logger.info('Simulate scenario {}'.format(scenario['name']))
+    _log_configured_messages(scenario, logger)
 
     # Create product generators, parse inputs
     generators: List[IProductGenerator] = []

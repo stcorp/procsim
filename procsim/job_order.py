@@ -5,6 +5,7 @@ Read JobOrders, according to ESA-EOPG-EEGS-ID-0083
 '''
 import os
 import re
+import subprocess
 from typing import List
 from xml.etree import ElementTree as et
 
@@ -37,21 +38,44 @@ class JobOrderTask():
         self.disk_space_mb = 1000000        # limit
         self.inputs: List[JobOrderInput] = []
         self.outputs: List[JobOrderOutput] = []
+        self.processing_parameters = {}
 
 
 class JobOrderParser:
-    '''This class is responsible for reading and parsing the JobOrder.'''
+    '''This class is responsible for reading and parsing the JobOrder.
 
-    def __init__(self, filename):
+    Note that we only log errors, since the logger is not setup yet (as it
+    needs info from the JobOrder for that).'''
+
+    def __init__(self, logger, filename, schema=None):
+        self._logger = logger
+        self._is_validated = False
         self.processor_name = ''
         self.processor_version = ''
         self.node = 'N/A'
         self.tasks: List[JobOrderTask] = []
         self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels: List[str] = []
-        self.processing_parameters = {}
         if filename is not None:
+            if schema is not None:
+                self._check_against_schema(filename, schema)
             self._parse(filename)
+
+    def _check_against_schema(self, filename, schema):
+        cmd = 'xmllint --noout --schema {} {}'.format(
+            schema, filename
+        )
+        xmllint = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = xmllint.stderr.decode('utf-8').strip('\n')
+        if 'validates' not in result:
+            self._logger.error('Check {} against {}: {}'.format(
+                os.path.basename(filename),
+                os.path.basename(schema),
+                result
+            ))
+            self._is_validated = False
+        else:
+            self._is_validated = True
 
     def _find_matching_files(self, pattern):
         # Return list of all files matching 'pattern'.
@@ -106,9 +130,13 @@ class JobOrderParser:
                 task.outputs.append(output)
             self.tasks.append(task)
 
-        # List of processing parameters
+        # List of processing parameters. For 'old' joborders, these are common for all tasks.
+        # So, append them to every task.
+        proc_params = {}
         for param in root.find('Processing_Parameters').findall('Processing_Parameter'):
-            self.processing_parameters[param.find('Name').text] = param.find('Value').text
+            proc_params[param.find('Name').text] = param.find('Value').text
+        for task in self.tasks:
+            task.processing_parameters = proc_params
 
     def _parse_icd_2020(self, root: et.Element):
         proc = root.find('Processor_Configuration')
@@ -153,8 +181,9 @@ class JobOrderParser:
                 output.baseline = int(output_el.findtext('Baseline', '0'))
                 output.file_name_pattern = output_el.findtext('File_Name_Pattern', '')
                 task.outputs.append(output)
-            self.tasks.append(task)
 
             # List of processing parameters
             for param in task_el.find('List_of_Proc_Parameters').findall('Proc_Parameter'):
-                self.processing_parameters[param.findtext('Name')] = param.findtext('Value')
+                task.processing_parameters[param.findtext('Name')] = param.findtext('Value')
+
+            self.tasks.append(task)
