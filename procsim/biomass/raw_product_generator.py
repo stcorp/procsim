@@ -62,12 +62,12 @@ class RAW_xxx_10(RawProductGeneratorBase):
         # Base class is doing part of the setup
         super(RAW_xxx_10, self).generate_output()
 
-        self._create_date = self._start   # HACK: fill in current date?
-        start = self._start
-        stop = self._stop
-        name_gen = product_name.ProductName()
+        self._create_date = self.hdr._validity_start   # HACK: fill in current date?
+        start = self.hdr._validity_start
+        stop = self.hdr._validity_stop
 
-        # Setup mandatory Raw data
+        # Construct product name and set metadata fields
+        name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
@@ -79,7 +79,6 @@ class RAW_xxx_10(RawProductGeneratorBase):
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_phenomenon_times(start, stop)
-        self.hdr.set_validity_times(start, stop)
 
         self._create_raw_product(dir_name, name_gen)
 
@@ -109,25 +108,26 @@ class RAWSxxx_10(RawProductGeneratorBase):
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        self._create_date = self._start   # HACK: fill in current date?
+        self._create_date = self.hdr._validity_start   # HACK: fill in current date?
         if self.enable_slicing:
             self._generate_sliced_output()
         else:
-            self._create_product(self._start, self._stop, None)
+            self._create_product(self.hdr._validity_start, self.hdr._validity_stop, None)
 
-    def _create_product(self, tstart, tend, slice_nr):
+    def _create_product(self, tstart, tstop, slice_nr):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = tstart
-        name_gen.stop_time = tend
+        name_gen.stop_time = tstop
         name_gen.baseline_identifier = self._baseline_id
         name_gen.set_creation_date(self._create_date)
-        name_gen.downlink_time = self._acquisition_date
+        name_gen.downlink_time = self.hdr._acquisition_date
+
         dir_name = name_gen.generate_path_name()
         self.hdr.set_product_type(self._output_type, self._baseline_id)
         self.hdr.set_product_filename(dir_name)
-        self.hdr.set_validity_times(tstart, tend)
+        self.hdr.set_validity_times(tstart, tstop)
         self.hdr.set_slice_nr(slice_nr)
 
         self._create_raw_product(dir_name, name_gen)

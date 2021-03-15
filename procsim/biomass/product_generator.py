@@ -22,6 +22,9 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
     HDR_PARAMS = [
+        # All but sliced products
+        ('validity_start', '_validity_start'),
+        ('validity_stop', '_validity_stop'),
         # Raw only
         ('acquisition_date', '_acquisition_date'),
         ('acquisition_station', '_acquisition_station'),
@@ -55,8 +58,6 @@ class ProductGeneratorBase(IProductGenerator):
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
-        self._start: Optional[datetime.datetime] = None
-        self._stop: Optional[datetime.datetime] = None
         self._create_date: Optional[datetime.datetime] = None
         self.hdr = main_product_header.MainProductHeader()
 
@@ -134,22 +135,11 @@ class ProductGeneratorBase(IProductGenerator):
                     hdr = self.hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
-                    self._start = hdr._validity_start
-                    self._stop = hdr._validity_end
-                    self._acquisition_date = hdr._acquisition_date
                     mph_is_parsed = True
 
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
         return mph_is_parsed
-
-    def _read_time(self, name, default):
-        val = default
-        if self._output_config.get(name) is not None:
-            val = self._time_from_iso_or_none(self._output_config.get(name))
-        elif self._scenario_config.get(name) is not None:
-            val = self._time_from_iso_or_none(self._scenario_config.get(name))
-        return val
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str):
         '''
@@ -157,7 +147,7 @@ class ProductGeneratorBase(IProductGenerator):
         '''
         if config.get(param_name) is None:
             return
-        if 'date' in param_name:
+        if ('date' in param_name) or ('validity' in param_name):
             val = self._time_from_iso_or_none(config.get(param_name))
         else:
             val = config.get(param_name)
@@ -172,10 +162,7 @@ class ProductGeneratorBase(IProductGenerator):
         Parse metadata parameters from scenario_config (either 'global' or for this output).
         TODO: Also get params from root level
         '''
-        self._start = self._read_time('validity_start', self._start)
-        self._stop = self._read_time('validity_stop', self._stop)
-
-        for config in self._output_config, self._scenario_config:
+        for config in self._scenario_config, self._output_config:
             for param, hdr_field in self.HDR_PARAMS:
                 self._read_config_param(config, param, self.hdr, hdr_field)
             for param, acq_field in self.ACQ_PARAMS:

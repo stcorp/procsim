@@ -68,6 +68,11 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         else:
             hv_products = ['RAWS035_10', 'RAWS036_10']
 
+        start = self.hdr._validity_start
+        stop = self.hdr._validity_stop
+        if start is None or stop is None:
+            self._logger.error('Start and stop must be known')
+            return False
         nr_hv_found = [0, 0]
         for input in input_products:
             if input.file_type in hv_products:
@@ -78,11 +83,13 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
-                    self._start = min(self._start, hdr._validity_start)
-                    self._stop = max(self._stop, hdr._validity_end)
+                    start = min(start, hdr._validity_start)
+                    stop = max(stop, hdr._validity_stop)
                     # Diagnostics
                     idx = hv_products.index(input.file_type)
                     nr_hv_found[idx] += 1
+        self.hdr._validity_start = start
+        self.hdr._validity_stop = stop
         self._logger.debug('Merged {} H, V input products of type {}'.format(
             nr_hv_found, hv_products)
         )
@@ -174,18 +181,20 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
+        if self.hdr._validity_start is None or self.hdr._validity_stop is None:
+            self._logger.error('Validity start/end must be known')
+            return
         # Find data take(s) in this slice and create products for each segment.
-        start = self._start
-        stop = self._stop
+        start = self.hdr._validity_start
         for dt in self._scenario_config.get('data_takes'):
             dt_start = _time_from_iso(dt['validity_start'])
             dt_stop = _time_from_iso(dt['validity_stop'])
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
-                stop = min(self._stop, dt_stop)
-                self._generate_product(start, stop, dt)
-                if stop >= self._stop:
+                end = min(self.hdr._validity_stop, dt_stop)
+                self._generate_product(start, end, dt)
+                if end >= self.hdr._validity_stop:
                     break
-                start = stop
+                start = end
 
 
 class Sx_RAW__0M(product_generator.ProductGeneratorBase):
@@ -209,8 +218,11 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # The final product should cover the complete data take.
         id = self.hdr.acquisitions[0].data_take_id
-        start = self._start
-        stop = self._stop
+        start = self.hdr._validity_start
+        stop = self.hdr._validity_stop
+        if start is None or stop is None:
+            self._logger.error('Start/stop must be known')
+            return False
         for input in input_products:
             for file in input.file_names:
                 gen = product_name.ProductName()
@@ -226,11 +238,11 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
                     continue
                 self._logger.debug('Data take id {} of {} matches'.format(input_id, os.path.basename(file)))
                 start = min(start, hdr._validity_start)
-                stop = max(stop, hdr._validity_end)
-        if start != self._start or stop != self._stop:
+                stop = max(stop, hdr._validity_stop)
+        if start != self.hdr._validity_start or stop != self.hdr._validity_stop:
             self._logger.debug('Adjust validity times to {} - {}'.format(start, stop))
-        self._start = start
-        self._stop = stop
+        self.hdr._validity_start = start
+        self.hdr._validity_stop = stop
         return True
 
     def _generate_product(self, start, stop):
@@ -281,8 +293,8 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
-        start = self._start
-        stop = self._stop
+        start = self.hdr._validity_start
+        stop = self.hdr._validity_stop
         self._generate_product(start, stop)
 
 
@@ -311,8 +323,8 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         super().generate_output()
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
-        start = self._start - self._lead_margin
-        stop = self._stop + self._trailing_margin
+        start = self.hdr._validity_start - self._lead_margin
+        stop = self.hdr._validity_stop + self._trailing_margin
 
         # Setup MPH
         self.hdr.set_product_type(self._output_type, self._baseline_id)
@@ -361,21 +373,17 @@ class Aux(product_generator.ProductGeneratorBase):
         super().generate_output()
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
-        start = self._start
-        stop = self._stop
-
         # Setup MPH
         self.hdr.set_product_type(self._output_type, self._baseline_id)
-        self.hdr.set_validity_times(start, stop)
 
-        # TODO: Which MPH fields should be set?
+        # TODO: What other MPH fields should be set for AUX?
 
         # Setup all fields mandatory for an auxiliary product.
         name_gen = product_name.ProductName()
         acq = self.hdr.acquisitions[0]
         name_gen.file_type = self._output_type
-        name_gen.start_time = start
-        name_gen.stop_time = stop
+        name_gen.start_time = self.hdr._validity_start
+        name_gen.stop_time = self.hdr._validity_stop
         name_gen.baseline_identifier = self._baseline_id
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase

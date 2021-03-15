@@ -130,7 +130,7 @@ class MainProductHeader:
         self._end_position: Optional[datetime.datetime] = None
         self._time_position: Optional[datetime.datetime] = None
         self._validity_start: Optional[datetime.datetime] = None
-        self._validity_end: Optional[datetime.datetime] = None
+        self._validity_stop: Optional[datetime.datetime] = None
         self._product_type: Optional[product_types.ProductType] = None
         self._product_baseline: Optional[int] = None
         self._processing_date: Optional[datetime.datetime] = None
@@ -231,7 +231,7 @@ class MainProductHeader:
         self._end_position = end
         self._time_position = end  # = end, according to MPH definition
 
-    def set_validity_times(self, start, end):
+    def set_validity_times(self, start, stop):
         '''
         Start/stop are UTC start date and time:
             - Acquisition sensing time for RAW_<PID>_<PC>, RAW___HKTM
@@ -241,7 +241,7 @@ class MainProductHeader:
             - Frame start time of first image in the Stack for *L2A
         '''
         self._validity_start = start
-        self._validity_end = end
+        self._validity_stop = stop
 
     def set_slice_nr(self, slice_nr: Optional[int]):
         '''
@@ -296,7 +296,7 @@ class MainProductHeader:
 
         # Some parameters have no default and MUST be set prior to generation
         if self._begin_position is None or self._end_position is None or \
-                self._validity_start is None or self._validity_end is None or \
+                self._validity_start is None or self._validity_stop is None or \
                 self._time_position is None:
             raise Exception('Times must be set before creating MPH')
 
@@ -310,7 +310,7 @@ class MainProductHeader:
         time_position.text = _time_as_iso(self._time_position)
 
         valid_time = et.SubElement(mph, om + 'validTime')
-        self._insert_time_period(valid_time, self._validity_start, self._validity_end, 4)
+        self._insert_time_period(valid_time, self._validity_start, self._validity_stop, 4)
 
         procedure = et.SubElement(mph, om + 'procedure')  # Procedure used to sense the data
         earth_observation_equipment = et.SubElement(procedure, eop + 'EarthObservationEquipment')  # Equipment used to sense the data
@@ -511,7 +511,7 @@ class MainProductHeader:
         self._time_position = _time_from_iso(time_instant.findtext(gml + 'timePosition'))
 
         valid_time = root.find(om + 'validTime')
-        self._validity_start, self._validity_end = self._parse_time_period(valid_time, 4)
+        self._validity_start, self._validity_stop = self._parse_time_period(valid_time, 4)
 
         procedure = root.find(om + 'procedure')  # Procedure used to sense the data
         earth_observation_equipment = procedure.find(eop + 'EarthObservationEquipment')  # Equipment used to sense the data
