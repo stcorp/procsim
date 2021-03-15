@@ -106,8 +106,8 @@ class ProductGeneratorBase(IProductGenerator):
         # Unzip and delete archive
         with zipfile.ZipFile(archive_name, mode='r') as zipped:
             keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
-            self._logger.debug('Extract {}archive {}'.format(
-                '' if keep_zip else 'and delete ',
+            self._logger.debug('Extract {}{}'.format(
+                '(keep zip) ' if keep_zip else '',
                 os.path.basename(archive_name)))
             zipped.extractall(self._output_path)
             if not keep_zip:
