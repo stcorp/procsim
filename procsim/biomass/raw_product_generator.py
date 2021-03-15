@@ -32,7 +32,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self.hdr.write(full_mph_file_name)
         bin_file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
         full_bin_file_name = os.path.join(self._output_path, bin_file_name)
-        self._generate_bin_file(full_bin_file_name)
+        self._generate_bin_file(full_bin_file_name, self._size_mb)
         # TODO: Zip optional?
         self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [mph_file_name, bin_file_name])
 

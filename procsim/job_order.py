@@ -32,6 +32,9 @@ class JobOrderTask():
     def __init__(self):
         self.name: str = ''
         self.version: str = ''
+        self.nr_cpu_cores = 0.0     # A value of 0 means no limit
+        self.amount_of_ram_mb = 1000000     # limit
+        self.disk_space_mb = 1000000        # limit
         self.inputs: List[JobOrderInput] = []
         self.outputs: List[JobOrderOutput] = []
 
@@ -80,6 +83,10 @@ class JobOrderParser:
             task = JobOrderTask()
             task.name = task_el.findtext('Task_Name', '')
             task.version = task_el.findtext('Task_Version', '')
+            task.nr_cpu_cores = float(task_el.findtext('Number_of_CPU_Cores', '0.0'))
+            task.amount_of_ram_mb = int(task_el.findtext('Amount_of_RAM', '1000000'))
+            task.disk_space_mb = int(task_el.findtext('Disk_Space', '1000000'))
+
             task.inputs = []
             task.outputs = []
             for input_el in task_el.find('List_of_Inputs').findall('Input'):

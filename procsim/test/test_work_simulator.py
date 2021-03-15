@@ -39,7 +39,6 @@ def _meas_resource_usage(meas_time: float = 0.2):
     top = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
     mem, cpu = top.stdout.split(sep=b' ')
     cpu = cpu.replace(b',', b'.')
-    # print('Memory:{} MB, CPU={} %'.format(int(int(mem) / _KB), float(cpu)))
     return int(mem) / _KB, float(cpu)
 
 
@@ -57,8 +56,8 @@ class WorkSimulatorTest(unittest.TestCase):
             logger,
             time=TEST_TIME,
             nr_cpu=1,
-            memory=MEMORY_MB * _MB,
-            disk_space=0,
+            memory_mb=MEMORY_MB,
+            disk_space_mb=0,
             nr_progress_log_messages=NR_PROGRESS_MESSAGES
         )
         mem_before, cpu = _meas_resource_usage()
@@ -81,8 +80,8 @@ class WorkSimulatorTest(unittest.TestCase):
             logger,
             time=TEST_TIME,
             nr_cpu=nr_cpu,
-            memory=MEMORY_MB * _MB,
-            disk_space=DISK_SPACE_MB * _MB,
+            memory_mb=MEMORY_MB,
+            disk_space_mb=DISK_SPACE_MB,
             nr_progress_log_messages=NR_PROGRESS_MESSAGES
         )
 

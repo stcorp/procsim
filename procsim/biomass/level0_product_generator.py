@@ -159,15 +159,15 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size//2)
+        self._generate_bin_file(file_name, self._size_mb//2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size//2)
+        self._generate_bin_file(file_name, self._size_mb//2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
-        self._generate_bin_file(file_name)
+        self._generate_bin_file(file_name, 0)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
-        self._generate_bin_file(file_name)
+        self._generate_bin_file(file_name, 0)
 
     def generate_output(self):
         super(Sx_RAW__0x, self).generate_output()
@@ -268,15 +268,15 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size//2)
+        self._generate_bin_file(file_name, self._size_mb//2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size//2)
+        self._generate_bin_file(file_name, self._size_mb//2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
-        self._generate_bin_file(file_name)
+        self._generate_bin_file(file_name, 0)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
-        self._generate_bin_file(file_name)
+        self._generate_bin_file(file_name, 0)
 
     def generate_output(self):
         super().generate_output()
@@ -346,7 +346,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self.hdr.write(file_name)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())  # TODO: SUFFIX?!
-        self._generate_bin_file(file_name, self._size)
+        self._generate_bin_file(file_name, self._size_mb)
 
 
 class Aux(product_generator.ProductGeneratorBase):
@@ -400,10 +400,10 @@ class Aux(product_generator.ProductGeneratorBase):
 
         os.makedirs(data_dir, exist_ok=True)
         file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_attitude', '.xml'))
-        self._generate_bin_file(file_name, self._size // 2)
+        self._generate_bin_file(file_name, self._size_mb // 2)
 
         # This component has to be considered optional because
         # it shall not be used in case AUX data format is not XML
         os.makedirs(support_dir, exist_ok=True)
         file_name = os.path.join(support_dir, name_gen.generate_binary_file_name('_schema', '.xsd'))
-        self._generate_bin_file(file_name, self._size // 2)
+        self._generate_bin_file(file_name, self._size_mb // 2)

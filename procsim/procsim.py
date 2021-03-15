@@ -189,14 +189,35 @@ def _log_processor_parameters(parameters, logger):
         logger.info('Processing parameter {} = {}'.format(param, value))
 
 
-def _do_work(logger, config):
+def _log_inputs(inputs, logger):
+    for input in inputs:
+        for file_name in input.file_names:
+            logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
+
+
+def _do_work(logger, config, job_task: Optional[JobOrderTask]):
+    # Get paremters from scenario
     time = config.get('processing_time', 0)
     nr_cpu = config.get('nr_cpu', 1)
-    memory = config.get('memory_usage', 0)
-    disk_space = config.get('disk_usage', 0)
+    memory_mb = config.get('memory_usage', 0)
+    disk_space_mb = config.get('disk_usage', 0)
     nr_progress_log_messages = config.get('nr_progress_log_messages', 0)
-    worker = WorkSimulator(logger, time, nr_cpu, memory, disk_space,
-                           nr_progress_log_messages)
+
+    # The Job order resource parameters are treated as limits over the
+    # resource usage as specified in the scenario config.
+    if job_task is not None:
+        if job_task.nr_cpu_cores != 0.0:
+            nr_cpu = min(nr_cpu, int(job_task.nr_cpu_cores))
+        memory_mb = min(memory_mb, job_task.amount_of_ram_mb)
+        disk_space_mb = min(memory_mb, job_task.disk_space_mb)
+
+    worker = WorkSimulator(
+        logger,
+        time,
+        nr_cpu,
+        memory_mb,
+        disk_space_mb,
+        nr_progress_log_messages)
     worker.start()
 
 
@@ -269,10 +290,7 @@ def main(argv):
 
     _log_configured_messages(scenario, logger)
     _log_processor_parameters(job.processing_parameters, logger)
-
-    for input in job_task.inputs:
-        for file_name in input.file_names:
-            logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
+    _log_inputs(job_task.inputs, logger)
     logger.info('Simulate scenario {}'.format(scenario['name']))
 
     # Create product generators, parse inputs
@@ -291,7 +309,7 @@ def main(argv):
             sys.exit(1)
         generators.append(generator)
 
-    _do_work(logger, scenario)
+    _do_work(logger, scenario, job_task)
 
     for gen in generators:
         gen.read_scenario_metadata_parameters()

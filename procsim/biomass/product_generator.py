@@ -53,7 +53,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._baseline_id = int(scenario_config.get('baseline') or output_config.get('baseline') or job_config.baseline)
         self._logger = logger
         self._output_type = output_config['type']
-        self._size = int(output_config.get('size', '0'))
+        self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
         self._start: Optional[datetime.datetime] = None
         self._stop: Optional[datetime.datetime] = None
@@ -82,10 +82,11 @@ class ProductGeneratorBase(IProductGenerator):
         timestr = timestr[:-1]  # strip 'Z'
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 
-    def _generate_bin_file(self, file_name, size=0):
+    def _generate_bin_file(self, file_name, size_mb):
         '''Generate binary file starting with a short ASCII header, followed by
-        'size' - headersize random data bytes.'''
+        size (in MB) random data bytes.'''
         CHUNK_SIZE = 2**20
+        size = size_mb * 2**20
         file = open(file_name, 'wb')
         hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
         file.write(hdr)
