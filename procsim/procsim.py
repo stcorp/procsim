@@ -288,6 +288,8 @@ def main(argv):
 
     logger.set_task_name(job_task.name)    # This info was not available yet
 
+    if job_filename:
+        logger.info('Read JobOrder {}'.format(job_filename))
     _log_configured_messages(scenario, logger)
     _log_processor_parameters(job.processing_parameters, logger)
     _log_inputs(job_task.inputs, logger)
