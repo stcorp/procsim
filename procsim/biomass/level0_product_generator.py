@@ -187,8 +187,13 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # Find data take(s) in this slice and create products for each segment.
         start = self.hdr._validity_start
         for dt in self._scenario_config.get('data_takes'):
-            dt_start = _time_from_iso(dt['validity_start'])
-            dt_stop = _time_from_iso(dt['validity_stop'])
+            dt_start_str = dt.get('start')
+            dt_stop_str = dt.get('stop')
+            if dt_start_str is None or dt_stop_str is None:
+                self._logger.error('data_take in config should contain start/stop elements')
+                return
+            dt_start = _time_from_iso(dt_start_str)
+            dt_stop = _time_from_iso(dt_stop_str)
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
                 end = min(self.hdr._validity_stop, dt_stop)
                 self._generate_product(start, end, dt)

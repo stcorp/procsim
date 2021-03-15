@@ -1,5 +1,6 @@
 {
   "mission": "biomass", // Must match the plugin name
+  "job_order_schema": "../../test/joborder_new.xsd",
 
   "scenarios": [
     // A list of scenario descrptions.
@@ -184,22 +185,22 @@
           "data_take_id": 1,
           "swath": "S1",
           "operational_mode": "SM",
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01 00:24:32.000Z",
+          "stop": "2021-02-01 00:29:32.000Z"
         },
         {
           "data_take_id": 2,
           "swath": "S1",
           "operational_mode": "SM",
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01 00:34:32.000Z",
+          "stop": "2021-02-01 00:35:32.000Z"
         },
         {
           "data_take_id": 3,
           "swath": "S2",
           "operational_mode": "SM",
-          "validity_start": "2021-02-01 00:35:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01 00:35:32.000Z",
+          "stop": "2021-02-01 00:39:32.000Z"
         }
       ],
 
@@ -466,22 +467,22 @@
           "data_take_id": 10,
           "swath": "RO",
           "operational_mode": "RO",
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01 00:24:32.000Z",
+          "stop": "2021-02-01 00:29:32.000Z"
         },
         {
           "data_take_id": 11,
           "swath": "RO",
           "operational_mode": "RO",
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01 00:34:32.000Z",
+          "stop": "2021-02-01 00:35:32.000Z"
         },
         {
           "data_take_id": 12,
           "operational_mode": "RO",
           "swath": "RO",
-          "validity_start": "2021-02-01 00:35:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01 00:35:32.000Z",
+          "stop": "2021-02-01 00:39:32.000Z"
         }
       ],
 
@@ -707,22 +708,22 @@
           "data_take_id": 10,
           "swath": "EC",
           "operational_mode": "EC",
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01 00:24:32.000Z",
+          "stop": "2021-02-01 00:29:32.000Z"
         },
         {
           "data_take_id": 11,
           "swath": "EC",
           "operational_mode": "EC",
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01 00:34:32.000Z",
+          "stop": "2021-02-01 00:35:32.000Z"
         },
         {
           "data_take_id": 12,
           "swath": "EC",
           "operational_mode": "EC",
-          "validity_start": "2021-02-01 00:35:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01 00:35:32.000Z",
+          "stop": "2021-02-01 00:39:32.000Z"
         }
       ],
 

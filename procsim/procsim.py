@@ -54,7 +54,7 @@ def _read_config(filename, logger):
             clean_json = utils.remove_trailing_commas(uncommented_json)
             config = json.loads(clean_json)
             is_ok = True
-            if set(config.keys()) == set(ROOT_KEYS):
+            if set(config.keys()) >= set(ROOT_KEYS):
                 for scenario in config['scenarios']:
                     if set(scenario) < set(SCENARIO_KEYS):
                         is_ok = False
