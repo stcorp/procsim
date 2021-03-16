@@ -75,6 +75,10 @@ def _to_int(val: Optional[str]) -> Optional[int]:
     return int(val) if val is not None else None
 
 
+def _to_bool(val: Optional[str]) -> Optional[bool]:
+    return None if val is None else True if val == 'true' else False if val == 'false' else None
+
+
 class Acquisition:
     '''
     Data class, hold acquisition parameters for MPH
@@ -90,12 +94,12 @@ class Acquisition:
         # all valid fields, without setting them explicitly.
 
         # L0, L1
-        self.orbit_number: int = 1
-        self.last_orbit_number: int = 1
+        self.orbit_number: int = 0
+        self.last_orbit_number: int = 0
         self.anx_date = datetime.datetime.now()
         self.start_time: int = 0           # in ms since ANX
         self.completion_time: int = 0      # in ms since ANX
-        self.instrument_config_id: int = 1
+        self.instrument_config_id: int = 0
         self.orbit_drift_flag: bool = False
         self.repeat_cycle_id: str = '__'    # 1..7 or DR or __, refer to PDGS Products Naming Convention document
         # RAWS, L0, L1, L2a
@@ -109,6 +113,24 @@ class Acquisition:
         # AUT_ATT___, AUX_ORB___, L0, L1
         self.data_take_id: int = 0
         # self.feature_of_interest: str = ''
+
+    def __eq__(self, other):
+        return self.orbit_number == other.orbit_number and \
+               self.last_orbit_number == other.last_orbit_number and \
+               self.anx_date == other.anx_date and \
+               self.start_time == other.start_time and \
+               self.completion_time == other.completion_time and \
+               self.instrument_config_id == other.instrument_config_id and \
+               self.orbit_drift_flag == other.orbit_drift_flag and \
+               self.major_cycle_id == other.major_cycle_id and \
+               self.repeat_cycle_id == other.repeat_cycle_id and \
+               self.slice_frame_nr == other.slice_frame_nr and \
+               self.orbit_direction == other.orbit_direction and \
+               self.track_nr == other.track_nr and \
+               self.mission_phase == other.mission_phase and \
+               self.global_coverage_id == other.global_coverage_id and \
+               self.major_cycle_id == other.major_cycle_id and \
+               self.data_take_id == other.data_take_id
 
 
 class MainProductHeader:
@@ -147,34 +169,34 @@ class MainProductHeader:
         self.processing_centre_code = 'ESR'
         self._processing_level = 'Other: L1'
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
-        self.biomass_source_product_ids = ['id']
+        self.biomass_source_product_ids: list[str] = []
         self.reference_documents = []
 
         # Raw only
         self._acquisition_station: Optional[str] = None
         self._acquisition_date: Optional[datetime.datetime] = None
         # Raw, HKTM only
-        self.nr_transfer_frames = 0
-        self.nr_transfer_frames_erroneous = 0
-        self.nr_transfer_frames_corrupt = 0
+        self.nr_transfer_frames = None
+        self.nr_transfer_frames_erroneous = None
+        self.nr_transfer_frames_corrupt = None
         # Raw, science/ancillary only
         self._nr_instrument_source_packets = None
         self._nr_instrument_source_packets_erroneous = None
         self._nr_instrument_source_packets_corrupt = None
 
         # L0 only
-        self.nr_l0_lines = '0,0'          # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.nr_l0_lines_missing = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.nr_l0_lines_corrupt = '0,0'  # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.incomplete_l0_slice = False
-        self.partial_l0_slice = False
-        self.l1_frames_in_l0 = '0,1,2,4,5'
+        self.nr_l0_lines: Optional[str] = None           # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
+        self.nr_l0_lines_missing: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
+        self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
+        self.incomplete_l0_slice: Optional[bool] = None
+        self.partial_l0_slice: Optional[bool] = None
+        self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
 
         # L1 only
-        self.incomplete_l1_frame = False
-        self.partial_l1_frame = False
-        self.browse_ref_id = 'EPSG:4326'    # Or 'Unknown'
-        self.browse_image_filename = 'browse image filename'
+        self.incomplete_l1_frame: Optional[bool] = None
+        self.partial_l1_frame: Optional[bool] = None
+        self.browse_ref_id: Optional[str] = None
+        self.browse_image_filename: Optional[str] = None
 
         # L0 and L1
         acquisition = Acquisition()
@@ -186,11 +208,57 @@ class MainProductHeader:
         self.sensor_mode = None
 
         # L1, L2a
-        self.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
-        self.center_points = '-7.492090 -63.27095'
+        self.footprint_polygon: Optional[str] = None
+        self.center_points: Optional[str] = None
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
+
+    def __eq__(self, other):
+        return \
+            self._eop_identifier == other._eop_identifier and \
+            self._begin_position == other._begin_position and \
+            self._end_position == other._end_position and \
+            self._time_position == other._time_position and \
+            self._validity_start == other._validity_start and \
+            self._validity_stop == other._validity_stop and \
+            self._product_type == other._product_type and \
+            self._product_baseline == other._product_baseline and \
+            self._processing_date == other._processing_date and \
+            self._processor_name == other._processor_name and \
+            self._processor_version == other._processor_version and \
+            self.acquisitions == other.acquisitions and \
+            self.doi == other.doi and \
+            self.acquisition_type == other.acquisition_type and \
+            self.product_status == other.product_status and \
+            self.processing_centre_code == other.processing_centre_code and \
+            self._processing_level == other._processing_level and \
+            self.auxiliary_ds_file_names == other.auxiliary_ds_file_names and \
+            self.biomass_source_product_ids == other.biomass_source_product_ids and \
+            self.reference_documents == other.reference_documents and \
+            self._acquisition_station == other._acquisition_station and \
+            self._acquisition_date == other._acquisition_date and \
+            self.nr_transfer_frames == other.nr_transfer_frames and \
+            self.nr_transfer_frames_erroneous == other.nr_transfer_frames_erroneous and \
+            self.nr_transfer_frames_corrupt == other.nr_transfer_frames_corrupt and \
+            self._nr_instrument_source_packets == other._nr_instrument_source_packets and \
+            self._nr_instrument_source_packets_erroneous == other._nr_instrument_source_packets_erroneous and \
+            self._nr_instrument_source_packets_corrupt == other._nr_instrument_source_packets_corrupt and \
+            self.nr_l0_lines == other.nr_l0_lines and \
+            self.nr_l0_lines_missing == other.nr_l0_lines_missing and \
+            self.nr_l0_lines_corrupt == other.nr_l0_lines_corrupt and \
+            self.incomplete_l0_slice == other.incomplete_l0_slice and \
+            self.partial_l0_slice == other.partial_l0_slice and \
+            self.l1_frames_in_l0 == other.l1_frames_in_l0 and \
+            self.incomplete_l1_frame == other.incomplete_l1_frame and \
+            self.partial_l1_frame == other.partial_l1_frame and \
+            self.browse_ref_id == other.browse_ref_id and \
+            self.browse_image_filename == other.browse_image_filename and \
+            self.tai_utc_diff == other.tai_utc_diff and \
+            self.sensor_swath == other.sensor_swath and \
+            self.sensor_mode == other.sensor_mode and \
+            self.footprint_polygon == other.footprint_polygon and \
+            self.center_points == other.center_points
 
     def get_product_type(self):
         return self._product_type.type
@@ -570,9 +638,12 @@ class MainProductHeader:
                 acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
                 # TODO ={'uom': 'ms'}
                 acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
+
+                # TODO: Only CHECK these, not overwrite!
                 acq._polarisation_mode = acquisition.findtext(sar + 'polarisationMode') or acq._polarisation_mode
                 acq._polaristation_channels = acquisition.findtext(sar + 'polarisationChannels') or acq._polaristation_channels
                 acq._antenna_direction = acquisition.findtext(sar + 'antennaLookDirection') or acq._antenna_direction
+
                 acq.mission_phase = acquisition.findtext(bio + 'missionPhase') or acq.mission_phase
                 acq.instrument_config_id = _to_int(acquisition.findtext(bio + 'instrumentConfID')) or acq.instrument_config_id
                 acq.data_take_id = _to_int(acquisition.findtext(bio + 'dataTakeID')) or acq.data_take_id
@@ -699,13 +770,13 @@ class MainProductHeader:
         self.nr_l0_lines = earth_observation_meta_data.findtext(bio + 'numOfLines')
         self.nr_l0_lines_missing = earth_observation_meta_data.findtext(bio + 'numOfMissingLines')
         self.nr_l0_lines_corrupt = earth_observation_meta_data.findtext(bio + 'numOfCorruptedLines')
-        self.incomplete_l0_slice = earth_observation_meta_data.findtext(bio + 'incompleteSlice')
-        self.partial_l0_slice = earth_observation_meta_data.findtext(bio + 'partialSlice')
+        self.incomplete_l0_slice = _to_bool(earth_observation_meta_data.findtext(bio + 'incompleteSlice'))
+        self.partial_l0_slice = _to_bool(earth_observation_meta_data.findtext(bio + 'partialSlice'))
         self.l1_frames_in_l0 = earth_observation_meta_data.findtext(bio + 'framesList')
 
         # Level 1
-        self.incomplete_l1_frame = earth_observation_meta_data.findtext(bio + 'incompleteFrame')
-        self.partial_l1_frame = earth_observation_meta_data.findtext(bio + 'partialFrame')
+        self.incomplete_l1_frame = _to_bool(earth_observation_meta_data.findtext(bio + 'incompleteFrame'))
+        self.partial_l1_frame = _to_bool(earth_observation_meta_data.findtext(bio + 'partialFrame'))
 
         self.reference_documents.clear()
         for doc in earth_observation_meta_data.findall(bio + 'refDoc'):
