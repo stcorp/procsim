@@ -233,6 +233,7 @@ class MainProductHeader:
             self.product_status == other.product_status and \
             self.processing_centre_code == other.processing_centre_code and \
             self._processing_level == other._processing_level and \
+            self.products == other.products and \
             self.auxiliary_ds_file_names == other.auxiliary_ds_file_names and \
             self.biomass_source_product_ids == other.biomass_source_product_ids and \
             self.reference_documents == other.reference_documents and \
