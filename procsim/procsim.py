@@ -225,14 +225,57 @@ versiontext = "procsim v" + VERSION + \
     ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
 
 helptext = versiontext + """\
-Usage: procsim [-t TASK_FILENAME] [-j JOBORDER_FILE] [-s SCENARIO_NAME] CONFIG_FILE
-  or:  procsim -h
-  or:  procsim -v
+Usage:
+    procsim [-t TASK_FILENAME] [-j JOBORDER_FILE] [-s SCENARIO_NAME] CONFIG_FILE
+        Simulate a scenario from CONFIG_FILE. The scenario is selected using
+        TASK_FILENAME (the name of the task as called by the CPF), or
+        specified explicitly by SCENARIO_NAME.
 
-    Simulate a scenario from CONFIG_FILE. The scenario is selected using
-    TASK_FILENAME (the name of the task as called by the CPF)
-    or specified explicitly by SCENARIO_NAME.
+    procsim -v
+        Shows version number.
+
+    procsim -h [mission product]
+        Shows generic help, or options for a specific product.
 """
+
+
+def full_help(args):
+    prod = None
+    if len(args) == 0:
+        print(helptext)
+        print('procsim has support for the following missions:')
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__']]
+    elif len(args) != 2:
+        print(helptext)
+        return
+    else:
+        plugins = [str(args[0])]
+        prod = args[1]
+
+    for plugin in plugins:
+        plugin = os.path.basename(plugin)
+        try:
+            mod = importlib.import_module(plugin)
+        except ImportError:
+            continue  # Not a Python package
+        try:
+            lister = getattr(mod, 'list_supported_products')
+            factory = getattr(mod, 'product_generator_factory')
+        except AttributeError:
+            continue  # Not a procsim plugin
+        product_list = lister()
+        if prod is None or prod not in product_list:
+            print()
+            print('- {}, supporting the following products:'.format(plugin))
+            for prod in product_list:
+                print('    - {} {}'.format(prod))
+        else:
+            config = {'output_path': '.', 'type': prod, 'anx': ''}
+            gen = factory(None, None, config, config)
+            print('Specific metadata parameters for product {}:'.format(prod))
+            for param, ptype in gen.list_scenario_metadata_parameters():
+                print('   - {} ({})'.format(param, ptype))
 
 
 def parse_command_line(argv):
@@ -247,7 +290,7 @@ def parse_command_line(argv):
         sys.exit()
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            print(helptext)
+            full_help(args)
             sys.exit()
         elif opt in ('-v', '--version'):
             print(versiontext)
