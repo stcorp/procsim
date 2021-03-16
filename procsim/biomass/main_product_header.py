@@ -484,7 +484,8 @@ class MainProductHeader:
             self._insert_file_name(product_information, prod['file_name'])
             if 'size' in prod:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-                et.SubElement(product_information, bio + 'rds').text = prod['representation']
+                if prod['representation'] is not None:    # Mandatory for if type is XML
+                    et.SubElement(product_information, bio + 'rds').text = prod['representation']
             else:
                 et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self.product_baseline)
 
