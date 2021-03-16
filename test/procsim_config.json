@@ -36,12 +36,12 @@
       // Mandatory, as we have no JobOrder nor input files. These settings are
       // common for all outputs, but can be overridden in each output section.
       "output_path": "data/raw_sm",
-      "baseline": "1",
-      "validity_start": "2021-02-01 00:00:00.000Z",
-      "validity_stop": "2021-02-01 01:38:10.000Z",
+      "baseline": 1,
+      "validity_start": "2021-02-01T00:00:00.000Z",
+      "validity_stop": "2021-02-01T01:38:10.000Z",
 
       // Some metadata for level 0 product (can be omitted, then defaults are used)
-      "acquisition_date": "2021-02-01 01:38:10.000Z",
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
       "num_isp_erroneous": 0,
@@ -63,27 +63,27 @@
         },
         // 'Data take' #1
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_025_10",
           "size": 20
         },
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_026_10",
           "size": 20
         },
         // 'Data take' #2 and #3
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_025_10",
           "size": 20
         },
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_026_10",
           "size": 20
         }
@@ -113,9 +113,9 @@
       "nr_progress_log_messages": 4,
 
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
       // "keep_zip": true,  // For diagnostics only
       "outputs": [
@@ -173,9 +173,9 @@
 
       // Copied from the previous step!
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
 
       // Data take info. Times copied from raw product generator, but the second
@@ -185,22 +185,22 @@
           "data_take_id": 1,
           "swath": "S1",
           "operational_mode": "SM",
-          "start": "2021-02-01 00:24:32.000Z",
-          "stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
         },
         {
           "data_take_id": 2,
           "swath": "S1",
           "operational_mode": "SM",
-          "start": "2021-02-01 00:34:32.000Z",
-          "stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
         },
         {
           "data_take_id": 3,
           "swath": "S2",
           "operational_mode": "SM",
-          "start": "2021-02-01 00:35:32.000Z",
-          "stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
         }
       ],
 
@@ -318,9 +318,9 @@
       // Common for all outputs
       "output_path": "data/raw_ro",
       "baseline": "1",
-      "validity_start": "2021-02-01 00:00:00.000Z",
-      "validity_stop": "2021-02-01 01:38:10.000Z",
-      "acquisition_date": "2021-02-01 01:38:10.000Z",
+      "validity_start": "2021-02-01T00:00:00.000Z",
+      "validity_stop": "2021-02-01T01:38:10.000Z",
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
       "num_isp_erroneous": 0,
@@ -342,27 +342,27 @@
         },
         // Data take #1
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_027_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_028_10",
           "size": 0
         },
         // Data take #2 and #3
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_027_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_028_10",
           "size": 0
         }
@@ -394,9 +394,9 @@
       "nr_progress_log_messages": 4,
 
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
       "outputs": [
         {
@@ -455,9 +455,9 @@
 
       // Copied from the previous step!
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
 
       // Data take info. Times copied from raw product generator, but the second
@@ -467,22 +467,22 @@
           "data_take_id": 10,
           "swath": "RO",
           "operational_mode": "RO",
-          "start": "2021-02-01 00:24:32.000Z",
-          "stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
         },
         {
           "data_take_id": 11,
           "swath": "RO",
           "operational_mode": "RO",
-          "start": "2021-02-01 00:34:32.000Z",
-          "stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
         },
         {
           "data_take_id": 12,
           "operational_mode": "RO",
           "swath": "RO",
-          "start": "2021-02-01 00:35:32.000Z",
-          "stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
         }
       ],
 
@@ -573,9 +573,9 @@
       // Common for all outputs
       "output_path": "data/raw_ec",
       "baseline": "1",
-      "validity_start": "2021-02-01 00:00:00.000Z",
-      "validity_stop": "2021-02-01 01:38:10.000Z",
-      "acquisition_date": "2021-02-01 01:38:10.000Z",
+      "validity_start": "2021-02-01T00:00:00.000Z",
+      "validity_stop": "2021-02-01T01:38:10.000Z",
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
       "num_isp_erroneous": 0,
@@ -597,27 +597,27 @@
         },
         // Data take #1
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_035_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01 00:24:32.000Z",
-          "validity_stop": "2021-02-01 00:29:32.000Z",
+          "validity_start": "2021-02-01T00:24:32.000Z",
+          "validity_stop": "2021-02-01T00:29:32.000Z",
           "type": "RAW_036_10",
           "size": 0
         },
         // Data take #2 and #3
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_035_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01 00:34:32.000Z",
-          "validity_stop": "2021-02-01 00:39:32.000Z",
+          "validity_start": "2021-02-01T00:34:32.000Z",
+          "validity_stop": "2021-02-01T00:39:32.000Z",
           "type": "RAW_036_10",
           "size": 0
         }
@@ -639,9 +639,9 @@
 
       "nr_progress_log_messages": 4,
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
       "outputs": [
         {
@@ -696,9 +696,9 @@
 
       // Copied from the previous step!
       "anx": [
-        "2021-01-31 22:47:21.765Z",
-        "2021-02-01 00:25:33.745Z", // 1 second too late
-        "2021-02-01 02:03:43.725Z"  // 1 second too early
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
 
       // Data take info. Times copied from raw product generator, but the second
@@ -708,22 +708,22 @@
           "data_take_id": 10,
           "swath": "EC",
           "operational_mode": "EC",
-          "start": "2021-02-01 00:24:32.000Z",
-          "stop": "2021-02-01 00:29:32.000Z"
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
         },
         {
           "data_take_id": 11,
           "swath": "EC",
           "operational_mode": "EC",
-          "start": "2021-02-01 00:34:32.000Z",
-          "stop": "2021-02-01 00:35:32.000Z"
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
         },
         {
           "data_take_id": 12,
           "swath": "EC",
           "operational_mode": "EC",
-          "start": "2021-02-01 00:35:32.000Z",
-          "stop": "2021-02-01 00:39:32.000Z"
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
         }
       ],
 

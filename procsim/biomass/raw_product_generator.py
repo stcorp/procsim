@@ -12,13 +12,6 @@ from typing import List
 
 from biomass import constants, product_generator, product_name
 
-ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
-
-def _time_from_iso(timestr):
-    timestr = timestr[:-1]  # strip 'Z'
-    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
-
 
 class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
 
@@ -101,7 +94,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
         anx_list = output_config.get('anx') or scenario_config.get('anx')
         if anx_list is None:
             raise Exception('ANX must be configured for RAWSxxx_10 product')
-        self.anx_list = [_time_from_iso(anx) for anx in anx_list]
+        self.anx_list = [self._time_from_iso(anx) for anx in anx_list]
         self.anx_list.sort()
         self.enable_slicing = output_config.get('enable_slicing', True)
 

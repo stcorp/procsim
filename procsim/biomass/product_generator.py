@@ -20,7 +20,7 @@ class ProductGeneratorBase(IProductGenerator):
     for creating Biomass products.
     This base class handles parsing input products to retrieve metadata.
     '''
-    ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+    ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
     HDR_PARAMS = [
         # All but sliced products
         ('validity_start', '_validity_start'),
@@ -80,6 +80,9 @@ class ProductGeneratorBase(IProductGenerator):
     def _time_from_iso_or_none(self, timestr):
         if timestr is None:
             return None
+        return self._time_from_iso(timestr)
+
+    def _time_from_iso(self, timestr):
         timestr = timestr[:-1]  # strip 'Z'
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 

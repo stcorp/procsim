@@ -16,13 +16,6 @@ from job_order import JobOrderInput
 from biomass import (constants, main_product_header, product_generator,
                      product_name)
 
-ISO_TIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
-
-def _time_from_iso(timestr):
-    timestr = timestr[:-1]  # strip 'Z'
-    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
-
 
 class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     '''
@@ -48,7 +41,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         anx_list = output_config.get('anx') or scenario_config.get('anx')
         if anx_list is None:
             raise Exception('ANX must be configured for {} product'.format(self._output_type))
-        self.anx_list = [_time_from_iso(anx) for anx in anx_list]
+        self.anx_list = [self._time_from_iso(anx) for anx in anx_list]
         self.anx_list.sort()
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
@@ -192,8 +185,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             if dt_start_str is None or dt_stop_str is None:
                 self._logger.error('data_take in config should contain start/stop elements')
                 return
-            dt_start = _time_from_iso(dt_start_str)
-            dt_stop = _time_from_iso(dt_stop_str)
+            dt_start = self._time_from_iso(dt_start_str)
+            dt_stop = self._time_from_iso(dt_stop_str)
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
                 end = min(self.hdr._validity_stop, dt_stop)
                 self._generate_product(start, end, dt)
