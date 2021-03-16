@@ -22,6 +22,8 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
     HDR_PARAMS = [
+        # All
+        ('baseline', '_product_baseline', 'int'),
         # All but sliced products
         ('validity_start', '_validity_start', 'date'),
         ('validity_stop', '_validity_stop', 'date'),
@@ -53,7 +55,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._scenario_config = scenario_config
         self._output_config = output_config
         self._output_path = scenario_config.get('output_path') or output_config.get('output_path') or job_config.dir
-        self._baseline_id = int(scenario_config.get('baseline') or output_config.get('baseline') or job_config.baseline)
+        self._job_config_baseline = None if job_config is None else job_config.baseline
         self._logger = logger
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
@@ -143,6 +145,10 @@ class ProductGeneratorBase(IProductGenerator):
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
                     mph_is_parsed = True
+
+        # The baseline ID is not copied from any source, but read from job order
+        # (if available) or set in scenario config.
+        self.hdr._product_baseline = self._job_config_baseline
 
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))

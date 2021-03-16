@@ -19,7 +19,8 @@ def get_l1_test_mph():
     mph._eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
     mph._begin_position = mph._validity_start = datetime.datetime(2023, 1, 1, 12, 0)
     mph._time_position = mph._end_position = mph._validity_stop = datetime.datetime(2023, 1, 1, 12, 0, 21)
-    mph.set_product_type('S2_SCS__1S', 1)
+    mph.set_product_type('S2_SCS__1S')
+    mph._product_baseline = 1
     mph.product_status = 'ARCHIVED'
     mph.doi = 'DOI'
     mph.acquisition_type = 'NOMINAL'

@@ -64,12 +64,12 @@ class RAW_xxx_10(RawProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.downlink_time = self.hdr._acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(self._output_type)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_phenomenon_times(start, stop)
 
@@ -113,12 +113,12 @@ class RAWSxxx_10(RawProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = tstart
         name_gen.stop_time = tstop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.downlink_time = self.hdr._acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(self._output_type)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(tstart, tstop)
         self.hdr.set_slice_nr(slice_nr)

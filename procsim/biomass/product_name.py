@@ -34,7 +34,7 @@ class ProductName:
         # Common
         self.start_time: Optional[datetime.datetime]
         self.stop_time: Optional[datetime.datetime]
-        self.baseline_identifier: int
+        self.baseline_identifier: Optional[int]
         self._file_type = None
         self._level = None
         self._compact_create_date = None

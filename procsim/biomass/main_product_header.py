@@ -268,7 +268,7 @@ class MainProductHeader:
             raise Exception('Times were not set')
         return self._begin_position, self._end_position
 
-    def set_product_type(self, type: str, baseline: int):
+    def set_product_type(self, type: str):
         '''
         Type must be one of the predefined BIOMASS types
         '''
@@ -276,7 +276,6 @@ class MainProductHeader:
         if product_type is not None:
             self._product_type = product_type
             self._processing_level = 'other: {}'.format(product_type.level.upper())
-            self._product_baseline = baseline
         else:
             raise Exception('Unknown product type {}'.format(type))
 

@@ -125,7 +125,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         self._logger.debug('Datatake {} from {} to {}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
 
         # Setup MPH fields
-        self.hdr.set_product_type(type, self._baseline_id)
+        self.hdr.set_product_type(type)
         self.hdr.set_validity_times(start, stop)
         self.hdr.incomplete_l0_slice = self._is_incomplete_slice(start, stop)
         self.hdr.partial_l0_slice = False  # TODO!
@@ -137,7 +137,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         name_gen.file_type = type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
@@ -253,7 +253,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         name_gen.file_type = type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
@@ -264,7 +264,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         dir_name = name_gen.generate_path_name()
 
-        self.hdr.set_product_type(type, self._baseline_id)
+        self.hdr.set_product_type(type)
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(start, stop)
 
@@ -325,7 +325,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         stop = self.hdr._validity_stop + self._trailing_margin
 
         # Setup MPH
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(self._output_type)
         self.hdr.set_validity_times(start, stop)
         self.hdr.incomplete_l0_slice = False
         self.hdr.partial_l0_slice = False
@@ -336,7 +336,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
@@ -372,7 +372,7 @@ class Aux(product_generator.ProductGeneratorBase):
         self._create_date, _ = self.hdr.get_phenomenon_times()   # HACK: fill in current date?
 
         # Setup MPH
-        self.hdr.set_product_type(self._output_type, self._baseline_id)
+        self.hdr.set_product_type(self._output_type)
 
         # TODO: What other MPH fields should be set for AUX?
 
@@ -382,7 +382,7 @@ class Aux(product_generator.ProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = self.hdr._validity_start
         name_gen.stop_time = self.hdr._validity_stop
-        name_gen.baseline_identifier = self._baseline_id
+        name_gen.baseline_identifier = self.hdr._product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
