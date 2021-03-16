@@ -116,10 +116,10 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         if data_take_config.get('data_take_id') is None:
             raise Exception('data_take_id is mandatory in data_take section')
 
-        for param, hdr_field in self.HDR_PARAMS:
-            self._read_config_param(data_take_config, param, self.hdr, hdr_field)
-        for param, acq_field in self.ACQ_PARAMS:
-            self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field)
+        for param, hdr_field, ptype in self.HDR_PARAMS:
+            self._read_config_param(data_take_config, param, self.hdr, hdr_field, ptype)
+        for param, acq_field, ptype in self.ACQ_PARAMS:
+            self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field, ptype)
 
         type = self._resolve_wildcard_product_type()
         self._logger.debug('Datatake {} from {} to {}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))

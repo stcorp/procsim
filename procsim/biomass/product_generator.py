@@ -23,30 +23,30 @@ class ProductGeneratorBase(IProductGenerator):
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
     HDR_PARAMS = [
         # All but sliced products
-        ('validity_start', '_validity_start'),
-        ('validity_stop', '_validity_stop'),
+        ('validity_start', '_validity_start', 'date'),
+        ('validity_stop', '_validity_stop', 'date'),
         # Raw only
-        ('acquisition_date', '_acquisition_date'),
-        ('acquisition_station', '_acquisition_station'),
-        ('num_isp', '_nr_instrument_source_packets'),
-        ('num_isp_erroneous', '_nr_instrument_source_packets_erroneous'),
-        ('num_isp_corrupt', '_nr_instrument_source_packets_corrupt'),
+        ('acquisition_date', '_acquisition_date', 'date'),
+        ('acquisition_station', '_acquisition_station', 'str'),
+        ('num_isp', '_nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', '_nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', '_nr_instrument_source_packets_corrupt', 'int'),
         # Level 0 only
-        ('num_l0_lines', 'nr_l0_lines'),
-        ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt'),
-        ('num_l0_lines_missing', 'nr_l0_lines_missing'),
-        ('swath', 'sensor_swath'),
-        ('operational_mode', 'sensor_mode'),
+        ('num_l0_lines', 'nr_l0_lines', 'str'),
+        ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
+        ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
+        ('swath', 'sensor_swath', 'str'),
+        ('operational_mode', 'sensor_mode', 'str'),
     ]
     ACQ_PARAMS = [
         # Level 0 only
-        ('mission_phase', 'mission_phase'),
-        ('data_take_id', 'data_take_id'),
-        ('global_coverage_id', 'global_coverage_id'),
-        ('major_cycle_id', 'major_cycle_id'),
-        ('repeat_cycle_id', 'repeat_cycle_id'),
-        ('track_nr', 'track_nr'),
-        ('slice_frame_nr', 'slice_frame_nr')
+        ('mission_phase', 'mission_phase', 'str'),
+        ('data_take_id', 'data_take_id', 'int'),
+        ('global_coverage_id', 'global_coverage_id', 'str'),
+        ('major_cycle_id', 'major_cycle_id', 'str'),
+        ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
+        ('track_nr', 'track_nr', int),
+        ('slice_frame_nr', 'slice_frame_nr', int)
     ]
 
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
@@ -148,16 +148,19 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
         return mph_is_parsed
 
-    def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str):
+    def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
         If param_name is in config, read and set in obj.hdr_field.
         '''
-        if config.get(param_name) is None:
+        val = config.get(param_name)
+        if val is None:
             return
-        if ('date' in param_name) or ('validity' in param_name):
-            val = self._time_from_iso_or_none(config.get(param_name))
+        if ptype == 'date':
+            val = self._time_from_iso_or_none(val)
+        elif ptype == 'int':
+            val = int(val)
         else:
-            val = config.get(param_name)
+            pass    # type is string
         self._logger.debug('Set header field {} to {}'.format(param_name, val))
         setattr(obj, hdr_field, val)
 
@@ -167,13 +170,13 @@ class ProductGeneratorBase(IProductGenerator):
     def read_scenario_metadata_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
-        TODO: Also get params from root level
+        TODO: Also get params from root level?
         '''
         for config in self._scenario_config, self._output_config:
-            for param, hdr_field in self.HDR_PARAMS:
-                self._read_config_param(config, param, self.hdr, hdr_field)
-            for param, acq_field in self.ACQ_PARAMS:
-                self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field)
+            for param, hdr_field, type in self.HDR_PARAMS:
+                self._read_config_param(config, param, self.hdr, hdr_field, type)
+            for param, acq_field, type in self.ACQ_PARAMS:
+                self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field, type)
 
     def generate_output(self):
         '''
