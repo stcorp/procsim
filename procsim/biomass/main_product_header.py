@@ -395,7 +395,13 @@ class MainProductHeader:
             linear_ring = et.SubElement(exterior, gml + 'LinearRing')
             pos_list = et.SubElement(linear_ring, gml + 'posList')  # Footprint points
             pos_list.text = self.footprint_polygon
-            center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
+
+            #
+            # TODO! This is a discrepancy between spec and example!!
+            #
+            # center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
+            center_of = et.SubElement(footprint, eop + 'centerOf')  # Acquisition centre representation structure
+
             point = et.SubElement(center_of, gml + 'Point')
             point.set(gml + 'id', self._eop_identifier + '_9')
             pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
