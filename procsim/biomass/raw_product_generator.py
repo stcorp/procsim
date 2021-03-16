@@ -55,21 +55,21 @@ class RAW_xxx_10(RawProductGeneratorBase):
         # Base class is doing part of the setup
         super(RAW_xxx_10, self).generate_output()
 
-        self._create_date = self.hdr._validity_start   # HACK: fill in current date?
-        start = self.hdr._validity_start
-        stop = self.hdr._validity_stop
+        create_date = self.hdr.validity_start   # HACK: fill in current date?
+        start = self.hdr.validity_start
+        stop = self.hdr.validity_stop
 
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self.hdr._product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.downlink_time = self.hdr._acquisition_date
+        name_gen.baseline_identifier = self.hdr.product_baseline
+        name_gen.set_creation_date(create_date)
+        name_gen.downlink_time = self.hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.set_product_type(self._output_type)
+        self.hdr.product_type = self._output_type
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_phenomenon_times(start, stop)
 
@@ -101,11 +101,11 @@ class RAWSxxx_10(RawProductGeneratorBase):
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        self._create_date = self.hdr._validity_start   # HACK: fill in current date?
+        self._create_date = self.hdr.validity_start   # HACK: fill in current date?
         if self.enable_slicing:
             self._generate_sliced_output()
         else:
-            self._create_product(self.hdr._validity_start, self.hdr._validity_stop, None)
+            self._create_product(self.hdr.validity_start, self.hdr.validity_stop, None)
 
     def _create_product(self, tstart, tstop, slice_nr):
         # Construct product name and set metadata fields
@@ -113,15 +113,14 @@ class RAWSxxx_10(RawProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = tstart
         name_gen.stop_time = tstop
-        name_gen.baseline_identifier = self.hdr._product_baseline
+        name_gen.baseline_identifier = self.hdr.product_baseline
         name_gen.set_creation_date(self._create_date)
-        name_gen.downlink_time = self.hdr._acquisition_date
+        name_gen.downlink_time = self.hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.set_product_type(self._output_type)
+        self.hdr.product_type = self._output_type
         self.hdr.set_product_filename(dir_name)
         self.hdr.set_validity_times(tstart, tstop)
-        self.hdr.set_slice_nr(slice_nr)
 
         self._create_raw_product(dir_name, name_gen)
 
@@ -131,7 +130,11 @@ class RAWSxxx_10(RawProductGeneratorBase):
         return self.anx_list[min(max(idx, 0), len(self.anx_list) - 1)]
 
     def _generate_sliced_output(self):
-        acq_start, acq_end = self.hdr.get_phenomenon_times()
+        acq_start = self.hdr.begin_position
+        acq_end = self.hdr.end_position
+        if acq_start is None or acq_end is None:
+            self._logger.error('Phenomenon begin/end must be known')
+            return
         slice_start = acq_start
         end_overlapped = acq_start
         anx = self._get_anx(slice_start)

@@ -23,16 +23,16 @@ class ProductGeneratorBase(IProductGenerator):
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
     HDR_PARAMS = [
         # All
-        ('baseline', '_product_baseline', 'int'),
+        ('baseline', 'product_baseline', 'int'),
         # All but sliced products
-        ('validity_start', '_validity_start', 'date'),
-        ('validity_stop', '_validity_stop', 'date'),
+        ('validity_start', 'validity_start', 'date'),
+        ('validity_stop', 'validity_stop', 'date'),
         # Raw only
-        ('acquisition_date', '_acquisition_date', 'date'),
-        ('acquisition_station', '_acquisition_station', 'str'),
-        ('num_isp', '_nr_instrument_source_packets', 'int'),
-        ('num_isp_erroneous', '_nr_instrument_source_packets_erroneous', 'int'),
-        ('num_isp_corrupt', '_nr_instrument_source_packets_corrupt', 'int'),
+        ('acquisition_date', 'acquisition_date', 'date'),
+        ('acquisition_station', 'acquisition_station', 'str'),
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
         # Level 0 only
         ('num_l0_lines', 'nr_l0_lines', 'str'),
         ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
@@ -148,7 +148,7 @@ class ProductGeneratorBase(IProductGenerator):
 
         # The baseline ID is not copied from any source, but read from job order
         # (if available) or set in scenario config.
-        self.hdr._product_baseline = self._job_config_baseline
+        self.hdr.product_baseline = self._job_config_baseline
 
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
@@ -166,8 +166,12 @@ class ProductGeneratorBase(IProductGenerator):
         elif ptype == 'int':
             val = int(val)
         else:
-            pass    # type is string
-        self._logger.debug('Set header field {} to {}'.format(param_name, val))
+            pass
+        if not hasattr(obj, hdr_field):
+            raise Exception('Error: attribute {} not present in {}'.format(hdr_field, obj))
+        is_none = getattr(obj, hdr_field) is None
+        self._logger.debug('{} header field {} to {}'.format(
+            'Set' if is_none else 'Overwrite', param_name, val))
         setattr(obj, hdr_field, val)
 
     def list_scenario_metadata_parameters(self):
@@ -176,7 +180,6 @@ class ProductGeneratorBase(IProductGenerator):
     def read_scenario_metadata_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
-        TODO: Also get params from root level?
         '''
         for config in self._scenario_config, self._output_config:
             for param, hdr_field, type in self.HDR_PARAMS:
@@ -186,7 +189,7 @@ class ProductGeneratorBase(IProductGenerator):
 
     def generate_output(self):
         '''
-        Setup mandatory metadata
+        Setup some mandatory metadata
         '''
         self.hdr.set_processing_parameters(
             self._scenario_config['processor_name'],
