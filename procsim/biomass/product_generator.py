@@ -47,8 +47,8 @@ class ProductGeneratorBase(IProductGenerator):
         ('global_coverage_id', 'global_coverage_id', 'str'),
         ('major_cycle_id', 'major_cycle_id', 'str'),
         ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
-        ('track_nr', 'track_nr', int),
-        ('slice_frame_nr', 'slice_frame_nr', int)
+        ('track_nr', 'track_nr', 'int'),
+        ('slice_frame_nr', 'slice_frame_nr', 'int')
     ]
 
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
@@ -175,7 +175,7 @@ class ProductGeneratorBase(IProductGenerator):
         setattr(obj, hdr_field, val)
 
     def list_scenario_metadata_parameters(self):
-        return [param for param, _ in self.HDR_PARAMS + self.ACQ_PARAMS]
+        return [(param, ptype) for param, _, ptype in self.HDR_PARAMS + self.ACQ_PARAMS]
 
     def read_scenario_metadata_parameters(self):
         '''
