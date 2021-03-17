@@ -20,6 +20,8 @@ from logger import Logger
 from work_simulator import WorkSimulator
 
 VERSION = "1.0"
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order.xsd')
 
 
 def signal_term_handler(signal, frame):
@@ -362,8 +364,7 @@ def main(argv):
         if config is None:
             sys.exit(1)
 
-        job_schema = config.get('job_order_schema')
-        job = JobOrderParser(logger, job_filename, job_schema)
+        job = JobOrderParser(logger, job_filename, JOB_ORDER_SCHEMA)
 
         logger = Logger(
             job.node,
@@ -383,8 +384,10 @@ def main(argv):
         logger.info('Simulate scenario {}'.format(scenario['name']))
         if job_filename:
             logger.info('Read JobOrder {}'.format(job_filename))
-            if job_schema is not None and job._is_validated:
-                logger.debug('JobOrder validation against schema: OK')
+            if job._is_validated:
+                logger.debug('JobOrder validation against schema {}: OK'.format(
+                    os.path.basename(JOB_ORDER_SCHEMA)
+                ))
             logger.info('Read task {} from the JobOrder'.format(job_task.name))
         _log_processor_parameters(job_task.processing_parameters, logger)
         _log_inputs(job_task.inputs, logger)

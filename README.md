@@ -57,7 +57,6 @@ The configuration file is structured as following:
 ```
 {
   "mission": "biomass",
-  "job_order_schema": "/home/jenkins/procsim/joborder.xsd",
 
   "scenarios": [
       // Array with scenarios
@@ -68,8 +67,6 @@ A JSON editor with syntax checking and coloring, such as Visual Studio Code, is 
 The parameters are described below.
 
 - `mission` : string, mandatory. Must match the name of plugin, in this case biomass.
-
-- `job_order_schema` : string, optional. Should point to the XML schema used to validate the JobOrder.
 
 - `scenarios` : array of objects, mandatory. This section contains one or more scenarios.
 
