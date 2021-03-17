@@ -24,8 +24,14 @@ def list_supported_products():
     return list
 
 
+class ConfigException(Exception):
+    pass
+
+
 def product_generator_factory(logger, job_config, scenario_config, output_config) -> Optional[IProductGenerator]:
-    product_type = output_config['type']
+    product_type = output_config.get('type')
+    if product_type is None:
+        raise ConfigException('Output product type must be specified')
     for gen in _GENERATORS:
         if product_type in gen.PRODUCTS:
             return gen(logger, job_config, scenario_config, output_config)
