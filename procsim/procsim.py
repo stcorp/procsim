@@ -13,20 +13,13 @@ import signal
 import sys
 from typing import List, Optional
 
+from exceptions import TerminateError, ScenarioError
 import utils
 from job_order import JobOrderInput, JobOrderParser, JobOrderTask
 from logger import Logger
 from work_simulator import WorkSimulator
 
 VERSION = "1.0"
-
-
-class TerminateError(Exception):
-    pass
-
-
-class ScenarioError(Exception):
-    pass
 
 
 def signal_term_handler(signal, frame):
