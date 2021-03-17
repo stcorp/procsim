@@ -9,19 +9,32 @@ import getopt
 import importlib
 import json
 import os
+import signal
 import sys
 from typing import List, Optional
 
 import utils
+from job_order import JobOrderInput, JobOrderParser, JobOrderTask
 from logger import Logger
 from work_simulator import WorkSimulator
-from job_order import JobOrderParser, JobOrderInput, JobOrderTask
 
 VERSION = "1.0"
 
 
+class TerminateError(Exception):
+    pass
+
+
 class ScenarioError(Exception):
     pass
+
+
+def signal_term_handler(signal, frame):
+    raise TerminateError('Program terminated (SIGTERM)')
+
+
+def signal_int_handler(signal, frame):
+    raise TerminateError('Program interrupted (SIGINT)')
 
 
 class IProductGenerator(abc.ABC):
@@ -310,64 +323,77 @@ def parse_command_line(argv):
 
 def main(argv):
     task_filename, job_filename, config_filename, scenario_name = parse_command_line(argv)
-
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
+    try:
+        # Program terminate/interrupt, will raise an exception which in turn will
+        # result in a log message.
+        signal.signal(signal.SIGTERM, signal_term_handler)
+        signal.signal(signal.SIGINT, signal_int_handler)
 
-    config = _read_config(logger, config_filename)
-    if config is None:
-        sys.exit(1)
-
-    job_schema = config.get('job_order_schema')
-    job = JobOrderParser(logger, job_filename, job_schema)
-
-    logger = Logger(
-        job.node,
-        job.processor_name,
-        job.processor_version,
-        job.stdout_levels,
-        job.stderr_levels
-    )
-
-    scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
-    if scenario is None:
-        sys.exit(1)
-
-    logger.set_task_name(job_task.name)    # This info was not available yet
-
-    logger.info('Simulate scenario {}'.format(scenario['name']))
-    if job_filename:
-        logger.info('Read JobOrder {}'.format(job_filename))
-        if job_schema is not None and job._is_validated:
-            logger.debug('JobOrder validation against schema: OK')
-        logger.info('Read task {} from the JobOrder'.format(job_task.name))
-    _log_processor_parameters(job_task.processing_parameters, logger)
-    _log_inputs(job_task.inputs, logger)
-    _log_configured_messages(scenario, logger)
-
-    # Create product generators, parse inputs
-    generators: List[IProductGenerator] = []
-    for output_cfg in scenario['outputs']:
-        # Find corresponding output parameters in JobOrder task config
-        job_output_cfg = None
-        for job_output_cfg in job_task.outputs:
-            if job_output_cfg.type == output_cfg['type']:
-                break
-
-        generator = _output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
-        if (generator is None):
+        config = _read_config(logger, config_filename)
+        if config is None:
             sys.exit(1)
-        if job_task.inputs and not generator.parse_inputs(job_task.inputs):
+
+        job_schema = config.get('job_order_schema')
+        job = JobOrderParser(logger, job_filename, job_schema)
+
+        logger = Logger(
+            job.node,
+            job.processor_name,
+            job.processor_version,
+            job.stdout_levels,
+            job.stderr_levels
+        )
+
+        scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
+        if scenario is None:
             sys.exit(1)
-        generators.append(generator)
+        exit_code = scenario['exit_code']
 
-    _do_work(logger, scenario, job_task)
+        logger.set_task_name(job_task.name)    # This info was not available yet
 
-    for gen in generators:
-        gen.read_scenario_metadata_parameters()
-        gen.generate_output()
+        logger.info('Simulate scenario {}'.format(scenario['name']))
+        if job_filename:
+            logger.info('Read JobOrder {}'.format(job_filename))
+            if job_schema is not None and job._is_validated:
+                logger.debug('JobOrder validation against schema: OK')
+            logger.info('Read task {} from the JobOrder'.format(job_task.name))
+        _log_processor_parameters(job_task.processing_parameters, logger)
+        _log_inputs(job_task.inputs, logger)
+        _log_configured_messages(scenario, logger)
 
-    exit_code = scenario['exit_code']
-    logger.info('Task done, exit with code {}'.format(exit_code))
+        # Create product generators, parse inputs
+        generators: List[IProductGenerator] = []
+        for output_cfg in scenario['outputs']:
+            # Find corresponding output parameters in JobOrder task config
+            job_output_cfg = None
+            for job_output_cfg in job_task.outputs:
+                if job_output_cfg.type == output_cfg['type']:
+                    break
+
+            generator = _output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
+            if (generator is None):
+                sys.exit(1)
+            if job_task.inputs and not generator.parse_inputs(job_task.inputs):
+                sys.exit(1)
+            generators.append(generator)
+
+        _do_work(logger, scenario, job_task)
+
+        for gen in generators:
+            gen.read_scenario_metadata_parameters()
+            gen.generate_output()
+        logger.info('Task done, exit with code {}'.format(exit_code))
+
+    except TerminateError:
+        exit_code = 1
+        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
+        logger.info('Exit with code {}'.format(exit_code))
+    except ScenarioError:
+        exit_code = 1
+        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
+        logger.info('Exit with code {}'.format(exit_code))
+
     exit(exit_code)
 
 
