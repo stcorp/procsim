@@ -279,7 +279,11 @@ def full_help(args):
         else:
             config = {'output_path': '.', 'type': prod, 'anx': ''}
             gen = factory(None, None, config, config)
-            print('Specific metadata parameters for product {}:'.format(prod))
+            print()
+            print('{} product generator details:'.format(prod))
+            print('-------------------------------------')
+            print(gen.__doc__)
+            print('Valid metadata parameters for product {} are:'.format(prod))
             for param, ptype in gen.list_scenario_metadata_parameters():
                 print('   - {} ({})'.format(param, ptype))
 

@@ -15,6 +15,10 @@ from biomass import constants, product_generator, product_name
 
 
 class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
+    '''
+    This abstract class is responsible for creating raw products and is used as
+    base class for the specific raw product generators.
+    '''
 
     def _create_raw_product(self, dir_name, name_gen):
         self._logger.debug('Output directory is {}'.format(self._output_path))
@@ -42,7 +46,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
 
 class RAW_xxx_10(RawProductGeneratorBase):
     '''
-    This class implements the ProductGeneratorBase and is responsible for
+    This class implements the RawProductGeneratorBase and is responsible for
     the raw products generation.
     '''
     PRODUCTS = ['RAW_022_10', 'RAW_023_10', 'RAW_024_10', 'RAW_025_10',
@@ -79,10 +83,11 @@ class RAW_xxx_10(RawProductGeneratorBase):
 
 class RAWSxxx_10(RawProductGeneratorBase):
     '''
-    This class implements the ProductGeneratorBase and is responsible for
+    This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    Slicing is done using a slice grid, aligned to ANX.
+    Slicing is done using a slice grid, aligned to ANX. A list "anx" with one
+    or more ANX times must be specified in the scenario.
     '''
 
     PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
