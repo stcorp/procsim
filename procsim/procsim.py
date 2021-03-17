@@ -20,6 +20,10 @@ from job_order import JobOrderParser, JobOrderInput, JobOrderTask
 VERSION = "1.0"
 
 
+class ScenarioError(Exception):
+    pass
+
+
 class IProductGenerator(abc.ABC):
     '''
     Interface for product generators
@@ -46,9 +50,8 @@ def _read_config(logger, filename):
     # TODO: Use JSON schema! Yes, that exists...
     ROOT_KEYS = ['scenarios', 'mission']
     SCENARIO_KEYS = ['name', 'file_name', 'processor_name', 'processor_version', 'task_name', 'task_version', 'outputs']
-    with open(filename) as data_file:
+    with open(filename) as f:
         try:
-            f = open(filename, 'r')
             commented_json = f.read()
             uncommented_json = utils.json_remove_comments(commented_json)
             clean_json = utils.remove_trailing_commas(uncommented_json)
@@ -62,13 +65,10 @@ def _read_config(logger, filename):
             else:
                 is_ok = False
             if not is_ok:
-                logger.error('Configuration file incomplete')
-                return None
+                raise ScenarioError('Configuration file incomplete')
             return config
         except json.JSONDecodeError as e:
-            logger.error('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
-    logger.error('Cannot read configuration file {}, exiting'.format(filename))
-    return None
+            raise ScenarioError('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
 
 
 def _output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
