@@ -50,6 +50,7 @@
       // Outputs to generate
       "outputs": [
         {
+          "enable": true,
           "type": "RAW_022_10",
           "size": 10
         },

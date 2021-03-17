@@ -201,6 +201,37 @@ def _log_inputs(inputs, logger):
             logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
 
 
+def _create_product_generators(logger: Logger, mission: str, job_task: Optional[JobOrderTask],
+                               scenario: dict) -> List[IProductGenerator]:
+    '''
+    Create product generators for all enabled outputs in the scenario
+    '''
+    generators: List[IProductGenerator] = []
+    for output_cfg in scenario['outputs']:
+        product_type = output_cfg['type']
+        is_enabled = output_cfg.get('enable')
+        if is_enabled is None or is_enabled:
+            # Find parameters for this output in JobOrder task config
+            job_output_cfg = None
+            for job_output_cfg in job_task.outputs:
+                if job_output_cfg.type == product_type:
+                    break
+            generator = _output_factory(mission, logger, job_output_cfg, scenario, output_cfg)
+            if (generator is None):
+                sys.exit(1)
+            generators.append(generator)
+        else:
+            logger.warning('Output product {} is disabled in scenario'.format(product_type))
+    return generators
+
+
+def _parse_inputs(generators, job_task):
+    for generator in generators:
+        if job_task.inputs and not generator.parse_inputs(job_task.inputs):
+            sys.exit(1)
+    return
+
+
 def _do_work(logger, config, job_task: Optional[JobOrderTask]):
     # Get paremters from scenario
     time = config.get('processing_time', 0)
@@ -359,21 +390,9 @@ def main(argv):
         _log_inputs(job_task.inputs, logger)
         _log_configured_messages(scenario, logger)
 
-        # Create product generators, parse inputs
-        generators: List[IProductGenerator] = []
-        for output_cfg in scenario['outputs']:
-            # Find corresponding output parameters in JobOrder task config
-            job_output_cfg = None
-            for job_output_cfg in job_task.outputs:
-                if job_output_cfg.type == output_cfg['type']:
-                    break
+        generators = _create_product_generators(logger, config['mission'], job_task, scenario)
 
-            generator = _output_factory(config['mission'], logger, job_output_cfg, scenario, output_cfg)
-            if (generator is None):
-                sys.exit(1)
-            if job_task.inputs and not generator.parse_inputs(job_task.inputs):
-                sys.exit(1)
-            generators.append(generator)
+        _parse_inputs(generators, job_task)
 
         _do_work(logger, scenario, job_task)
 
