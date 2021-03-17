@@ -282,7 +282,7 @@ def full_help(args):
             print()
             print('- {}, supporting the following products:'.format(plugin))
             for prod in product_list:
-                print('    - {} {}'.format(prod))
+                print('    - {}'.format(prod))
         else:
             config = {'output_path': '.', 'type': prod, 'anx': ''}
             gen = factory(None, None, config, config)
