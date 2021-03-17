@@ -12,3 +12,5 @@ data/
 .vscode/
 .env
 
+# Build artefacts
+*.tgz
