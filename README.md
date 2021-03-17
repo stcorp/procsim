@@ -13,7 +13,9 @@ Procsim does not do any 'real' processing, but reads and interprets the JobOrder
 To use procsim, you will need:
 
  - A Unix-based operating system (e.g. Linux).
+
  - Python version 3.6 or higher.
+
  - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2 package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
 Procsim is fully command-line based. The tool consists of directory 'procsim', containing the core application, and one or more subdirectories containing the mission-specific plugins. 
@@ -22,13 +24,18 @@ To install, unzip/untar the procsim installation package and copy the directory 
 
 # Usage
 For every Task to be simulated, you need:
+
  - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn execute procsim.py.
+
  - a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
 
 ## Shell script
 The PF calls the processor with only one argument, the name of the JobOrder file. The shell script, used to redirect the PF's call, should call procsim with the following arguments: 
+
   - `-t`, followed by the name of the script, as called by the PF
+
   - `-j`, followed by the name of the job order file
+
   - the name of the procsim configuration file.
  
 Example:
@@ -57,10 +64,14 @@ The configuration file is structured as following:
 }
 ```
 Note that C-style comments are allowed in the configuration file.
-The `mission` must match the name of plugin, in this case biomass. The `job_order_schema` field is optional and should point to the XML schema used to validate the JobOrder.
-The `scenarios` section contains settings for one or more scenarios. Most settings in the scenario are optional, mandatory are only the name and the output section. 
 
-An example of a scenario is given below:
+- `mission` : mandatory. Must match the name of plugin, in this case biomass.
+
+- `job_order_schema` : optional. Should point to the XML schema used to validate the JobOrder.
+
+- `scenarios` : mandatory. This section contains one or more scenarios. An example of a scenario is given below.
+
+Example scenario:
 ```
     {
       // Task #5
@@ -94,30 +105,38 @@ An example of a scenario is given below:
         }
       ],
       "exit_code": 0
-    }
+    },
 ```
-The `name` is used for logging, and can be specified on the command line to select a specific scenario.
+The parameters are described below.
 
-The file_name, processor_name/version and task_name/version fields are used to find the matching task in the JobOrder. `file_name` must match the `-t` command line parameter, the other parameters must match the corresponding fields in the JobOrder.
+- `name` : mandatory. Used for logging, and can be specified on the command line to select a specific scenario.
 
-Procsim produces many log messages, formatted and filtered according to the settings in the JobOrder. An optional list with additional log messages can be specified and will be logged.
+- `file_name` : mandatory. Must match the `-t` command line parameter.
 
-After reading the configuration and the job order, procsim will 'work' for a while, consuming memory, disk space and CPU cycles, and producing progress log messages.
-This is all defined using parameters in the scenario. These parameters are optional, the defaults are zero (no cpu-time spent, no memory/disk used, no progress log messages produced). Also, resouce usage is limited by the values in the JobOrder, if present.
+- `processor_name`, `processor_version`, `task_name` and `task_version` : mandatory. Used to find the matching task in the JobOrder and must match the corresponding fields in the JobOrder.
 
-The section 'outputs' contains one or more output products to be generated. The `type` field specifies the product type and is mandatory. Procsim contains 'product generators' for many product types. Use the command
-```
-procsim.py -h
-```
-to get a list with supported types.
+- `logging` : optional. Procsim produces many log messages, formatted and filtered according to the settings in the JobOrder. An optional list with additional log messages can be specified and will be logged.
 
-The `size` field specifies the size of the product's 'data' file(s). In case of products with multiple binary files, `size` specifies the total size, divided over the separate files.
+  - `level` : optional. Specifies the log level and can be `"debug", "info", "progress", "warning" or "error"`.
 
-The product files have correct names and correct metadata (e.g. in the Main Product Header XML file). The metadata parameters used to generate these can be specified in the scenario, or read from any input file. Think of parameters such as validity start/stop times, mission phase, et cetera. The field `metadata_source` contains a regular expression, used to specify the input product which is used to retrieve the metadata from.
+  - `message` : mandatory. The message to be logged.
 
-As said, most metadata will be copied from an input source. Some metadata is set by the output product generator, such as the product type, the processor name and the processor version (all read from the scenario), and the baseline version (read from the JobOrder). Some output product generators set other fields, such as the slice number. 
+- `processing_time`, `nr_progress_log_messages`, `nr_cpu`, `memory_usage`, `disk_usage` : optional. After reading the configuration and the job order, procsim will 'work' for a while, consuming memory, disk space and CPU cycles, and producing progress log messages. The defaults are zero (no cpu-time spent, no memory/disk used, no progress log messages produced). Also, resouce usage is limited by the values in the JobOrder, if present.
 
-Parameters can also be specified in the scenario and will then replace the values read from the `metadata_source`. These parameters can be placed in the scenario 'root' (common for all output products) or in a specific output section (specific for that output). Example:
+- `outputs` : mandatory. The section 'outputs' contains one or more output products to be generated.
+
+  - `type` : mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim.py -h` to get a list with supported product types.
+
+  - `size` : optional. Specifies the size of the product's 'data' file(s). In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set, minimal sized files are produced (a few bytes).
+
+  - `metadata_source` : optional. Regular expression, used to specify the input product which is used as a first source for the metadata in the output product. Think of parameters such as validity start/stop times, mission phase, etc., these are copied from the metadata source product.
+
+### Metadata parameters
+Most metadata will be copied from an input source. Some metadata is set by the output product generator, such as the product type, the processor name and the processor version (all read from the scenario) and the baseline version (read from the JobOrder). Some output product generators set additional fields as well, such as the 'slice number'.
+
+Metadata parameter values can be specified in the scenario. If already read from the `metadata_source`, they will be overwritten. Parameter values can be placed in the scenario 'root' (common for all output products) or in a specific output section. 
+
+Example:
 ```
       "mission_phase": "Tomographic",
       "outputs": [
@@ -129,8 +148,9 @@ Parameters can also be specified in the scenario and will then replace the value
           "operational_mode": "AC",
         },
 ```
-this scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
+This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 A list with all supported metadata parameters can be retrieved using 'procsim -h <mission> <product_type>'. Example:
 ```
 procsim.py -h biomass S1_RAW__0S
 ```
+This command also shows other product-specific scenario options.
