@@ -15,13 +15,15 @@ from typing import List, Optional
 
 from exceptions import TerminateError, ScenarioError
 import utils
-from job_order import JobOrderInput, JobOrderParser, JobOrderTask
+from job_order import JobOrderInput, JobOrderParser, JobOrderTask, job_order_parser_factory
 from logger import Logger
 from work_simulator import WorkSimulator
 
 VERSION = "1.0"
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order.xsd')
+
+# JobOrder/logging format ICD. Hard-coded for now, can be read from plugin or
+# configuration file if needed.
+PROCESSOR_ICD = 'ESA-EOPG-EEGS-ID-0083'
 
 
 def signal_term_handler(signal, frame):
@@ -364,7 +366,7 @@ def main(argv):
         if config is None:
             sys.exit(1)
 
-        job = JobOrderParser(logger, job_filename, JOB_ORDER_SCHEMA)
+        job = job_order_parser_factory(PROCESSOR_ICD, logger, job_filename)
 
         logger = Logger(
             job.node,
@@ -385,9 +387,7 @@ def main(argv):
         if job_filename:
             logger.info('Read JobOrder {}'.format(job_filename))
             if job._is_validated:
-                logger.debug('JobOrder validation against schema {}: OK'.format(
-                    os.path.basename(JOB_ORDER_SCHEMA)
-                ))
+                logger.debug('JobOrder validation against schema: OK')
             logger.info('Read task {} from the JobOrder'.format(job_task.name))
         _log_processor_parameters(job_task.processing_parameters, logger)
         _log_inputs(job_task.inputs, logger)

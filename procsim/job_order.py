@@ -10,8 +10,14 @@ from typing import List
 from xml.etree import ElementTree as et
 
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order_ESA-EOPG-EEGS-ID-0083.xsd')
+
+
 class JobOrderInput():
-    '''Data class describing input product'''
+    '''
+    Data class describing input product
+    '''
     def __init__(self):
         self.id: str
         self.alternative_input_id: str
@@ -20,7 +26,9 @@ class JobOrderInput():
 
 
 class JobOrderOutput():
-    '''Data class describing output product'''
+    '''
+    Data class describing output product
+    '''
     def __init__(self):
         self.type: str
         self.dir: str
@@ -29,7 +37,9 @@ class JobOrderOutput():
 
 
 class JobOrderTask():
-    '''Data class with task parameters'''
+    '''
+    Data class with task parameters
+    '''
     def __init__(self):
         self.name: str = ''
         self.version: str = ''
@@ -42,12 +52,14 @@ class JobOrderTask():
 
 
 class JobOrderParser:
-    '''This class is responsible for reading and parsing the JobOrder.
+    '''
+    This class is responsible for reading and parsing the JobOrder.
 
-    Note that we only log errors, since the logger is not setup yet (as it
-    needs info from the JobOrder for that).'''
+    Only errors are logged, since the logger is not setup yet (it needs info
+    from the JobOrder for that).
+    '''
 
-    def __init__(self, logger, filename, schema=None):
+    def __init__(self, logger, filename, schema):
         self._logger = logger
         self._is_validated = False
         self.processor_name = ''
@@ -57,8 +69,7 @@ class JobOrderParser:
         self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels: List[str] = []
         if filename is not None:
-            if schema is not None:
-                self._check_against_schema(filename, schema)
+            self._check_against_schema(filename, schema)
             self._parse(filename)
 
     def _check_against_schema(self, filename, schema):
@@ -90,55 +101,6 @@ class JobOrderParser:
     def _parse(self, filename):
         tree = et.parse(filename)
         root = tree.getroot()
-        if root.tag == 'Job_Order':
-            self._parse_icd_2020(root)
-        else:
-            self._parse_ipf_2009(root)
-
-    def _parse_ipf_2009(self, root: et.Element):
-        '''Parse 'old style' JobOrders. Note that this feature is only for test,
-        as many fields do not exists and/or are different in the new ICD.'''
-        self.processor_name = root.find('.//Processor_Name').text
-        self.processor_version = root.find('.//Version').text
-        # TODO: parse stdout_levels from job order
-
-        # Build list of tasks
-        for task_el in root.find('List_of_Ipf_Procs').findall('Ipf_Proc'):
-            task = JobOrderTask()
-            task.name = task_el.findtext('Task_Name', '')
-            task.version = task_el.findtext('Task_Version', '')
-
-            task.inputs = []
-            task.outputs = []
-            for input_el in task_el.find('List_of_Inputs').findall('Input'):
-                input = JobOrderInput()
-                input.id = '0'
-                input.alternative_input_id = '0'
-                input.file_type = ''
-                file_name_type_el = input_el.find('File_Name_Type')
-                for file_el in input_el.find('List_of_File_Names').findall('File_Name'):
-                    if file_name_type_el is not None and file_name_type_el.text == 'Regexp':
-                        input.file_names.extend(self._find_matching_files(file_el.text))
-                    else:
-                        input.file_names.append(file_el.text or '')
-            for output_el in task_el.find('List_of_Outputs').findall('Output'):
-                output = JobOrderOutput()
-                output.type = output_el.findtext('File_Type', '')
-                output.dir = output_el.findtext('File_Name', '')
-                output.baseline = 0  # Not available
-                output.file_name_pattern = ''  # Not available
-                task.outputs.append(output)
-            self.tasks.append(task)
-
-        # List of processing parameters. For 'old' joborders, these are common for all tasks.
-        # So, append them to every task.
-        proc_params = {}
-        for param in root.find('Processing_Parameters').findall('Processing_Parameter'):
-            proc_params[param.find('Name').text] = param.find('Value').text
-        for task in self.tasks:
-            task.processing_parameters = proc_params
-
-    def _parse_icd_2020(self, root: et.Element):
         proc = root.find('Processor_Configuration')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
@@ -187,3 +149,12 @@ class JobOrderParser:
                 task.processing_parameters[param.findtext('Name')] = param.findtext('Value')
 
             self.tasks.append(task)
+
+
+def job_order_parser_factory(icd, logger, filename):
+    '''
+    Return JobOrderParser. Currently only supports ICD ESA-EOPG-EEGS-ID-0083.
+    '''
+    if icd == 'ESA-EOPG-EEGS-ID-0083':
+        return JobOrderParser(logger, filename, JOB_ORDER_SCHEMA)
+    raise Exception('Unknown JobOrder ICD type {}'.format(icd))
