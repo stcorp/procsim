@@ -13,7 +13,7 @@ TODO:
 
 import datetime
 from logging import raiseExceptions
-from typing import Optional
+from typing import Optional, List
 from xml.etree import ElementTree as et
 
 import utils
@@ -72,7 +72,7 @@ def _time_from_iso_short(timestr: Optional[str]) -> Optional[datetime.datetime]:
 
 
 def _to_int(val: Optional[str]) -> Optional[int]:
-    return int(val) if val is not None else None
+    return None if val is None else int(val)
 
 
 def _to_bool(val: Optional[str]) -> Optional[bool]:
@@ -106,11 +106,11 @@ class Acquisition:
         # L0, L1, L2a
         self.orbit_direction: str = 'ASCENDING'      # Or DECENDING
         self.track_nr: int = 0                       # gml:CodeWithAuthorityType
-        self.mission_phase: str = 'COMMISSIONING'    # Or INTERFEROMETRIC, TOMOGRAPHIC
+        self.mission_phase: Optional[str] = None     # COMMISSIONING, INTERFEROMETRIC, TOMOGRAPHIC
         self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
         # AUT_ATT___, AUX_ORB___, L0, L1
-        self.data_take_id: int = 0
+        self.data_take_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
     def __eq__(self, other):
@@ -169,7 +169,7 @@ class MainProductHeader:
         self.product_status = 'PLANNED'     # REJECTED, etc..
         self.processing_centre_code = 'ESR'
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
-        self.biomass_source_product_ids: list[str] = []
+        self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
 
         # Raw only
@@ -355,9 +355,11 @@ class MainProductHeader:
 
         # Some parameters have no default and MUST be set prior to generation
         if self.begin_position is None or self.end_position is None or \
-                self.validity_start is None or self.validity_stop is None or \
-                self.time_position is None:
+                self.validity_start is None or self.validity_stop is None:
             raise Exception('Times must be set before creating MPH')
+
+        # If not set, use end_position (this is the default)
+        self.time_position = self.time_position or self.end_position
 
         phenomenon_time = et.SubElement(mph, om + 'phenomenonTime')
         self._insert_time_period(phenomenon_time, self.begin_position, self.end_position, 2)
