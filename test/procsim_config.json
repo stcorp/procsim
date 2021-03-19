@@ -37,8 +37,8 @@
       // common for all outputs, but can be overridden in each output section.
       "output_path": "data/raw_sm",
       "baseline": 1,
-      "validity_start": "2021-02-01T00:00:00.000Z",
-      "validity_stop": "2021-02-01T01:38:10.000Z",
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
 
       // Some metadata for level 0 product (can be omitted, then defaults are used)
       "acquisition_date": "2021-02-01T01:38:10.000Z",
@@ -64,27 +64,27 @@
         },
         // 'Data take' #1
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_025_10",
           "size": 20
         },
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_026_10",
           "size": 20
         },
         // 'Data take' #2 and #3
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_025_10",
           "size": 20
         },
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_026_10",
           "size": 20
         }
@@ -118,7 +118,8 @@
         "2021-02-01T00:25:33.745Z", // 1 second too late
         "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
-      // "keep_zip": true,  // For diagnostics only
+      "do_zip": true,   // Set false for diagnostics only
+      "keep_zip": true,  // Set true for diagnostics only
       "outputs": [
         {
           "type": "RAWS022_10",
@@ -172,13 +173,6 @@
       "num_l0_lines_corrupt": "0, 0",
       "mission_phase": "Tomographic",
 
-      // Copied from the previous step!
-      "anx": [
-        "2021-01-31T22:47:21.765Z",
-        "2021-02-01T00:25:33.745Z", // 1 second too late
-        "2021-02-01T02:03:43.725Z"  // 1 second too early
-      ],
-
       // Data take info. Times copied from raw product generator, but the second
       // 'block' is split up in two data takes.
       "data_takes": [
@@ -205,6 +199,7 @@
         }
       ],
 
+      "keep_zip": true,  // Set true for diagnostics only
       "outputs": [
         {
           "type": "Sx_RAW__0S",
@@ -319,8 +314,8 @@
       // Common for all outputs
       "output_path": "data/raw_ro",
       "baseline": "1",
-      "validity_start": "2021-02-01T00:00:00.000Z",
-      "validity_stop": "2021-02-01T01:38:10.000Z",
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
       "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
@@ -343,27 +338,27 @@
         },
         // Data take #1
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_027_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_028_10",
           "size": 0
         },
         // Data take #2 and #3
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_027_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_028_10",
           "size": 0
         }
@@ -453,13 +448,6 @@
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
       "mission_phase": "Tomographic",
-
-      // Copied from the previous step!
-      "anx": [
-        "2021-01-31T22:47:21.765Z",
-        "2021-02-01T00:25:33.745Z", // 1 second too late
-        "2021-02-01T02:03:43.725Z"  // 1 second too early
-      ],
 
       // Data take info. Times copied from raw product generator, but the second
       // 'block' is split up in two data takes.
@@ -574,8 +562,8 @@
       // Common for all outputs
       "output_path": "data/raw_ec",
       "baseline": "1",
-      "validity_start": "2021-02-01T00:00:00.000Z",
-      "validity_stop": "2021-02-01T01:38:10.000Z",
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
       "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
@@ -598,27 +586,27 @@
         },
         // Data take #1
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_035_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01T00:24:32.000Z",
-          "validity_stop": "2021-02-01T00:29:32.000Z",
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
           "type": "RAW_036_10",
           "size": 0
         },
         // Data take #2 and #3
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_035_10",
           "size": 0
         },
         {
-          "validity_start": "2021-02-01T00:34:32.000Z",
-          "validity_stop": "2021-02-01T00:39:32.000Z",
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_036_10",
           "size": 0
         }
@@ -694,13 +682,6 @@
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
       "mission_phase": "Tomographic",
-
-      // Copied from the previous step!
-      "anx": [
-        "2021-01-31T22:47:21.765Z",
-        "2021-02-01T00:25:33.745Z", // 1 second too late
-        "2021-02-01T02:03:43.725Z"  // 1 second too early
-      ],
 
       // Data take info. Times copied from raw product generator, but the second
       // 'block' is split up in two data takes.

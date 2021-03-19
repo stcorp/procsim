@@ -25,8 +25,8 @@ class ProductGeneratorBase(IProductGenerator):
         # All
         ('baseline', 'product_baseline', 'int'),
         # All but sliced products
-        ('validity_start', 'validity_start', 'date'),
-        ('validity_stop', 'validity_stop', 'date'),
+        ('begin_position', 'begin_position', 'date'),
+        ('end_position', 'end_position', 'date'),
         # Raw only
         ('acquisition_date', 'acquisition_date', 'date'),
         ('acquisition_station', 'acquisition_station', 'str'),
@@ -54,7 +54,7 @@ class ProductGeneratorBase(IProductGenerator):
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
-        self._output_path = scenario_config.get('output_path') or output_config.get('output_path') or job_config.dir
+        self._output_path = output_config.get('output_path') or scenario_config.get('output_path') or job_config.dir
         self._job_config_baseline = None if job_config is None else job_config.baseline
         self._logger = logger
         self._output_type = output_config['type']
@@ -101,6 +101,7 @@ class ProductGeneratorBase(IProductGenerator):
             amount = min(size, CHUNK_SIZE)
             file.write(os.urandom(max(amount, 0)))
             size -= amount
+        file.close()
 
     def _unzip(self, archive_name):
         # Sanity check: only raw products should be zipped
@@ -169,9 +170,12 @@ class ProductGeneratorBase(IProductGenerator):
             pass
         if not hasattr(obj, hdr_field):
             raise Exception('Error: attribute {} not present in {}'.format(hdr_field, obj))
-        is_none = getattr(obj, hdr_field) is None
-        self._logger.debug('{} header field {} to {}'.format(
-            'Set' if is_none else 'Overwrite', param_name, val))
+        old_val = getattr(obj, hdr_field)
+        self._logger.debug('{} header field {}{} to {}'.format(
+            'Set' if old_val is None else 'Overwrite',
+            param_name,
+            '' if old_val is None else ' from {}'.format(old_val),
+            val))
         setattr(obj, hdr_field, val)
 
     def list_scenario_metadata_parameters(self):

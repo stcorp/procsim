@@ -22,36 +22,43 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
 
-    Input is a set of (partial) RAWSxxx_10 slices.
-    If one or more slices are incomplete (due to dump transitions), they are
+    Input is a set of (incomplete) RAWSxxx_10 slices.
+    If one or more slices are incomplete due to dump transitions, they are
     merged. The output is a single product, or multiple if there are data take
     transitions within the slice period.
-    '''
 
+    An array "data_takes" with one or more data take objects must be specified
+    in the scenario. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "swath": "S1",
+          "operational_mode": "SM",
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
+        },
+
+    Metadata fields that will be modified:
+    - phenomenonTime (acquisition begin/end times)
+    - incompleteSlice: set if slice is incomplete
+    '''
     PRODUCTS = ['S1_RAW__0S', 'S2_RAW__0S', 'S3_RAW__0S', 'Sx_RAW__0S',
                 'S1_RAWP_0M', 'S2_RAWP_0M', 'S3_RAWP_0M', 'Sx_RAWP_0M',
                 'RO_RAW__0S', 'RO_RAWP_0M',
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
 
-    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
-        super().__init__(logger, job_config, scenario_config, output_config)
-
-        # Get anx list from config. Can be located at either scenario or product level
-        anx_list = output_config.get('anx') or scenario_config.get('anx')
-        if anx_list is None:
-            raise Exception('ANX must be configured for {} product'.format(self._output_type))
-        self.anx_list = [self._time_from_iso(anx) for anx in anx_list]
-        self.anx_list.sort()
-
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
 
-        # 'Merge' partial H or V slices. If either H or V (or both?) consists of
-        # multiple parts, then use the overall time as validity period for the
-        # output.
+        # 'Merge' incomplete H or V slices. If either H or V (or both?) consists
+        # of multiple parts, then use the overall time as period for the output.
+        #
+        # TODO: Check if validity times of the different parts also match?
+        # These should match (belonging to the same slice #).
         if self._output_type in [
                 'S1_RAW__0S', 'S2_RAW__0S', 'S3_RAW__0S', 'Sx_RAW__0S',
                 'S1_RAWP_0M', 'S2_RAWP_0M', 'S3_RAWP_0M', 'Sx_RAWP_0M']:
@@ -61,8 +68,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         else:
             hv_products = ['RAWS035_10', 'RAWS036_10']
 
-        start = self.hdr.validity_start
-        stop = self.hdr.validity_stop
+        start = self.hdr.begin_position
+        stop = self.hdr.end_position
         if start is None or stop is None:
             self._logger.error('Start and stop must be known')
             return False
@@ -76,58 +83,56 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
-                    start = min(start, hdr.validity_start)
-                    stop = max(stop, hdr.validity_stop)
+                    start = min(start, hdr.begin_position)
+                    stop = max(stop, hdr.end_position)
                     # Diagnostics
                     idx = hv_products.index(input.file_type)
                     nr_hv_found[idx] += 1
-        self.hdr.validity_start = start
-        self.hdr.validity_stop = stop
+        self.hdr.begin_position = start
+        self.hdr.end_position = stop
         self._logger.debug('Merged {} H, V input products of type {}'.format(
             nr_hv_found, hv_products)
         )
         return True
 
-    def _get_anx(self, t):
-        # Returns the latest ANX before the given time
-        idx = bisect.bisect(self.anx_list, t) - 1  # anx_list[idx-1] <= tstart
-        return self.anx_list[min(max(idx, 0), len(self.anx_list) - 1)]
-
-    def _is_incomplete_slice(self, slice_start, slice_end):
+    def _is_incomplete_slice(self, valid_start, valid_end, acq_start, acq_end):
         '''
-        Returns True if a slice does not start or ends on a 'node', a point on
-        the grid starting from ANX.
+        Compare validatity and acquisition times
         '''
-        anx = self._get_anx(slice_start)
-        SIGMA = datetime.timedelta(0, 0.1)
-        rest = ((slice_start - anx + SIGMA) % constants.SLICE_GRID_SPACING)
-        start_is_aligned = rest < SIGMA * 2
-        rest = ((slice_end - anx + SIGMA) % constants.SLICE_GRID_SPACING)
-        end_is_aligned = rest < SIGMA * 2
+        start_is_aligned = valid_start == acq_start
+        end_is_aligned = valid_end == acq_end
         if not start_is_aligned and not end_is_aligned:
-            self._logger.debug('Incomplete slice, start and end unaligned to anx={}'.format(anx))
+            self._logger.debug('Incomplete slice, start and end unaligned')
         elif not start_is_aligned:
-            self._logger.debug('Incomplete slice, start unaligned to anx={}'.format(anx))
+            self._logger.debug('Incomplete slice, start unaligned')
         elif not end_is_aligned:
-            self._logger.debug('Incomplete slice, end unaligned to anx={}'.format(anx))
+            self._logger.debug('Incomplete slice, end unaligned')
         return not start_is_aligned or not end_is_aligned
 
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
-            raise Exception('data_take_id is mandatory in data_take section')
+            raise Exception('data_take_id field is mandatory in data_take section')
 
         for param, hdr_field, ptype in self.HDR_PARAMS:
             self._read_config_param(data_take_config, param, self.hdr, hdr_field, ptype)
         for param, acq_field, ptype in self.ACQ_PARAMS:
             self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field, ptype)
 
+        # TODO: This is not necessary? See email Luca
         type = self._resolve_wildcard_product_type()
+
         self._logger.debug('Datatake {} from {} to {}'.format(self.hdr.acquisitions[0].data_take_id, start, stop))
 
-        # Setup MPH fields
+        # Setup MPH fields. Validity time is not changed, should still be the
+        # theoretical slice start/end.
         self.hdr.product_type = type
-        self.hdr.set_validity_times(start, stop)
-        self.hdr.incomplete_l0_slice = self._is_incomplete_slice(start, stop)
+        self.hdr.set_phenomenon_times(start, stop)
+        self.hdr.incomplete_l0_slice = self._is_incomplete_slice(
+            self.hdr.validity_start,
+            self.hdr.validity_stop,
+            start,
+            stop
+        )
         self.hdr.partial_l0_slice = False  # TODO!
 
         # Create name generator and setup all fields mandatory for a level0 product.
@@ -174,11 +179,11 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
         self._create_date = self.hdr.end_position   # HACK: fill in current date?
 
-        if self.hdr.validity_start is None or self.hdr.validity_stop is None:
-            self._logger.error('Validity start/end must be known')
+        if self.hdr.begin_position is None or self.hdr.end_position is None:
+            self._logger.error('start/end positions must be known')
             return
         # Find data take(s) in this slice and create products for each segment.
-        start = self.hdr.validity_start
+        start = self.hdr.begin_position
         for dt in self._scenario_config.get('data_takes'):
             dt_start_str = dt.get('start')
             dt_stop_str = dt.get('stop')
@@ -188,9 +193,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             dt_start = self._time_from_iso(dt_start_str)
             dt_stop = self._time_from_iso(dt_stop_str)
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
-                end = min(self.hdr.validity_stop, dt_stop)
+                end = min(self.hdr.end_position, dt_stop)
                 self._generate_product(start, end, dt)
-                if end >= self.hdr.validity_stop:
+                if end >= self.hdr.end_position:
                     break
                 start = end
 
@@ -216,8 +221,8 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # The final product should cover the complete data take.
         id = self.hdr.acquisitions[0].data_take_id
-        start = self.hdr.validity_start
-        stop = self.hdr.validity_stop
+        start = self.hdr.begin_position
+        stop = self.hdr.end_position
         if start is None or stop is None:
             self._logger.error('Start/stop must be known')
             return False
@@ -235,12 +240,12 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
                     self._logger.warning('Data take ID {} differs from {} in {}, product ignored'.format(input_id, os.path.basename(file), id))
                     continue
                 self._logger.debug('Data take id {} of {} matches'.format(input_id, os.path.basename(file)))
-                start = min(start, hdr.validity_start)
-                stop = max(stop, hdr.validity_stop)
-        if start != self.hdr.validity_start or stop != self.hdr.validity_stop:
-            self._logger.debug('Adjust validity times to {} - {}'.format(start, stop))
-        self.hdr.validity_start = start
-        self.hdr.validity_stop = stop
+                start = min(start, hdr.begin_position)
+                stop = max(stop, hdr.end_position)
+        if start != self.hdr.begin_position or stop != self.hdr.end_position:
+            self._logger.debug('Adjust begin/end times to {} - {}'.format(start, stop))
+        self.hdr.begin_position = start
+        self.hdr.end_position = stop
         return True
 
     def _generate_product(self, start, stop):
@@ -266,7 +271,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         self.hdr.product_type = type
         self.hdr.set_product_filename(dir_name)
-        self.hdr.set_validity_times(start, stop)
+        self.hdr.set_phenomenon_times(start, stop)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -291,8 +296,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
         self._create_date = self.hdr.end_position   # HACK: fill in current date?
-        start = self.hdr.validity_start
-        stop = self.hdr.validity_stop
+        # TODO : Why read start/stop here and set it again in _generate_product?
+        start = self.hdr.begin_position
+        stop = self.hdr.end_position
         self._generate_product(start, stop)
 
 
@@ -303,7 +309,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
     Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
     data take.
-    The output reads the validity times of the monitoring product and adds the
+    The output reads the begin/end times of the monitoring product and adds the
     lead/trailing margins as specified in the job order, or the defaults.
     '''
 
