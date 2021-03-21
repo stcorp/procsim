@@ -53,23 +53,26 @@ class JobOrderTask():
 
 class JobOrderParser:
     '''
-    This class is responsible for reading and parsing the JobOrder.
+    This class is responsible for reading (test and parse) the JobOrder.
 
     Only errors are logged, since the logger is not setup yet (it needs info
     from the JobOrder for that).
     '''
 
-    def __init__(self, logger, filename, schema):
+    def __init__(self, logger, schema):
         self._logger = logger
         self._is_validated = False
+        self._schema = schema
         self.processor_name = ''
         self.processor_version = ''
         self.node = 'N/A'
         self.tasks: List[JobOrderTask] = []
         self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels: List[str] = []
+
+    def read(self, filename):
         if filename is not None:
-            self._check_against_schema(filename, schema)
+            self._check_against_schema(filename, self._schema)
             self._parse(filename)
 
     def _check_against_schema(self, filename, schema):
@@ -151,10 +154,10 @@ class JobOrderParser:
             self.tasks.append(task)
 
 
-def job_order_parser_factory(icd, logger, filename):
+def job_order_parser_factory(icd, logger):
     '''
     Return JobOrderParser. Currently only supports ICD ESA-EOPG-EEGS-ID-0083.
     '''
     if icd == 'ESA-EOPG-EEGS-ID-0083':
-        return JobOrderParser(logger, filename, JOB_ORDER_SCHEMA)
+        return JobOrderParser(logger, JOB_ORDER_SCHEMA)
     raise Exception('Unknown JobOrder ICD type {}'.format(icd))

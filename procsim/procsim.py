@@ -367,7 +367,8 @@ def main(argv):
         if config is None:
             sys.exit(1)
 
-        job = job_order_parser_factory(PROCESSOR_ICD, logger, job_filename)
+        job = job_order_parser_factory(PROCESSOR_ICD, logger)
+        job.read(job_filename)
 
         logger = Logger(
             job.node,
