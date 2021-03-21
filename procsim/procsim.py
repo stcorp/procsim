@@ -306,7 +306,8 @@ def full_help(args):
         except AttributeError:
             continue  # Not a procsim plugin
         product_list = lister()
-        if prod is None or prod not in product_list:
+        flattened_list = [prod for prods in product_list for prod in prods]
+        if prod is None or prod not in flattened_list:
             print()
             print('- {}, supporting the following products:'.format(plugin))
             for prod in product_list:
@@ -318,7 +319,7 @@ def full_help(args):
             print('{} product generator details:'.format(prod))
             print('-------------------------------------')
             print(gen.__doc__)
-            print('Valid metadata parameters for product {} are:'.format(prod))
+            print('Supported scenario parameters for product type {} are:'.format(prod))
             for param, ptype in gen.list_scenario_metadata_parameters():
                 print('   - {} ({})'.format(param, ptype))
 

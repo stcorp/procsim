@@ -20,7 +20,7 @@ _GENERATORS = [
 def list_supported_products():
     list = []
     for gen in _GENERATORS:
-        list.extend(gen.PRODUCTS)
+        list.append(gen.PRODUCTS)
     return list
 
 
