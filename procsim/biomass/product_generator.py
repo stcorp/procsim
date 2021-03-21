@@ -188,7 +188,7 @@ class ProductGeneratorBase(IProductGenerator):
     def list_scenario_metadata_parameters(self):
         return [(param, ptype) for param, _, ptype in self.HDR_PARAMS + self.ACQ_PARAMS + self.GENERATOR_PARAMS]
 
-    def read_scenario_metadata_parameters(self):
+    def read_scenario_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
         '''

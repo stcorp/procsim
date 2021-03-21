@@ -47,7 +47,7 @@ class IProductGenerator(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def read_scenario_metadata_parameters(self):
+    def read_scenario_parameters(self):
         pass
 
     @abc.abstractmethod
@@ -402,18 +402,18 @@ def main(argv):
         _do_work(logger, scenario, job_task)
 
         for gen in generators:
-            gen.read_scenario_metadata_parameters()
+            gen.read_scenario_parameters()
             gen.generate_output()
         logger.info('Task done, exit with code {}'.format(exit_code))
 
     except TerminateError:
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
-        logger.info('Exit with code {}'.format(exit_code))
+        logger.info('Terminate with code {}'.format(exit_code))
     except ScenarioError:
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
-        logger.info('Exit with code {}'.format(exit_code))
+        logger.info('Terminate with code {}'.format(exit_code))
 
     exit(exit_code)
 
