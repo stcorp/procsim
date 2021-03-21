@@ -780,18 +780,13 @@
       "processor_version": "01.01",
       "task_name": "Step5",
       "task_version": "05.03L01",
-      "processing_time": 0,
-      "nr_cpu": 1,
-      "memory_usage": 0,
-      "disk_usage": 0,
       "outputs": [
         {
           "type": "EC_RAW__0S",
           "size": 0,
           "metadata_source": ".*EC_RAWP_0S.*"
         }
-      ],
-      "exit_code": 0
+      ]
     }
   ]
 }
