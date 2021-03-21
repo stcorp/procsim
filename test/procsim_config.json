@@ -35,7 +35,6 @@
 
       // Mandatory, as we have no JobOrder nor input files. These settings are
       // common for all outputs, but can be overridden in each output section.
-      "output_path": "data/raw_sm",
       "baseline": 1,
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",
@@ -48,6 +47,7 @@
       "num_isp_corrupt": 0,
 
       // Outputs to generate
+      "output_path": "data/raw_sm",  // default is CWD, or read from job order if any
       "outputs": [
         {
           "enable": true,
@@ -760,6 +760,8 @@
       "disk_usage": 0,
       "outputs": [
         {
+          "leading_margin": 17,
+          "trailing_margin": 0,
           "swath": "AC",            // TODO: check!
           "operational_mode": "AC", // TODO: check!
           "type": "AC_RAW__0A",

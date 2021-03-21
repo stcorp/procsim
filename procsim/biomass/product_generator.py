@@ -21,6 +21,11 @@ class ProductGeneratorBase(IProductGenerator):
     This base class handles parsing input products to retrieve metadata.
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+    GENERATOR_PARAMS = [
+        ('output_path', '_output_path', 'str'),
+        ('leading_margin', '_leading_margin', 'float'),
+        ('trailing_margin', '_trailing_margin', 'float'),
+    ]
     HDR_PARAMS = [
         # All
         ('baseline', 'product_baseline', 'int'),
@@ -54,7 +59,7 @@ class ProductGeneratorBase(IProductGenerator):
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
-        self._output_path = output_config.get('output_path') or scenario_config.get('output_path') or job_config.dir
+        self._output_path: str = '' if job_config is None else job_config.dir
         self._job_config_baseline = None if job_config is None else job_config.baseline
         self._logger = logger
         self._output_type = output_config['type']
@@ -157,7 +162,7 @@ class ProductGeneratorBase(IProductGenerator):
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
-        If param_name is in config, read and set in obj.hdr_field.
+        If param_name is in config, read and set in obj.field.
         '''
         val = config.get(param_name)
         if val is None:
@@ -166,12 +171,14 @@ class ProductGeneratorBase(IProductGenerator):
             val = self._time_from_iso_or_none(val)
         elif ptype == 'int':
             val = int(val)
+        elif ptype == 'float':
+            val = float(val)
         else:
             pass
         if not hasattr(obj, hdr_field):
             raise Exception('Error: attribute {} not present in {}'.format(hdr_field, obj))
         old_val = getattr(obj, hdr_field)
-        self._logger.debug('{} header field {}{} to {}'.format(
+        self._logger.debug('{} field {}{} to {}'.format(
             'Set' if old_val is None else 'Overwrite',
             param_name,
             '' if old_val is None else ' from {}'.format(old_val),
@@ -179,7 +186,7 @@ class ProductGeneratorBase(IProductGenerator):
         setattr(obj, hdr_field, val)
 
     def list_scenario_metadata_parameters(self):
-        return [(param, ptype) for param, _, ptype in self.HDR_PARAMS + self.ACQ_PARAMS]
+        return [(param, ptype) for param, _, ptype in self.HDR_PARAMS + self.ACQ_PARAMS + self.GENERATOR_PARAMS]
 
     def read_scenario_metadata_parameters(self):
         '''
@@ -190,6 +197,8 @@ class ProductGeneratorBase(IProductGenerator):
                 self._read_config_param(config, param, self.hdr, hdr_field, type)
             for param, acq_field, type in self.ACQ_PARAMS:
                 self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field, type)
+            for param, self_field, type in self.GENERATOR_PARAMS:
+                self._read_config_param(config, param, self, self_field, type)
 
     def generate_output(self):
         '''
@@ -199,3 +208,6 @@ class ProductGeneratorBase(IProductGenerator):
             self._scenario_config['processor_name'],
             self._scenario_config['processor_version'],
             datetime.datetime.now())
+
+        self._logger.debug('Output directory is {}'.format(
+            os.path.abspath(self._output_path)))

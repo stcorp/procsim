@@ -314,25 +314,27 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
     Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
     data take.
     The output reads the begin/end times of the monitoring product and adds the
-    lead/trailing margins as specified in the job order, or the defaults.
+    leading/trailing margins as specified in the job order or the scenario.
+    (defaults is 16/0 seconds).
     '''
 
     PRODUCTS = ['AC_RAW__0A']
-    DEFAULT_LEAD_MARGIN = datetime.timedelta(0, 16.0)
-    DEFAULT_TRAILING_MARGIN = datetime.timedelta(0, 0)
+    DEFAULT_LEADING_MARGIN = 16.0
+    DEFAULT_TRAILING_MARGIN = 0.0
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        # TODO: read lead time from JobOrder!
-        self._lead_margin = self.DEFAULT_LEAD_MARGIN
+        # TODO: read lead time from JobOrder (processing parameters) or
+        # scenario.
+        self._leading_margin = self.DEFAULT_LEADING_MARGIN
         self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
 
     def generate_output(self):
         super().generate_output()
         self._create_date = self.hdr.end_position   # HACK: fill in current date?
 
-        start = self.hdr.validity_start - self._lead_margin
-        stop = self.hdr.validity_stop + self._trailing_margin
+        start = self.hdr.validity_start - datetime.timedelta(0, self._leading_margin)
+        stop = self.hdr.validity_stop + datetime.timedelta(0, self._trailing_margin)
 
         # Setup MPH
         self.hdr.product_type = self._output_type

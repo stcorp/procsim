@@ -24,7 +24,6 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self._zip_outputs = True if val is None else val
 
     def _create_raw_product(self, dir_name, name_gen):
-        self._logger.debug('Output directory is {}'.format(self._output_path))
         self._logger.info('Create {}'.format(dir_name))
         full_dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(full_dir_name, exist_ok=True)
