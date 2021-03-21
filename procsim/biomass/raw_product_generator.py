@@ -95,15 +95,14 @@ class RAWSxxx_10(RawProductGeneratorBase):
         "2021-02-01T02:03:43.725Z"
       ],
 
-    The phenomenon (acquisition) period of the metadata_source
-    (i.e. a RAW_xxx_10 product) is sliced.
-    Between the slices, overlaps are added at the begin and end.
-    For every slice, the latest ANX before the end time of the previous slice
-    or start of the first slice is used as reference for the slice grid.
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a RAW_xxx_10 product) is sliced, for every slice a product is
+    generated.
 
-    For every slice the following metadata parameters are modified:
-    - phenomenonTime: acquisition begin/end times
-    - validTime: theoretical slice begin/end times (including overlap)
+    The generator adjusts the following metadata:
+    - phenomenonTime, acquisition begin/end times.
+    - validTime, theoretical slice begin/end times (including overlap).
+    - wrsLatitudeGrid, the slice_frame_nr.
     '''
 
     PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
@@ -239,12 +238,13 @@ class RAWSxxx_10(RawProductGeneratorBase):
             # nodes, with overlap added.
             slice_start = anx + n * constants.SLICE_GRID_SPACING - constants.SLICE_OVERLAP_START
             slice_end = anx + (n + 1) * constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+            slice_nr = (n % constants.SLICES_PER_ORBIT) + 1
+            self.hdr.acquisitions[0].slice_frame_nr = slice_nr
 
             # Calculate the 'real' start/end times
             acq_start = max(slice_start, segment_start)
             acq_end = min(slice_end, segment_end)
             self.hdr.set_validity_times(slice_start, slice_end)
-            slice_nr = (n % constants.SLICES_PER_ORBIT) + 1
             self._logger.debug('Create slice #{}, {}-{}, anx {}'.format(
                 slice_nr,
                 acq_start,

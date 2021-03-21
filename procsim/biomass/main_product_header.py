@@ -401,7 +401,8 @@ class MainProductHeader:
                 swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
                 swath_id.text = s['swath_id']
 
-        if level in ['l0', 'l1', 'l2a'] or self._product_type in ['AUX_ATT___', 'AUX_ORB___']:
+        if level in ['l0', 'l1', 'l2a'] or self._product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
+                self.product_type in product_types.RAWS_PRODUCT_TYPES:
             acquisition_params = et.SubElement(earth_observation_equipment, eop + 'acquisitionParameters')
             acquisition = et.SubElement(acquisition_params, bio + 'Acquisition')
             for acq in self.acquisitions:
