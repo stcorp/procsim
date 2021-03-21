@@ -379,7 +379,7 @@ def main(argv):
         scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
         if scenario is None:
             sys.exit(1)
-        exit_code = scenario['exit_code']
+        exit_code = scenario.get('exit_code', 0)
 
         logger.set_task_name(job_task.name)    # This info was not available yet
 
