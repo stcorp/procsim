@@ -46,7 +46,7 @@ class ProductGeneratorBase(IProductGenerator):
         ('operational_mode', 'sensor_mode', 'str'),
     ]
     ACQ_PARAMS = [
-        # Level 0 only
+        # Level 0, 1, 2a only
         ('mission_phase', 'mission_phase', 'str'),
         ('data_take_id', 'data_take_id', 'int'),
         ('global_coverage_id', 'global_coverage_id', 'str'),
