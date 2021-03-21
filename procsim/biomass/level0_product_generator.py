@@ -28,20 +28,24 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     transitions within the slice period.
 
     An array "data_takes" with one or more data take objects must be specified
-    in the scenario. For example:
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
 
       "data_takes": [
         {
           "data_take_id": 15,
-          "swath": "S1",
-          "operational_mode": "SM",
           "start": "2021-02-01T00:24:32.000Z",
-          "stop": "2021-02-01T00:29:32.000Z"
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
         },
 
-    Metadata fields that will be modified:
-    - phenomenonTime (acquisition begin/end times)
-    - incompleteSlice: set if slice is incomplete
+    The generator adjusts the following metadata:
+    - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
+    - partialSlice, set if slice is partial (slice with DT start/end)
+    - dataTakeID (copied from data_takes section in scenario)
+    - swathIdentifier (copied from scenario, either root, output section or
+      data_takes section)
     '''
     PRODUCTS = ['S1_RAW__0S', 'S2_RAW__0S', 'S3_RAW__0S', 'Sx_RAW__0S',
                 'S1_RAWP_0M', 'S2_RAWP_0M', 'S3_RAWP_0M', 'Sx_RAWP_0M',
@@ -95,7 +99,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         )
         return True
 
-    def _is_incomplete_slice(self, valid_start, valid_end, acq_start, acq_end):
+    def _is_partial_slice(self, valid_start, valid_end, acq_start, acq_end):
         '''
         Compare validatity and acquisition times
         '''
@@ -127,13 +131,13 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # theoretical slice start/end.
         self.hdr.product_type = type
         self.hdr.set_phenomenon_times(start, stop)
-        self.hdr.incomplete_l0_slice = self._is_incomplete_slice(
+        self.hdr.incomplete_l0_slice = False  # TODO!
+        self.hdr.partial_l0_slice = self._is_partial_slice(
             self.hdr.validity_start,
             self.hdr.validity_stop,
             start,
             stop
         )
-        self.hdr.partial_l0_slice = False  # TODO!
 
         # Create name generator and setup all fields mandatory for a level0 product.
         # TODO: Move to helper method (code is duplicated for every output!)
