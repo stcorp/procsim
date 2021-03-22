@@ -11,7 +11,7 @@ import json
 import os
 import signal
 import sys
-from typing import List, Optional
+from typing import List, Tuple, Optional
 
 from exceptions import TerminateError, ScenarioError
 import utils
@@ -39,11 +39,18 @@ class IProductGenerator(abc.ABC):
     Interface for product generators
     '''
     @abc.abstractmethod
+    def get_params(self) -> Tuple[List[str], List[str], List[str]]:
+        '''
+        Returns generator, header and acquisition parameters
+        '''
+        pass
+
+    @abc.abstractmethod
     def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
         pass
 
     @abc.abstractmethod
-    def list_scenario_metadata_parameters(self) -> List[str]:
+    def list_scenario_parameters(self) -> List[str]:
         pass
 
     @abc.abstractmethod
@@ -320,7 +327,7 @@ def full_help(args):
             print('-------------------------------------')
             print(gen.__doc__)
             print('Supported scenario parameters for product type {} are:'.format(prod))
-            for param, ptype in gen.list_scenario_metadata_parameters():
+            for param, ptype in gen.list_scenario_parameters():
                 print('   - {} ({})'.format(param, ptype))
 
 

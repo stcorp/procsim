@@ -21,40 +21,6 @@ class ProductGeneratorBase(IProductGenerator):
     This base class handles parsing input products to retrieve metadata.
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
-    GENERATOR_PARAMS = [
-        ('output_path', '_output_path', 'str'),
-        ('leading_margin', '_leading_margin', 'float'),
-        ('trailing_margin', '_trailing_margin', 'float'),
-    ]
-    HDR_PARAMS = [
-        # All
-        ('baseline', 'product_baseline', 'int'),
-        # All but sliced products
-        ('begin_position', 'begin_position', 'date'),
-        ('end_position', 'end_position', 'date'),
-        # Raw only
-        ('acquisition_date', 'acquisition_date', 'date'),
-        ('acquisition_station', 'acquisition_station', 'str'),
-        ('num_isp', 'nr_instrument_source_packets', 'int'),
-        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
-        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
-        # Level 0 only
-        ('num_l0_lines', 'nr_l0_lines', 'str'),
-        ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
-        ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
-        ('swath', 'sensor_swath', 'str'),
-        ('operational_mode', 'sensor_mode', 'str'),
-    ]
-    ACQ_PARAMS = [
-        # Level 0, 1, 2a only
-        ('mission_phase', 'mission_phase', 'str'),
-        ('data_take_id', 'data_take_id', 'int'),
-        ('global_coverage_id', 'global_coverage_id', 'str'),
-        ('major_cycle_id', 'major_cycle_id', 'str'),
-        ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
-        ('track_nr', 'track_nr', 'int'),
-        ('slice_frame_nr', 'slice_frame_nr', 'int')
-    ]
 
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
@@ -185,19 +151,21 @@ class ProductGeneratorBase(IProductGenerator):
             val))
         setattr(obj, hdr_field, val)
 
-    def list_scenario_metadata_parameters(self):
-        return [(param, ptype) for param, _, ptype in self.HDR_PARAMS + self.ACQ_PARAMS + self.GENERATOR_PARAMS]
+    def list_scenario_parameters(self):
+        gen_params, hdr_params, acq_params = self.get_params()
+        return [(param, ptype) for param, _, ptype in hdr_params + acq_params + gen_params]
 
     def read_scenario_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
         '''
+        gen_params, hdr_params, acq_params = self.get_params()
         for config in self._scenario_config, self._output_config:
-            for param, hdr_field, type in self.HDR_PARAMS:
+            for param, hdr_field, type in hdr_params:
                 self._read_config_param(config, param, self.hdr, hdr_field, type)
-            for param, acq_field, type in self.ACQ_PARAMS:
+            for param, acq_field, type in acq_params:
                 self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field, type)
-            for param, self_field, type in self.GENERATOR_PARAMS:
+            for param, self_field, type in gen_params:
                 self._read_config_param(config, param, self, self_field, type)
 
     def generate_output(self):

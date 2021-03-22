@@ -13,8 +13,35 @@ from typing import List
 
 from job_order import JobOrderInput
 
-from biomass import (constants, main_product_header, product_generator,
-                     product_name)
+from biomass import main_product_header, product_generator, product_name
+
+
+_GENERATOR_PARAMS = [
+    ('output_path', '_output_path', 'str'),
+]
+_HDR_PARAMS = [
+    # All
+    ('baseline', 'product_baseline', 'int'),
+    # All but sliced products
+    ('begin_position', 'begin_position', 'date'),
+    ('end_position', 'end_position', 'date'),
+    # Level 0 only
+    ('num_l0_lines', 'nr_l0_lines', 'str'),
+    ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
+    ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
+    ('swath', 'sensor_swath', 'str'),
+    ('operational_mode', 'sensor_mode', 'str'),
+]
+_ACQ_PARAMS = [
+    # Level 0, 1, 2a only
+    ('mission_phase', 'mission_phase', 'str'),
+    ('data_take_id', 'data_take_id', 'int'),
+    ('global_coverage_id', 'global_coverage_id', 'str'),
+    ('major_cycle_id', 'major_cycle_id', 'str'),
+    ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
+    ('track_nr', 'track_nr', 'int'),
+    ('slice_frame_nr', 'slice_frame_nr', 'int')
+]
 
 
 class Sx_RAW__0x(product_generator.ProductGeneratorBase):
@@ -52,6 +79,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 'RO_RAW__0S', 'RO_RAWP_0M',
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
+
+    def get_params(self):
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -117,9 +147,10 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         if data_take_config.get('data_take_id') is None:
             raise Exception('data_take_id field is mandatory in data_take section')
 
-        for param, hdr_field, ptype in self.HDR_PARAMS:
+        _, hdr_params, acq_params = self.get_params()
+        for param, hdr_field, ptype in hdr_params:
             self._read_config_param(data_take_config, param, self.hdr, hdr_field, ptype)
-        for param, acq_field, ptype in self.ACQ_PARAMS:
+        for param, acq_field, ptype in acq_params:
             self._read_config_param(data_take_config, param, self.hdr.acquisitions[0], acq_field, ptype)
 
         # TODO: This is not necessary? See email Luca
@@ -217,6 +248,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
                 'RO_RAW__0M', 'EC_RAW__0M', 'EC_RAW__0S']
+
+    def get_params(self):
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
         # Retrieves the metadata
@@ -322,12 +356,20 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
     DEFAULT_LEADING_MARGIN = 16.0
     DEFAULT_TRAILING_MARGIN = 0.0
 
+    _GENERATOR_PARAMS = [
+        ('leading_margin', '_leading_margin', 'float'),
+        ('trailing_margin', '_trailing_margin', 'float')
+    ]
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         # TODO: read lead time from JobOrder (processing parameters) or
         # scenario.
         self._leading_margin = self.DEFAULT_LEADING_MARGIN
         self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
+
+    def get_params(self):
+        return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()
@@ -378,6 +420,9 @@ class Aux(product_generator.ProductGeneratorBase):
     '''
 
     PRODUCTS = ['AUX_ATT___', 'AUX_ORB___']
+
+    def get_params(self):
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()
