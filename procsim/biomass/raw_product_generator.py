@@ -13,37 +13,32 @@ from exceptions import ScenarioError
 from biomass import constants, product_generator, product_name
 
 
+_GENERATOR_PARAMS = [
+    ('output_path', '_output_path', 'str')
+]
+_HDR_PARAMS = [
+    ('baseline', 'product_baseline', 'int'),
+    ('acquisition_date', 'acquisition_date', 'date'),
+    ('acquisition_station', 'acquisition_station', 'str'),
+    ('num_isp', 'nr_instrument_source_packets', 'int'),
+    ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+    ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
+]
+_ACQ_PARAMS = []
+
+
 class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
     '''
     This abstract class is responsible for creating raw products and is used as
     base class for the specific raw product generators.
     '''
-    GENERATOR_PARAMS = [
-        ('output_path', '_output_path', 'str')
-    ]
-    HDR_PARAMS = [
-        # All
-        ('baseline', 'product_baseline', 'int'),
-        # All but sliced products
-        ('begin_position', 'begin_position', 'date'),
-        ('end_position', 'end_position', 'date'),
-        # Raw only
-        ('acquisition_date', 'acquisition_date', 'date'),
-        ('acquisition_station', 'acquisition_station', 'str'),
-        ('num_isp', 'nr_instrument_source_packets', 'int'),
-        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
-        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
-    ]
-    ACQ_PARAMS = [
-    ]
-
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         val = output_config.get('zip_outputs') or scenario_config.get('zip_outputs')
         self._zip_outputs = True if val is None else val
 
     def get_params(self):
-        return self.GENERATOR_PARAMS, self.HDR_PARAMS, self.ACQ_PARAMS
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def _create_raw_product(self, dir_name, name_gen):
         self._logger.info('Create {}'.format(dir_name))
@@ -76,6 +71,15 @@ class RAW_xxx_10(RawProductGeneratorBase):
     PRODUCTS = ['RAW_022_10', 'RAW_023_10', 'RAW_024_10', 'RAW_025_10',
                 'RAW_026_10', 'RAW_027_10', 'RAW_028_10', 'RAW_035_10',
                 'RAW_036_10']
+
+    HDR_PARAMS = [
+        ('begin_position', 'begin_position', 'date'),
+        ('end_position', 'end_position', 'date'),
+    ]
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + self.HDR_PARAMS, acq
 
     def generate_output(self):
         # Base class is doing part of the setup
