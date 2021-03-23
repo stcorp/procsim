@@ -152,7 +152,40 @@ Example:
         },
 ```
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
-A list with all supported metadata parameters can be retrieved using 'procsim -h <mission> <product_type>'. This command also shows other product-specific details and scenario options. Example:
+
+A list with all supported parameters for a specific output type can be retrieved using 'procsim -h <mission> <product_type>'. Example:
 ```
-procsim.py -h biomass S1_RAW__0S
+./procsim.py -h biomass AC_RAW__0A
+
+AC_RAW__0A product generator details:
+-------------------------------------
+
+    This class implements the ProductGeneratorBase and is responsible for
+    generating Level-0 ancillary products.
+
+    Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
+    data take.
+    The output reads the begin/end times of the monitoring product and adds the
+    leading/trailing margins as specified in the job order or the scenario.
+    (defaults is 16/0 seconds).
+    
+Supported scenario parameters for product type AC_RAW__0A are:
+   - baseline (int)
+   - begin_position (date)
+   - end_position (date)
+   - num_l0_lines (str)
+   - num_l0_lines_corrupt (str)
+   - num_l0_lines_missing (str)
+   - swath (str)
+   - operational_mode (str)
+   - mission_phase (str)
+   - data_take_id (int)
+   - global_coverage_id (str)
+   - major_cycle_id (str)
+   - repeat_cycle_id (str)
+   - track_nr (int)
+   - slice_frame_nr (int)
+   - output_path (str)
+   - leading_margin (float)
+   - trailing_margin (float)
 ```
