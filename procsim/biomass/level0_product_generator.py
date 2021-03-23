@@ -242,6 +242,13 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     The product:
     - removes overlaps between adjacent monitoring products
     - stitches the resulting products
+
+    The generator adjusts the following metadata:
+    - wrsLatitudeGrid, aka the slice_frame_nr, to '___'
+    - partialSlice, set to false
+    - incompleteSlice, set to false
+    - phenomenonTime (the acquisition begin/end times)
+    - validTime
     '''
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
@@ -290,7 +297,13 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         type = self._resolve_wildcard_product_type()
 
         # Setup all fields mandatory for a level0 product.
+        self._hdr.product_type = type
+        self._hdr.set_phenomenon_times(start, stop)
+        self._hdr.incomplete_l0_slice = False
+        self._hdr.partial_l0_slice = False
         acq = self._hdr.acquisitions[0]
+        acq.slice_frame_nr = None
+
         name_gen.file_type = type
         name_gen.start_time = start
         name_gen.stop_time = stop
@@ -304,10 +317,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         name_gen.frame_slice_nr = acq.slice_frame_nr
 
         dir_name = name_gen.generate_path_name()
-
-        self._hdr.product_type = type
         self._hdr.set_product_filename(dir_name)
-        self._hdr.set_phenomenon_times(start, stop)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -343,11 +353,18 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 ancillary products.
 
-    Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
-    data take.
-    The output reads the begin/end times of the monitoring product and adds the
+    Inputs are a Sx_RAW__0M monitoring product and all RAWS022_10 products
+    belonging to the same data take.
+    The output takes the begin/end times of the monitoring product and adds the
     leading/trailing margins as specified in the job order or the scenario.
     (defaults is 16/0 seconds).
+
+    The generator adjusts the following metadata:
+    - wrsLatitudeGrid, aka the slice_frame_nr, to '___'
+    - partialSlice, set to false
+    - incompleteSlice, set to false
+    - phenomenonTime (the acquisition begin/end times)
+    - validTime
     '''
 
     PRODUCTS = ['AC_RAW__0A']
@@ -373,18 +390,20 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         super().generate_output()
         self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
-        start = self._hdr.validity_start - datetime.timedelta(0, self._leading_margin)
-        stop = self._hdr.validity_stop + datetime.timedelta(0, self._trailing_margin)
+        start = self._hdr.begin_position - datetime.timedelta(0, self._leading_margin)
+        stop = self._hdr.end_position + datetime.timedelta(0, self._trailing_margin)
 
         # Setup MPH
         self._hdr.product_type = self._output_type
+        self._hdr.set_phenomenon_times(start, stop)
         self._hdr.set_validity_times(start, stop)
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
+        acq = self._hdr.acquisitions[0]
+        acq.slice_frame_nr = None
 
         # Setup all fields mandatory for a level0 product.
         name_gen = product_name.ProductName()
-        acq = self._hdr.acquisitions[0]
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
