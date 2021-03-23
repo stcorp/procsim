@@ -236,13 +236,6 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
     return generators
 
 
-def _parse_inputs(generators, job_task):
-    for generator in generators:
-        if job_task.inputs and not generator.parse_inputs(job_task.inputs):
-            sys.exit(1)
-    return
-
-
 def _do_work(logger, config, job_task: Optional[JobOrderTask]):
     # Get paremters from scenario
     time = config.get('processing_time', 0)
@@ -402,15 +395,15 @@ def main(argv):
         _log_inputs(job_task.inputs, logger)
         _log_configured_messages(scenario, logger)
 
-        generators = _create_product_generators(logger, config['mission'], job_task, scenario)
-
-        _parse_inputs(generators, job_task)
-
         _do_work(logger, scenario, job_task)
 
+        generators = _create_product_generators(logger, config['mission'], job_task, scenario)
         for gen in generators:
+            if job_task.inputs and not gen.parse_inputs(job_task.inputs):
+                sys.exit(1)
             gen.read_scenario_parameters()
             gen.generate_output()
+
         logger.info('Task done, exit with code {}'.format(exit_code))
 
     except TerminateError:
