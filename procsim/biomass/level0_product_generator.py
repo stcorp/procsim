@@ -6,7 +6,6 @@ format according to BIO-ESA-EOPG-EEGS-TN-0073
 
 TODO: Remove all duplicated code!
 '''
-import bisect
 import datetime
 import os
 from typing import List
@@ -14,7 +13,6 @@ from typing import List
 from job_order import JobOrderInput
 
 from biomass import main_product_header, product_generator, product_name
-
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
