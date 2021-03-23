@@ -32,7 +32,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
         self._create_date: Optional[datetime.datetime] = None
-        self.hdr = main_product_header.MainProductHeader()
+        self._hdr = main_product_header.MainProductHeader()
 
     def _resolve_wildcard_product_type(self) -> str:
         '''
@@ -41,7 +41,7 @@ class ProductGeneratorBase(IProductGenerator):
         '''
         if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M',
                                  'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S']:
-            swath = self.hdr.sensor_swath
+            swath = self._hdr.sensor_swath
             if swath is None:
                 raise Exception('Swath must be configured to resolve Sx_ type')
             if swath not in ['S1', 'S2', 'S3']:
@@ -113,14 +113,14 @@ class ProductGeneratorBase(IProductGenerator):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)
                     # Derive mph file name from product name, parse header
-                    hdr = self.hdr
+                    hdr = self._hdr
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
                     mph_is_parsed = True
 
         # The baseline ID is not copied from any source, but read from job order
         # (if available) or set in scenario config.
-        self.hdr.product_baseline = self._job_config_baseline
+        self._hdr.product_baseline = self._job_config_baseline
 
         if not mph_is_parsed:
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
@@ -144,7 +144,7 @@ class ProductGeneratorBase(IProductGenerator):
         if not hasattr(obj, hdr_field):
             raise Exception('Error: attribute {} not present in {}'.format(hdr_field, obj))
         old_val = getattr(obj, hdr_field)
-        self._logger.debug('{} field {}{} to {}'.format(
+        self._logger.debug('{} {}{} to {}'.format(
             'Set' if old_val is None else 'Overwrite',
             param_name,
             '' if old_val is None else ' from {}'.format(old_val),
@@ -162,9 +162,9 @@ class ProductGeneratorBase(IProductGenerator):
         gen_params, hdr_params, acq_params = self.get_params()
         for config in self._scenario_config, self._output_config:
             for param, hdr_field, type in hdr_params:
-                self._read_config_param(config, param, self.hdr, hdr_field, type)
+                self._read_config_param(config, param, self._hdr, hdr_field, type)
             for param, acq_field, type in acq_params:
-                self._read_config_param(config, param, self.hdr.acquisitions[0], acq_field, type)
+                self._read_config_param(config, param, self._hdr.acquisitions[0], acq_field, type)
             for param, self_field, type in gen_params:
                 self._read_config_param(config, param, self, self_field, type)
 
@@ -172,7 +172,7 @@ class ProductGeneratorBase(IProductGenerator):
         '''
         Setup some mandatory metadata
         '''
-        self.hdr.set_processing_parameters(
+        self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],
             self._scenario_config['processor_version'],
             datetime.datetime.now())

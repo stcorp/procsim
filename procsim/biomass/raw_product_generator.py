@@ -22,7 +22,7 @@ _HDR_PARAMS = [
     ('acquisition_station', 'acquisition_station', 'str'),
     ('num_isp', 'nr_instrument_source_packets', 'int'),
     ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
-    ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
+    ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
 ]
 _ACQ_PARAMS = []
 
@@ -46,7 +46,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         os.makedirs(full_dir_name, exist_ok=True)
         mph_file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         full_mph_file_name = os.path.join(self._output_path, mph_file_name)
-        self.hdr.write(full_mph_file_name)
+        self._hdr.write(full_mph_file_name)
         bin_file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
         full_bin_file_name = os.path.join(self._output_path, bin_file_name)
         self._generate_bin_file(full_bin_file_name, self._size_mb)
@@ -85,23 +85,23 @@ class RAW_xxx_10(RawProductGeneratorBase):
         # Base class is doing part of the setup
         super(RAW_xxx_10, self).generate_output()
 
-        create_date = self.hdr.begin_position   # HACK: fill in current date?
-        start = self.hdr.begin_position
-        stop = self.hdr.end_position
+        create_date = self._hdr.begin_position   # HACK: fill in current date?
+        start = self._hdr.begin_position
+        stop = self._hdr.end_position
 
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
-        name_gen.baseline_identifier = self.hdr.product_baseline
+        name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(create_date)
-        name_gen.downlink_time = self.hdr.acquisition_date
+        name_gen.downlink_time = self._hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.product_type = self._output_type
-        self.hdr.set_product_filename(dir_name)
-        self.hdr.set_validity_times(start, stop)
+        self._hdr.product_type = self._output_type
+        self._hdr.set_product_filename(dir_name)
+        self._hdr.set_validity_times(start, stop)
 
         self._create_raw_product(dir_name, name_gen)
 
@@ -111,7 +111,8 @@ class RAWSxxx_10(RawProductGeneratorBase):
     This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    Slicing is done using a slice grid, aligned to ANX.
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a RAW_xxx_10 product) is sliced. The slice grid is aligned to ANX.
     An array "anx" with one or more ANX times must be specified in the scenario.
     For example:
 
@@ -120,19 +121,27 @@ class RAWSxxx_10(RawProductGeneratorBase):
         "2021-02-01T02:03:43.725Z"
       ],
 
-    The acquisition period (phenomenon begin/end times) of the metadata_source
-    (i.e. a RAW_xxx_10 product) is sliced, for every slice a product is
-    generated.
+    Edge cases:
+    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
+        the 'old' ANX, slice 1 starts at the 'new' ANX.
+    - Acquisition starts ts=0..5 seconds before the end of slice n. Create
+        slice n+1 with lead time ts.
+    - Acquisition ends te=0..7 seconds after the end of slice n. Create
+        slice n with trail time te.
 
     The generator adjusts the following metadata:
     - phenomenonTime, acquisition begin/end times.
     - validTime, theoretical slice begin/end times (including overlap).
-    - wrsLatitudeGrid, the slice_frame_nr.
+    - wrsLatitudeGrid, aka the slice_frame_nr.
     '''
 
     PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
                 'RAWS026_10', 'RAWS027_10', 'RAWS028_10', 'RAWS035_10',
                 'RAWS036_10']
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('enable_slicing', '_enable_slicing', 'bool')
+    ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -140,18 +149,22 @@ class RAWSxxx_10(RawProductGeneratorBase):
         anx_list = output_config.get('anx') or scenario_config.get('anx')
         if anx_list is None:
             raise ScenarioError('ANX must be configured for RAWSxxx_10 product')
-        self.anx_list = [self._time_from_iso(anx) for anx in anx_list]
-        self.anx_list.sort()
-        self.enable_slicing = output_config.get('enable_slicing', True)
+        self._anx_list = [self._time_from_iso(anx) for anx in anx_list]
+        self._anx_list.sort()
+        self._enable_slicing = True
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr, acq
 
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        self._create_date = self.hdr.begin_position   # HACK: fill in current date?
-        if self.enable_slicing:
+        self._create_date = self._hdr.begin_position   # HACK: fill in current date?
+        if self._enable_slicing:
             self._generate_sliced_output()
         else:
-            self._create_product(self.hdr.begin_position, self.hdr.end_position)
+            self._create_product(self._hdr.begin_position, self._hdr.end_position)
 
     def _create_product(self, acq_start, acq_stop):
         # Construct product name and set metadata fields
@@ -159,86 +172,25 @@ class RAWSxxx_10(RawProductGeneratorBase):
         name_gen.file_type = self._output_type
         name_gen.start_time = acq_start
         name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self.hdr.product_baseline
+        name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._create_date)
-        name_gen.downlink_time = self.hdr.acquisition_date
+        name_gen.downlink_time = self._hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()
-        self.hdr.product_type = self._output_type
-        self.hdr.set_product_filename(dir_name)
-        self.hdr.set_phenomenon_times(acq_start, acq_stop)
+        self._hdr.product_type = self._output_type
+        self._hdr.set_product_filename(dir_name)
+        self._hdr.set_phenomenon_times(acq_start, acq_stop)
 
         self._create_raw_product(dir_name, name_gen)
 
     def _get_anx(self, t):
         # Returns the latest ANX before the given time
-        idx = bisect.bisect(self.anx_list, t) - 1  # anx_list[idx-1] <= tstart
-        return self.anx_list[min(max(idx, 0), len(self.anx_list) - 1)]
+        idx = bisect.bisect(self._anx_list, t) - 1  # anx_list[idx-1] <= tstart
+        return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
 
     def _generate_sliced_output(self):
-        '''
-        Switching to a new ANX is always between slice #62 and slice #1.
-
-        Edge cases:
-        - First slice starts 0..5 seconds before a grid node.
-
-        Slice lenght=100, orbit=1000, nr=1..10, overlaps are 5/7.
-        * means latest ANX.
-
-        Edge cases:
-
-        - Slice starts < 5 seconds before ANX
-        anx:    0, 1001*
-        acq:    996-1150
-        Slices generated:
-        nr:     1         2*
-        acq:    996-1107, 1095-1150
-        Alternative: slice #62, 996-1007 + #1, 996-1107 + #3 ...
-
-        - Slice duration < 5 seconds, slice starts just before ANX
-        anx:    0, 1001*
-        acq:    1000-1005
-        Slices generated:
-        nr:     1
-        acq:    1000-1005
-        Alternatives: Slice nr. 62, old anx, Slice nr. 1, new anx.
-
-        - Cross ANX
-        anx:    0, 1000
-        acq:    850-1150
-        Slices generated:
-        nr:     9        10        1*        2*
-        acq:    850-907, 895-1007, 995-1107, 1095-1150
-        valid:  795-907, 895-1007, 995-1107, 1095-1207
-
-        anx:    0, 1001
-        acq:    850-1150
-        Slices generated:
-        Nr:     9        10        1*        2*
-        acq:    850-907, 895-1007, 996-1108, 1096-1150
-        valid:  795-907, 895-1007, 996-1108, 1096-1208
-
-        anx:    0, 1001
-        acq:    850-1008
-        Slices generated:
-        nr:     9        10        1*
-        acq:    850-907, 895-1007, 996-1008
-        valid:  795-907, 895-1007, 996-1108
-
-        anx:    0, 999
-        acq:    850-1150
-        Slices generated:
-        acq:    850-907, 895-1007, 996-1108, 1096-1150
-        valid:  795-907, 895-1007, 996-1108, 1096-1208
-
-        anx:    0, 1001
-        acq:    1000-1150
-        Slices generated:
-        nr:     1          2*
-        acq:    1000-1107, 1096-1150
-        '''
-        segment_start = self.hdr.begin_position
-        segment_end = self.hdr.end_position
+        segment_start = self._hdr.begin_position
+        segment_end = self._hdr.end_position
         if segment_start is None or segment_end is None:
             self._logger.error('Phenomenon begin/end times must be known')
             return
@@ -264,12 +216,12 @@ class RAWSxxx_10(RawProductGeneratorBase):
             slice_start = anx + n * constants.SLICE_GRID_SPACING - constants.SLICE_OVERLAP_START
             slice_end = anx + (n + 1) * constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
             slice_nr = (n % constants.SLICES_PER_ORBIT) + 1
-            self.hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
 
             # Calculate the 'real' start/end times
             acq_start = max(slice_start, segment_start)
             acq_end = min(slice_end, segment_end)
-            self.hdr.set_validity_times(slice_start, slice_end)
+            self._hdr.set_validity_times(slice_start, slice_end)
             self._logger.debug('Create slice #{}, {}-{}, anx {}'.format(
                 slice_nr,
                 acq_start,

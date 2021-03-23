@@ -90,8 +90,8 @@ class RAWSxxx_10Test(unittest.TestCase):
         # Normally we read this from input products, but now we set it by hand.
         begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0)
         end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0)
-        gen.hdr.validity_start = gen.hdr.begin_position = begin
-        gen.hdr.validity_stop = gen.hdr.end_position = end
+        gen._hdr.validity_start = gen._hdr.begin_position = begin
+        gen._hdr.validity_stop = gen._hdr.end_position = end
 
         gen.read_scenario_parameters()
         gen.generate_output()
