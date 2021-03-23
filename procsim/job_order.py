@@ -36,6 +36,15 @@ class JobOrderOutput():
         self.file_name_pattern: str
 
 
+class JobOrderIntermediateOutput():
+    '''
+    Data class describing an intermediate output file
+    '''
+    def __init__(self):
+        self.id: str    # Identifier of the intermediate output. The Task’s executable shall be able to recognize it.
+        self.file_name: str  #
+
+
 class JobOrderTask():
     '''
     Data class with task parameters
@@ -48,6 +57,7 @@ class JobOrderTask():
         self.disk_space_mb = 1000000        # limit
         self.inputs: List[JobOrderInput] = []
         self.outputs: List[JobOrderOutput] = []
+        self.intermediate_outputs: List[JobOrderIntermediateOutput] = []
         self.processing_parameters = {}
 
 
@@ -65,6 +75,10 @@ class JobOrderParser:
         self._schema = schema
         self.processor_name = ''
         self.processor_version = ''
+
+        # This flag will enable/disable any kind of breakpoint functionality
+        # generation implemented by the processor
+        self.intermediate_output_enable = True
         self.node = 'N/A'
         self.tasks: List[JobOrderTask] = []
         self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
@@ -114,6 +128,7 @@ class JobOrderParser:
             self.stdout_levels.append(level_el.text or '')
         for level_el in proc.find('List_of_Stderr_Log_Levels').findall('Stderr_Log_Level'):
             self.stderr_levels.append(level_el.text or '')
+        self.intermediate_output_enable = proc.findtext('Intermediate_Output_Enable') == 'true'
 
         # Build list of tasks
         for task_el in root.find('List_of_Tasks').findall('Task'):
@@ -125,6 +140,8 @@ class JobOrderParser:
             task.disk_space_mb = int(task_el.findtext('Disk_Space', '1000000'))
             task.inputs = []
             task.outputs = []
+            task.intermediate_outputs = []
+
             for input_el in task_el.find('List_of_Inputs').findall('Input'):
                 input = JobOrderInput()
                 input.id = input_el.findtext('Input_ID', '')
@@ -146,6 +163,13 @@ class JobOrderParser:
                 output.baseline = int(output_el.findtext('Baseline', '0'))
                 output.file_name_pattern = output_el.findtext('File_Name_Pattern', '')
                 task.outputs.append(output)
+
+            if self.intermediate_output_enable:
+                for int_output_el in task_el.find('List_of_Intermediate_Outputs').findall('Intermediate_Output'):
+                    int_output = JobOrderIntermediateOutput()
+                    int_output.id = int_output_el.findtext('Intermediate_Output_ID', '')
+                    int_output.file_name = int_output_el.findtext('Intermediate_Output_File', '')
+                    task.intermediate_outputs.append(int_output)
 
             # List of processing parameters
             for param in task_el.find('List_of_Proc_Parameters').findall('Proc_Parameter'):

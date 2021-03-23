@@ -262,6 +262,21 @@ def _do_work(logger, config, job_task: Optional[JobOrderTask]):
     worker.start()
 
 
+def _generate_intermediate_files(logger, job_task: Optional[JobOrderTask]):
+    if job_task is None:
+        return
+    for intermediate_output in job_task.intermediate_outputs:
+        logger.info('Create intermediate file {} with id {}'.format(
+            os.path.basename(intermediate_output.file_name),
+            intermediate_output.id
+        ))
+        with open(intermediate_output.file_name, 'w') as file:
+            file.write('Intermediate file, created by procsim\nID={}\n'.format(
+                intermediate_output.id
+            ))
+            file.close()
+
+
 versiontext = "procsim v" + VERSION + \
     ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
 
@@ -396,6 +411,8 @@ def main(argv):
         _log_configured_messages(scenario, logger)
 
         _do_work(logger, scenario, job_task)
+
+        _generate_intermediate_files(logger, job_task)
 
         generators = _create_product_generators(logger, config['mission'], job_task, scenario)
         for gen in generators:
