@@ -26,14 +26,14 @@ mkdir -p data
 python3 procsim/procsim.py -s "Raw data generator, measurement mode" test/procsim_config.json
 
 # Level 0 steps
-echo '  *** L0 step 1a (measurement mode)'
+echo '  *** L0 step 1a first datatake (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1a_sm.xml
-echo '  *** L0 step 1b (measurement mode)'
+echo '  *** L0 step 1b second datatake (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step1b_sm.xml
 
-echo '  *** L0 step 2, 3, 4 (measurement mode)'
+echo '  *** L0 step 2, 3, 4 complete slice (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a_sm.xml
-echo '  *** L0 step 2, 3, 4 incomplete slice (measurement mode)'
+echo '  *** L0 step 2, 3, 4 incomplete (first) slice (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b_sm.xml
 echo '  *** L0 step 2, 3, 4 split slice (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c_sm.xml
