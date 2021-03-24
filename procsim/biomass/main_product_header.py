@@ -476,7 +476,7 @@ class MainProductHeader:
         if level in ['l1']:
             browse = et.SubElement(earth_observation_result, eop + 'browse')
             browse_info = et.SubElement(browse, eop + 'BrowseInformation')
-            browse_type = et.SubElement(browse_info, eop + 'type').text = self._browse_type
+            et.SubElement(browse_info, eop + 'type').text = self._browse_type
             browse_ref_id = et.SubElement(browse_info, eop + 'referenceSystemIdentifier')  # Coordinate reference system name
             browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
             browse_ref_id.text = self.browse_ref_id
