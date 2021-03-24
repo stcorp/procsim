@@ -18,14 +18,14 @@ To use procsim, you will need:
 
  - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2 package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
-Procsim is command-line based. The package consists of directory 'procsim', containing the core application, and one or more subdirectories containing the mission-specific plugins. 
+Procsim is a command-line based tool. The installation package consists of directory 'procsim', containing the core application, and one or more subdirectories containing the mission-specific plugins. The main executable is `procsim.py` .
 
-To install, unzip/untar the procsim installation package and to a location of your choice.
+To install, unzip/untar the procsim installation package to a location of your choice.
 
 # Usage
 For every Task to be simulated, you need:
 
- - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn execute procsim.py.
+ - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn execute `procsim.py`.
 
  - a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
 
@@ -38,16 +38,15 @@ The PF calls the processor with only one argument, the name of the JobOrder file
 
   - the name of the procsim configuration file.
  
-Example:
 
 ```
 #!/bin/sh
-<path_to_procsim>/procsim.py -t $0 -j $1 <path_to_config_file>
+<path_to_procsim>/procsim.py -t $0 -j $1 <path_to_config/configfile>
 ```
-Optionally, you can specify a specific scenario using `-s` followed by the name of the scenario.
+Optionally, you can specify a specific scenario using `-s`, followed by the name of the scenario.
 
 ## Scenario configuration
-Procsim can act as a stub for all kind of processors. Its behavior is determined by a so-called 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated. 
+Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated. 
 
 The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/times should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`
 
