@@ -125,5 +125,16 @@
       <matchExpression><![CDATA[.*AUX_ORB___.*]]></matchExpression>
     </productType>
 
+    <!-- Level 1 -->
+    <productType name="Sx_SCS__1S">
+      <matchExpression><![CDATA[.*S[x123]_SCS__1S.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_SCS__1M">
+      <matchExpression><![CDATA[.*S[x123]_SCS__1M.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_DGM__1S">
+      <matchExpression><![CDATA[.*S[x123]_DGM__1S.*]]></matchExpression>
+    </productType>
+
   </productTypes>
 </pvmlConfig>

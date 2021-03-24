@@ -38,6 +38,12 @@ python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2b_sm.xml
 echo '  *** L0 step 2, 3, 4 split slice (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c_sm.xml
 
+# Level 1 steps
+echo '  *** L1 step 1'
+python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
+
+
+
 # --------------------------------
 # RO mode
 # --------------------------------

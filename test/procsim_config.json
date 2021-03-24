@@ -787,6 +787,29 @@
           "metadata_source": ".*EC_RAWP_0S.*"
         }
       ]
+    },
+    {
+      // Level1, task1
+      "name": "Stripmap Level-1 generation",
+      "file_name": "level1_task1.sh",
+      "processor_name": "l1_sm",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "01.01",
+      "outputs": [
+        {
+          "type": "Sx_SCS__1S",
+          "metadata_source": ".*S._RAW__0S.*"
+        },
+        {
+          "type": "Sx_SCS__1M",
+          "metadata_source": ".*S._RAW__0S.*"  // TODO: check this, I'd expect the 0M product here
+        },
+        {
+          "type": "Sx_DGM__1S",
+          "metadata_source": ".*S._RAW__0S.*"
+        }
+      ]
     }
   ]
 }
