@@ -3,8 +3,11 @@
 # Copyright (C) 2021 S[&]T, The Netherlands.
 # This script creates the procsim release package.
 
+# retrieve version number
+VERSION=`grep -Po "__version__[^']*'\K[^']*" procsim/version.py`
+
 # create fresh package dir
-PACKAGE=${1:-procsim_package}
+PACKAGE=procsim_$VERSION
 rm -rf $PACKAGE
 mkdir $PACKAGE
 
@@ -25,3 +28,5 @@ tar zcf $PACKAGE.tgz $PACKAGE
 
 # remove directory
 rm -rf $PACKAGE
+
+echo "Created package $PACKAGE"

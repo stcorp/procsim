@@ -11,15 +11,15 @@ import json
 import os
 import signal
 import sys
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
-from exceptions import TerminateError, ScenarioError
 import utils
-from job_order import JobOrderInput, JobOrderParser, JobOrderTask, job_order_parser_factory
+from exceptions import ScenarioError, TerminateError
+from job_order import (JobOrderInput, JobOrderParser, JobOrderTask,
+                       job_order_parser_factory)
 from logger import Logger
+from version import __version__
 from work_simulator import WorkSimulator
-
-VERSION = "1.0"
 
 # JobOrder/logging format ICD. Hard-coded for now, can be read from plugin or
 # configuration file if needed.
@@ -277,7 +277,7 @@ def _generate_intermediate_files(logger, job_task: Optional[JobOrderTask]):
             file.close()
 
 
-versiontext = "procsim v" + VERSION + \
+versiontext = "procsim v" + __version__ + \
     ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
 
 helptext = versiontext + """\
@@ -399,7 +399,7 @@ def main(argv):
         exit_code = scenario.get('exit_code', 0)
 
         logger.set_task_name(job_task.name)    # This info was not available yet
-
+        logger.info('Procsim v{} processor stub simulator'.format(__version__))
         logger.info('Simulate scenario {}'.format(scenario['name']))
         if job_filename:
             logger.info('Read JobOrder {}'.format(job_filename))
