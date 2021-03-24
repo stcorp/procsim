@@ -39,7 +39,7 @@ class IProductGenerator(abc.ABC):
     Interface for product generators
     '''
     @abc.abstractmethod
-    def get_params(self) -> Tuple[List[str], List[str], List[str]]:
+    def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         '''
         Returns generator, header and acquisition parameters
         '''
