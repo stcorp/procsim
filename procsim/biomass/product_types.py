@@ -103,6 +103,12 @@ RAWS_PRODUCT_TYPES: List[str] = [
 ]
 
 
+L1S_PRODUCTS: List[str] = [
+    'S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S'
+    'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S'
+]
+
+
 def find_product(product_type_code: str) -> Optional[ProductType]:
     '''Return ProductType for a given product_type_code, or None if not found'''
     for pt in PRODUCT_TYPES:
