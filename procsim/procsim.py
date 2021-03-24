@@ -291,7 +291,7 @@ Usage:
         Shows version number.
 
     procsim -h [mission product]
-        Shows generic help, or options for a specific product.
+        Shows generic help, or for a specific product.
 """
 
 
