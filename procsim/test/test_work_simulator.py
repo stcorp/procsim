@@ -70,7 +70,7 @@ class WorkSimulatorTest(unittest.TestCase):
         TEST_TIME = 10
         NR_PROGRESS_MESSAGES = 5
         MEMORY_MB = 250
-        DISK_SPACE_MB = 100
+        DISK_SPACE_MB = 4
 
         nr_cpu = multiprocessing.cpu_count()
         self.assertGreaterEqual(nr_cpu, 2)
