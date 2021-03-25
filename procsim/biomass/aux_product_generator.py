@@ -69,19 +69,19 @@ class Aux(product_generator.ProductGeneratorBase):
     def _create_aux_product(self, suffix, extension):
         # Setup MPH
         self._hdr.product_type = self._output_type
-        acq = self._hdr.acquisitions[0]
+
+        start, stop = self._hdr.begin_position, self._hdr.end_position
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = start
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = stop
+
         name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
-        name_gen.start_time = self._hdr.validity_start
-        name_gen.stop_time = self._hdr.validity_stop
+        name_gen.start_time = start
+        name_gen.stop_time = stop
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
 
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
