@@ -15,31 +15,31 @@ _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
 ]
 _HDR_PARAMS = [
-    # All
     ('baseline', 'product_baseline', 'int'),
-    # All but sliced products
     ('begin_position', 'begin_position', 'date'),
     ('end_position', 'end_position', 'date'),
-    # Level 0 only
-    ('num_l0_lines', 'nr_l0_lines', 'str'),
-    ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
-    ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
+    # L0 + L1
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
+    # L1 only
+    ('footprint_polygon', 'footprint_polygon', 'str'),
+    ('center_points', 'center_points', 'str'),
+    ('browse_ref_id', 'browse_ref_id', 'str'),
+    ('browse_image_filename', 'browse_image_filename', 'str')
 ]
 _ACQ_PARAMS = [
-    # Level 0, 1, 2a only
+    # L0 + L1
     ('mission_phase', 'mission_phase', 'str'),
     ('data_take_id', 'data_take_id', 'int'),
     ('global_coverage_id', 'global_coverage_id', 'str'),
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
     ('track_nr', 'track_nr', 'int'),
-    ('slice_frame_nr', 'slice_frame_nr', 'int')
+    # ('slice_frame_nr', 'slice_frame_nr', 'int')
 ]
 
 
-class Sx_SCS__1S(product_generator.ProductGeneratorBase):
+class Level1Stripmap(product_generator.ProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating dummy Biomass Level-1a Single-look Complex Slant (SCS) and
@@ -48,7 +48,15 @@ class Sx_SCS__1S(product_generator.ProductGeneratorBase):
     Input are a single Sx_RAW__0S, Sx_RAW__0M, AUX_ORB___, AUX_ATT___, ...
     product. Output is a series of frames.
 
+    The generator adjusts the following metadata:
+    - phenomenonTime, acquisition begin/end times.
+    - validTime, theoretical frame begin/end times (including overlap).
+    - wrsLatitudeGrid, aka the slice_frame_nr.
     '''
+    PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S', 'Sx_SCS__1S',
+                'S1_SCS__1M', 'S2_SCS__1M', 'S3_SCS__1M', 'Sx_SCS__1M',
+                'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S', 'Sx_DGM__1S',
+                'RO_SCS__1S']
 
     _GENERATOR_PARAMS: List[tuple] = [
         ('enable_framing', '_enable_framing', 'bool')
@@ -56,10 +64,6 @@ class Sx_SCS__1S(product_generator.ProductGeneratorBase):
         # ('frame_overlap', '_frame_overlap', 'float'),
         # ('frame_lower_bound', '_frame_lower_bound', 'float'),
     ]
-
-    PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S', 'Sx_SCS__1S',
-                'S1_SCS__1M', 'S2_SCS__1M', 'S3_SCS__1M', 'Sx_SCS__1M',
-                'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S', 'Sx_DGM__1S']
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -74,12 +78,6 @@ class Sx_SCS__1S(product_generator.ProductGeneratorBase):
     def _generate_product(self):
         # Setup MPH
         acq = self._hdr.acquisitions[0]
-        self._hdr.incomplete_l1_frame = False
-        self._hdr.partial_l1_frame = False
-        self._hdr.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
-        self._hdr.center_points = '-7.492090 -63.27095'
-        self._hdr.browse_ref_id = 'EPSG:4326'
-        self._hdr.browse_image_filename = './preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png'
 
         name_gen = product_name.ProductName()
         name_gen.file_type = self._hdr.product_type

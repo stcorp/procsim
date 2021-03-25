@@ -787,14 +787,22 @@
         }
       ]
     },
+
+    // Level1, task1
     {
-      // Level1, task1
       "name": "Stripmap Level-1 generation",
       "file_name": "level1_task1.sh",
       "processor_name": "l1_sm",
       "processor_version": "01.01",
       "task_name": "Step1",
       "task_version": "01.01",
+
+      // L1 metadata parameters. If not provided, fields are default (mostly empty).
+      "footprint_polygon": "-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648",
+      "center_points": "-7.492090 -63.27095",
+      "browse_ref_id": "EPSG:4326",
+      "browse_image_filename": "./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png",
+
       "outputs": [
         {
           "type": "Sx_SCS__1S",
