@@ -1,0 +1,34 @@
+{
+    "mission": "biomass",
+    "scenarios": [
+        {
+            // Scenario to produce the AUX products, needed for the Level1 processor.
+            "name": "Aux generator",
+            "file_name": "N/A",
+            "processor_name": "auxgenerator",
+            "processor_version": "01.00",
+            "task_name": "generate",
+            "task_version": "01.00",
+
+            "baseline": 1,
+            "begin_position": "2021-02-01T00:00:00.000Z",
+            "end_position": "2021-02-01T01:38:10.000Z",
+
+            "output_path": "data/aux",
+            "outputs": [
+                {
+                    "type": "AUX_PP1___"
+                },
+                {
+                    "type": "AUX_TEC___"
+                },
+                {
+                    "type": "AUX_GMF___"
+                },
+                {
+                    "type": "AUX_INS___"
+                }
+            ]
+        }
+    ]
+}
