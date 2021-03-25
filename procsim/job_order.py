@@ -81,7 +81,7 @@ class JobOrderParser:
         self.intermediate_output_enable = True
         self.node = 'N/A'
         self.tasks: List[JobOrderTask] = []
-        self.stdout_levels: List[str] = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
+        self.stdout_levels: List[str] = ['INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels: List[str] = []
 
     def read(self, filename):

@@ -12,7 +12,7 @@ import sys
 
 class Logger:
     '''This class is responsible for generating Log messages on stdout and stderr'''
-    LEVELS = {'DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR'}
+    LEVELS = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
 
     @staticmethod
     def _print_stderr(*args, **kwargs):
