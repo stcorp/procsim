@@ -25,12 +25,12 @@ class ProductGeneratorBase(IProductGenerator):
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
-        self._output_path: str = '' if job_config is None else job_config.dir
+        self._output_path: str = '.' if job_config is None else job_config.dir
         self._job_config_baseline = None if job_config is None else job_config.baseline
         self._logger = logger
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
-        self._meta_data_source: str = output_config.get('metadata_source', '.*')  # default any
+        self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._create_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
 
@@ -109,7 +109,7 @@ class ProductGeneratorBase(IProductGenerator):
                 if not os.path.isdir(file):
                     self._logger.error('input {} must be a directory'.format(file))
                     return False
-                if not mph_is_parsed and re.match(pattern, file):
+                if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)
                     # Derive mph file name from product name, parse header
@@ -122,7 +122,7 @@ class ProductGeneratorBase(IProductGenerator):
         # (if available) or set in scenario config.
         self._hdr.product_baseline = self._job_config_baseline
 
-        if not mph_is_parsed:
+        if (pattern is not None) and (not mph_is_parsed):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
         return mph_is_parsed
 
