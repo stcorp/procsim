@@ -104,8 +104,9 @@ RAWS_PRODUCT_TYPES: List[str] = [
 
 
 L1S_PRODUCTS: List[str] = [
-    'S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S'
-    'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S'
+    'S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S',
+    'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S',
+    'S1_STA__1S', 'S2_STA__1S', 'S3_STA__1S'
 ]
 
 
