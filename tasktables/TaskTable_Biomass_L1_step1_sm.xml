@@ -95,6 +95,70 @@
                 </Alternative>
               </List_of_Alternatives>
             </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
+                <Alternative>
+                  <Order>1</Order>
+                  <Origin>DB</Origin>
+                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <T0 units="secs">0</T0>
+                  <T1 units="secs">0</T1>
+                  <File_Type>AUX_INS___</File_Type>
+                  <File_Name_Type>Physical</File_Name_Type>
+                  <Input_Source_Data>true</Input_Source_Data>
+                </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
+                <Alternative>
+                  <Order>1</Order>
+                  <Origin>DB</Origin>
+                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <T0 units="secs">0</T0>
+                  <T1 units="secs">0</T1>
+                  <File_Type>AUX_PP1___</File_Type>
+                  <File_Name_Type>Physical</File_Name_Type>
+                  <Input_Source_Data>true</Input_Source_Data>
+                </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
+                <Alternative>
+                  <Order>1</Order>
+                  <Origin>DB</Origin>
+                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <T0 units="secs">0</T0>
+                  <T1 units="secs">0</T1>
+                  <File_Type>AUX_TEC___</File_Type>
+                  <File_Name_Type>Physical</File_Name_Type>
+                  <Input_Source_Data>true</Input_Source_Data>
+                </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <Mode>ALWAYS</Mode>
+              <Mandatory>Yes</Mandatory>
+              <List_of_Alternatives count="1">
+                <Alternative>
+                  <Order>1</Order>
+                  <Origin>DB</Origin>
+                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <T0 units="secs">0</T0>
+                  <T1 units="secs">0</T1>
+                  <File_Type>AUX_GMF___</File_Type>
+                  <File_Name_Type>Physical</File_Name_Type>
+                  <Input_Source_Data>true</Input_Source_Data>
+                </Alternative>
+              </List_of_Alternatives>
+            </Input>
           </List_of_Inputs>
           <List_of_Outputs count="3">
             <Output>

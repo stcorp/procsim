@@ -125,6 +125,20 @@
       <matchExpression><![CDATA[.*AUX_ORB___.*]]></matchExpression>
     </productType>
 
+    <!-- Aux (other) -->
+    <productType name="AUX_PP1___">
+      <matchExpression><![CDATA[.*AUX_PP1___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_TEC___">
+      <matchExpression><![CDATA[.*AUX_TEC___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_GMF___">
+      <matchExpression><![CDATA[.*AUX_GMF___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_INS___">
+      <matchExpression><![CDATA[.*AUX_INS___.*]]></matchExpression>
+    </productType>
+
     <!-- Level 1 -->
     <productType name="Sx_SCS__1S">
       <matchExpression><![CDATA[.*S[x123]_SCS__1S.*]]></matchExpression>

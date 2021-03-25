@@ -39,9 +39,12 @@ echo '  *** L0 step 2, 3, 4 split slice (measurement mode)'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c_sm.xml
 
 # Level 1 steps
+echo '  *** Generate aux data for Level 1 processor'
+mkdir -p data
+python3 procsim/procsim.py -s "Aux generator" test/procsim_aux_scenario.json
+
 echo '  *** L1 step 1'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
-
 
 
 # --------------------------------
