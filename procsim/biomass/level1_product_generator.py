@@ -195,3 +195,98 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
                 if is_partial:
                     self._logger.debug('Frame {} is partial'.format(frame_nr))
                 self._generate_product()
+
+
+class Level1Stack(product_generator.ProductGeneratorBase):
+    '''
+    This class implements the ProductGeneratorBase and is responsible for
+    generating dummy Biomass Level-1c Stack Products.
+
+    Inputs are an AUX_PPS___ product, and 2 or more L1a SCS products from
+    different repeat cycles, with the same framenr, swath ID, major cycle ID,
+    global coverage ID and mission phase.
+    Outputs are a Sx_STA_1S and Sx_STA_1M product for every input SCS product.
+
+    The generator adjusts the following metadata:
+    - None
+    '''
+    PRODUCTS = ['S1_STA__1S', 'S2_STA__1S', 'S3_STA__1S', 'Sx_STA__1S',
+                'S1_STA__1M', 'S2_STA__1M', 'S3_STA__1M', 'Sx_STA__1M']
+
+    def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+
+    def generate_output(self):
+        super().generate_output()
+
+        self._create_date = self._hdr.end_position   # HACK: fill in current date?
+        self._hdr.product_type = self._resolve_wildcard_product_type()
+
+        # Setup MPH
+        acq = self._hdr.acquisitions[0]
+        name_gen = product_name.ProductName()
+        name_gen.file_type = self._hdr.product_type
+        name_gen.start_time = self._hdr.validity_start
+        name_gen.stop_time = self._hdr.validity_stop
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        name_gen.set_creation_date(self._create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+
+        dir_name = name_gen.generate_path_name()
+        self._hdr.set_product_filename(dir_name)
+        self._logger.info('Create {}'.format(dir_name))
+
+        # List with files: array of directory, suffix, extension
+        files = [
+            (['master_annotation'], 'annot', 'xml'),
+            (['master_annotation', 'navigation'], 'orb', 'xml'),
+            (['master_annotation', 'navigation'], 'att', 'xml'),
+            (['master_annotation', 'geometry'], 'geoloc', 'tiff'),
+
+            (['annotation'], 'annot', 'xml'),
+            (['annotation', 'calibration'], 'cal', 'xml'),
+            (['annotation', 'calibration'], 'noise', 'dat'),
+            (['annotation', 'navigation'], 'orb', 'xml'),
+            (['annotation', 'navigation'], 'att', 'xml'),
+
+            (['coregistration'], 'shift', 'tiff'),
+
+            (['InSAR'], 'delta_iono', 'tiff'),
+            (['InSAR'], 'rfi_impact', 'tiff'),
+            (['InSAR'], 'ground_cal', 'tiff'),
+
+            (['preview'], 'map', 'kml'),
+            (['preview'], 'ql', 'png'),
+
+            (['schema'], 'Annotation', 'xsd'),
+            (['schema'], 'Orbit', 'xsd'),
+            (['schema'], 'Attitude', 'xsd')
+        ]
+        if self._hdr.product_type in product_types.L1S_PRODUCTS:
+            files += [
+                (['measurement'], 'i_hh', 'tiff'),
+                (['measurement'], 'i_hv', 'tiff'),
+                (['measurement'], 'i_vh', 'tiff'),
+                (['measurement'], 'i_vv', 'tiff')
+            ]
+
+        # Create MPH
+        base_path = os.path.join(self._output_path, dir_name)
+        os.makedirs(base_path, exist_ok=True)
+        file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
+        self._hdr.write(file_name)
+
+        # Create other product files
+        XML = ['xml', 'xsd']
+        nr_binfiles = len([ext for _, _, ext in files if ext in XML])
+        for dirs, suffix, ext in files:
+            path = os.path.join(base_path, *dirs)
+            os.makedirs(path, exist_ok=True)
+            file_name = os.path.join(path, name_gen.generate_binary_file_name('_' + suffix, ext))
+            size = 0 if ext in XML else self._size_mb // nr_binfiles
+            self._generate_bin_file(file_name, size)
