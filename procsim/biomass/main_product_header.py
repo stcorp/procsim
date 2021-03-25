@@ -195,8 +195,8 @@ class MainProductHeader:
         # L1 only
         self.incomplete_l1_frame: Optional[bool] = None
         self.partial_l1_frame: Optional[bool] = None
-        self.browse_ref_id: Optional[str] = None
-        self.browse_image_filename: Optional[str] = None
+        self.browse_ref_id: Optional[str] = 'Unknown'
+        self.browse_image_filename: Optional[str] = ''
 
         # L0 and L1
         acquisition = Acquisition()
