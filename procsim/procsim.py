@@ -62,7 +62,7 @@ class IProductGenerator(abc.ABC):
         pass
 
 
-def _read_config(logger, filename):
+def _read_config(logger, filename) -> dict:
     # Load configuration and check for correctness.
     # TODO: Use JSON schema! Yes, that exists...
     ROOT_KEYS = ['scenarios', 'mission']
@@ -118,7 +118,7 @@ def _compare_outputs(scenario, task):
     return scenario_output_types == task_output_types
 
 
-def _find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scenario_name):
+def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_name) -> Tuple[dict, JobOrderTask]:
     # Find scenario from the list of scenarios in the cfg.
     #
     # If an explicit scenario name is given, use that and try to find a matching
@@ -169,23 +169,21 @@ def _find_fitting_scenario(logger, task_filename, cfg, job: JobOrderParser, scen
 
     if not exec_found:
         if task_filename:
-            logger.error('No scenario for {} found'.format(os.path.basename(task_filename)))
+            raise ScenarioError('No scenario for {} found'.format(os.path.basename(task_filename)))
         else:
-            logger.error('No scenario "{}" found'.format(scenario_name))
+            raise ScenarioError('No scenario "{}" found'.format(scenario_name))
     elif not proc_found:
-        logger.error('No scenario for {} and processor {} {} found'.format(
+        raise ScenarioError('No scenario for {} and processor {} {} found'.format(
             os.path.basename(task_filename), job.processor_name, job.processor_version))
     elif not task_found:
-        logger.error('No scenario with matching task found for {}.'.format(
+        raise ScenarioError('No scenario with matching task found for {}.'.format(
             os.path.basename(task_filename)))
     elif not matching_inputs_found:
-        logger.error('No scenario with matching inputs found for {}.'.format(
+        raise ScenarioError('No scenario with matching inputs found for {}.'.format(
             os.path.basename(task_filename)))
     else:
-        logger.error('No scenario with matching outputs found for {}.'.format(
+        raise ScenarioError('No scenario with matching outputs found for {}.'.format(
             os.path.basename(task_filename)))
-
-    return None, None
 
 
 def _log_configured_messages(scenario, logger):
@@ -282,16 +280,25 @@ versiontext = "procsim v" + __version__ + \
 
 helptext = versiontext + """\
 Usage:
-    procsim [-t TASK_FILENAME] [-j JOBORDER_FILE] [-s SCENARIO_NAME] CONFIG_FILE
-        Simulate a scenario from CONFIG_FILE. The scenario is selected using
-        TASK_FILENAME (the name of the task as called by the CPF), or
-        specified explicitly by SCENARIO_NAME.
+    procsim [OPTIONS] -t TASK_FILENAME -j JOBORDER_FILE [-s SCENARIO_NAME] CONFIG_FILE
+    procsim [OPTIONS] -s SCENARIO_NAME CONFIG_FILE
+        Simulate a scenario from CONFIG_FILE.
+        The scenario is selected using either TASK_FILENAME and JOBORDER_FILE,
+        or specified explicitly by SCENARIO_NAME.
 
     procsim -v
         Shows version number.
 
-    procsim -h [mission product]
-        Shows generic help, or for a specific product.
+    procsim -h
+    procsim -h MISSION PRODUCT_TYPE
+        Shows generic help, or for a specific product type.
+
+    -t, --task_filename=NAME    The name of the task as called by the CPF
+    -j, --joborder=NAME         The file name of the job order
+    -s, --scenario=SCENARIO     For use of SCENARIO (normally derived from
+                                task-filename and joborder)
+    -l, --log-level=LVL         Force log level to LVL. LVL can be
+                                debug, info, progress, warning, error
 """
 
 
@@ -344,8 +351,9 @@ def parse_command_line(argv):
     task_filename = ''
     job_filename = None
     scenario_name = None
+    log_level = None
     try:
-        opts, args = getopt.getopt(argv, 'hvt:j:s:', ['help', 'version', 'task_filename=', 'joborder=', 'scenario='])
+        opts, args = getopt.getopt(argv, 'hvt:j:s:l:', ['help', 'version', 'task_filename=', 'joborder=', 'scenario=', 'log-level='])
     except getopt.GetoptError:
         print(helptext)
         sys.exit()
@@ -362,15 +370,22 @@ def parse_command_line(argv):
             job_filename = arg
         elif opt in ('-s', '--scenario_name'):
             scenario_name = arg
+        elif opt in ('-l', '--log-level'):
+            level = arg.upper()
+            if level in Logger.LEVELS:
+                log_level = level
+            else:
+                levels = [lvl.lower() for lvl in Logger.LEVELS]
+                print('Log level must be one of {}'.format(Logger.LEVELS))
     if not args:
         print(helptext)
         sys.exit()
     config_filename = args[0]
-    return task_filename, job_filename, config_filename, scenario_name
+    return task_filename, job_filename, config_filename, scenario_name, log_level
 
 
 def main(argv):
-    task_filename, job_filename, config_filename, scenario_name = parse_command_line(argv)
+    task_filename, job_filename, config_filename, scenario_name, log_level = parse_command_line(argv)
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
     try:
         # Program terminate/interrupt, will raise an exception which in turn will
@@ -385,17 +400,28 @@ def main(argv):
         job = job_order_parser_factory(PROCESSOR_ICD, logger)
         job.read(job_filename)
 
+        scenario, job_task = _find_fitting_scenario(task_filename, config, job, scenario_name)
+
+        # Adjust log level
+        stdout_levels = job.stdout_levels
+        stderr_levels = job.stderr_levels
+        log_level = log_level or scenario.get('log_level') or config.get('log_level')
+        if log_level is not None:
+            stdout_levels = []
+            stderr_levels = []
+            for level in Logger.LEVELS[::-1]:
+                stdout_levels.append(level)
+                if level == log_level.upper():
+                    break
+
         logger = Logger(
             job.node,
             job.processor_name,
             job.processor_version,
-            job.stdout_levels,
-            job.stderr_levels
+            stdout_levels,
+            stderr_levels
         )
 
-        scenario, job_task = _find_fitting_scenario(logger, task_filename, config, job, scenario_name)
-        if scenario is None:
-            sys.exit(1)
         exit_code = scenario.get('exit_code', 0)
 
         logger.set_task_name(job_task.name)    # This info was not available yet

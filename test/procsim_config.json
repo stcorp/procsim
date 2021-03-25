@@ -1,7 +1,6 @@
 {
   "mission": "biomass", // Must match the plugin name
-  "job_order_schema": "../../test/joborder_new.xsd",
-
+  "log_level": "debug",
   "scenarios": [
     // A list of scenario descrptions.
     // Multiple scenarios are allowed in a single configuration file.

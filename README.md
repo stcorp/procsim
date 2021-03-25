@@ -9,6 +9,8 @@ This tool, Procsim, can be used to simulate a generic Task, in order to test the
 
 Procsim does not do any 'real' processing, but reads and interprets the JobOrder, consumes resources (CPU, disk and memory) and generates output data with correct directory/file names and valid Main Product Headers.
 
+During execution, logging is produced, with log levels according to those specified in the JobOrder. However, log levels can be overruled on the command line or in the configuration file. The program exits with an exit code which can be specified.
+
 # Installation instructions
 To use procsim, you will need:
 
@@ -56,7 +58,7 @@ The configuration file is structured as following:
 ```
 {
   "mission": "biomass",
-
+  "log_level": "debug",
   "scenarios": [
       // Array with scenarios
   ]
@@ -66,6 +68,8 @@ A JSON editor with syntax checking and coloring, such as Visual Studio Code, is 
 The parameters are described below.
 
 - `mission` : string, mandatory. Must match the name of plugin, in this case biomass.
+
+- `log_level` : string, optional. Log level, can be debug, info, progress, warning, error. Overrules the level in the jobOrder, if any. Default is 'info'.
 
 - `scenarios` : array of objects, mandatory. This section contains one or more scenarios.
 
@@ -81,6 +85,7 @@ An example scenario:
       "task_name": "Step5",
       "task_version": "05.03L01",
 
+      "log_level": "debug",
       "logging": [
         {
           "level": "info",
@@ -113,6 +118,8 @@ The parameters are described below.
 - `file_name` : string, mandatory. Must match the `-t` command line parameter.
 
 - `processor_name`, `processor_version`, `task_name` and `task_version` : string, mandatory. Used to find the matching task in the JobOrder and must match the corresponding fields in the JobOrder.
+
+- `log_level` : string, optional. Log level, can be debug, info, progress, warning, error. Overrules the `log_level` in the root of the configuration, if any, or the level in the jobOrder, if any. Default is 'info'.
 
 - `logging` : array of objects, optional. Procsim produces many log messages, formatted and filtered according to the settings in the JobOrder. An optional list with additional log messages can be specified and will be logged.
 
