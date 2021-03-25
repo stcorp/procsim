@@ -436,7 +436,11 @@ class Aux(product_generator.ProductGeneratorBase):
     generating Level-0 Auxiliary products.
     '''
 
-    PRODUCTS = ['AUX_ATT___', 'AUX_ORB___']
+    PRODUCTS = [
+        'AUX_ATT___', 'AUX_CAL_AB', 'AUX_ERP___', 'AUX_GMF___', 'AUX_INS___',
+        'AUX_ORB___', 'AUX_PP1___', 'AUX_PP2_2A', 'AUX_PP2_FH', 'AUX_PP2_FD',
+        'AUX_PP2_AB', 'AUX_PP3___', 'AUX_PPS___', 'AUX_TEC___',
+    ]
 
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -445,14 +449,32 @@ class Aux(product_generator.ProductGeneratorBase):
         super().generate_output()
         self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
+        # We don't have info about the internal structure of the AUX files.
+        # For now, assume a single XML + XSD. The suffixes in the table below
+        # are just examples!
+        SUFFIXES = {
+            'AUX_ATT___': 'attitude',
+            'AUX_CAL_AB': 'above_ground',
+            'AUX_ERP___': 'rotation',
+            'AUX_GMF___': 'mag',
+            'AUX_INS___': 'insparam',
+            'AUX_ORB___': 'orbit',
+            'AUX_PP1___': 'l1params',
+            'AUX_PP2_2A': 'l2aparams',
+            'AUX_PP2_FH': 'forestheight',
+            'AUX_PP2_FD': 'forestdist',
+            'AUX_PP2_AB': 'l2above_ground',
+            'AUX_PP3___': 'l3params',
+            'AUX_PPS___': 'stackparams',
+            'AUX_TEC___': 'tec',
+        }
+        self._create_aux_product(SUFFIXES['self._output_type'], '.xml')
+
+    def _create_aux_product(self, suffix, extension):
         # Setup MPH
         self._hdr.product_type = self._output_type
-
-        # TODO: What other MPH fields should be set for AUX?
-
-        # Setup all fields mandatory for an auxiliary product.
-        name_gen = product_name.ProductName()
         acq = self._hdr.acquisitions[0]
+        name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = self._hdr.validity_start
         name_gen.stop_time = self._hdr.validity_stop
@@ -475,15 +497,16 @@ class Aux(product_generator.ProductGeneratorBase):
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
-        data_dir = os.path.join(dir_name, 'data')
-        support_dir = os.path.join(dir_name, 'support')
 
+        data_dir = os.path.join(dir_name, 'data')
         os.makedirs(data_dir, exist_ok=True)
-        file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_attitude', '.xml'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
+        file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_' + suffix, extension))
+        self._generate_bin_file(file_name, self._size_mb)
 
         # This component has to be considered optional because
         # it shall not be used in case AUX data format is not XML
-        os.makedirs(support_dir, exist_ok=True)
-        file_name = os.path.join(support_dir, name_gen.generate_binary_file_name('_schema', '.xsd'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
+        if extension == '.xml':
+            support_dir = os.path.join(dir_name, 'support')
+            os.makedirs(support_dir, exist_ok=True)
+            file_name = os.path.join(support_dir, suffix + '.xsd')
+            self._generate_bin_file(file_name, 0)
