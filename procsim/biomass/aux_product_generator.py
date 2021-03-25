@@ -28,6 +28,11 @@ class Aux(product_generator.ProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 Auxiliary products.
+
+    Currently, all AUX products consist of the MPH and a single XML + XSD
+    representing the data and the XML schema respective.
+    The suffixes used in the name of the data files are derived from the product
+    type description, and are just examples!
     '''
 
     PRODUCTS = [
@@ -43,9 +48,6 @@ class Aux(product_generator.ProductGeneratorBase):
         super().generate_output()
         self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
-        # We don't have info about the internal structure of the AUX files.
-        # For now, assume a single XML + XSD. The suffixes in the table below
-        # are just examples!
         SUFFIXES = {
             'AUX_ATT___': 'attitude',
             'AUX_CAL_AB': 'above_ground',
