@@ -9,12 +9,14 @@ from typing import Optional, List
 from procsim import IProductGenerator
 from exceptions import ScenarioError
 
+from biomass import aux_product_generator as aux
 from biomass import level0_product_generator as level0
 from biomass import raw_product_generator as raw
 
 _GENERATORS = [
+    aux.Aux,
     raw.RAW_xxx_10, raw.RAWSxxx_10,
-    level0.Sx_RAW__0x, level0.Sx_RAW__0M, level0.AC_RAW__0A, level0.Aux
+    level0.Sx_RAW__0x, level0.Sx_RAW__0M, level0.AC_RAW__0A
 ]
 
 
