@@ -13,13 +13,17 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE))
 
+with open("README.md", 'r') as f:
+    long_description = f.read()
+
 setup(
     name="procsim",
     version=verstr,
     license="BSD3",
     author="S[&]T",
     description="Tool to simulate a processor in a PDGS.",
-    # long_description="",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=["procsim", "procsim.core", "procsim.biomass"],
     package_data={'procsim.core': ['*.xsd']},
     include_package_data=True,
@@ -28,4 +32,9 @@ setup(
             "procsim = procsim.core.main:main"
         ]
     },
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Programming Language :: Python :: 3'
+    ]
 )
