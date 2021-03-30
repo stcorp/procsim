@@ -77,6 +77,9 @@ class RAW_xxx_10(RawProductGeneratorBase):
         ('end_position', 'end_position', 'date'),
     ]
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen, hdr + self.HDR_PARAMS, acq

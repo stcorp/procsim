@@ -78,6 +78,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
@@ -254,6 +257,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
                 'RO_RAW__0M', 'EC_RAW__0M', 'EC_RAW__0S']
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
@@ -378,8 +384,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        # TODO: read lead time from JobOrder (processing parameters) or
-        # scenario.
+        # TODO: read lead time from JobOrder (processing parameters)
         self._leading_margin = self.DEFAULT_LEADING_MARGIN
         self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
 

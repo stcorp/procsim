@@ -213,6 +213,9 @@ class Level1Stack(product_generator.ProductGeneratorBase):
     PRODUCTS = ['S1_STA__1S', 'S2_STA__1S', 'S3_STA__1S', 'Sx_STA__1S',
                 'S1_STA__1M', 'S2_STA__1M', 'S3_STA__1M', 'Sx_STA__1M']
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
