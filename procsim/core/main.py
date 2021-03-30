@@ -4,7 +4,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Task simulator for scientific processors.
 '''
-import abc
 import getopt
 import importlib
 import json
@@ -14,9 +13,9 @@ import sys
 from typing import List, Optional, Tuple
 
 from . import utils
+from .iproduct_generator import IProductGenerator
 from .exceptions import ScenarioError, TerminateError
-from .job_order import (JobOrderInput, JobOrderParser, JobOrderTask,
-                        job_order_parser_factory)
+from .job_order import JobOrderParser, JobOrderTask, job_order_parser_factory
 from .logger import Logger
 from .version import __version__
 from .work_simulator import WorkSimulator
@@ -32,34 +31,6 @@ def signal_term_handler(signal, frame):
 
 def signal_int_handler(signal, frame):
     raise TerminateError('Program interrupted (SIGINT)')
-
-
-class IProductGenerator(abc.ABC):
-    '''
-    Interface for product generators
-    '''
-    @abc.abstractmethod
-    def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
-        '''
-        Returns generator, header and acquisition parameters
-        '''
-        pass
-
-    @abc.abstractmethod
-    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
-        pass
-
-    @abc.abstractmethod
-    def list_scenario_parameters(self) -> List[str]:
-        pass
-
-    @abc.abstractmethod
-    def read_scenario_parameters(self):
-        pass
-
-    @abc.abstractmethod
-    def generate_output(self):
-        pass
 
 
 def _read_config(logger, filename) -> dict:

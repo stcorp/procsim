@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
 from procsim.core.logger import Logger
-from procsim.core.main import IProductGenerator
+from procsim.core.iproduct_generator import IProductGenerator
 
 from . import main_product_header, product_name
 

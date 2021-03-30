@@ -6,7 +6,7 @@ Biomass output product generator factory.
 
 from typing import Optional, List
 
-from procsim.core.main import IProductGenerator
+from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.exceptions import ScenarioError
 
 from . import aux_product_generator as aux
