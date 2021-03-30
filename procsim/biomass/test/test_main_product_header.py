@@ -2,12 +2,11 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import datetime
-from ssl import get_default_verify_paths
 import tempfile
 import os
 import unittest
 
-from biomass.main_product_header import MainProductHeader
+from procsim.biomass.main_product_header import MainProductHeader
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

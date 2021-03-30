@@ -9,7 +9,6 @@ import subprocess
 from typing import List
 from xml.etree import ElementTree as et
 
-
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order_ESA-EOPG-EEGS-ID-0083.xsd')
 

@@ -10,9 +10,9 @@ import datetime
 import os
 from typing import List
 
-from job_order import JobOrderInput
+from procsim.core.job_order import JobOrderInput
 
-from biomass import main_product_header, product_generator, product_name
+from . import main_product_header, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
@@ -38,7 +38,7 @@ _ACQ_PARAMS = [
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
     ('track_nr', 'track_nr', 'int'),
-    ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ('slice_frame_nr', 'slice_frame_nr', 'int')  # TODO: overwritten in sliced products
 ]
 
 

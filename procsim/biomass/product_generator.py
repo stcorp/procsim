@@ -7,11 +7,11 @@ import re
 import zipfile
 from typing import List, Optional
 
-from job_order import JobOrderInput, JobOrderOutput
-from logger import Logger
-from procsim import IProductGenerator
+from procsim.core.job_order import JobOrderInput, JobOrderOutput
+from procsim.core.logger import Logger
+from procsim.core.main import IProductGenerator
 
-from biomass import main_product_header, product_name
+from . import main_product_header, product_name
 
 
 class ProductGeneratorBase(IProductGenerator):

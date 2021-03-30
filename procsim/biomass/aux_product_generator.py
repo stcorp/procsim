@@ -7,7 +7,7 @@ format according to BIO-ESA-EOPG-EEGS-TN-0054
 import os
 from typing import List
 
-from biomass import product_generator, product_name
+from . import product_generator, product_name
 
 
 _GENERATOR_PARAMS = [

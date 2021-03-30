@@ -4,7 +4,7 @@
   <taskTablePath>tasktables</taskTablePath>
   <workspaceDirectory>workspace</workspaceDirectory>
   <taskTableSchema>test/tasktable.xsd</taskTableSchema>
-  <jobOrderSchema>procsim/job_order_ESA-EOPG-EEGS-ID-0083.xsd</jobOrderSchema>
+  <jobOrderSchema>procsim/core/job_order_ESA-EOPG-EEGS-ID-0083.xsd</jobOrderSchema>
   <ProcessorInterfaceVersion>1</ProcessorInterfaceVersion>
   <processingStation>GAT</processingStation>  <!-- This value will be used to populate the corresponding entry in the JobOrder file.-->
   <splitLoggingLevel>false</splitLoggingLevel>

@@ -9,8 +9,8 @@ import shutil
 import zipfile
 from typing import List
 
-from exceptions import ScenarioError
-from biomass import constants, product_generator, product_name
+from procsim.core.exceptions import ScenarioError
+from . import constants, product_generator, product_name
 
 
 _GENERATOR_PARAMS = [
