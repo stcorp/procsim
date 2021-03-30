@@ -8,8 +8,9 @@ import datetime
 import os
 from typing import List, Tuple
 
-from . import product_generator, product_name, constants, product_types
+from procsim.core.exceptions import GeneratorError, ScenarioError
 
+from . import constants, product_generator, product_name, product_types
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
@@ -158,7 +159,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
         slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
         if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
-            raise Exception('Start/stop times must be known here!')
+            raise ScenarioError('Start/stop times must be known here!')
 
         if slice_start != acq_start:
             pass  # First slice of a data take (partial)
@@ -172,10 +173,10 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
         # Sanity checks
         if slice_nr is None:
-            raise Exception('Cannot perform framing, slice nr. is not known')
+            raise ScenarioError('Cannot perform framing, slice nr. is not known')
         delta = (slice_end - slice_start) - constants.FRAME_GRID_SPACING * 5
         if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
-            raise Exception('Cannot perform framing, slice length != 5x frame length ({} != {})'.format(
+            raise GeneratorError('Cannot perform framing, slice length != 5x frame length ({} != {})'.format(
                 slice_end - slice_start, constants.FRAME_GRID_SPACING * 5))
 
         for n in range(5):

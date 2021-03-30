@@ -11,6 +11,7 @@ import os
 from typing import List
 
 from procsim.core.job_order import JobOrderInput
+from procsim.core.exceptions import ScenarioError
 
 from . import main_product_header, product_generator, product_name
 
@@ -146,7 +147,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
-            raise Exception('data_take_id field is mandatory in data_take section')
+            raise ScenarioError('data_take_id field is mandatory in data_take section')
 
         _, hdr_params, acq_params = self.get_params()
         for param, hdr_field, ptype in hdr_params:

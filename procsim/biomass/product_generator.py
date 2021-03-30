@@ -7,9 +7,10 @@ import re
 import zipfile
 from typing import List, Optional
 
+from procsim.core.exceptions import GeneratorError, ScenarioError
+from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
 from procsim.core.logger import Logger
-from procsim.core.iproduct_generator import IProductGenerator
 
 from . import main_product_header, product_name
 
@@ -43,9 +44,9 @@ class ProductGeneratorBase(IProductGenerator):
                                  'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S']:
             swath = self._hdr.sensor_swath
             if swath is None:
-                raise Exception('Swath must be configured to resolve Sx_ type')
+                raise ScenarioError('Swath must be configured to resolve Sx_ type')
             if swath not in ['S1', 'S2', 'S3']:
-                raise ValueError('Swath must be S1, S2 or S3')
+                raise ScenarioError('Swath must be S1, S2 or S3')
             return self._output_type.replace('Sx', swath)
         else:
             return self._output_type
@@ -142,7 +143,7 @@ class ProductGeneratorBase(IProductGenerator):
         else:
             pass
         if not hasattr(obj, hdr_field):
-            raise Exception('Error: attribute {} not present in {}'.format(hdr_field, obj))
+            raise GeneratorError('Error: attribute {} not present in {}'.format(hdr_field, obj))
         old_val = getattr(obj, hdr_field)
         self._logger.debug('{} {}{} to {}'.format(
             'Set' if old_val is None else 'Overwrite',

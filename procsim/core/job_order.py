@@ -9,6 +9,8 @@ import subprocess
 from typing import List
 from xml.etree import ElementTree as et
 
+from procsim.core.exceptions import ProcsimException
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order_ESA-EOPG-EEGS-ID-0083.xsd')
 
@@ -183,4 +185,4 @@ def job_order_parser_factory(icd, logger):
     '''
     if icd == 'ESA-EOPG-EEGS-ID-0083':
         return JobOrderParser(logger, JOB_ORDER_SCHEMA)
-    raise Exception('Unknown JobOrder ICD type {}'.format(icd))
+    raise ProcsimException('Unknown JobOrder ICD type {}'.format(icd))

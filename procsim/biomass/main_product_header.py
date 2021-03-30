@@ -13,10 +13,11 @@ TODO:
 
 import datetime
 from logging import raiseExceptions
-from typing import Optional, List
+from typing import List, Optional
 from xml.etree import ElementTree as et
 
-import procsim.core.utils as utils
+from procsim.core import utils
+from procsim.core.exceptions import ScenarioError
 
 from . import product_types
 
@@ -275,7 +276,7 @@ class MainProductHeader:
             self._product_type = product_type
             self._processing_level = 'other: {}'.format(product_type.level.upper())
         else:
-            raise Exception('Unknown product type {}'.format(type))
+            raise ScenarioError('Unknown product type {}'.format(type))
 
     def set_product_filename(self, filename: str):
         '''
@@ -356,7 +357,7 @@ class MainProductHeader:
         # Some parameters have no default and MUST be set prior to generation
         if self.begin_position is None or self.end_position is None or \
                 self.validity_start is None or self.validity_stop is None:
-            raise Exception('Times must be set before creating MPH')
+            raise ScenarioError('Times must be set before creating MPH')
 
         # If not set, use end_position (this is the default)
         self.time_position = self.time_position or self.end_position
@@ -505,7 +506,7 @@ class MainProductHeader:
 
         if level in ['raw']:
             if self.acquisition_date is None or self.acquisition_station is None:
-                raise Exception('Acquisition time/station must be set prior to generating MPH')
+                raise ScenarioError('Acquisition time/station must be set prior to generating MPH')
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
@@ -518,7 +519,7 @@ class MainProductHeader:
         proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
         if self.processing_date is None or self.processor_name is None or \
                 self.processor_version is None or self._processing_level is None:
-            raise Exception('Processing parameters must be set prior to generating MPH')
+            raise ScenarioError('Processing parameters must be set prior to generating MPH')
         et.SubElement(processing_info, eop + 'processingDate').text = _time_as_iso_short(self.processing_date)
         et.SubElement(processing_info, eop + 'processorName').text = self.processor_name
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version

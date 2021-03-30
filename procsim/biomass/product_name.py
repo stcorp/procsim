@@ -8,6 +8,8 @@ import datetime
 import os
 from typing import Optional
 
+from procsim.core.exceptions import GeneratorError, ScenarioError
+
 from . import constants, product_types
 
 
@@ -71,7 +73,7 @@ class ProductName:
     def file_type(self, type_code):
         type = product_types.find_product(type_code)
         if type is None:
-            raise ValueError('Type code {} not valid for Biomass'.format(type_code))
+            raise ScenarioError('Type code {} not valid for Biomass'.format(type_code))
         self._file_type = type.type
         self._level = type.level
 
@@ -124,7 +126,7 @@ class ProductName:
             self._track_nr_str = '___'
         else:
             if int(nr) < 0 or int(nr) > 999:
-                raise ValueError('track_nr should be 3 digits')
+                raise GeneratorError('track_nr should be 3 digits')
             self._track_nr_str = '{:03}'.format(int(nr))
 
     @property
@@ -139,7 +141,7 @@ class ProductName:
             self._frame_slice_nr_str = '___'
         else:
             if int(nr) < 0 or int(nr) > 999:
-                raise ValueError('frame_slice_nr should be 3 digits')
+                raise GeneratorError('frame_slice_nr should be 3 digits')
             self._frame_slice_nr_str = '{:03}'.format(int(nr))
 
     def set_creation_date(self, time: Optional[datetime.datetime]):
@@ -187,7 +189,7 @@ class ProductName:
         file = os.path.basename(path)
         id = file[0:3]
         if id != constants.SATELLITE_ID:
-            raise Exception('Incorrect satellite ID in file path {}, must be {}'.format(id, constants.SATELLITE_ID))
+            raise GeneratorError('Incorrect satellite ID in file path {}, must be {}'.format(id, constants.SATELLITE_ID))
         self.file_type = file[4:14]
         if self._level == 'raw':
             self._parse_raw(file)
@@ -196,7 +198,7 @@ class ProductName:
         elif self._level == 'l0' or self._level == 'l1' or self._level == '2a' or self._level == 'aux':
             self._parse_level0_1_2a(file)
         else:
-            raise Exception('Cannot handle type {}'.format(self.file_type))
+            raise GeneratorError('Cannot handle type {}'.format(self.file_type))
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
@@ -211,10 +213,10 @@ class ProductName:
     def generate_path_name(self):
         # Returns directory name
         if self.baseline_identifier is None:
-            raise Exception('baseline_id must be set')
+            raise ScenarioError('baseline_id must be set')
         if self._level == 'raw':
             if self.downlink_time is None:
-                raise Exception('acquisition_date must be set')
+                raise ScenarioError('acquisition_date must be set')
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
             name = self._generate_prefix() + '_D{}_{:02}_{}'\
                 .format(
@@ -231,17 +233,17 @@ class ProductName:
                 )
         else:
             if self._mission_phase_id is None:
-                raise Exception('mission_phase must be set')
+                raise ScenarioError('mission_phase must be set')
             if self._global_coverage_id_str is None:
-                raise Exception('global_coverage_id must be set')
+                raise ScenarioError('global_coverage_id must be set')
             if self._major_cycle_id_str is None:
-                raise Exception('major_cycle_id must be set')
+                raise ScenarioError('major_cycle_id must be set')
             if self._repeat_cycle_id_str is None:
-                raise Exception('repeat_cycle_id_str must be set')
+                raise ScenarioError('repeat_cycle_id_str must be set')
             if self._track_nr_str is None:
-                raise Exception('track_nr must be set')
+                raise ScenarioError('track_nr must be set')
             if self._frame_slice_nr_str is None:
-                raise Exception('frame_slice_nr must be set')
+                raise ScenarioError('frame_slice_nr must be set')
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
             name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'\
                 .format(

@@ -5,15 +5,29 @@ Exceptions
 '''
 
 
-class TerminateError(Exception):
+class ProcsimException(Exception):
+    '''
+    Base for all procsim exceptions
+    '''
+    pass
+
+
+class TerminateError(ProcsimException):
     '''
     Program terminated externally (CTRL-C or SIGTERM)
     '''
     pass
 
 
-class ScenarioError(Exception):
+class ScenarioError(ProcsimException):
     '''
     Error in scenario configuration
+    '''
+    pass
+
+
+class GeneratorError(ProcsimException):
+    '''
+    Error in generator
     '''
     pass
