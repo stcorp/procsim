@@ -6,7 +6,7 @@ import io
 import unittest
 from unittest.mock import patch
 
-from logger import Logger
+from procsim.core.logger import Logger
 
 node_name = 'ipf1ws1'
 processor_name = 'IPF1'
@@ -32,8 +32,8 @@ class LoggerTest(unittest.TestCase):
                 self.assertEqual(mock_out.getvalue(), expected_stdout_msg)
                 self.assertEqual(mock_err.getvalue(), expected_stderr_msg)
 
-    @patch('logger.os')
-    @patch('logger.datetime')
+    @patch('procsim.core.logger.os')
+    @patch('procsim.core.logger.datetime')
     def testOutputMessage(self, mock_datetime, mock_os):
         mock_os.getpid.return_value = 13875
         mock_datetime.datetime.now.return_value = datetime.datetime(2004, 2, 24, 4, 2, 7, 458000)
@@ -51,8 +51,8 @@ class LoggerTest(unittest.TestCase):
         for level in Logger.LEVELS:
             self._call_log(logger, level, message, log_msg[level], log_msg[level])
 
-    @patch('logger.os')
-    @patch('logger.datetime')
+    @patch('procsim.core.logger.os')
+    @patch('procsim.core.logger.datetime')
     def testLevelFiltering(self, mock_datetime, mock_os):
         mock_os.getpid.return_value = 13875
         mock_datetime.datetime.now.return_value = datetime.datetime(2004, 2, 24, 4, 2, 7, 458000)
@@ -74,8 +74,8 @@ class LoggerTest(unittest.TestCase):
                 exp_err = log_msg[level] if level in stderr_levels else ''
                 self._call_log(logger, level, message, exp_out, exp_err)
 
-    @patch('logger.os')
-    @patch('logger.datetime')
+    @patch('procsim.core.logger.os')
+    @patch('procsim.core.logger.datetime')
     def testNamedLogMethods(self, mock_datetime, mock_os):
         mock_os.getpid.return_value = 13875
         mock_datetime.datetime.now.return_value = datetime.datetime(2004, 2, 24, 4, 2, 7, 458000)

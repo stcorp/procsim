@@ -16,9 +16,9 @@ from logging import raiseExceptions
 from typing import Optional, List
 from xml.etree import ElementTree as et
 
-import utils
+import procsim.core.utils as utils
 
-from biomass import product_types
+from . import product_types
 
 mph_namespaces = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",

@@ -23,7 +23,7 @@ mkdir -p workspace
 # Generate test data
 echo '  *** Generate raw data (measurement mode)'
 mkdir -p data
-python3 procsim/procsim.py -s "Raw data generator, measurement mode" test/procsim_config.json
+procsim -s "Raw data generator, measurement mode" test/procsim_config.json
 
 # Level 0 steps
 echo '  *** L0 step 1a first datatake (measurement mode)'
@@ -41,7 +41,7 @@ python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2c_sm.xml
 # Level 1 steps
 echo '  *** Generate aux data for Level 1 processor'
 mkdir -p data
-python3 procsim/procsim.py -s "Aux generator" test/procsim_aux_scenario.json
+procsim -s "Aux generator" test/procsim_aux_scenario.json
 
 echo '  *** L1 step 1'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
@@ -55,7 +55,7 @@ python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
 echo
 echo '  *** Generate raw data (ro mode)'
 mkdir -p data/raw_ec
-python3 procsim/procsim.py -s "Raw data generator, ro mode" test/procsim_config.json
+procsim -s "Raw data generator, ro mode" test/procsim_config.json
 
 # Level 0 steps
 echo '  *** L0 step 1a (ro mode)'
@@ -74,7 +74,7 @@ python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l0_step2a_ro.xml
 echo
 echo '  *** Generate raw data (ec mode)'
 mkdir -p data/raw_ec
-python3 procsim/procsim.py -s "Raw data generator, ec mode" test/procsim_config.json
+procsim -s "Raw data generator, ec mode" test/procsim_config.json
 
 # Level 0 steps
 echo '  *** L0 step 1 (ec mode)'

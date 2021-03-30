@@ -5,7 +5,7 @@ import datetime
 import unittest
 from typing import List
 
-from biomass.product_name import ProductName
+from procsim.biomass.product_name import ProductName
 
 
 class _TestData():

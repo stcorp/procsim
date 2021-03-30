@@ -10,7 +10,7 @@ import threading
 import time
 import unittest
 
-import work_simulator
+from procsim.core import work_simulator
 
 _KB = 2**10
 _MB = 2**20

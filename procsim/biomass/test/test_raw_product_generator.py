@@ -7,9 +7,9 @@ import shutil
 import unittest
 from xml.etree import ElementTree as et
 
-from biomass import main_product_header
-from biomass import constants
-from biomass.raw_product_generator import RAWSxxx_10
+from procsim.biomass import main_product_header
+from procsim.biomass import constants
+from procsim.biomass.raw_product_generator import RAWSxxx_10
 
 TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
 

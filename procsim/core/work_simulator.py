@@ -7,8 +7,8 @@ import sys
 import tempfile
 import time
 
-
 _MB = 2**20
+
 
 class WorkSimulator:
     '''

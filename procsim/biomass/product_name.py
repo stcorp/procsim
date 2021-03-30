@@ -8,7 +8,7 @@ import datetime
 import os
 from typing import Optional
 
-from biomass import constants, product_types
+from . import constants, product_types
 
 
 class ProductName:

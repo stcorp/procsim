@@ -8,7 +8,7 @@ import datetime
 import os
 from typing import List, Tuple
 
-from biomass import product_generator, product_name, constants, product_types
+from . import product_generator, product_name, constants, product_types
 
 
 _GENERATOR_PARAMS = [
