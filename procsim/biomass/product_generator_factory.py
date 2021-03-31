@@ -18,7 +18,7 @@ _GENERATORS = [
     aux.Aux,
     raw.RAW_xxx_10, raw.RAWSxxx_10,
     level0.Sx_RAW__0x, level0.Sx_RAW__0M, level0.AC_RAW__0A,
-    level1.Level1Stripmap, level1.Level1Stack
+    # level1.Level1Stripmap, level1.Level1Stack
 ]
 
 
