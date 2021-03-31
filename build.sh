@@ -14,6 +14,7 @@ mkdir $PACKAGE
 # copy over release files
 cp LICENSE $PACKAGE
 cp README.md $PACKAGE
+cp CHANGELOG $PACKAGE
 cp MANIFEST.in $PACKAGE
 cp setup.py $PACKAGE
 cp -R procsim $PACKAGE/procsim
