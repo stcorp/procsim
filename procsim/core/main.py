@@ -266,7 +266,7 @@ Usage:
 
     -t, --task_filename=NAME    The name of the task as called by the CPF
     -j, --joborder=NAME         The file name of the job order
-    -s, --scenario=SCENARIO     For use of SCENARIO (normally derived from
+    -s, --scenario=SCENARIO     Force use of SCENARIO (normally derived from
                                 task-filename and joborder)
     -l, --log-level=LVL         Force log level to LVL. LVL can be
                                 debug, info, progress, warning, error
@@ -303,8 +303,15 @@ def full_help(args):
         if prod is None or prod not in flattened_list:
             print()
             print('- {}, supporting the following products:'.format(plugin))
-            for prod in product_list:
-                print('    - {}'.format(prod))
+            for prods in product_list:
+                n = len(prods)
+                for idx in range(n):
+                    if idx % 6 == 0:
+                        print('\n      ', end='')
+                    else:
+                        print(', ', end='')
+                    print('{}'.format(prods[idx]), end='')
+                print()
         else:
             config = {'output_path': '.', 'type': prod, 'anx': ''}
             gen = factory(None, None, config, config)
