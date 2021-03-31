@@ -4,7 +4,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Task simulator for scientific processors.
 '''
-import abc
 import getopt
 import importlib
 import json
@@ -13,13 +12,13 @@ import signal
 import sys
 from typing import List, Optional, Tuple
 
-import utils
-from exceptions import ScenarioError, TerminateError
-from job_order import (JobOrderInput, JobOrderParser, JobOrderTask,
-                       job_order_parser_factory)
-from logger import Logger
-from version import __version__
-from work_simulator import WorkSimulator
+from . import utils
+from .iproduct_generator import IProductGenerator
+from .exceptions import ScenarioError, TerminateError
+from .job_order import JobOrderParser, JobOrderTask, job_order_parser_factory
+from .logger import Logger
+from .version import __version__
+from .work_simulator import WorkSimulator
 
 # JobOrder/logging format ICD. Hard-coded for now, can be read from plugin or
 # configuration file if needed.
@@ -32,34 +31,6 @@ def signal_term_handler(signal, frame):
 
 def signal_int_handler(signal, frame):
     raise TerminateError('Program interrupted (SIGINT)')
-
-
-class IProductGenerator(abc.ABC):
-    '''
-    Interface for product generators
-    '''
-    @abc.abstractmethod
-    def get_params(self) -> Tuple[List[str], List[str], List[str]]:
-        '''
-        Returns generator, header and acquisition parameters
-        '''
-        pass
-
-    @abc.abstractmethod
-    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
-        pass
-
-    @abc.abstractmethod
-    def list_scenario_parameters(self) -> List[str]:
-        pass
-
-    @abc.abstractmethod
-    def read_scenario_parameters(self):
-        pass
-
-    @abc.abstractmethod
-    def generate_output(self):
-        pass
 
 
 def _read_config(logger, filename) -> dict:
@@ -92,7 +63,7 @@ def _output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -
     '''Return an output generator for the given parameters.'''
     # Import plugin for this mission
     try:
-        mod = importlib.import_module(mission)
+        mod = importlib.import_module('procsim.' + mission)
     except ImportError:
         logger.error('Cannot open plugin for mission {}'.format(mission))
         return None
@@ -307,8 +278,8 @@ def full_help(args):
     if len(args) == 0:
         print(helptext)
         print('procsim has support for the following missions:')
-        this_dir = os.path.dirname(os.path.abspath(__file__))
-        plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__']]
+        this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__', 'core']]
     elif len(args) != 2:
         print(helptext)
         return
@@ -319,7 +290,7 @@ def full_help(args):
     for plugin in plugins:
         plugin = os.path.basename(plugin)
         try:
-            mod = importlib.import_module(plugin)
+            mod = importlib.import_module('procsim.' + plugin)
         except ImportError:
             continue  # Not a Python package
         try:
@@ -384,7 +355,9 @@ def parse_command_line(argv):
     return task_filename, job_filename, config_filename, scenario_name, log_level
 
 
-def main(argv):
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
     task_filename, job_filename, config_filename, scenario_name, log_level = parse_command_line(argv)
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
     try:
@@ -462,4 +435,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

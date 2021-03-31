@@ -4,7 +4,7 @@
   <taskTablePath>tasktables</taskTablePath>
   <workspaceDirectory>workspace</workspaceDirectory>
   <taskTableSchema>test/tasktable.xsd</taskTableSchema>
-  <jobOrderSchema>procsim/job_order_ESA-EOPG-EEGS-ID-0083.xsd</jobOrderSchema>
+  <jobOrderSchema>procsim/core/job_order_ESA-EOPG-EEGS-ID-0083.xsd</jobOrderSchema>
   <ProcessorInterfaceVersion>1</ProcessorInterfaceVersion>
   <processingStation>GAT</processingStation>  <!-- This value will be used to populate the corresponding entry in the JobOrder file.-->
   <splitLoggingLevel>false</splitLoggingLevel>
@@ -123,6 +123,31 @@
     </productType>
     <productType name="AUX_ORB___">
       <matchExpression><![CDATA[.*AUX_ORB___.*]]></matchExpression>
+    </productType>
+
+    <!-- Aux (other) -->
+    <productType name="AUX_PP1___">
+      <matchExpression><![CDATA[.*AUX_PP1___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_TEC___">
+      <matchExpression><![CDATA[.*AUX_TEC___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_GMF___">
+      <matchExpression><![CDATA[.*AUX_GMF___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_INS___">
+      <matchExpression><![CDATA[.*AUX_INS___.*]]></matchExpression>
+    </productType>
+
+    <!-- Level 1 -->
+    <productType name="Sx_SCS__1S">
+      <matchExpression><![CDATA[.*S[x123]_SCS__1S.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_SCS__1M">
+      <matchExpression><![CDATA[.*S[x123]_SCS__1M.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_DGM__1S">
+      <matchExpression><![CDATA[.*S[x123]_DGM__1S.*]]></matchExpression>
     </productType>
 
   </productTypes>

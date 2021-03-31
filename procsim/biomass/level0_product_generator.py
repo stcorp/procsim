@@ -10,9 +10,10 @@ import datetime
 import os
 from typing import List
 
-from job_order import JobOrderInput
+from procsim.core.job_order import JobOrderInput
+from procsim.core.exceptions import ScenarioError
 
-from biomass import main_product_header, product_generator, product_name
+from . import main_product_header, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
@@ -38,7 +39,7 @@ _ACQ_PARAMS = [
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
     ('track_nr', 'track_nr', 'int'),
-    ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ('slice_frame_nr', 'slice_frame_nr', 'int')  # TODO: overwritten in sliced products
 ]
 
 
@@ -77,6 +78,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 'RO_RAW__0S', 'RO_RAWP_0M',
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -143,7 +147,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
-            raise Exception('data_take_id field is mandatory in data_take section')
+            raise ScenarioError('data_take_id field is mandatory in data_take section')
 
         _, hdr_params, acq_params = self.get_params()
         for param, hdr_field, ptype in hdr_params:
@@ -253,6 +257,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',
                 'RO_RAW__0M', 'EC_RAW__0M', 'EC_RAW__0S']
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -378,8 +385,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        # TODO: read lead time from JobOrder (processing parameters) or
-        # scenario.
+        # TODO: read lead time from JobOrder (processing parameters)
         self._leading_margin = self.DEFAULT_LEADING_MARGIN
         self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
 

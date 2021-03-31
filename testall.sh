@@ -4,14 +4,12 @@
 set -e
 
 # Unit tests
-cd procsim
-python3 -m unittest
+python3 -m unittest discover
 
 # Test help/version info
-python3 procsim.py -v
-python3 procsim.py -h
-python3 procsim.py -h biomass S1_RAW__0S
+python3 procsim -v
+python3 procsim -h
+python3 procsim -h biomass S1_RAW__0S
 
 # System tests
-cd ..
 test/test.sh

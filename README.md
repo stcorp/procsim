@@ -20,14 +20,28 @@ To use procsim, you will need:
 
  - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2 package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
-Procsim is a command-line based tool. The installation package consists of directory 'procsim', containing the core application, and one or more subdirectories containing the mission-specific plugins. The main executable is `procsim.py` .
+Procsim is distributed as a source distribution created using `setuptools`. It can be installed in several ways, for example using pip or by invoking setup.py manually. Installation using setup.py requires super user privileges in most cases.
 
-To install, unzip/untar the procsim installation package to a location of your choice.
+Using pip:
+```
+$ pip install <procsim_pacakge>.tar.gz
+```
 
+Using setup.py:
+```
+$ tar xvfz <procsim_package_name>.tar.gz
+$ cd <procsim_package_name>
+$ python setup.py install
+```
+
+Procsim is a command-line based tool. To test the installation, you can try:
+ ```
+$ procsim --version
+ ```
 # Usage
 For every Task to be simulated, you need:
 
- - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn execute `procsim.py`.
+ - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn call `procsim`.
 
  - a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
 
@@ -40,10 +54,10 @@ The PF calls the processor with only one argument, the name of the JobOrder file
 
   - the name of the procsim configuration file.
  
-
+The script will look like this:
 ```
 #!/bin/sh
-<path_to_procsim>/procsim.py -t $0 -j $1 <path_to_config/configfile>
+procsim -t $0 -j $1 <path_to_config/configfile>
 ```
 Optionally, you can specify a specific scenario using `-s`, followed by the name of the scenario.
 
@@ -129,17 +143,17 @@ The parameters are described below.
 
 - `processing_time`, `nr_progress_log_messages`, `nr_cpu`, `memory_usage`, `disk_usage` : number, optional. After reading the configuration and the job order, procsim will 'work' for a while, consuming memory, disk space and CPU cycles, and producing progress log messages. The defaults are zero (no cpu-time spent, no memory/disk used, no progress log messages produced). Note that resouce usage is limited by the values in the JobOrder, if present.
 
-- `outputs` : array, mandatory. The section 'outputs' contains one or more output products to be generated.
+- `outputs` : array, mandatory. The section 'outputs' contains one or more output products to be generated. Per product, you can specify:
 
-  - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim.py -h` to get a list with supported product types.
+  - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim -h` to get a list with supported product types.
 
   - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set, minimal sized files are produced (a few bytes).
 
- - `enable` : boolean, optional. When set to false, a warning is logged and this output product is not generated. Default is true.
+  - `enable` : boolean, optional. When set to false, a warning is logged and this output product is not generated. Default is true.
 
   - `metadata_source` : string, optional. Regular expression, used to specify the input product which is used as a first source for the metadata in the output product. Think of parameters such as validity start/stop times, mission phase, etc., these are copied from the metadata source product.
 
-  - `exit_code` : number, optional. Default is 0.
+- `exit_code` : number, optional. Default is 0.
 
 ### Metadata parameters
 Most metadata will be copied from an input source. Some metadata is set by the output product generator, such as the product type, the processor name and the processor version (all read from the scenario) and the baseline version (read from the JobOrder). Some output product generators set additional fields as well, such as the 'slice number'.
@@ -159,9 +173,11 @@ Example:
 ```
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 
-A list with all supported parameters for a specific output type can be retrieved using 'procsim -h <mission> <product_type>'. Example:
+A list with all supported parameters for a specific output type can be retrieved using `procsim -h <mission> <product_type>`. 
+
+Example:
 ```
-./procsim.py -h biomass AC_RAW__0A
+$ procsim -h biomass AC_RAW__0A
 
 AC_RAW__0A product generator details:
 -------------------------------------

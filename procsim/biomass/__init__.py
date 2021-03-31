@@ -3,4 +3,5 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Plugin exports
 '''
-from .product_generator_factory import product_generator_factory, list_supported_products
+from procsim.biomass.product_generator_factory import (
+    list_supported_products, product_generator_factory)

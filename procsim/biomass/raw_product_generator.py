@@ -9,8 +9,8 @@ import shutil
 import zipfile
 from typing import List
 
-from exceptions import ScenarioError
-from biomass import constants, product_generator, product_name
+from procsim.core.exceptions import ScenarioError
+from . import constants, product_generator, product_name
 
 
 _GENERATOR_PARAMS = [
@@ -76,6 +76,9 @@ class RAW_xxx_10(RawProductGeneratorBase):
         ('begin_position', 'begin_position', 'date'),
         ('end_position', 'end_position', 'date'),
     ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
         gen, hdr, acq = super().get_params()

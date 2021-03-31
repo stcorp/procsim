@@ -5,7 +5,8 @@ import datetime
 import unittest
 from typing import List
 
-from biomass.product_name import ProductName
+from procsim.biomass.product_name import ProductName
+from procsim.core.exceptions import GeneratorError, ScenarioError
 
 
 class _TestData():
@@ -190,11 +191,11 @@ class ProductNameTest(unittest.TestCase):
 
     def testInvalidParameters(self):
         pn = ProductName()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ScenarioError):
             pn.file_type = 'UNKNOWN'
-        with self.assertRaises(ValueError):
+        with self.assertRaises(GeneratorError):
             pn.frame_slice_nr = -1
-        with self.assertRaises(ValueError):
+        with self.assertRaises(GeneratorError):
             pn.track_nr = 1000
 
 
