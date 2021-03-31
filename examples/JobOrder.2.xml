@@ -1,0 +1,296 @@
+<Job_Order>
+  <Processor_Configuration>
+    <File_Class>Todo</File_Class>
+    <Processor_Name>l0_sm</Processor_Name>
+    <Processor_Version>01.01</Processor_Version>
+    <Processing_Node>MyNode</Processing_Node>
+    <List_of_Stdout_Log_Levels>
+      <Stdout_Log_Level>ERROR</Stdout_Log_Level>
+      <Stdout_Log_Level>WARNING</Stdout_Log_Level>
+      <Stdout_Log_Level>PROGRESS</Stdout_Log_Level>
+      <Stdout_Log_Level>INFO</Stdout_Log_Level>
+    </List_of_Stdout_Log_Levels>
+    <List_of_Stderr_Log_Levels />
+    <Intermediate_Output_Enable>true</Intermediate_Output_Enable>
+    <Processing_Station>GAT</Processing_Station>
+    <Request />
+  </Processor_Configuration>
+  <List_of_Tasks>
+    <Task>
+      <Task_Name>Step2</Task_Name>
+      <Task_Version>05.03L01</Task_Version>
+      <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
+      <Amount_of_RAM>1073741824</Amount_of_RAM>
+      <Disk_Space>1073741824</Disk_Space>
+      <List_of_Proc_Parameters>
+        <Proc_Parameter>
+          <Name>Product_Counter</Name>
+          <Value>0</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Processing_Stage_Flag</Name>
+          <Value>T</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>originator_ID</Name>
+          <Value>TST</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Acquisition_Station</Name>
+          <Value>ESRIN</Value>
+        </Proc_Parameter>
+      </List_of_Proc_Parameters>
+      <List_of_Cfg_Files />
+      <List_of_Inputs>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>RAWS025_10</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_RAWS025_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>RAWS026_10</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_RAWS026_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>RAWS023_10</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>RAWS024_10</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+      </List_of_Inputs>
+      <List_of_Outputs>
+        <Output>
+          <File_Type>Sx_RAW__0S</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>Sx_RAWP_0M</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+      </List_of_Outputs>
+      <List_of_Intermediate_Outputs>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>1</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_1</Intermediate_Output_File>
+        </Intermediate_Output>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>2</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_2</Intermediate_Output_File>
+        </Intermediate_Output>
+      </List_of_Intermediate_Outputs>
+    </Task>
+    <Task>
+      <Task_Name>Step3</Task_Name>
+      <Task_Version>05.03L01</Task_Version>
+      <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
+      <Amount_of_RAM>1073741824</Amount_of_RAM>
+      <Disk_Space>1073741824</Disk_Space>
+      <List_of_Proc_Parameters>
+        <Proc_Parameter>
+          <Name>Product_Counter</Name>
+          <Value>0</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Processing_Stage_Flag</Name>
+          <Value>T</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>originator_ID</Name>
+          <Value>TST</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Acquisition_Station</Name>
+          <Value>ESRIN</Value>
+        </Proc_Parameter>
+      </List_of_Proc_Parameters>
+      <List_of_Cfg_Files />
+      <List_of_Inputs>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>S._RAWP_0M</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_S1_RAWP_0M_20210201T002528_20210201T002715_T_G___M01_C___T000_F001_00_B06ZXF</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+      </List_of_Inputs>
+      <List_of_Outputs>
+        <Output>
+          <File_Type>Sx_RAW__0M</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+      </List_of_Outputs>
+      <List_of_Intermediate_Outputs>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>1</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_1</Intermediate_Output_File>
+        </Intermediate_Output>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>2</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_2</Intermediate_Output_File>
+        </Intermediate_Output>
+      </List_of_Intermediate_Outputs>
+    </Task>
+    <Task>
+      <Task_Name>Step4</Task_Name>
+      <Task_Version>05.03L01</Task_Version>
+      <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
+      <Amount_of_RAM>1073741824</Amount_of_RAM>
+      <Disk_Space>1073741824</Disk_Space>
+      <List_of_Proc_Parameters>
+        <Proc_Parameter>
+          <Name>Product_Counter</Name>
+          <Value>0</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Processing_Stage_Flag</Name>
+          <Value>T</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>originator_ID</Name>
+          <Value>TST</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Acquisition_Station</Name>
+          <Value>ESRIN</Value>
+        </Proc_Parameter>
+      </List_of_Proc_Parameters>
+      <List_of_Cfg_Files />
+      <List_of_Inputs>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>S._RAW__0M</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_S1_RAW__0M_20210201T002528_20210201T002715_T_G___M01_C___T000_F____00_B06ZXF</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>RAWS022_10</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+      </List_of_Inputs>
+      <List_of_Outputs>
+        <Output>
+          <File_Type>AC_RAW__0A</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+      </List_of_Outputs>
+      <List_of_Intermediate_Outputs>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>1</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_1</Intermediate_Output_File>
+        </Intermediate_Output>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>2</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_2</Intermediate_Output_File>
+        </Intermediate_Output>
+      </List_of_Intermediate_Outputs>
+    </Task>
+    <Task>
+      <Task_Name>Step6</Task_Name>
+      <Task_Version>05.03L01</Task_Version>
+      <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
+      <Amount_of_RAM>1073741824</Amount_of_RAM>
+      <Disk_Space>1073741824</Disk_Space>
+      <List_of_Proc_Parameters>
+        <Proc_Parameter>
+          <Name>Product_Counter</Name>
+          <Value>0</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Processing_Stage_Flag</Name>
+          <Value>T</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>originator_ID</Name>
+          <Value>TST</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Acquisition_Station</Name>
+          <Value>ESRIN</Value>
+        </Proc_Parameter>
+      </List_of_Proc_Parameters>
+      <List_of_Cfg_Files />
+      <List_of_Inputs>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_File_Types>
+            <File_Type>AC_RAW__0A</File_Type>
+            <List_of_File_Names>
+              <File_Name>workspace/.*AC_RAW__0A.*</File_Name>
+            </List_of_File_Names>
+          </List_of_File_Types>
+        </Input>
+      </List_of_Inputs>
+      <List_of_Outputs>
+        <Output>
+          <File_Type>AUX_ATT___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>AUX_ORB___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+      </List_of_Outputs>
+      <List_of_Intermediate_Outputs>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>1</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_1</Intermediate_Output_File>
+        </Intermediate_Output>
+        <Intermediate_Output>
+          <Intermediate_Output_ID>2</Intermediate_Output_ID>
+          <Intermediate_Output_File>workspace/tempfile_2</Intermediate_Output_File>
+        </Intermediate_Output>
+      </List_of_Intermediate_Outputs>
+    </Task>
+  </List_of_Tasks>
+</Job_Order>

@@ -20,12 +20,7 @@ To use procsim, you will need:
 
  - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2 package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
-Procsim is distributed as a source distribution created using `setuptools`. It can be installed in several ways, for example using pip or by invoking setup.py manually. Installation using setup.py requires super user privileges in most cases.
-
-Using pip:
-```
-$ pip install <procsim_pacakge>.tar.gz
-```
+Procsim is distributed as a source distribution created using `setuptools`. It can be installed in several ways, for example using pip or by invoking setup.py manually. Note: installation using setup.py requires super user privileges in most cases.
 
 Using setup.py:
 ```
@@ -34,10 +29,16 @@ $ cd <procsim_package_name>
 $ python setup.py install
 ```
 
+Using pip:
+```
+$ pip install <procsim_pacakge>.tar.gz
+```
+
 Procsim is a command-line based tool. To test the installation, you can try:
  ```
 $ procsim --version
  ```
+
 # Usage
 For every Task to be simulated, you need:
 
@@ -211,3 +212,6 @@ Supported scenario parameters for product type AC_RAW__0A are:
    - leading_margin (float)
    - trailing_margin (float)
 ```
+
+## Sample code
+Directory `examples` contains examples of scenario configurations, job orders and scripts to demonstrate them.
