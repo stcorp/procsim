@@ -112,7 +112,7 @@ class JobOrderParser:
         rootdir = os.path.dirname(os.path.abspath(pattern))
         files = []
         for file in os.scandir(rootdir):
-            if re.match(pattern, file.path):
+            if re.match(pattern, file.path) or os.path.abspath(pattern) == file.path:
                 files.append(file.path)
         return files
 
