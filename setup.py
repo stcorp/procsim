@@ -19,8 +19,10 @@ with open("README.md", 'r') as f:
 setup(
     name="procsim",
     version=verstr,
+    url="https://www.stcorp.nl/",
     license="BSD3",
     author="S[&]T",
+    author_email="info@stcorp.nl",
     description="Tool to simulate a processor in a PDGS.",
     long_description=long_description,
     long_description_content_type='text/markdown',
