@@ -1,0 +1,791 @@
+{
+  "mission": "biomass", // Must match the plugin name
+  "log_level": "debug",
+  "scenarios": [
+    // A list of scenario descrptions.
+    // Multiple scenarios are allowed in a single configuration file.
+    // The scenario to use can be specified on the command line, or is selected
+    // automatically using the combination of file_name, processor/task and
+    // output products.
+    {
+      // This scenario is used to generate dummy raw data, to test the other
+      // output product generators.
+      // Note that this scenario takes no inputs, nor JobOrder.
+      "name": "Raw data generator, measurement mode",
+
+      "file_name": "N/A",
+      "processor_name": "rawgenerator",
+      "processor_version": "01.00",
+      "task_name": "generate",
+      "task_version": "01.00",
+
+      "logging": [
+        {
+          "level": "info",
+          "message": "Generate (dummy) raw data"
+        }
+      ],
+
+      // Resources
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      // Mandatory, as we have no JobOrder nor input files. These settings are
+      // common for all outputs, but can be overridden in each output section.
+      "baseline": 1,
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
+
+      // Some metadata for level 0 product (can be omitted, then defaults are used)
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "acquisition_station": "SP",
+      "num_isp": 387200,
+      "num_isp_erroneous": 0,
+      "num_isp_corrupt": 0,
+
+      // Outputs to generate
+      "output_path": "workspace",  // default is CWD, or read from job order if any
+      "outputs": [
+        {
+          "enable": true,
+          "type": "RAW_022_10",
+          "size": 10
+        },
+        {
+          "type": "RAW_023_10",
+          "size": 10
+        },
+        {
+          "type": "RAW_024_10",
+          "size": 10
+        },
+        // 'Data take' #1
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_025_10",
+          "size": 20
+        },
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_026_10",
+          "size": 20
+        },
+        // 'Data take' #2 and #3
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_025_10",
+          "size": 20
+        },
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_026_10",
+          "size": 20
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      // L0 slicer scenario.
+      "name": "L0 step 1, Raw slice-based products",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task1.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_sm",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "anx": [
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
+      ],
+      "do_zip": true,   // Set false for diagnostics only
+      "keep_zip": true,  // Set true for diagnostics only
+      "outputs": [
+        {
+          "type": "RAWS022_10",
+          "metadata_source": ".*RAW_022_10.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS023_10",
+          "metadata_source": ".*RAW_023_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS024_10",
+          "metadata_source": ".*RAW_024_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS025_10",
+          "metadata_source": ".*RAW_025_10.*",
+          "size": 0
+        },
+        {
+          "type": "RAWS026_10",
+          "metadata_source": ".*RAW_026_10.*",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      // L0 slice-based product generation.
+      // Measurement mode (i.e. stripmap standard products)
+      "name": "L0 step 2, Slice-based products generation (Measurement Mode)",
+      "file_name": "level0_task2.sh",
+      "processor_name": "l0_sm",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03L01",
+
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      // Some metadata for level 0 product (most can be omitted, defaults are used)
+      "num_l0_lines": "387200, 387200",
+      "num_l0_lines_missing": "0, 0",
+      "num_l0_lines_corrupt": "0, 0",
+      "mission_phase": "Tomographic",
+
+      // Data take info. Times copied from raw product generator, but the second
+      // 'block' is split up in two data takes.
+      "data_takes": [
+        {
+          "data_take_id": 1,
+          "swath": "S1",
+          "operational_mode": "SM",
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
+        },
+        {
+          "data_take_id": 2,
+          "swath": "S1",
+          "operational_mode": "SM",
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
+        },
+        {
+          "data_take_id": 3,
+          "swath": "S2",
+          "operational_mode": "SM",
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
+        }
+      ],
+
+      "keep_zip": true,  // Set true for diagnostics only
+      "outputs": [
+        {
+          "type": "Sx_RAW__0S",
+          "metadata_source": ".*RAWS025_10.*",
+          "size": 0
+        },
+        {
+          "type": "Sx_RAWP_0M",
+          "metadata_source": ".*RAWS025_10.*",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #3
+      "name": "L0 step 3, consolidation of Monitoring products (Measurement Mode)",
+      "file_name": "level0_task3.sh",
+      "processor_name": "l0_sm",
+      "processor_version": "01.01",
+      "task_name": "Step3",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "type": "Sx_RAW__0M",
+          "size": 0,
+          "metadata_source": ".*S._RAWP_0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #4
+      "name": "L0 step 4, Consolidation of Ancillary products",
+      "file_name": "level0_task4.sh",
+      "processor_name": "l0_sm",
+      "processor_version": "01.01",
+      "task_name": "Step4",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
+          "type": "AC_RAW__0A",
+          "size": 0,
+          "metadata_source": ".*.._RAW__0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      // Task #6
+      "name": "L0 step 6, Auxiliary products generation",
+      "file_name": "level0_task6.sh",
+      "processor_name": "l0_sm",
+      "processor_version": "01.01",
+      "task_name": "Step6",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "type": "AUX_ATT___",
+          "size": 0,
+          "metadata_source": ".*AC_RAW__0A.*"
+        },
+        {
+          "type": "AUX_ORB___",
+          "size": 0,
+          "metadata_source": ".*AC_RAW__0A.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+
+
+    /* ----------------------------------------------------------------------
+       Receive Only mode
+       ----------------------------------------------------------------------
+    */
+
+
+    {
+      "name": "Raw data generator, ro mode",
+
+      "file_name": "N/A",
+      "processor_name": "rawgenerator",
+      "processor_version": "01.00",
+      "task_name": "generate",
+      "task_version": "01.00",
+
+      "logging": [
+        {
+          "level": "info",
+          "message": "Generate (dummy) raw data"
+        }
+      ],
+
+      // Common for all outputs
+      "output_path": "data/raw_ro",
+      "baseline": "1",
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "acquisition_station": "SP",
+      "num_isp": 387200,
+      "num_isp_erroneous": 0,
+      "num_isp_corrupt": 0,
+
+      // Outputs to generate
+      "outputs": [
+        {
+          "type": "RAW_022_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_023_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_024_10",
+          "size": 0
+        },
+        // Data take #1
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_027_10",
+          "size": 0
+        },
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_028_10",
+          "size": 0
+        },
+        // Data take #2 and #3
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_027_10",
+          "size": 0
+        },
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_028_10",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      /*
+      L0 slicer scenario.
+      */
+      "name": "L0 step 1, Raw slice-based products (RO mode)",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task1.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_ro",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "anx": [
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
+      ],
+      "outputs": [
+        {
+          "type": "RAWS022_10",
+          "metadata_source": ".*RAW_022_10.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS023_10",
+          "metadata_source": ".*RAW_023_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS024_10",
+          "metadata_source": ".*RAW_024_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS027_10",
+          "metadata_source": ".*RAW_027_10.*",
+          "size": 0
+        },
+        {
+          "type": "RAWS028_10",
+          "metadata_source": ".*RAW_028_10.*",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      /*
+      L0 slice-based product generation.
+      Measurement mode (i.e. stripmap standard products)
+      */
+      "name": "L0 step 2, Slice-based products generation (RO Mode)",
+      "file_name": "level0_task2.sh",
+      "processor_name": "l0_ro",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03L01",
+
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      // Some metadata for level 0 product (can be omitted)
+      "num_l0_lines": "387200, 387200",
+      "num_l0_lines_missing": "0, 0",
+      "num_l0_lines_corrupt": "0, 0",
+      "mission_phase": "Tomographic",
+
+      // Data take info. Times copied from raw product generator, but the second
+      // 'block' is split up in two data takes.
+      "data_takes": [
+        {
+          "data_take_id": 10,
+          "swath": "RO",
+          "operational_mode": "RO",
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
+        },
+        {
+          "data_take_id": 11,
+          "swath": "RO",
+          "operational_mode": "RO",
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
+        },
+        {
+          "data_take_id": 12,
+          "operational_mode": "RO",
+          "swath": "RO",
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
+        }
+      ],
+
+      "outputs": [
+        {
+          "type": "RO_RAW__0S",
+          "metadata_source": ".*RAWS027_10.*",
+          "size": 0
+        },
+        {
+          "type": "RO_RAWP_0M",
+          "metadata_source": ".*RAWS027_10.*",  // TODO: is this correct?
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #3
+      "name": "L0 step 3, consolidation of Monitoring products (RO Mode)",
+      "file_name": "level0_task3.sh",
+      "processor_name": "l0_ro",
+      "processor_version": "01.01",
+      "task_name": "Step3",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "type": "RO_RAW__0M",
+          "size": 0,
+          "metadata_source": ".*RO_RAWP_0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #4
+      "name": "L0 step 4, Consolidation of Ancillary products",
+      "file_name": "level0_task4.sh",
+      "processor_name": "l0_ro",
+      "processor_version": "01.01",
+      "task_name": "Step4",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
+          "type": "AC_RAW__0A",
+          "size": 0,
+          "metadata_source": ".*RO_RAW__0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+
+    /* ----------------------------------------------------------------------
+       External Calibration mode
+       ----------------------------------------------------------------------
+    */
+
+
+    {
+      "name": "Raw data generator, ec mode",
+
+      "file_name": "N/A",
+      "processor_name": "rawgenerator",
+      "processor_version": "01.00",
+      "task_name": "generate",
+      "task_version": "01.00",
+
+      "logging": [
+        {
+          "level": "info",
+          "message": "Generate (dummy) raw data"
+        }
+      ],
+
+      // Common for all outputs
+      "output_path": "data/raw_ec",
+      "baseline": "1",
+      "begin_position": "2021-02-01T00:00:00.000Z",
+      "end_position": "2021-02-01T01:38:10.000Z",
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "acquisition_station": "SP",
+      "num_isp": 387200,
+      "num_isp_erroneous": 0,
+      "num_isp_corrupt": 0,
+
+      // Outputs to generate
+      "outputs": [
+        {
+          "type": "RAW_022_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_023_10",
+          "size": 0
+        },
+        {
+          "type": "RAW_024_10",
+          "size": 0
+        },
+        // Data take #1
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_035_10",
+          "size": 0
+        },
+        {
+          "begin_position": "2021-02-01T00:24:32.000Z",
+          "end_position": "2021-02-01T00:29:32.000Z",
+          "type": "RAW_036_10",
+          "size": 0
+        },
+        // Data take #2 and #3
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_035_10",
+          "size": 0
+        },
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW_036_10",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "L0 step 1, Raw slice-based products (EC mode)",
+      "file_name": "level0_task1.sh",
+      "processor_name": "l0preproc_ec",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "05.03L01",
+
+      "processing_time": 1,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      "nr_progress_log_messages": 4,
+      "anx": [
+        "2021-01-31T22:47:21.765Z",
+        "2021-02-01T00:25:33.745Z", // 1 second too late
+        "2021-02-01T02:03:43.725Z"  // 1 second too early
+      ],
+      "outputs": [
+        {
+          "type": "RAWS022_10",
+          "metadata_source": ".*RAW_022_10.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS023_10",
+          "metadata_source": ".*RAW_023_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS024_10",
+          "metadata_source": ".*RAW_024_10.*",
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RAWS035_10",
+          "metadata_source": ".*RAW_035_10.*",
+          "size": 0
+        },
+        {
+          "type": "RAWS036_10",
+          "metadata_source": ".*RAW_036_10.*",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "L0 step 2, Slice-based products generation (EC Mode)",
+      "file_name": "level0_task2.sh",
+      "processor_name": "l0_ec",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03L01",
+
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+
+      // Some metadata for level 0 product (can be omitted)
+      "num_l0_lines": "387200, 387200",
+      "num_l0_lines_missing": "0, 0",
+      "num_l0_lines_corrupt": "0, 0",
+      "mission_phase": "Tomographic",
+
+      // Data take info. Times copied from raw product generator, but the second
+      // 'block' is split up in two data takes.
+      "data_takes": [
+        {
+          "data_take_id": 10,
+          "swath": "EC",
+          "operational_mode": "EC",
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z"
+        },
+        {
+          "data_take_id": 11,
+          "swath": "EC",
+          "operational_mode": "EC",
+          "start": "2021-02-01T00:34:32.000Z",
+          "stop": "2021-02-01T00:35:32.000Z"
+        },
+        {
+          "data_take_id": 12,
+          "swath": "EC",
+          "operational_mode": "EC",
+          "start": "2021-02-01T00:35:32.000Z",
+          "stop": "2021-02-01T00:39:32.000Z"
+        }
+      ],
+
+      "outputs": [
+        {
+          "type": "EC_RAWP_0S",
+          "metadata_source": ".*RAWS035_10.*",
+          "size": 0
+        },
+        {
+          "type": "EC_RAWP_0M",
+          "metadata_source": ".*RAWS035_10.*",
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #3
+      "name": "L0 step 3, consolidation of Monitoring products (EC Mode)",
+      "file_name": "level0_task3.sh",
+      "processor_name": "l0_ec",
+      "processor_version": "01.01",
+      "task_name": "Step3",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "type": "EC_RAW__0M",
+          "size": 0,
+          "metadata_source": ".*EC_RAWP_0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #4
+      "name": "L0 step 4, Consolidation of Ancillary products (EC mode)",
+      "file_name": "level0_task4.sh",
+      "processor_name": "l0_ec",
+      "processor_version": "01.01",
+      "task_name": "Step4",
+      "task_version": "05.03L01",
+      "processing_time": 0,
+      "nr_cpu": 1,
+      "memory_usage": 0,
+      "disk_usage": 0,
+      "outputs": [
+        {
+          "leading_margin": 17,
+          "trailing_margin": 0,
+          "swath": "AC",            // TODO: check!
+          "operational_mode": "AC", // TODO: check!
+          "type": "AC_RAW__0A",
+          "size": 0,
+          "metadata_source": ".*EC_RAW__0M.*"
+        }
+      ],
+      "exit_code": 0
+    },
+
+    {
+      // Task #5
+      "name": "L0 step 5, Consolidation of External Calibration Standard products",
+      "file_name": "level0_task5.sh",
+      "processor_name": "l0_ec",
+      "processor_version": "01.01",
+      "task_name": "Step5",
+      "task_version": "05.03L01",
+      "outputs": [
+        {
+          "type": "EC_RAW__0S",
+          "size": 0,
+          "metadata_source": ".*EC_RAWP_0S.*"
+        }
+      ]
+    }
+  ]
+}

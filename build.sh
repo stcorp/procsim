@@ -18,12 +18,15 @@ cp CHANGELOG $PACKAGE
 cp MANIFEST.in $PACKAGE
 cp setup.py $PACKAGE
 cp -R procsim $PACKAGE/procsim
+cp -R examples $PACKAGE/examples
 
 # remove development stuff
 cd $PACKAGE
 rm -rf `find . -type d -name .git`
 rm -rf `find . -type d -name __pycache__`
 rm -rf `find . -type d -name test`
+rm -rf examples/data
+rm -rf examples/workspace
 cd ..
 
 # create tarball
