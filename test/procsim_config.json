@@ -817,6 +817,27 @@
           "metadata_source": ".*S._RAW__0S.*"
         }
       ]
+    },
+
+    // Level1, SCS stack products
+    {
+      "name": "Level-1 SCS Stack product generation",
+      "file_name": "level1_task2.sh",
+      "processor_name": "l1_sta",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "01.01",
+
+      "outputs": [
+        {
+          "type": "Sx_STA__1S",
+          "metadata_source": ".*S._SCS__1S.*"
+        },
+        {
+          "type": "Sx_STA__1M",
+          "metadata_source": ".*S._SCS__1S.*"  // TODO: check this, I'd expect the 0M product here
+        }
+      ]
     }
   ]
 }

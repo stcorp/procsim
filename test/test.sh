@@ -46,6 +46,9 @@ procsim -s "Aux generator" test/procsim_aux_scenario.json
 echo '  *** L1 step 1'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
 
+echo '  *** L1 step 2'
+python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_stack.xml
+
 
 # --------------------------------
 # RO mode

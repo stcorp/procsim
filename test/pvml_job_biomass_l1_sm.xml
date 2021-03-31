@@ -12,6 +12,7 @@
   <tasks>
     <task name="Step1">
       <inputs>
+        <!-- Generated products -->
         <input product_type="Sx_RAW__0S">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1000/BIO_S1_RAW__0S_20210201T002528_20210201T002715_T_G___M01_C___T000_F001_00_B06ZXF</file>
         </input>
@@ -24,7 +25,7 @@
         <input product_type="AUX_ORB___">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1000/BIO_AUX_ORB____20210201T002512_20210201T002715_00_B06ZXF</file>
         </input>
-        <!-- Other aux files -->
+        <!-- Other (external) aux files -->
         <input product_type="AUX_INS___">
           <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/aux/BIO_AUX_INS____20210201T000000_20210201T013810_01_B0737M</file>
         </input>

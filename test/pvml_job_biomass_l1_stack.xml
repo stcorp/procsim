@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<pvmlJob>
+  <jobOrderId>3000</jobOrderId>
+  <processorName>l1_sta</processorName>
+  <processorVersion>01.01</processorVersion>
+  <orderType>OFFL</orderType>
+  <sensingStart>2002-07-17T01:58:01</sensingStart>
+  <sensingStop>2002-07-17T03:34:45</sensingStop>
+  <processingParameters>
+    <parameter name="Orbit_Number">1234</parameter>
+  </processingParameters>
+  <tasks>
+    <task name="Step1">
+      <inputs>
+        <!-- Generated products -->
+        <input product_type="Sx_SCS__1S">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C___T000_F001_00_B06ZXF</file>
+        </input>
+        <input product_type="AUX_PPS___">
+          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/aux/BIO_AUX_PPS____20210201T000000_20210201T013810_01_B0737M</file>
+        </input>
+      </inputs>
+      <exitCode>0</exitCode>
+    </task>
+  </tasks>
+</pvmlJob>

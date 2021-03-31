@@ -149,6 +149,12 @@
     <productType name="Sx_DGM__1S">
       <matchExpression><![CDATA[.*S[x123]_DGM__1S.*]]></matchExpression>
     </productType>
+    <productType name="Sx_STA__1S">
+      <matchExpression><![CDATA[.*S[x123]_STA__1S.*]]></matchExpression>
+    </productType>
+    <productType name="Sx_STA__1M">
+      <matchExpression><![CDATA[.*S[x123]_STA__1M.*]]></matchExpression>
+    </productType>
 
   </productTypes>
 </pvmlConfig>
