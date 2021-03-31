@@ -9,6 +9,8 @@ import os
 from typing import List, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
+from procsim.core.job_order import JobOrderInput
+from . import main_product_header
 
 from . import constants, product_generator, product_name, product_types
 
@@ -208,6 +210,11 @@ class Level1Stack(product_generator.ProductGeneratorBase):
     global coverage ID and mission phase.
     Outputs are a Sx_STA_1S and Sx_STA_1M product for every input SCS product.
 
+    Inputs are checked and warnings are produced if
+    - not enough input products are available.
+    - framenr, swath, major cycle ID, global coverage ID, mission phase differ.
+    - repeat cycle IDs do not differ.
+
     The generator adjusts the following metadata:
     - None
     '''
@@ -219,6 +226,72 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+
+    def _compare_metadata(self, file, hdr):
+        # Get our reference data
+        acq = self._hdr.acquisitions[0]
+        swath = self._hdr.sensor_swath
+        frame_nr = acq.slice_frame_nr
+        major_cycle_id = acq.major_cycle_id
+        global_coverage_id = acq.global_coverage_id
+        mission_phase = acq.mission_phase
+        repeat_cycle_id = acq.repeat_cycle_id
+
+        # Compare with the incoming metadata
+        file_base = os.path.basename(file)
+        acq = hdr.acquisitions[0]
+        if swath != hdr.sensor_swath:
+            self._logger.warning('Swath {} of {} does not match {}'.format(
+                hdr.sensor_swath, file_base, swath))
+        if frame_nr != acq.slice_frame_nr:
+            self._logger.warning('Framenr {} of {} does not match {}'.format(
+                acq.slice_frame_nr, file_base, frame_nr))
+        if major_cycle_id != acq.major_cycle_id:
+            self._logger.warning('Major cycle id {} of {} does not match {}'.format(
+                acq.major_cycle_id, file_base, major_cycle_id))
+        if global_coverage_id != acq.global_coverage_id:
+            self._logger.warning('Global coverage id {} of {} does not match {}'.format(
+                acq.global_coverage_id, file_base, global_coverage_id))
+        if mission_phase != acq.mission_phase:
+            self._logger.warning('Mission phase {} of {} does not match {}'.format(
+                acq.mission_phase, file_base, mission_phase))
+        if repeat_cycle_id == acq.repeat_cycle_id:
+            self._logger.warning('Repeat cycle ID {} of {} is the same'.format(
+                repeat_cycle_id, file_base))
+
+    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
+        if not super().parse_inputs(inputs):
+            return False
+
+        L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
+
+        # Do sanity checks on input data.
+        # TODO: in tomographic phase, max 7 products, in interferometric phase max 3.
+        if self._hdr.product_type not in L1_SCS_PRODUCTS:
+            self._logger.warning('Metadata source of Stack product should be an Sx_SCS__1S product.')
+            return True
+        count = 1
+        for input in inputs:
+            for file in input.file_names:
+                for file in input.file_names:
+                    file, _ = os.path.splitext(file)    # Remove possible '.zip'
+                    # Skip the our metadata source reference
+                    if self._meta_data_source_file == file:
+                        continue
+                    gen = product_name.ProductName()
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.product_type not in L1_SCS_PRODUCTS:
+                        continue
+                    self._compare_metadata(file, hdr)
+                    count += 1
+        if count < 2:
+            self._logger.warning('At least two Sx_SCS__1S products should be input to generate the Stack')
+        else:
+            self._logger.info('{} SCS products used to generate the Stack'.format(count))
+        return True
 
     def generate_output(self):
         super().generate_output()

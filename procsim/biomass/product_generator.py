@@ -34,6 +34,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._create_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
+        self._meta_data_source_file = None
 
     def _resolve_wildcard_product_type(self) -> str:
         '''
@@ -41,7 +42,8 @@ class ProductGeneratorBase(IProductGenerator):
         In that case, select the correct type using the swath (which must be known now).
         '''
         if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M',
-                                 'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S']:
+                                 'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S',
+                                 'Sx_STA__1S', 'Sx_STA__1M']:
             swath = self._hdr.sensor_swath
             if swath is None:
                 raise ScenarioError('Swath must be configured to resolve Sx_ type')
@@ -118,6 +120,7 @@ class ProductGeneratorBase(IProductGenerator):
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr.parse(mph_file_name)
                     mph_is_parsed = True
+                    self._meta_data_source_file = file
 
         # The baseline ID is not copied from any source, but read from job order
         # (if available) or set in scenario config.
