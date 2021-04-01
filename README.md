@@ -213,5 +213,38 @@ Supported scenario parameters for product type AC_RAW__0A are:
    - trailing_margin (float)
 ```
 
-## Sample code
+# Sample code
 Directory `examples` contains examples of scenario configurations, job orders and scripts to demonstrate them.
+
+# Program flow
+The next section describes the program flow during normal execution of procsim.
+
+### Init phase
+- Parse command line arguments.
+- Install signal handler. On 'SIGTERM' or 'SIGINT', a log message is produced and the program terminates.
+- Parse scenario configuration file.
+- Parse Job Order file.
+- Try to find a matching scenario and job order task.
+- Produce logging:
+  - name of the scenario
+  - job order file
+  - inputs
+  - processor parameters
+  - user log messages, as defined in the scenario.
+
+### Processing
+- 'Processing' starts: procsim eats resources for the specified amount of time. Note that limits in the job order (i.e. regarding cpu/memory usage) prevail over the scenario resource parameters.
+
+### Output generation
+- Generate intermediate files, if specified in the job order.
+- For every output product specified in the job order:
+  - Walk over input products. For every input:
+    - Unzip, if needed.
+    - Check if product is a directory.
+    - If a pattern is specified for the 'metadata source' in the scenario, this product's metadata is set as metadata for the output.
+    - For some output products, additional information is parsed from the input products.
+  - Apply the scenario parameters to this output. E.g., specified metadata is set/overwritten.
+  - Generate output products.
+
+### Program termination
+- The program exits with the exit code as defined in the scenario (default 0).
