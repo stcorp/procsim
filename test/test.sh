@@ -49,6 +49,10 @@ python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_sm.xml
 echo '  *** L1 step 2'
 python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l1_stack.xml
 
+# Level 2 steps
+echo '  *** L2a'
+python3 pvml/pvml.py test/pvml_config.xml test/pvml_job_biomass_l2a.xml
+
 
 # --------------------------------
 # RO mode

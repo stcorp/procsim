@@ -156,5 +156,16 @@
       <matchExpression><![CDATA[.*S[x123]_STA__1M.*]]></matchExpression>
     </productType>
 
+    <!-- Level 2 -->
+    <productType name="FH_COH_L2A">
+      <matchExpression><![CDATA[.*FH_COH_L2A.*]]></matchExpression>
+    </productType>
+    <productType name="AGB_GN_L2A">
+      <matchExpression><![CDATA[.*AGB_GN_L2A.*]]></matchExpression>
+    </productType>
+    <productType name="FD_COV_L2A">
+      <matchExpression><![CDATA[.*FD_COV_L2A.*]]></matchExpression>
+    </productType>
+
   </productTypes>
 </pvmlConfig>

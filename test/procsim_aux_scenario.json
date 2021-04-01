@@ -30,6 +30,9 @@
                 },
                 {
                     "type": "AUX_PPS___"
+                },
+                {
+                    "type": "AUX_PP2_2A"
                 }
             ]
         }
