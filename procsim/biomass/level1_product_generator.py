@@ -14,6 +14,8 @@ from . import main_product_header
 
 from . import constants, product_generator, product_name, product_types
 
+_L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
+
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
 ]
@@ -223,13 +225,14 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
+        self._hdrs = []   # Metadata for all output products
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
-    def _check_sanity(self, file, hdr):
+    def _check_sanity(self, file, hdr) -> bool:
         # Compare metadata fields, test if they suit the input requirements for
-        # a stacked product.
+        # a stacked product. Log only the first warning! Returns True if ok.
         acq = self._hdr.acquisitions[0]
         swath = self._hdr.sensor_swath
         frame_nr = acq.slice_frame_nr
@@ -240,35 +243,48 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
         file_base = os.path.basename(file)
         acq = hdr.acquisitions[0]
+        is_ok = False
         if swath != hdr.sensor_swath:
             self._logger.warning('Swath {} of {} does not match {}'.format(
                 hdr.sensor_swath, file_base, swath))
-        if frame_nr != acq.slice_frame_nr:
+        elif frame_nr != acq.slice_frame_nr:
             self._logger.warning('Framenr {} of {} does not match {}'.format(
                 acq.slice_frame_nr, file_base, frame_nr))
-        if major_cycle_id != acq.major_cycle_id:
+        elif major_cycle_id != acq.major_cycle_id:
             self._logger.warning('Major cycle id {} of {} does not match {}'.format(
                 acq.major_cycle_id, file_base, major_cycle_id))
-        if global_coverage_id != acq.global_coverage_id:
+        elif global_coverage_id != acq.global_coverage_id:
             self._logger.warning('Global coverage id {} of {} does not match {}'.format(
                 acq.global_coverage_id, file_base, global_coverage_id))
-        if mission_phase != acq.mission_phase:
+        elif mission_phase != acq.mission_phase:
             self._logger.warning('Mission phase {} of {} does not match {}'.format(
                 acq.mission_phase, file_base, mission_phase))
-        if repeat_cycle_id == acq.repeat_cycle_id:
+        elif repeat_cycle_id == acq.repeat_cycle_id:
             self._logger.warning('Repeat cycle ID {} of {} is the same'.format(
                 repeat_cycle_id, file_base))
+        else:
+            is_ok = True
+        return is_ok
 
     def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
+        '''
+        We generate products for every input SCS input product, so we need
+        metadata from all Sx_SCS input products instead of from a single
+        metadata source.
+        '''
         if not super().parse_inputs(inputs):
             return False
 
-        L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
-
-        # Do sanity checks on input data.
-        if self._hdr.product_type not in L1_SCS_PRODUCTS:
-            self._logger.warning('Metadata source of Stack product should be an Sx_SCS__1S product.')
+        if self._hdr.product_type not in _L1_SCS_PRODUCTS:
+            self._logger.error('metadata_source of Stack product must be an Sx_SCS__1S product.')
             return True
+
+        # Here we store the meta data for every output product. Start with the
+        # 'metadata source' (the first Sx_SCS product)
+        self._hdrs.append(self._hdr)
+
+        # Go again over the list with input products. For every other SCS
+        # product, do a sanity check and store meta data if ok.
         count = 1
         for input in inputs:
             for file in input.file_names:
@@ -281,13 +297,14 @@ class Level1Stack(product_generator.ProductGeneratorBase):
                 mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                 hdr = main_product_header.MainProductHeader()
                 hdr.parse(mph_file_name)
-                if hdr.product_type not in L1_SCS_PRODUCTS:
+                if hdr.product_type not in _L1_SCS_PRODUCTS:
                     continue
-                self._check_sanity(file, hdr)
-                count += 1
+                if self._check_sanity(file, hdr):
+                    self._hdrs.append(hdr)
+                    count += 1
         phase = self._hdr.acquisitions[0].mission_phase
         if count < 2:
-            self._logger.warning('At least two Sx_SCS__1S products should be input to generate the Stack')
+            self._logger.warning('At least two Sx_SCS__1S products needed to generate the Stack')
         elif phase == 'TOMOGRAPHIC' and count > 7:
             self._logger.warning('{} inputs, max 7 input products in Tomographic phase'.format(count))
         elif phase == 'INTERFEROMETRIC' and count > 3:
@@ -298,18 +315,21 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
+        for hdr in self._hdrs:
+            self._generate_level1_stacked_product(hdr)
 
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+    def _generate_level1_stacked_product(self, hdr):
+        create_date = hdr.end_position   # HACK: fill in current date?
+        hdr.product_type = self._resolve_wildcard_product_type()
 
         # Setup MPH
-        acq = self._hdr.acquisitions[0]
+        acq = hdr.acquisitions[0]
         name_gen = product_name.ProductName()
-        name_gen.file_type = self._hdr.product_type
-        name_gen.start_time = self._hdr.validity_start
-        name_gen.stop_time = self._hdr.validity_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
+        name_gen.file_type = hdr.product_type
+        name_gen.start_time = hdr.validity_start
+        name_gen.stop_time = hdr.validity_stop
+        name_gen.baseline_identifier = hdr.product_baseline
+        name_gen.set_creation_date(create_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
         name_gen.major_cycle_id = acq.major_cycle_id
@@ -318,7 +338,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         name_gen.frame_slice_nr = acq.slice_frame_nr
 
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
         # List with files: array of directory, suffix, extension
@@ -347,7 +367,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             (['schema'], 'Orbit', 'xsd'),
             (['schema'], 'Attitude', 'xsd')
         ]
-        if self._hdr.product_type in product_types.L1S_PRODUCTS:
+        if hdr.product_type in product_types.L1S_PRODUCTS:
             files += [
                 (['measurement'], 'i_hh', 'tiff'),
                 (['measurement'], 'i_hv', 'tiff'),
@@ -359,7 +379,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         base_path = os.path.join(self._output_path, dir_name)
         os.makedirs(base_path, exist_ok=True)
         file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
+        hdr.write(file_name)
 
         # Create other product files
         XML = ['xml', 'xsd']
