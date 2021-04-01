@@ -40,7 +40,7 @@
                 <Alternative>
                   <Order>1</Order>
                   <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <Retrieval_Mode>ValCover</Retrieval_Mode>
                   <T0 units="secs">0</T0>
                   <T1 units="secs">0</T1>
                   <File_Type>Sx_SCS__1S</File_Type>

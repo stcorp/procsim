@@ -803,9 +803,22 @@
       "browse_ref_id": "EPSG:4326",
       "browse_image_filename": "./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png",
 
+      // To test L1 Stacked product, generate 3 series of outputs with different
+      // repeat cycle ID's.
       "outputs": [
         {
           "type": "Sx_SCS__1S",
+          "repeat_cycle_id": "1",
+          "metadata_source": ".*S._RAW__0S.*"
+        },
+        {
+          "type": "Sx_SCS__1S",
+          "repeat_cycle_id": "2",
+          "metadata_source": ".*S._RAW__0S.*"
+        },
+        {
+          "type": "Sx_SCS__1S",
+          "repeat_cycle_id": "3",
           "metadata_source": ".*S._RAW__0S.*"
         },
         {
@@ -835,7 +848,7 @@
         },
         {
           "type": "Sx_STA__1M",
-          "metadata_source": ".*S._SCS__1S.*"  // TODO: check this, I'd expect the 0M product here
+          "metadata_source": ".*S._SCS__1S.*"
         }
       ]
     }
