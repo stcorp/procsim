@@ -227,8 +227,9 @@ class Level1Stack(product_generator.ProductGeneratorBase):
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
-    def _compare_metadata(self, file, hdr):
-        # Get our reference data
+    def _check_sanity(self, file, hdr):
+        # Compare metadata fields, test if they suit the input requirements for
+        # a stacked product.
         acq = self._hdr.acquisitions[0]
         swath = self._hdr.sensor_swath
         frame_nr = acq.slice_frame_nr
@@ -237,7 +238,6 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         mission_phase = acq.mission_phase
         repeat_cycle_id = acq.repeat_cycle_id
 
-        # Compare with the incoming metadata
         file_base = os.path.basename(file)
         acq = hdr.acquisitions[0]
         if swath != hdr.sensor_swath:
@@ -266,7 +266,6 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
         # Do sanity checks on input data.
-        # TODO: in tomographic phase, max 7 products, in interferometric phase max 3.
         if self._hdr.product_type not in L1_SCS_PRODUCTS:
             self._logger.warning('Metadata source of Stack product should be an Sx_SCS__1S product.')
             return True
@@ -285,10 +284,15 @@ class Level1Stack(product_generator.ProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.product_type not in L1_SCS_PRODUCTS:
                         continue
-                    self._compare_metadata(file, hdr)
+                    self._check_sanity(file, hdr)
                     count += 1
+        phase = self._hdr.acquisitions[0].mission_phase
         if count < 2:
             self._logger.warning('At least two Sx_SCS__1S products should be input to generate the Stack')
+        elif phase == 'TOMOGRAPHIC' and count > 7:
+            self._logger.warning('{} inputs, max 7 input products in Tomographic phase'.format(count))
+        elif phase == 'INTERFEROMETRIC' and count > 3:
+            self._logger.warning('{} inputs, max 3 input products in Interferometric phase'.format(count))
         else:
             self._logger.info('{} SCS products used to generate the Stack'.format(count))
         return True
