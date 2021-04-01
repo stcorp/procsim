@@ -209,7 +209,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     Inputs are an AUX_PPS___ product, and 2 or more L1a SCS products from
     different repeat cycles, with the same framenr, swath ID, major cycle ID,
-    global coverage ID and mission phase.
+    track nr, global coverage ID and mission phase.
     Outputs are a Sx_STA_1S and Sx_STA_1M product for every input SCS product.
 
     Inputs are checked and warnings are produced if
@@ -237,6 +237,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         acq = self._hdr.acquisitions[0]
         swath = self._hdr.sensor_swath
         frame_nr = acq.slice_frame_nr
+        track_nr = acq.track_nr
         major_cycle_id = acq.major_cycle_id
         global_coverage_id = acq.global_coverage_id
         mission_phase = acq.mission_phase
@@ -251,6 +252,9 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         elif frame_nr != acq.slice_frame_nr:
             self._logger.warning('Framenr {} of {} does not match {}'.format(
                 acq.slice_frame_nr, file_base, frame_nr))
+        elif track_nr != acq.track_nr:
+            self._logger.warning('Tracknr {} of {} does not match {}'.format(
+                acq.track_nr, file_base, track_nr))
         elif major_cycle_id != acq.major_cycle_id:
             self._logger.warning('Major cycle id {} of {} does not match {}'.format(
                 acq.major_cycle_id, file_base, major_cycle_id))
