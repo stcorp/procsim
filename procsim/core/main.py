@@ -140,14 +140,14 @@ def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_nam
 
     if not exec_found:
         if task_filename:
-            raise ScenarioError('No scenario for {} found'.format(os.path.basename(task_filename)))
+            raise ScenarioError('No scenario with filename="{}" found.'.format(os.path.basename(task_filename)))
         else:
             raise ScenarioError('No scenario "{}" found'.format(scenario_name))
     elif not proc_found:
         raise ScenarioError('No scenario for {} and processor {} {} found'.format(
             os.path.basename(task_filename), job.processor_name, job.processor_version))
     elif not task_found:
-        raise ScenarioError('No scenario with matching task found for {}.'.format(
+        raise ScenarioError('No scenario with matching job task found for {}.'.format(
             os.path.basename(task_filename)))
     elif not matching_inputs_found:
         raise ScenarioError('No scenario with matching inputs found for {}.'.format(
