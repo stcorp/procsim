@@ -6,13 +6,13 @@ format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
 import os
-from typing import List, Tuple
+from typing import Iterable, List, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
-from . import main_product_header
 
-from . import constants, product_generator, product_name, product_types
+from . import (constants, main_product_header, product_generator, product_name,
+               product_types)
 
 _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
@@ -226,6 +226,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         self._hdrs = []   # Metadata for all output products
+        list()
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -266,7 +267,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             is_ok = True
         return is_ok
 
-    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
+    def parse_inputs(self, inputs: Iterable[JobOrderInput]) -> bool:
         '''
         We generate products for every input SCS input product, so we need
         metadata from all Sx_SCS input products instead of from a single

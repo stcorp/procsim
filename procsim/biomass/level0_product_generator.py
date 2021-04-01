@@ -8,7 +8,7 @@ TODO: Remove all duplicated code!
 '''
 import datetime
 import os
-from typing import List
+from typing import List, Iterable
 
 from procsim.core.job_order import JobOrderInput
 from procsim.core.exceptions import ScenarioError
@@ -85,7 +85,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
-    def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
@@ -264,7 +264,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
-    def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # Retrieves the metadata
         if not super().parse_inputs(input_products):
             return False

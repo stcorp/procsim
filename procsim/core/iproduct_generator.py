@@ -4,7 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Interface for procsim product generators
 '''
 import abc
-from typing import List, Tuple
+from typing import Iterable, List, Tuple
 
 from .job_order import JobOrderInput
 
@@ -21,7 +21,7 @@ class IProductGenerator(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def parse_inputs(self, inputs: List[JobOrderInput]) -> bool:
+    def parse_inputs(self, inputs: Iterable[JobOrderInput]) -> bool:
         pass
 
     @abc.abstractmethod

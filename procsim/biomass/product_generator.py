@@ -5,7 +5,7 @@ import datetime
 import os
 import re
 import zipfile
-from typing import List, Optional
+from typing import Iterable, Optional
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -93,7 +93,7 @@ class ProductGeneratorBase(IProductGenerator):
             if not keep_zip:
                 os.remove(archive_name)
 
-    def parse_inputs(self, input_products: List[JobOrderInput]) -> bool:
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
         For all files:
             - check if it is a (zipped) directory (all biomass products are directories)
