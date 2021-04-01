@@ -272,20 +272,19 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         count = 1
         for input in inputs:
             for file in input.file_names:
-                for file in input.file_names:
-                    file, _ = os.path.splitext(file)    # Remove possible '.zip'
-                    # Skip the our metadata source reference
-                    if self._meta_data_source_file == file:
-                        continue
-                    gen = product_name.ProductName()
-                    gen.parse_path(file)
-                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
-                    hdr = main_product_header.MainProductHeader()
-                    hdr.parse(mph_file_name)
-                    if hdr.product_type not in L1_SCS_PRODUCTS:
-                        continue
-                    self._check_sanity(file, hdr)
-                    count += 1
+                file, _ = os.path.splitext(file)    # Remove possible '.zip'
+                # Skip the our metadata source reference
+                if self._meta_data_source_file == file:
+                    continue
+                gen = product_name.ProductName()
+                gen.parse_path(file)
+                mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                hdr = main_product_header.MainProductHeader()
+                hdr.parse(mph_file_name)
+                if hdr.product_type not in L1_SCS_PRODUCTS:
+                    continue
+                self._check_sanity(file, hdr)
+                count += 1
         phase = self._hdr.acquisitions[0].mission_phase
         if count < 2:
             self._logger.warning('At least two Sx_SCS__1S products should be input to generate the Stack')
@@ -294,7 +293,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         elif phase == 'INTERFEROMETRIC' and count > 3:
             self._logger.warning('{} inputs, max 3 input products in Interferometric phase'.format(count))
         else:
-            self._logger.info('{} SCS products used to generate the Stack'.format(count))
+            self._logger.debug('{} SCS products input to generate the Stack'.format(count))
         return True
 
     def generate_output(self):
