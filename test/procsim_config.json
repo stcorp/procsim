@@ -170,7 +170,7 @@
       "num_l0_lines": "387200, 387200",
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
-      "mission_phase": "Tomographic",
+      "mission_phase": "TOMOGRAPHIC",
 
       // Data take info. Times copied from raw product generator, but the second
       // 'block' is split up in two data takes.
