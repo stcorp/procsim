@@ -34,7 +34,7 @@ Using pip:
 $ pip install <procsim_pacakge>.tar.gz
 ```
 
-Procsim is a command-line based tool. To test the installation, you can try:
+Procsim is a command-line based tool. To test the installation, enter:
  ```
 $ procsim --version
  ```
@@ -146,7 +146,7 @@ The parameters are described below.
 
 - `outputs` : array, mandatory. The section 'outputs' contains one or more output products to be generated. Per product, you can specify:
 
-  - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim -h` to get a list with supported product types.
+  - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim -i` to get a list with supported product types.
 
   - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set, minimal sized files are produced (a few bytes).
 
@@ -174,11 +174,11 @@ Example:
 ```
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 
-A list with all supported parameters for a specific output type can be retrieved using `procsim -h <mission> <product_type>`. 
+A list with all supported parameters for a specific output type can be retrieved using `procsim -i [product_type]`.
 
 Example:
 ```
-$ procsim -h biomass AC_RAW__0A
+$ procsim -i AC_RAW__0A
 
 AC_RAW__0A product generator details:
 -------------------------------------

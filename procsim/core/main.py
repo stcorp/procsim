@@ -4,7 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Task simulator for scientific processors.
 '''
-import getopt
+import argparse
 import importlib
 import json
 import os
@@ -273,19 +273,14 @@ Usage:
 """
 
 
-def full_help(args):
-    prod = None
-    if len(args) == 0:
+def print_product_info(prod):
+    if prod == '':
         print(helptext)
         print('procsim has support for the following missions:')
         this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__', 'core']]
-    elif len(args) != 2:
-        print(helptext)
-        return
     else:
-        plugins = [str(args[0])]
-        prod = args[1]
+        plugins = ['biomass']
 
     for plugin in plugins:
         plugin = os.path.basename(plugin)
@@ -325,41 +320,32 @@ def full_help(args):
 
 
 def parse_command_line(argv):
-    config_filename = None
-    task_filename = ''
-    job_filename = None
-    scenario_name = None
-    log_level = None
-    try:
-        opts, args = getopt.getopt(argv, 'hvt:j:s:l:', ['help', 'version', 'task_filename=', 'joborder=', 'scenario=', 'log-level='])
-    except getopt.GetoptError:
-        print(helptext)
-        sys.exit()
-    for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            full_help(args)
-            sys.exit()
-        elif opt in ('-v', '--version'):
-            print(versiontext)
-            sys.exit()
-        elif opt in ('-t', '--task_filename'):
-            task_filename = arg
-        elif opt in ('-j', '--joborder_filename'):
-            job_filename = arg
-        elif opt in ('-s', '--scenario_name'):
-            scenario_name = arg
-        elif opt in ('-l', '--log-level'):
-            level = arg.upper()
-            if level in Logger.LEVELS:
-                log_level = level
-            else:
-                levels = [lvl.lower() for lvl in Logger.LEVELS]
-                print('Log level must be one of {}'.format(Logger.LEVELS))
-    if not args:
-        print(helptext)
-        sys.exit()
-    config_filename = args[0]
-    return task_filename, job_filename, config_filename, scenario_name, log_level
+    parser = argparse.ArgumentParser(description=versiontext)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-i', '--info',
+                       metavar='product_name',
+                       dest='info_product',
+                       default=None,
+                       const='',
+                       nargs='?', action='store',
+                       help='list all supported output products, or details for a specific product')
+    group.add_argument(dest='config_filename', metavar='configuration_filename', nargs='?')
+    parser.add_argument('-v', '--version', action='version', version=versiontext)
+    parser.add_argument('-t', '--task_filename', metavar='name', dest='task_filename', default='',
+                        help='the name of the task as called by the CPF')
+    parser.add_argument('-j', '--job_order', metavar='filename', dest='job_filename',
+                        help='The file name of the job order')
+    parser.add_argument('-s', '--scenario', metavar='scenario', dest='scenario_name',
+                        help='force use of SCENARIO (normally derived from task-filename and joborder)')
+    parser.add_argument('-l', '--log-level', dest='log_level',
+                        choices=['debug', 'info', 'progress', 'warning', 'error'],
+                        help='force log level')
+
+    args = parser.parse_args(argv)
+    if args.info_product is not None:
+        print_product_info(args.info_product)
+        sys.exit(0)
+    return args.task_filename, args.job_filename, args.config_filename, args.scenario_name, args.log_level
 
 
 def main(argv=None):
