@@ -681,6 +681,7 @@
       "num_l0_lines_missing": "0, 0",
       "num_l0_lines_corrupt": "0, 0",
       "mission_phase": "Tomographic",
+      "track_nr": "13",
 
       // Data take info. Times copied from raw product generator, but the second
       // 'block' is split up in two data takes.

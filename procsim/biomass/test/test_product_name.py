@@ -135,7 +135,7 @@ class ProductNameTest(unittest.TestCase):
                 pn.global_coverage_id = d.global_coverage_id
                 pn.major_cycle_id = d.major_cycle_id
                 pn.repeat_cycle_id = d.repeat_cycle_id
-                pn._track_nr_str = d.track_nr
+                pn.track_nr = d.track_nr
                 pn.frame_slice_nr = d.frame_nr
 
             path = pn.generate_path_name()
@@ -164,7 +164,7 @@ class ProductNameTest(unittest.TestCase):
                 self.assertEqual(pn.global_coverage_id, d.global_coverage_id)
                 self.assertEqual(pn.major_cycle_id, d.major_cycle_id)
                 self.assertEqual(pn.repeat_cycle_id, d.repeat_cycle_id)
-                self.assertEqual(pn._track_nr_str, d.track_nr)
+                self.assertEqual(pn._track_nr, d.track_nr)
                 self.assertEqual(pn.frame_slice_nr, d.frame_nr)
             else:
                 assert()
@@ -196,7 +196,7 @@ class ProductNameTest(unittest.TestCase):
         with self.assertRaises(GeneratorError):
             pn.frame_slice_nr = -1
         with self.assertRaises(GeneratorError):
-            pn.track_nr = 1000
+            pn.track_nr = '1000'
 
 
 if __name__ == '__main__':

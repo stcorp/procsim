@@ -103,7 +103,7 @@ def get_l1_test_mph():
     acq.orbit_number = 1
     acq.last_orbit_number = 1
     acq.orbit_direction = 'ASCENDING'
-    acq.track_nr = 131
+    acq.track_nr = '131'
     acq.slice_frame_nr = 155
     acq.mission_phase = 'INTERFEROMETRIC'
     acq.instrument_config_id = 1

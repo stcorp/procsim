@@ -27,7 +27,7 @@ _ACQ_PARAMS = [
     ('data_take_id', 'data_take_id', 'int'),
     ('global_coverage_id', 'global_coverage_id', 'str'),
     ('major_cycle_id', 'major_cycle_id', 'str'),
-    ('track_nr', 'track_nr', 'int'),
+    ('track_nr', 'track_nr', 'str'),
 ]
 
 

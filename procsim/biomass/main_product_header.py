@@ -106,7 +106,7 @@ class Acquisition:
         self.slice_frame_nr: Optional[int] = None    # None or the actual slice/frame number
         # L0, L1, L2a
         self.orbit_direction: str = 'ASCENDING'      # Or DECENDING
-        self.track_nr: int = 0                       # gml:CodeWithAuthorityType
+        self.track_nr: str = '0'                     # gml:CodeWithAuthorityType. Int or ___ (in drifting orbits)
         self.mission_phase: Optional[str] = None     # COMMISSIONING, INTERFEROMETRIC, TOMOGRAPHIC
         self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
@@ -413,7 +413,7 @@ class MainProductHeader:
                 if level in ['l0', 'l1', 'l2a']:
                     et.SubElement(acquisition, eop + 'orbitDirection').text = acq.orbit_direction
                     tracknr = et.SubElement(acquisition, eop + 'wrsLongitudeGrid')
-                    tracknr.text = str(acq.track_nr)
+                    tracknr.text = acq.track_nr
                     tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 if level in ['l0', 'l1', 'l2a'] or self._product_type.type in product_types.RAWS_PRODUCT_TYPES:
                     framenr = et.SubElement(acquisition, eop + 'wrsLatitudeGrid')
@@ -623,7 +623,7 @@ class MainProductHeader:
                 acq.orbit_number = _to_int(acquisition.findtext(eop + 'orbitNumber')) or acq.orbit_number
                 acq.last_orbit_number = _to_int(acquisition.findtext(eop + 'lastOrbitNumber')) or acq.last_orbit_number
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection') or acq.orbit_direction
-                acq.track_nr = _to_int(acquisition.findtext(eop + 'wrsLongitudeGrid')) or acq.track_nr
+                acq.track_nr = acquisition.findtext(eop + 'wrsLongitudeGrid') or acq.track_nr
                 # tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 nr = acquisition.findtext(eop + 'wrsLatitudeGrid')
                 if nr is not None:

@@ -38,7 +38,7 @@ _ACQ_PARAMS = [
     ('global_coverage_id', 'global_coverage_id', 'str'),
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
-    ('track_nr', 'track_nr', 'int'),
+    ('track_nr', 'track_nr', 'str'),
     ('slice_frame_nr', 'slice_frame_nr', 'int')  # TODO: overwritten in sliced products
 ]
 

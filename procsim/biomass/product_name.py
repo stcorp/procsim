@@ -49,7 +49,7 @@ class ProductName:
         self._global_coverage_id_str = None
         self._major_cycle_id_str = None
         self._repeat_cycle_id_str = None
-        self._track_nr_str = None
+        self._track_nr = None
         self._frame_slice_nr_str = None
 
     @property
@@ -116,18 +116,16 @@ class ProductName:
 
     @property
     def track_nr(self):
-        if self._track_nr_str == '___':
-            return None
-        return self._track_nr_str
+        return self._track_nr
 
     @track_nr.setter
-    def track_nr(self, nr):
-        if nr is None:
-            self._track_nr_str = '___'
+    def track_nr(self, nr: Optional[str]):
+        if nr is None or nr == '___':
+            self._track_nr = '___'
         else:
             if int(nr) < 0 or int(nr) > 999:
-                raise GeneratorError('track_nr should be 3 digits')
-            self._track_nr_str = '{:03}'.format(int(nr))
+                raise GeneratorError('track_nr should be 0..999 or ___')
+            self._track_nr = '{:03}'.format(int(nr))
 
     @property
     def frame_slice_nr(self):
@@ -179,7 +177,7 @@ class ProductName:
         self._global_coverage_id_str = file[50:52]
         self._major_cycle_id_str = file[54:56]
         self._repeat_cycle_id_str = file[58:60]
-        self._track_nr_str = file[62:65]
+        self._track_nr = file[62:65]
         self._frame_slice_nr_str = file[67:70]
         self.baseline_identifier = int(file[71:73])
         self._compact_create_date = file[74:80]
@@ -240,7 +238,7 @@ class ProductName:
                 raise ScenarioError('major_cycle_id must be set')
             if self._repeat_cycle_id_str is None:
                 raise ScenarioError('repeat_cycle_id_str must be set')
-            if self._track_nr_str is None:
+            if self._track_nr is None:
                 raise ScenarioError('track_nr must be set')
             if self._frame_slice_nr_str is None:
                 raise ScenarioError('frame_slice_nr must be set')
@@ -251,7 +249,7 @@ class ProductName:
                     self._global_coverage_id_str,
                     self._major_cycle_id_str,
                     self._repeat_cycle_id_str,
-                    self._track_nr_str,
+                    self._track_nr,
                     self._frame_slice_nr_str,
                     self.baseline_identifier,
                     self._compact_create_date
@@ -286,7 +284,7 @@ class ProductName:
                     self._global_coverage_id_str,
                     self._major_cycle_id_str,
                     self._repeat_cycle_id_str,
-                    self._track_nr_str,
+                    self._track_nr,
                     self._frame_slice_nr_str,
                     suffix,
                     extension

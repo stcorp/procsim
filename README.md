@@ -206,7 +206,7 @@ Supported scenario parameters for product type AC_RAW__0A are:
    - global_coverage_id (str)
    - major_cycle_id (str)
    - repeat_cycle_id (str)
-   - track_nr (int)
+   - track_nr (str)
    - slice_frame_nr (int)
    - output_path (str)
    - leading_margin (float)

@@ -26,7 +26,6 @@ _HDR_PARAMS = [
     # L0 + L1
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
-    # L1 only
     ('footprint_polygon', 'footprint_polygon', 'str'),
     ('center_points', 'center_points', 'str'),
     ('browse_ref_id', 'browse_ref_id', 'str'),
@@ -39,7 +38,7 @@ _ACQ_PARAMS = [
     ('global_coverage_id', 'global_coverage_id', 'str'),
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
-    ('track_nr', 'track_nr', 'int'),
+    ('track_nr', 'track_nr', 'str'),
     # ('slice_frame_nr', 'slice_frame_nr', 'int')
 ]
 
