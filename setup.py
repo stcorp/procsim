@@ -29,6 +29,7 @@ setup(
     packages=["procsim", "procsim.core", "procsim.biomass"],
     package_data={'procsim.core': ['*.xsd']},
     include_package_data=True,
+    python_requires='>=3',
     entry_points={
         "console_scripts": [
             "procsim = procsim.core.main:main"
