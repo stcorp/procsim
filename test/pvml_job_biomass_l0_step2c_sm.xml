@@ -4,8 +4,6 @@
   <processorName>l0_sm</processorName>
   <processorVersion>01.01</processorVersion>
   <orderType>OFFL</orderType>
-  <sensingStart>2002-07-17T01:58:01</sensingStart>
-  <sensingStop>2002-07-17T03:34:45</sensingStop>
   <processingParameters>
     <parameter name="Acquisition_Station">ESRIN</parameter>
     <parameter name="Product_Counter">0</parameter>
@@ -16,25 +14,25 @@
   <tasks>
     <task name="Step2">
       <inputs>
-        <input product_type="RAWS025_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2/BIO_RAWS025_10_20210201T003458_20210201T003645_D20210201T013810_00_B0709K.zip</file>
+        <input>
+          <file>workspace/2/BIO_RAWS025_10_20210201T003458_20210201T003645_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS026_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2/BIO_RAWS026_10_20210201T003458_20210201T003645_D20210201T013810_00_B0709K.zip</file>
+        <input>
+          <file>workspace/2/BIO_RAWS026_10_20210201T003458_20210201T003645_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/2/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/2/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>
     </task>
     <task name="Step4">
       <inputs>
-        <input product_type="RAWS022_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

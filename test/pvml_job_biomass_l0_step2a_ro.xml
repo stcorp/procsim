@@ -1,12 +1,9 @@
 <?xml version="1.0"?>
 <pvmlJob>
   <jobOrderId>1020</jobOrderId>
-
   <processorName>l0_ro</processorName>
   <processorVersion>01.01</processorVersion>
   <orderType>OFFL</orderType>
-  <sensingStart>2002-07-17T01:58:01</sensingStart>
-  <sensingStop>2002-07-17T03:34:45</sensingStop>
   <processingParameters>
     <parameter name="Product_Counter">0</parameter>
     <parameter name="Acquisition_Station">ESRIN</parameter>
@@ -15,25 +12,25 @@
   <tasks>
     <task name="Step2">
       <inputs>
-        <input product_type="RAWS027_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/20/BIO_RAWS027_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</file>
+        <input>
+          <file>workspace/20/BIO_RAWS027_10_20210201T002528_20210201T002715_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS028_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/20/BIO_RAWS028_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</file>
+        <input>
+          <file>workspace/20/BIO_RAWS028_10_20210201T002528_20210201T002715_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/20/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/20/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/20/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/20/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>
     </task>
     <task name="Step4">
       <inputs>
-        <input product_type="RAWS022_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/20/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/20/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

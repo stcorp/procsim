@@ -1,34 +1,9 @@
 <?xml version="1.0"?>
 <pvmlJob>
   <jobOrderId>1</jobOrderId>
-  
-  <!-- This is the name of the processor. It is used, together with
-  `processorVersion`, to find the appropriate TaskTable file for the job.-->
   <processorName>l0preproc_sm</processorName>
   <processorVersion>01.01</processorVersion>
-
-  <!--mode : optional
-  Run the processor using the specified mode. This determines which inputs are
-  chosen from the TaskTable. Only inputs that have Mode set to the specified
-  value will be included or inputs that have ``Mode=ALWAYS``. If no mode
-  parameter is provided, then only inputs with ``Mode=ALWAYS`` will be
-  included.-->
-
-  <!-- Only appropriate for processors where an ``Order_Type`` is requested to be
-  present in the JobOrder file. With this option you provide the value that
-  should be included in the JobOrder file.-->
   <orderType>OFFL</orderType>
-
-  <!-- Overall sensing start time. This value will be included in the JobOrder
-  ``Sensing_Time`` section. The format should be ISO8601 without time zone
-  indicator. If this parameter is not provided and the first input for the
-  first task in the job config file has an associated start time, then that
-  start time will  be used for the overall sensing start time.-->
-  <sensingStart>2002-07-17T01:58:01</sensingStart>
-  <sensingStop>2002-07-17T03:34:45</sensingStop>
-  
-  <!--Assign a value to each processing parameters. Whether a processing parameter
-  is mandatory or optional depends on the contents of the TaskTable file.-->
   <processingParameters>
     <parameter name="Acquisition_Station">ESRIN</parameter>
     <parameter name="Product_Counter">0</parameter>
@@ -36,51 +11,23 @@
     <parameter name="Processing_Stage_Flag">N</parameter>
     <parameter name="originator_ID">TST</parameter>
   </processingParameters>
-  
-  <!-- For each task in the TaskTable file there can be a ``task`` entry in the job
-  configuration file (``task`` entries are mandatory if the task has a
-  mandatory input with ``Origin=DB`` and the file backend is used).-->
   <tasks>
     <task name="Step1">
-        <!-- Only inputs for which ``Origin=DB`` in the TaskTable file should be
-      described. Whether an input reference is optional or mandatory depends on
-      whether the input is defined as Mandatory in the TaskTable file.-->
       <inputs>
-        
-        <!--The ``product_type`` attribute can be omitted if the PVML global config
-        file contains a match expression for the specific product type.-->
-
-        <!-- An input of a specific product type can consist of one or more products.
-        For each product a full path to the file should be provided. PVML will
-        copy the file to the workspace directory before executing the processor.
-        When a file needs to have an accompanying entry in the
-        ``List_of_Time_Intervals`` section (each file will have its own time
-        interval), then you should provide start and stop attributes containing
-        ISO8601 time references (without time zone indicator) to provide the
-        start/stop times. When the TaskTable entry for the product uses ``Stem``
-        for ``File_Name_Type`` you should provide this stem for the ``file``
-        parameter. Any file that starts with this stem will then be copied to the
-        workspace directory.-->
-
-        <!-- The ``start`` and ``stop`` attributes are optional. If the attributes are
-        not set and the PVML global config file contains start/stop time
-        expressions for this product type, then these expressions will be used to
-        determine the start/stop time values. Otherwise, no start/stop time will
-        be associated to the input file.-->
-        <input product_type="RAW_022_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_sm/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
+        <input>
+          <file>data/raw_sm/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
         </input>
-        <input product_type="RAW_023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_sm/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
+        <input>
+          <file>data/raw_sm/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
         </input>
-        <input product_type="RAW_024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_sm/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_B06YO0.zip</file>
+        <input>
+          <file>data/raw_sm/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
         </input>
-        <input product_type="RAW_025_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_sm/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_B06ZSW.zip</file>
+        <input>
+          <file>data/raw_sm/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</file>
         </input>
-        <input product_type="RAW_026_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/raw_sm/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_B06ZSW.zip</file>
+        <input>
+          <file>data/raw_sm/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

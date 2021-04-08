@@ -15,25 +15,25 @@
   <tasks>
     <task name="Step2">
       <inputs>
-        <input product_type="RAWS035_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/10/BIO_RAWS035_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</file>
+        <input>
+          <file>workspace/10/BIO_RAWS035_10_20210201T002528_20210201T002715_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS036_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/10/BIO_RAWS036_10_20210201T002528_20210201T002715_D20210201T013810_00_B06ZSW.zip</file>
+        <input>
+          <file>workspace/10/BIO_RAWS036_10_20210201T002528_20210201T002715_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS023_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/10/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/10/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
-        <input product_type="RAWS024_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/10/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/10/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>
     </task>
     <task name="Step4">
       <inputs>
-        <input product_type="RAWS022_10">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/10/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_B06YO0.zip</file>
+        <input>
+          <file>workspace/10/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>

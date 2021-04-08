@@ -4,8 +4,6 @@
   <processorName>l1_sta</processorName>
   <processorVersion>01.01</processorVersion>
   <orderType>OFFL</orderType>
-  <sensingStart>2002-07-17T01:58:01</sensingStart>
-  <sensingStop>2002-07-17T03:34:45</sensingStop>
   <processingParameters>
     <parameter name="Orbit_Number">1234</parameter>
   </processingParameters>
@@ -13,13 +11,13 @@
     <task name="Step1">
       <inputs>
         <!-- Generated products -->
-        <input product_type="Sx_SCS__1S">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C01_T000_F001_00_B06ZV6</file>
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C02_T000_F001_00_B06ZV6</file>
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C03_T000_F001_00_B06ZV6</file>
+        <input>
+          <file>workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C01_T000_F001_00_??????</file>
+          <file>workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C02_T000_F001_00_??????</file>
+          <file>workspace/2000/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C03_T000_F001_00_??????</file>
         </input>
-        <input product_type="AUX_PPS___">
-          <file start="2002-07-17T01:58:01" stop="2002-07-17T03:34:45">data/aux/BIO_AUX_PPS____20210201T000000_20210201T013810_01_B0737M</file>
+        <input>
+          <file>data/aux/BIO_AUX_PPS____20210201T000000_20210201T013810_01_??????</file>
         </input>
       </inputs>
       <exitCode>0</exitCode>
