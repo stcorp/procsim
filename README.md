@@ -26,7 +26,7 @@ Using setup.py:
 ```
 $ tar xvfz <procsim_package_name>.tar.gz
 $ cd <procsim_package_name>
-$ python setup.py install
+$ python3 setup.py install
 ```
 
 Using pip:
