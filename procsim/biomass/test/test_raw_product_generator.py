@@ -2,6 +2,7 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import datetime
+import glob
 import os
 import shutil
 import unittest
@@ -74,10 +75,12 @@ class RAWSxxx_10Test(unittest.TestCase):
             productpath,
             productpath.lower() + '.xml'
         )
+
         # TODO: Write separate XML code, to avoid using the MainProductHeader
         # class here?
+        files = glob.glob(filename)
         hdr = main_product_header.MainProductHeader()
-        hdr.parse(filename)
+        hdr.parse(files[0])
         return hdr
 
     def testSlicerCase1(self):
@@ -99,7 +102,7 @@ class RAWSxxx_10Test(unittest.TestCase):
         # Test output. We expect 4 files.
         anx = self.anx1
 
-        hdr = self.parse_product('BIO_RAWS025_10_20210201T002432_20210201T002539_D20210101T000000_10_B06ZSW')
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002432_20210201T002539_D20210101T000000_10_??????')
         self.assertEqual(hdr.begin_position, begin)
         self.assertNotEqual(hdr.begin_position, hdr.validity_start)
         self.assertEqual(hdr.end_position, hdr.validity_stop)
@@ -111,21 +114,21 @@ class RAWSxxx_10Test(unittest.TestCase):
         self.assertTrue(end_aligned)
 
         anx = self.anx2
-        hdr = self.parse_product('BIO_RAWS025_10_20210201T002528_20210201T002715_D20210101T000000_10_B06ZSW')
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002528_20210201T002715_D20210101T000000_10_??????')
         self.assertEqual(hdr.begin_position, hdr.validity_start)
         self.assertEqual(hdr.end_position, hdr.validity_stop)
         start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
         self.assertTrue(start_aligned)
         self.assertTrue(end_aligned)
 
-        hdr = self.parse_product('BIO_RAWS025_10_20210201T002703_20210201T002850_D20210101T000000_10_B06ZSW')
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002703_20210201T002850_D20210101T000000_10_??????')
         self.assertEqual(hdr.begin_position, hdr.validity_start)
         self.assertEqual(hdr.end_position, hdr.validity_stop)
         start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
         self.assertTrue(start_aligned)
         self.assertTrue(end_aligned)
 
-        hdr = self.parse_product('BIO_RAWS025_10_20210201T002838_20210201T002932_D20210101T000000_10_B06ZSW')
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002838_20210201T002932_D20210101T000000_10_??????')
         self.assertEqual(hdr.begin_position, hdr.validity_start)
         self.assertNotEqual(hdr.end_position, hdr.validity_stop)
         self.assertEqual(hdr.end_position, end)
