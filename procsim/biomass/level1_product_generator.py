@@ -81,12 +81,13 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
     def _generate_product(self):
         # Setup MPH
+        self._create_date = self._hdr.end_position   # HACK: fill in current date?
         acq = self._hdr.acquisitions[0]
 
         name_gen = product_name.ProductName()
         name_gen.file_type = self._hdr.product_type
-        name_gen.start_time = self._hdr.validity_start
-        name_gen.stop_time = self._hdr.validity_stop
+        name_gen.start_time = self._hdr.begin_position
+        name_gen.stop_time = self._hdr.end_position
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._create_date)
         name_gen.mission_phase = acq.mission_phase
@@ -147,7 +148,6 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         if not self._enable_framing:
@@ -155,10 +155,10 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             self._hdr.partial_l1_frame = False
             self._generate_product()
         else:
-            self._do_framing()
+            self._generate_frames()
 
-    def _do_framing(self):
-        # Perform framing. Input is a slice. A frame overlap is added at the end.
+    def _generate_frames(self):
+        # Input is a slice. A frame overlap is added at the end of each frame.
         acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
         slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
         if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
@@ -169,7 +169,8 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         if slice_end != acq_end:
             pass  # Last slice of a data take (partial)
 
-        # Subtract slice overlaps to get the exact slice grid nodes
+        # Slice start/end are the 'grid nodes', but with slice overlap.
+        # Subtract overlaps to get the exact slice grid nodes
         slice_start += constants.SLICE_OVERLAP_START
         slice_end -= constants.SLICE_OVERLAP_END
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
@@ -186,10 +187,10 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             frame_nr = 1 + n + (slice_nr - 1) * 5
             frame_start = slice_start + n * constants.FRAME_GRID_SPACING
             frame_end = frame_start + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
-            start = min(frame_start, acq_start)
-            end = max(frame_end, acq_end)
+            start = max(frame_start, acq_start)
+            end = min(frame_end, acq_end)
             if end - start < self._frame_lower_bound:
-                self._logger.debug('Drop frame {}'.format(frame_nr))
+                self._logger.debug('Do not generate frame {}, not enough data'.format(frame_nr))
             else:
                 is_partial = (acq_start > frame_start) or (acq_end < frame_end)
                 self._hdr.acquisitions[0].slice_frame_nr = frame_nr
@@ -330,8 +331,8 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         acq = hdr.acquisitions[0]
         name_gen = product_name.ProductName()
         name_gen.file_type = hdr.product_type
-        name_gen.start_time = hdr.validity_start
-        name_gen.stop_time = hdr.validity_stop
+        name_gen.start_time = hdr.begin_position
+        name_gen.stop_time = hdr.end_position
         name_gen.baseline_identifier = hdr.product_baseline
         name_gen.set_creation_date(create_date)
         name_gen.mission_phase = acq.mission_phase
