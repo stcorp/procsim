@@ -129,6 +129,9 @@
     <productType name="AUX_PP1___">
       <matchExpression><![CDATA[.*AUX_PP1___.*]]></matchExpression>
     </productType>
+    <productType name="AUX_PPS___">
+      <matchExpression><![CDATA[.*AUX_PPS___.*]]></matchExpression>
+    </productType>
     <productType name="AUX_TEC___">
       <matchExpression><![CDATA[.*AUX_TEC___.*]]></matchExpression>
     </productType>
@@ -137,6 +140,9 @@
     </productType>
     <productType name="AUX_INS___">
       <matchExpression><![CDATA[.*AUX_INS___.*]]></matchExpression>
+    </productType>
+    <productType name="AUX_PP2_2A">
+      <matchExpression><![CDATA[.*AUX_PP2_2A.*]]></matchExpression>
     </productType>
 
     <!-- Level 1 -->
