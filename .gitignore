@@ -6,6 +6,8 @@ __pycache__/
 # Intermediate files
 workspace/
 data/
+examples/JobOrder.1.xml
+examples/JobOrder.2.xml
 
 # IDE stuff
 .idea/
