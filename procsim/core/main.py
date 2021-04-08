@@ -247,36 +247,15 @@ def _generate_intermediate_files(logger, job_task: Optional[JobOrderTask]):
 
 
 versiontext = "procsim v" + __version__ + \
-    ", Copyright (C) 2021 S[&]T, The Netherlands.\n"
-
-helptext = versiontext + """\
-Usage:
-    procsim [OPTIONS] -t TASK_FILENAME -j JOBORDER_FILE [-s SCENARIO_NAME] CONFIG_FILE
-    procsim [OPTIONS] -s SCENARIO_NAME CONFIG_FILE
-        Simulate a scenario from CONFIG_FILE.
-        The scenario is selected using either TASK_FILENAME and JOBORDER_FILE,
-        or specified explicitly by SCENARIO_NAME.
-
-    procsim -v
-        Shows version number.
-
-    procsim -h
-    procsim -h MISSION PRODUCT_TYPE
-        Shows generic help, or for a specific product type.
-
-    -t, --task_filename=NAME    The name of the task as called by the CPF
-    -j, --joborder=NAME         The file name of the job order
-    -s, --scenario=SCENARIO     Force use of SCENARIO (normally derived from
-                                task-filename and joborder)
-    -l, --log-level=LVL         Force log level to LVL. LVL can be
-                                debug, info, progress, warning, error
-"""
+    ", Copyright (C) 2021 S[&]T, The Netherlands."
+procsim_description = \
+    "Simulate a processor task, using a scenario read from config_filename."
 
 
 def print_product_info(prod):
     if prod == '':
-        print(helptext)
-        print('procsim has support for the following missions:')
+        print(versiontext)
+        print('This tool has support for the following products:')
         this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__', 'core']]
     else:
@@ -297,7 +276,7 @@ def print_product_info(prod):
         flattened_list = [prod for prods in product_list for prod in prods]
         if prod is None or prod not in flattened_list:
             print()
-            print('- {}, supporting the following products:'.format(plugin))
+            print('- {}:'.format(plugin.upper()))
             for prods in product_list:
                 n = len(prods)
                 for idx in range(n):
@@ -320,7 +299,7 @@ def print_product_info(prod):
 
 
 def parse_command_line(argv):
-    parser = argparse.ArgumentParser(description=versiontext)
+    parser = argparse.ArgumentParser(description=procsim_description)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-i', '--info',
                        metavar='product_name',
@@ -329,7 +308,7 @@ def parse_command_line(argv):
                        const='',
                        nargs='?', action='store',
                        help='list all supported output products, or details for a specific product')
-    group.add_argument(dest='config_filename', metavar='configuration_filename', nargs='?')
+    group.add_argument(dest='config_filename', metavar='config_filename', nargs='?')
     parser.add_argument('-v', '--version', action='version', version=versiontext)
     parser.add_argument('-t', '--task_filename', metavar='name', dest='task_filename', default='',
                         help='the name of the task as called by the CPF')
