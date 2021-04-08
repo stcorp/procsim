@@ -80,23 +80,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def _generate_product(self):
-        # Setup MPH
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
-        acq = self._hdr.acquisitions[0]
-
-        name_gen = product_name.ProductName()
-        name_gen.file_type = self._hdr.product_type
-        name_gen.start_time = self._hdr.begin_position
-        name_gen.stop_time = self._hdr.end_position
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))
@@ -148,6 +132,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        self._create_date = self._hdr.end_position   # HACK: fill in current date?
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         if not self._enable_framing:
@@ -324,24 +309,11 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             self._generate_level1_stacked_product(hdr)
 
     def _generate_level1_stacked_product(self, hdr):
-        create_date = hdr.end_position   # HACK: fill in current date?
         hdr.product_type = self._resolve_wildcard_product_type()
 
         # Setup MPH
         acq = hdr.acquisitions[0]
-        name_gen = product_name.ProductName()
-        name_gen.file_type = hdr.product_type
-        name_gen.start_time = hdr.begin_position
-        name_gen.stop_time = hdr.end_position
-        name_gen.baseline_identifier = hdr.product_baseline
-        name_gen.set_creation_date(create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        name_gen = self._create_name_generator(hdr)
         dir_name = name_gen.generate_path_name()
         hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))

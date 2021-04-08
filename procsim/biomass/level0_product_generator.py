@@ -3,8 +3,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Biomass Level 0 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0073
-
-TODO: Remove all duplicated code!
 '''
 import datetime
 import os
@@ -155,14 +153,11 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         for param, acq_field, ptype in acq_params:
             self._read_config_param(data_take_config, param, self._hdr.acquisitions[0], acq_field, ptype)
 
-        # TODO: This is not necessary? See email Luca
-        type = self._resolve_wildcard_product_type()
-
         self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = type
+        self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
         self._hdr.incomplete_l0_slice = False  # TODO!
         self._hdr.partial_l0_slice = self._is_partial_slice(
@@ -172,22 +167,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             stop
         )
 
-        # Create name generator and setup all fields mandatory for a level0 product.
-        # TODO: Move to helper method (code is duplicated for every output!)
-        name_gen = product_name.ProductName()
-        acq = self._hdr.acquisitions[0]
-        name_gen.file_type = type
-        name_gen.start_time = start
-        name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        # Create name generator
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
 
@@ -298,31 +279,23 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._hdr.end_position = stop
         return True
 
-    def _generate_product(self, start, stop):
-        name_gen = product_name.ProductName()
+    # def _generate_product(self, start, stop):
 
-        type = self._resolve_wildcard_product_type()
+    def generate_output(self):
+        super().generate_output()
+
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('begin/end position must be set')
 
         # Setup all fields mandatory for a level0 product.
-        self._hdr.product_type = type
-        self._hdr.set_phenomenon_times(start, stop)
+        self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
         acq = self._hdr.acquisitions[0]
         acq.slice_frame_nr = None
 
-        name_gen.file_type = type
-        name_gen.start_time = start
-        name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
 
@@ -345,14 +318,6 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._generate_bin_file(file_name, 0)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
         self._generate_bin_file(file_name, 0)
-
-    def generate_output(self):
-        super().generate_output()
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
-        # TODO : Why read start/stop here and set it again in _generate_product?
-        start = self._hdr.begin_position
-        stop = self._hdr.end_position
-        self._generate_product(start, stop)
 
 
 class AC_RAW__0A(product_generator.ProductGeneratorBase):
@@ -394,34 +359,24 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
-        start = self._hdr.begin_position - datetime.timedelta(0, self._leading_margin)
-        stop = self._hdr.end_position + datetime.timedelta(0, self._trailing_margin)
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('begin/end position must be set')
 
-        # Setup MPH
+        # Adjust start/stop times, add margins
+        self._hdr.begin_position -= datetime.timedelta(0, self._leading_margin)
+        self._hdr.end_position += datetime.timedelta(0, self._trailing_margin)
+        self._hdr.validity_start = self._hdr.begin_position
+        self._hdr.validity_stop = self._hdr.end_position
+
+        # Setup other MPH fields
         self._hdr.product_type = self._output_type
-        self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.set_validity_times(start, stop)
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
         acq = self._hdr.acquisitions[0]
         acq.slice_frame_nr = None
-
-        # Setup all fields mandatory for a level0 product.
-        name_gen = product_name.ProductName()
-        name_gen.file_type = self._output_type
-        name_gen.start_time = start
-        name_gen.stop_time = stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
 

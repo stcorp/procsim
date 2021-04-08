@@ -295,7 +295,6 @@ class MainProductHeader:
         '''
         self.begin_position = start
         self.end_position = end
-        self.time_position = end  # = end, according to MPH definition
 
     def set_validity_times(self, start, stop):
         '''
@@ -359,8 +358,8 @@ class MainProductHeader:
                 self.validity_start is None or self.validity_stop is None:
             raise ScenarioError('Times must be set before creating MPH')
 
-        # If not set, use end_position (this is the default)
-        self.time_position = self.time_position or self.end_position
+        # By convention, time_position is equal to end_position
+        self.time_position = self.end_position
 
         phenomenon_time = et.SubElement(mph, om + 'phenomenonTime')
         self._insert_time_period(phenomenon_time, self.begin_position, self.end_position, 2)

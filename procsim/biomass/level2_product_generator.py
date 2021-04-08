@@ -58,21 +58,7 @@ class Level2a(product_generator.ProductGeneratorBase):
         self._create_date = self._hdr.end_position   # HACK: fill in current date?
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
-        # Setup MPH
-        acq = self._hdr.acquisitions[0]
-        name_gen = product_name.ProductName()
-        name_gen.file_type = self._hdr.product_type
-        name_gen.start_time = self._hdr.validity_start
-        name_gen.stop_time = self._hdr.validity_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))

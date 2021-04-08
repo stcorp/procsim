@@ -23,6 +23,33 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
+    @staticmethod
+    def _create_name_generator(hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
+        '''
+        Create product name generator and setup fields required for level0/1/2,
+        using the metadata in hdr.
+
+        The start/stop times are copied from the begin/end position fields,
+        the 'phenomenon' times, which seem to contain the correct times.
+        '''
+        create_date = datetime.datetime.utcnow()
+        create_date = hdr.end_position   # HACK: fill in current date?
+
+        acq = hdr.acquisitions[0]
+        name_gen = product_name.ProductName()
+        name_gen.file_type = hdr.product_type
+        name_gen.start_time = hdr.begin_position
+        name_gen.stop_time = hdr.end_position
+        name_gen.baseline_identifier = hdr.product_baseline
+        name_gen.set_creation_date(create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+        return name_gen
+
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
