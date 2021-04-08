@@ -31,9 +31,9 @@ class ProductGeneratorBase(IProductGenerator):
 
         The start/stop times are copied from the begin/end position fields,
         the 'phenomenon' times, which seem to contain the correct times.
+        Create date is 'now' (UTC)
         '''
         create_date = datetime.datetime.utcnow()
-        create_date = hdr.end_position   # HACK: fill in current date?
 
         acq = hdr.acquisitions[0]
         name_gen = product_name.ProductName()
