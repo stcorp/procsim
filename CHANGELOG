@@ -1,5 +1,12 @@
 Procsim Changelog
 -----------------
 
+[v1.1.0] - Not released yet
+    - Add: Support for L1 products
+    - Add: Support for L2a products
+    - Fix: create date in product names
+    - Fix: Mission phase must be in capitals
+    - Fix: Tracknr type string, not integer (can be "___" in drifting orbits)
+
 [v1.0.0] - 2021/03/31
     Initial release. Supports Biomass RAW and L0 products.
