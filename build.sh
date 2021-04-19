@@ -36,3 +36,8 @@ tar zcf $PACKAGE.tgz $PACKAGE
 rm -rf $PACKAGE
 
 echo "Created package $PACKAGE"
+
+# create and export Docker image
+docker build -t procsim .
+docker save procsim -o ${PACKAGE}_docker_image.tar
+echo "Created ${PACKAGE}_docker_image.tar"

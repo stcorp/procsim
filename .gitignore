@@ -16,6 +16,7 @@ examples/JobOrder.2.xml
 
 # Build artefacts
 *.tgz
+*.tar
 build/
 dist/
 procsim.egg-info/
