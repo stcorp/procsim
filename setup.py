@@ -30,6 +30,7 @@ setup(
     package_data={'procsim.core': ['*.xsd']},
     include_package_data=True,
     python_requires='>=3',
+    zip_safe=False,
     entry_points={
         "console_scripts": [
             "procsim = procsim.core.main:main"
