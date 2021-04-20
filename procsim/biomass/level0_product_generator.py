@@ -117,6 +117,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
                     start = min(start, hdr.begin_position)
                     stop = max(stop, hdr.end_position)
                     # Diagnostics
@@ -265,6 +267,8 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
                 hdr = self._hdr
                 mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                 hdr.parse(mph_file_name)
+                if hdr.begin_position is None or hdr.end_position is None:
+                    raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
                 input_id = hdr.acquisitions[0].data_take_id
                 # Sanity check: do all products belong to the same data take?
                 if input_id != id:
