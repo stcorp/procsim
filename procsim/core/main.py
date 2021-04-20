@@ -402,6 +402,10 @@ def main(argv=None):
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))
+    except IOError:
+        exit_code = 1
+        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
+        logger.info('Terminate with code {}'.format(exit_code))
 
     exit(exit_code)
 

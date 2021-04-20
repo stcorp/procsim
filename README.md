@@ -248,3 +248,18 @@ The next section describes the program flow during normal execution of procsim.
 
 ### Program termination
 - The program exits with the exit code as defined in the scenario (default 0).
+
+
+# Running in a container
+A Dockerfile is provided to create a container image from source. The container wraps the procsim application and the Python interpreter, allowing the tool to run 'anywhere'.
+The container image can be build using Podman (provided by Red Hat Linux) or Docker. Use the following command in the root of the source directory:
+```
+$ podman build -t procsim .
+```
+<!-- Note that this requires internet access, as the base image is loaded from the Docker repository.
+As an alternative, you can import the exported image:
+```
+$ podman load -i <package_name>_docker_image.tar
+``` -->
+After that, you can use the Dockerized procsim container.
+The script ```examples/generate_L0_docker.sh``` shows a usage example.
