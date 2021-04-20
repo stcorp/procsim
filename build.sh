@@ -3,6 +3,9 @@
 # Copyright (C) 2021 S[&]T, The Netherlands.
 # This script creates the procsim release package.
 
+# Exit when any command fails
+set -e
+
 # retrieve version number
 VERSION=`grep -Po "__version__[^']*'\K[^']*" procsim/core/version.py`
 
@@ -37,7 +40,7 @@ rm -rf $PACKAGE
 
 echo "Created package $PACKAGE"
 
-# create and export Docker image
-docker build -t procsim .
-docker save procsim -o ${PACKAGE}_docker_image.tar
+# create and export container image
+podman build -t procsim .
+podman save procsim -o ${PACKAGE}_docker_image.tar
 echo "Created ${PACKAGE}_docker_image.tar"
