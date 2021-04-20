@@ -20,6 +20,7 @@ cp README.md $PACKAGE
 cp CHANGELOG $PACKAGE
 cp MANIFEST.in $PACKAGE
 cp setup.py $PACKAGE
+cp Dockerfile $PACKAGE
 cp -R procsim $PACKAGE/procsim
 cp -R examples $PACKAGE/examples
 

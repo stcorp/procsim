@@ -251,8 +251,8 @@ The next section describes the program flow during normal execution of procsim.
 
 
 # Running in a container
-A Dockerfile is provided to create a container image from source. The container wraps the procsim application and the Python interpreter, allowing the tool to run 'anywhere'.
-The container image can be build using Podman (provided by Red Hat Linux) or Docker. Use the following command in the root of the source directory:
+A Dockerfile, to create a container image from source, is provided in the release package. The container wraps the procsim application and the Python interpreter, allowing the tool to run 'anywhere'.
+The container image can be build using Podman (provided by Red Hat Linux) or Docker. Use the following command in the directory where Dockerfile is located:
 ```
 $ podman build -t procsim .
 ```
@@ -261,5 +261,10 @@ As an alternative, you can import the exported image:
 ```
 $ podman load -i <package_name>_docker_image.tar
 ``` -->
-After that, you can use the Dockerized procsim container.
-The script ```examples/generate_L0_docker.sh``` shows a usage example.
+After that, you can use the Dockerized procsim container. You can run
+```
+$ podman run --rm procsim -v
+```
+to show the version number. The script ```examples/generate_L0_container.sh``` shows a usage example.
+
+Note: replace ```podman``` with ```docker``` to use Docker instead of podman.
