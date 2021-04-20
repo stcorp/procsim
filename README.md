@@ -65,7 +65,7 @@ Optionally, you can specify a specific scenario using `-s`, followed by the name
 ## Scenario configuration
 Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated. 
 
-The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/times should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`
+The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Times, such as the slice period, are in seconds with type float.
 
 A configuration file can contain one or multiple scenarios. The scenario is selected by automatically using the combination of task file name (i.e. the name of the executable called by the PF) and the JobOrder contents, or manually using an additonal command line parameter.
 
@@ -174,6 +174,9 @@ Example:
 ```
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 
+### Generator specific parameters
+Some generators have specific parameters, such as ```enable_slicing``` for the RAWSxxx_10 geenrator. These parameters can be placed on either the scenario level or in a specific output section, as with the metadata parameters.
+
 A list with all supported parameters for a specific output type can be retrieved using `procsim -i [product_type]`.
 
 Example:
@@ -186,11 +189,18 @@ AC_RAW__0A product generator details:
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 ancillary products.
 
-    Inputs are a Sx_RAW__0M product and all RAWS022_10 belonging to the same
-    data take.
-    The output reads the begin/end times of the monitoring product and adds the
+    Inputs are a Sx_RAW__0M monitoring product and all RAWS022_10 products
+    belonging to the same data take.
+    The output takes the begin/end times of the monitoring product and adds the
     leading/trailing margins as specified in the job order or the scenario.
     (defaults is 16/0 seconds).
+
+    The generator adjusts the following metadata:
+    - wrsLatitudeGrid, aka the slice_frame_nr, to '___'
+    - partialSlice, set to false
+    - incompleteSlice, set to false
+    - phenomenonTime (the acquisition begin/end times)
+    - validTime
     
 Supported scenario parameters for product type AC_RAW__0A are:
    - baseline (int)

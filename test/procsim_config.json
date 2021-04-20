@@ -804,6 +804,11 @@
       "browse_ref_id": "EPSG:4326",
       "browse_image_filename": "./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png",
 
+      // Frame grid definition. All times are in seconds.
+      "frame_grid_spacing": 19.003162,
+      "frame_overlap": 2.0,
+      "frame_lower_bound": 3.0,
+
       // To test L1 Stacked product, generate 3 series of outputs with different
       // repeat cycle ID's.
       "outputs": [

@@ -164,17 +164,19 @@ class ProductGeneratorBase(IProductGenerator):
         val = config.get(param_name)
         if val is None:
             return
+        if not hasattr(obj, hdr_field):
+            raise GeneratorError('Error: attribute {} not present in {}'.format(hdr_field, obj))
+        old_val = getattr(obj, hdr_field)
         if ptype == 'date':
             val = self._time_from_iso_or_none(val)
         elif ptype == 'int':
             val = int(val)
         elif ptype == 'float':
             val = float(val)
+            if type(old_val) == datetime.timedelta:
+                val = datetime.timedelta(0, val)    # We expect seconds here
         else:
             pass
-        if not hasattr(obj, hdr_field):
-            raise GeneratorError('Error: attribute {} not present in {}'.format(hdr_field, obj))
-        old_val = getattr(obj, hdr_field)
         self._logger.debug('{} {}{} to {}'.format(
             'Set' if old_val is None else 'Overwrite',
             param_name,

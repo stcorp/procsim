@@ -144,7 +144,11 @@ class RAWSxxx_10(RawProductGeneratorBase):
                 'RAWS036_10']
 
     GENERATOR_PARAMS: List[tuple] = [
-        ('enable_slicing', '_enable_slicing', 'bool')
+        ('enable_slicing', '_enable_slicing', 'bool'),
+        ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('orbital_period', '_orbital_period', 'float')
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -156,6 +160,10 @@ class RAWSxxx_10(RawProductGeneratorBase):
         self._anx_list = [self._time_from_iso(anx) for anx in anx_list]
         self._anx_list.sort()
         self._enable_slicing = True
+        self._slice_grid_spacing = constants.SLICE_GRID_SPACING
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._orbital_period = constants.ORBITAL_PERIOD
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -200,16 +208,17 @@ class RAWSxxx_10(RawProductGeneratorBase):
             return
 
         start = segment_start
+        slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
         while start < segment_end:
             # Find slice
             anx = self._get_anx(start)
-            n = (start - anx) // constants.SLICE_GRID_SPACING
+            n = (start - anx) // self._slice_grid_spacing
 
             # Test if the first slice starts within the 'start overlap time' of
             # the next slice. In that case, use that slice instead.
-            s = start + constants.SLICE_OVERLAP_START
+            s = start + self._slice_overlap_start
             anx2 = self._get_anx(s)
-            n2 = (s - anx) // constants.SLICE_GRID_SPACING
+            n2 = (s - anx) // self._slice_grid_spacing
             if n2 != n:
                 n = n2
                 anx = anx2
@@ -217,9 +226,9 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
             # Calculate the 'theoretical' slice start/end times, i.e. the grid
             # nodes, with overlap added.
-            slice_start = anx + n * constants.SLICE_GRID_SPACING - constants.SLICE_OVERLAP_START
-            slice_end = anx + (n + 1) * constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
-            slice_nr = (n % constants.SLICES_PER_ORBIT) + 1
+            slice_start = anx + n * self._slice_grid_spacing - self._slice_overlap_start
+            slice_end = anx + (n + 1) * self._slice_grid_spacing + self._slice_overlap_end
+            slice_nr = (n % slices_per_orbit) + 1
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
 
             # Calculate the 'real' start/end times

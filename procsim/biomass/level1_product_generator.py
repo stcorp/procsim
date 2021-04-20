@@ -63,10 +63,12 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
                 'RO_SCS__1S']
 
     _GENERATOR_PARAMS: List[tuple] = [
-        ('enable_framing', '_enable_framing', 'bool')
-        # ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
-        # ('frame_overlap', '_frame_overlap', 'float'),
-        # ('frame_lower_bound', '_frame_lower_bound', 'float'),
+        ('enable_framing', '_enable_framing', 'bool'),
+        ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
+        ('frame_overlap', '_frame_overlap', 'float'),
+        ('frame_lower_bound', '_frame_lower_bound', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float')
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -75,6 +77,9 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         self._frame_grid_spacing = constants.FRAME_GRID_SPACING
         self._frame_overlap = constants.FRAME_OVERLAP
         self._frame_lower_bound = constants.FRAME_LOWER_BOUND
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -156,22 +161,22 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
         # Slice start/end are the 'grid nodes', but with slice overlap.
         # Subtract overlaps to get the exact slice grid nodes
-        slice_start += constants.SLICE_OVERLAP_START
-        slice_end -= constants.SLICE_OVERLAP_END
+        slice_start += self._slice_overlap_start
+        slice_end -= self._slice_overlap_end
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
 
         # Sanity checks
         if slice_nr is None:
             raise ScenarioError('Cannot perform framing, slice nr. is not known')
-        delta = (slice_end - slice_start) - constants.FRAME_GRID_SPACING * 5
+        delta = (slice_end - slice_start) - self._frame_grid_spacing * 5
         if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
-            raise GeneratorError('Cannot perform framing, slice length != 5x frame length ({} != {})'.format(
-                slice_end - slice_start, constants.FRAME_GRID_SPACING * 5))
+            raise GeneratorError('Cannot perform framing, slice length != 5x frame length ({} != 5x{})'.format(
+                slice_end - slice_start, self._frame_grid_spacing))
 
         for n in range(5):
             frame_nr = 1 + n + (slice_nr - 1) * 5
-            frame_start = slice_start + n * constants.FRAME_GRID_SPACING
-            frame_end = frame_start + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
+            frame_start = slice_start + n * self._frame_grid_spacing
+            frame_end = frame_start + self._frame_grid_spacing + self._frame_overlap
             start = max(frame_start, acq_start)
             end = min(frame_end, acq_end)
             if end - start < self._frame_lower_bound:
