@@ -14,7 +14,7 @@ from typing import List, Optional, Tuple
 
 from . import utils
 from .iproduct_generator import IProductGenerator
-from .exceptions import ScenarioError, TerminateError
+from .exceptions import GeneratorError, ScenarioError, TerminateError
 from .job_order import JobOrderParser, JobOrderTask, job_order_parser_factory
 from .logger import Logger
 from .version import __version__
@@ -399,6 +399,10 @@ def main(argv=None):
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))
     except ScenarioError:
+        exit_code = 1
+        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
+        logger.info('Terminate with code {}'.format(exit_code))
+    except GeneratorError:
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))
