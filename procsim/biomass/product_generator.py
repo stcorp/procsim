@@ -1,11 +1,12 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
+import abc
 import datetime
 import os
 import re
 import zipfile
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -62,6 +63,14 @@ class ProductGeneratorBase(IProductGenerator):
         self._create_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+
+    @abc.abstractmethod
+    def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
+        '''
+        Returns lists with generator- and metadata parameters that can be used
+        in the scenario.
+        '''
+        pass
 
     def _resolve_wildcard_product_type(self) -> str:
         '''
