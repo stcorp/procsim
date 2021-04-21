@@ -24,14 +24,18 @@ Procsim is distributed as a source distribution created using `setuptools`. It c
 
 Using setup.py:
 ```
-$ tar xvfz <procsim_package_name>.tar.gz
+$ tar xvf <procsim_package_name>.tgz
 $ cd <procsim_package_name>
 $ python3 setup.py install
+```
+If setup.py fails due to permission errors, use
+```
+$ sudo python3 setup.py install
 ```
 
 Using pip:
 ```
-$ pip install <procsim_pacakge>.tar.gz
+$ pip install <procsim_pacakge>.tgz
 ```
 
 Procsim is a command-line based tool. To test the installation, enter:
