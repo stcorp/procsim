@@ -829,7 +829,7 @@
         },
         {
           "type": "Sx_SCS__1M",
-          "metadata_source": ".*S._RAW__0S.*"  // TODO: check this, I'd expect the 0M product here
+          "metadata_source": ".*S._RAW__0S.*"
         },
         {
           "type": "Sx_DGM__1S",
