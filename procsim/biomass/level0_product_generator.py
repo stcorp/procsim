@@ -37,7 +37,6 @@ _ACQ_PARAMS = [
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
     ('track_nr', 'track_nr', 'str'),
-    ('slice_frame_nr', 'slice_frame_nr', 'int')  # TODO: overwritten in sliced products
 ]
 
 
@@ -77,11 +76,15 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 'EC_RAWP_0M', 'EC_RAWP_0S'
                 ]
 
+    _ACQ_PARAMS = [
+        ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ]
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS + self._ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -283,8 +286,6 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._hdr.end_position = stop
         return True
 
-    # def _generate_product(self, start, stop):
-
     def generate_output(self):
         super().generate_output()
 
@@ -391,5 +392,5 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())  # TODO: SUFFIX?!
+        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
         self._generate_bin_file(file_name, self._size_mb)
