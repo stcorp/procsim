@@ -1,7 +1,7 @@
 Procsim Changelog
 -----------------
 
-[v1.1.0] - Not released yet
+[v1.1.0] - 2021/04/21
     - Add: Support for L1 products
     - Add: Support for L2a products
     - Add: Dockerfile added to create a container image
