@@ -2,7 +2,7 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Task simulator for scientific processors.
+Task simulator for scientific processors, entry point.
 '''
 import argparse
 import importlib
@@ -59,9 +59,8 @@ def _read_config(logger, filename) -> dict:
             raise ScenarioError('Error in configuration file on line {}, column {}'.format(e.lineno, e.colno))
 
 
-def _output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
-    '''Return an output generator for the given parameters.'''
-    # Import plugin for this mission
+def _output_generator_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -> Optional[IProductGenerator]:
+    # Import plugin and get factory for this mission
     try:
         mod = importlib.import_module('procsim.' + mission)
     except ImportError:
@@ -75,11 +74,6 @@ def _output_factory(mission, logger, job_output_cfg, scenario_cfg, output_cfg) -
     # Use plugin factory to create generator
     generator = factory(logger, job_output_cfg, scenario_cfg, output_cfg)
     return generator
-
-
-def _compare_inputs(scenario, task):
-    # Todo! Match types against file names
-    return True
 
 
 def _compare_outputs(scenario, task):
@@ -131,8 +125,6 @@ def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_nam
                scenario['task_version'] != job_task.version:
                 continue
             task_found = True
-            if not _compare_inputs(scenario, job_task):
-                continue
             matching_inputs_found = True
             if not _compare_outputs(scenario, job_task):
                 continue
@@ -196,8 +188,8 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
             for job_output_cfg in job_task.outputs:
                 if job_output_cfg.type == product_type:
                     break
-            generator = _output_factory(mission, logger, job_output_cfg, scenario, output_cfg)
-            if (generator is None):
+            generator = _output_generator_factory(mission, logger, job_output_cfg, scenario, output_cfg)
+            if generator is None:
                 sys.exit(1)
             generators.append(generator)
         else:
@@ -206,7 +198,7 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
 
 
 def _do_work(logger, config, job_task: Optional[JobOrderTask]):
-    # Get paremters from scenario
+    # Get resource usage parameters from scenario
     time = config.get('processing_time', 0)
     nr_cpu = config.get('nr_cpu', 1)
     memory_mb = config.get('memory_usage', 0)
@@ -256,10 +248,8 @@ def print_product_info(prod):
     if prod == '':
         print(versiontext)
         print('This tool has support for the following products:')
-        this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__', 'core']]
-    else:
-        plugins = ['biomass']
+    this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    plugins = [f.path for f in os.scandir(this_dir) if f.is_dir() and f.name not in ['test', '__pycache__', 'core']]
 
     for plugin in plugins:
         plugin = os.path.basename(plugin)
@@ -274,7 +264,7 @@ def print_product_info(prod):
             continue  # Not a procsim plugin
         product_list = lister()
         flattened_list = [prod for prods in product_list for prod in prods]
-        if prod is None or prod not in flattened_list:
+        if prod is '':
             print()
             print('- {}:'.format(plugin.upper()))
             for prods in product_list:
@@ -286,7 +276,7 @@ def print_product_info(prod):
                         print(', ', end='')
                     print('{}'.format(prods[idx]), end='')
                 print()
-        else:
+        elif prod in flattened_list:
             config = {'output_path': '.', 'type': prod, 'anx': ''}
             gen = factory(None, None, config, config)
             print()
