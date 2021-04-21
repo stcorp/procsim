@@ -2,7 +2,8 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 
 Logging class, messages formatted according to ESA-EOPG-EEGS-ID-0083.
-NB: Note that the space after the colon is not specified, only shown in the examples
+NB: Note that the space after the colon in the formatting string is not specified,
+it is only shown in the examples.
 '''
 
 import datetime
@@ -11,7 +12,9 @@ import sys
 
 
 class Logger:
-    '''This class is responsible for generating Log messages on stdout and stderr'''
+    '''
+    This class is responsible for generating Log messages on stdout and stderr
+    '''
     LEVELS = ['DEBUG', 'INFO', 'PROGRESS', 'WARNING', 'ERROR']
 
     @staticmethod

@@ -1,7 +1,7 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Common helper functions
+Common XML/JSON helper functions
 '''
 
 import re
