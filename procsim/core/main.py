@@ -264,7 +264,7 @@ def print_product_info(prod):
             continue  # Not a procsim plugin
         product_list = lister()
         flattened_list = [prod for prods in product_list for prod in prods]
-        if prod is '':
+        if prod == '':
             print()
             print('- {}:'.format(plugin.upper()))
             for prods in product_list:
