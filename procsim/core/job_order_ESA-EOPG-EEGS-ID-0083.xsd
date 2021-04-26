@@ -190,6 +190,8 @@
           </xs:complexType>
         </xs:element>
       </xs:sequence>
+      <xs:attribute name="schemaName" type="xs:string" use="required"/>
+      <xs:attribute name="schemaVersion" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>
