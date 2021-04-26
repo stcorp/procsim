@@ -12,6 +12,7 @@ from . import product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),

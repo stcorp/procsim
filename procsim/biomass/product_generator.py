@@ -24,33 +24,6 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
-    @staticmethod
-    def _create_name_generator(hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
-        '''
-        Create product name generator and setup fields required for level0/1/2,
-        using the metadata in hdr.
-
-        The start/stop times are copied from the begin/end position fields,
-        the 'phenomenon' times, which seem to contain the correct times.
-        Create date is 'now' (UTC)
-        '''
-        create_date = datetime.datetime.utcnow()
-
-        acq = hdr.acquisitions[0]
-        name_gen = product_name.ProductName()
-        name_gen.file_type = hdr.product_type
-        name_gen.start_time = hdr.begin_position
-        name_gen.stop_time = hdr.end_position
-        name_gen.baseline_identifier = hdr.product_baseline
-        name_gen.set_creation_date(create_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
-        name_gen.frame_slice_nr = acq.slice_frame_nr
-        return name_gen
-
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
@@ -63,6 +36,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._create_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+        self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
 
     @abc.abstractmethod
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
@@ -71,6 +45,32 @@ class ProductGeneratorBase(IProductGenerator):
         in the scenario.
         '''
         pass
+
+    def _create_name_generator(self, hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
+        '''
+        Create product name generator and setup fields required for level0/1/2,
+        using the metadata in hdr.
+
+        The start/stop times are copied from the begin/end position fields,
+        the 'phenomenon' times, which seem to contain the correct times.
+        Create date is 'now' (UTC)
+        '''
+        create_date = datetime.datetime.utcnow()
+
+        acq = hdr.acquisitions[0]
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen.file_type = hdr.product_type
+        name_gen.start_time = hdr.begin_position
+        name_gen.stop_time = hdr.end_position
+        name_gen.baseline_identifier = hdr.product_baseline
+        name_gen.set_creation_date(create_date)
+        name_gen.mission_phase = acq.mission_phase
+        name_gen.global_coverage_id = acq.global_coverage_id
+        name_gen.major_cycle_id = acq.major_cycle_id
+        name_gen.repeat_cycle_id = acq.repeat_cycle_id
+        name_gen.track_nr = acq.track_nr
+        name_gen.frame_slice_nr = acq.slice_frame_nr
+        return name_gen
 
     def _resolve_wildcard_product_type(self) -> str:
         '''
@@ -115,7 +115,7 @@ class ProductGeneratorBase(IProductGenerator):
 
     def _unzip(self, archive_name):
         # Sanity check: only raw products should be zipped
-        name_gen = product_name.ProductName()
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.parse_path(archive_name)
         if name_gen.level != 'raw':
             self._logger.warning('{} should not be a zip!'.format(os.path.basename(archive_name)))
@@ -136,7 +136,7 @@ class ProductGeneratorBase(IProductGenerator):
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
-        gen = product_name.ProductName()
+        gen = product_name.ProductName(self._compact_creation_date_epoch)
         pattern = self._meta_data_source
         mph_is_parsed = False
         for input in input_products:

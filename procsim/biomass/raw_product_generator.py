@@ -15,7 +15,8 @@ from procsim.core.exceptions import ScenarioError
 from . import constants, product_generator, product_name
 
 _GENERATOR_PARAMS = [
-    ('output_path', '_output_path', 'str')
+    ('output_path', '_output_path', 'str'),
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -94,7 +95,7 @@ class RAW_xxx_10(RawProductGeneratorBase):
         stop = self._hdr.end_position
 
         # Construct product name and set metadata fields
-        name_gen = product_name.ProductName()
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
@@ -180,7 +181,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
     def _create_product(self, acq_start, acq_stop):
         # Construct product name and set metadata fields
         create_date = datetime.datetime.utcnow()
-        name_gen = product_name.ProductName()
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
         name_gen.start_time = acq_start
         name_gen.stop_time = acq_stop

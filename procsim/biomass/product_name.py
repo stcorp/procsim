@@ -17,7 +17,7 @@ class ProductName:
     '''
     This class is responsible for creating and parsing directory/file names.
     '''
-    COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)
+    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
     MISSION_PHASES = [('Commissioning'), ('Interferometric'), ('Tomographic')]
     GLOBAL_COVERAGE_IDS = ['__', '01', '02', '03', '04', '05', '06']
@@ -32,11 +32,12 @@ class ProductName:
     def time_to_str(cls, t):
         return t.strftime(cls.DATETIME_FORMAT)
 
-    def __init__(self):
+    def __init__(self, compact_create_date_epoch: Optional[datetime.datetime] = None):
         # Common
         self.start_time: Optional[datetime.datetime]
         self.stop_time: Optional[datetime.datetime]
         self.baseline_identifier: Optional[int]
+        self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
         self._compact_create_date = None
@@ -144,7 +145,7 @@ class ProductName:
 
     def set_creation_date(self, time: Optional[datetime.datetime]):
         # Convert to 'compact create date, see the spec.
-        sec = int((time - self.COMPACT_DATE_EPOCH).total_seconds())
+        sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''
         for i in range(6):
             sec, x = divmod(sec, 36)

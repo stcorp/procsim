@@ -18,6 +18,7 @@ _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -79,7 +80,6 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         self._frame_lower_bound = constants.FRAME_LOWER_BOUND
         self._slice_overlap_start = constants.SLICE_OVERLAP_START
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
-
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -287,7 +287,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
                 # Skip the our metadata source reference
                 if self._meta_data_source_file == file:
                     continue
-                gen = product_name.ProductName()
+                gen = product_name.ProductName(self._compact_creation_date_epoch)
                 gen.parse_path(file)
                 mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                 hdr = main_product_header.MainProductHeader()

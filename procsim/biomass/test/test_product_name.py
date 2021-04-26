@@ -113,6 +113,18 @@ _TEST_DATA: List[_TestData] = [
     )
 ]
 
+epoch_testdata = _TestData(
+    'raw',
+    'BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_AFQ1X0',
+    'bio_raw_022_10_20210201t000000_20210201t013810_d20210201t013811.dat',
+    'RAW_022_10',
+    datetime.datetime(2021, 2, 1, 0, 0, 0),
+    datetime.datetime(2021, 2, 1, 1, 38, 10),
+    datetime.datetime(2021, 2, 1, 1, 39, 0),
+    1,
+    datetime.datetime(2021, 2, 1, 1, 38, 11)
+)
+
 
 class ProductNameTest(unittest.TestCase):
 
@@ -197,6 +209,37 @@ class ProductNameTest(unittest.TestCase):
             pn.frame_slice_nr = -1
         with self.assertRaises(GeneratorError):
             pn.track_nr = '1000'
+
+    def testEpoch(self):
+        # A single test with a different epoch date for the create-date
+        d = epoch_testdata
+        epoch = datetime.datetime(2001, 2, 2, 0, 0, 0)  # Just a time
+        pn = ProductName(epoch)
+
+        # Setup
+        pn.file_type = d.type
+        pn.start_time = d.start
+        pn.stop_time = d.stop
+        pn.baseline_identifier = d.baseline
+        pn.set_creation_date(d.create)
+        if d.level == 'raw':
+            pn.downlink_time = d.downlink
+        elif d.level == 'aux':
+            pass
+        else:
+            pn.mission_phase = str(d.mission_phase)
+            pn.global_coverage_id = d.global_coverage_id
+            pn.major_cycle_id = d.major_cycle_id
+            pn.repeat_cycle_id = d.repeat_cycle_id
+            pn.track_nr = d.track_nr
+            pn.frame_slice_nr = d.frame_nr
+
+        path = pn.generate_path_name()
+        mph = pn.generate_mph_file_name()
+        bin = pn.generate_binary_file_name(d.suffix)
+        self.assertEqual(path, d.dir)
+        self.assertEqual(mph, d.mph)
+        self.assertEqual(bin, d.bin)
 
 
 if __name__ == '__main__':
