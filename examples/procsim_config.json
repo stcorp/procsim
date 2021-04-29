@@ -47,6 +47,7 @@
 
       // Outputs to generate
       "output_path": "workspace",  // default is CWD, or read from job order if any
+      "zip_output": true,
       "outputs": [
         {
           "enable": true,
@@ -197,7 +198,7 @@
           "stop": "2021-02-01T00:39:32.000Z"
         }
       ],
-
+      "zip_output": true,
       "keep_zip": true,  // Set true for diagnostics only
       "outputs": [
         {
@@ -312,6 +313,7 @@
 
       // Common for all outputs
       "output_path": "data/raw_ro",
+      "zip_output": true,
       "baseline": "1",
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",
@@ -560,6 +562,7 @@
 
       // Common for all outputs
       "output_path": "data/raw_ec",
+      "zip_output": true,
       "baseline": "1",
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",

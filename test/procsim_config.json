@@ -46,6 +46,7 @@
       "num_isp_corrupt": 0,
 
       // Outputs to generate
+      "zip_output": true,
       "output_path": "data/raw_sm",  // default is CWD, or read from job order if any
       "outputs": [
         {
@@ -312,6 +313,7 @@
 
       // Common for all outputs
       "output_path": "data/raw_ro",
+      "zip_output": true,
       "baseline": "1",
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",
@@ -393,6 +395,7 @@
         "2021-02-01T00:25:33.745Z", // 1 second too late
         "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
+      "zip_output": true,
       "outputs": [
         {
           "type": "RAWS022_10",
@@ -560,6 +563,7 @@
 
       // Common for all outputs
       "output_path": "data/raw_ec",
+      "zip_output": true,
       "baseline": "1",
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",
@@ -631,6 +635,7 @@
         "2021-02-01T00:25:33.745Z", // 1 second too late
         "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
+      "zip_output": true,
       "outputs": [
         {
           "type": "RAWS022_10",

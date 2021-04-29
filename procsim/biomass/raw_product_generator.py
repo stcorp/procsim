@@ -36,7 +36,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
     '''
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        self._zip_output = True
+        self._zip_output = False
 
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
