@@ -2,6 +2,7 @@ Procsim Changelog
 -----------------
 
 [v1.1.1] - 2021/04/29
+    - Fix: processingMode/@codespace must be @codeSpace in MPH
     - Fix: Do not stop if products are not a directory, generate a warning only (to allow MPL_ORBPRE products)
     - Chg: Accept extensions .zip and .ZIP for zipped products
     - Fix: Fixed 'do_zip' option for raw products, renamed to zip_output
