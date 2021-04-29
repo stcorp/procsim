@@ -27,3 +27,7 @@ echo
 cd examples
 ./generate_aux_data.sh
 ./generate_L0.sh
+
+echo
+echo "All tests ok"
+echo
