@@ -7,6 +7,9 @@ Procsim Changelog
     - Fix: Fixed 'do_zip' option for raw products, renamed to zip_output
     - Chg: Changed default for zip_output to False (was True)
 
+    Known bugs:
+    - xmllint missing from container
+
 [v1.1.0] - 2021/04/21
     - Add: Support for L1 products
     - Add: Support for L2a products
