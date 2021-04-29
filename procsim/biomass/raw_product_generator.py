@@ -16,7 +16,8 @@ from . import constants, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('zip_output', '_zip_output', 'bool')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -36,8 +37,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
     '''
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        val = output_config.get('zip_outputs') or scenario_config.get('zip_outputs')
-        self._zip_outputs = True if val is None else val
+        self._zip_output = False
 
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
@@ -52,7 +52,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         bin_file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
         full_bin_file_name = os.path.join(self._output_path, bin_file_name)
         self._generate_bin_file(full_bin_file_name, self._size_mb)
-        if self._zip_outputs:
+        if self._zip_output:
             self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [mph_file_name, bin_file_name])
 
     def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):

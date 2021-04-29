@@ -61,7 +61,7 @@ class RAWSxxx_10Test(unittest.TestCase):
             'num_isp': 387200,
             'num_isp_erroneous': 0,
             'num_isp_corrupt': 0,
-            'zip_outputs': False
+            'zip_output': False
         }
         self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000)
         self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000)

@@ -528,7 +528,7 @@ class MainProductHeader:
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
 
-        et.SubElement(processing_info, eop + 'processingMode', attrib={'codespace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
+        et.SubElement(processing_info, eop + 'processingMode', attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
 
         if level in ['l0', 'l1', 'l2a']:
             for id in self.biomass_source_product_ids:
@@ -739,7 +739,7 @@ class MainProductHeader:
             if proc_info.text is not None:
                 self.auxiliary_ds_file_names.append(proc_info.text)
 
-        self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codespace': 'urn:esa:eop:Biomass:class'}
+        self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
 
         # Mandatory for level 0, 1 and 2a
         self.biomass_source_product_ids.clear()
