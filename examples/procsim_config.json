@@ -117,7 +117,7 @@
         "2021-02-01T00:25:33.745Z", // 1 second too late
         "2021-02-01T02:03:43.725Z"  // 1 second too early
       ],
-      "do_zip": true,   // Set false for diagnostics only
+      "zip_output": true,   // Default true, set false for diagnostics only
       "keep_zip": true,  // Set true for diagnostics only
       "outputs": [
         {
