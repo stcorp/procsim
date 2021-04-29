@@ -1,4 +1,4 @@
-<Job_Order>
+<Job_Order schemaName="ESA-EOPG-EEGS-ID-0083" schemaVersion="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="job_order_ESA-EOPG-EEGS-ID-0083.xsd">
   <Processor_Configuration>
     <File_Class>Todo</File_Class>
     <Processor_Name>l0_sm</Processor_Name>
