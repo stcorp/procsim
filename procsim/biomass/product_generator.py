@@ -142,7 +142,7 @@ class ProductGeneratorBase(IProductGenerator):
         for input in input_products:
             for file in input.file_names:
                 root, ext = os.path.splitext(file)
-                if os.path.isfile(file) and ext == '.zip':
+                if os.path.isfile(file) and ext.lower() == '.zip':
                     self._unzip(file)
                 file = root
                 if not os.path.isdir(file):
