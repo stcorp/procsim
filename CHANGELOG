@@ -2,8 +2,10 @@ Procsim Changelog
 -----------------
 
 [v1.2.0] - To be released
-    - Add: Optional compact_creation_date_epoch variable in scenario
-    - Add: Optional zip_extension variable in scenario (default is ".zip")
+    - Add: Optional 'compact_creation_date_epoch' variable in scenario
+    - Add: Optional 'zip_extension' variable in scenario (default is ".zip")
+    - Add: Optional 'creation_date' variable in scenario (default is current date)
+    - fix: ProcessingDate in MPH now equal to product's creation date
     - fix: Add xmllint to container
 
 [v1.1.1] - 2021/04/29
