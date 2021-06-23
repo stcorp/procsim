@@ -4,6 +4,7 @@ Procsim Changelog
 [v1.2.0] - To be released
     - Add: Optional compact_creation_date_epoch variable in scenario
     - Add: Optional zip_extension variable in scenario (default is ".zip")
+    - fix: Add xmllint to container
 
 [v1.1.1] - 2021/04/29
     - Fix: processingMode/@codespace must be @codeSpace in MPH
