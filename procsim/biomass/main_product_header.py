@@ -308,10 +308,9 @@ class MainProductHeader:
         self.validity_start = start
         self.validity_stop = stop
 
-    def set_processing_parameters(self, name: str, version: str, date: datetime.datetime):
+    def set_processing_parameters(self, name: str, version: str):
         self.processor_name = name
         self.processor_version = version
-        self.processing_date = date
 
     def _insert_time_period(self, parent, start: datetime.datetime, stop: datetime.datetime, id):
         # Insert TimePeriod element

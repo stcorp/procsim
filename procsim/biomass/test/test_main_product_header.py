@@ -23,7 +23,8 @@ def get_l1_test_mph():
     mph.product_status = 'ARCHIVED'
     mph.doi = 'DOI'
     mph.acquisition_type = 'NOMINAL'
-    mph.set_processing_parameters('L1 Processor', '1.0', datetime.datetime(2023, 1, 1, 12, 12, 53))
+    mph.set_processing_parameters('L1 Processor', '1.0')
+    mph.processing_date = datetime.datetime(2023, 1, 1, 12, 12, 53)
     mph.processing_centre_code = 'ESR'
     mph.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename', 'AUX_GMF_Filename', 'AUX_INS_Filename',
                                    'AUX_TEC_Filename', 'AUX_PP1_Filename']

@@ -50,8 +50,7 @@ class ProductGeneratorBase(IProductGenerator):
     def _create_name_generator(self, hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
         '''
         Create product name generator and setup fields required for level0/1/2,
-        using the metadata in hdr. Creation time will be set to 'now' by the
-        name generator, if self._creation_date is not set.
+        using the metadata in hdr.
 
         The start/stop times are copied from the begin/end position fields,
         the 'phenomenon' times, which seem to contain the correct times.
@@ -63,7 +62,7 @@ class ProductGeneratorBase(IProductGenerator):
         name_gen.start_time = hdr.begin_position
         name_gen.stop_time = hdr.end_position
         name_gen.baseline_identifier = hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
+        name_gen.set_creation_date(hdr.processing_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
         name_gen.major_cycle_id = acq.major_cycle_id
@@ -216,10 +215,13 @@ class ProductGeneratorBase(IProductGenerator):
         '''
         Setup some mandatory metadata
         '''
+        if self._creation_date is None:
+            self._creation_date = datetime.datetime.utcnow()
+
         self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],
-            self._scenario_config['processor_version'],
-            datetime.datetime.now())
+            self._scenario_config['processor_version'])
+        self._hdr.processing_date = self._creation_date
 
         self._logger.debug('Output directory is {}'.format(
             os.path.abspath(self._output_path)))

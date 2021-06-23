@@ -316,9 +316,9 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     def _generate_level1_stacked_product(self, hdr: main_product_header.MainProductHeader):
         hdr.product_type = self._resolve_wildcard_product_type()
+        hdr.processing_date = self._creation_date
 
         # Setup MPH
-        acq = hdr.acquisitions[0]
         name_gen = self._create_name_generator(hdr)
         dir_name = name_gen.generate_path_name()
         hdr.set_product_filename(dir_name)
