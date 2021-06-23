@@ -17,7 +17,8 @@ from . import constants, product_generator, product_name
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('zip_output', '_zip_output', 'bool')
+    ('zip_output', '_zip_output', 'bool'),
+    ('zip_extension', '_zip_extension', 'str')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -57,8 +58,8 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
 
     def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):
         # Note: Deletes input files afterwards
-        self._logger.debug('Archive to .zip')
-        with zipfile.ZipFile(dir_name + '.zip', 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
+        self._logger.debug('Archive to zip, extension {}'.format(self._zip_extension))
+        with zipfile.ZipFile(dir_name + self._zip_extension, 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
             for filename, arcname in zip(filenames, arcnames):
                 zipped.write(filename, arcname)
             zipped.close()

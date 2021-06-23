@@ -37,6 +37,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
+        self._zip_extension = '.zip'
 
     @abc.abstractmethod
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
@@ -142,7 +143,7 @@ class ProductGeneratorBase(IProductGenerator):
         for input in input_products:
             for file in input.file_names:
                 root, ext = os.path.splitext(file)
-                if os.path.isfile(file) and ext.lower() == '.zip':
+                if os.path.isfile(file) and ext.lower() == self._zip_extension:
                     self._unzip(file)
                 file = root
                 if not os.path.isdir(file):

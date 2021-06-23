@@ -18,7 +18,8 @@ _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('zip_extension', '_zip_extension', 'str')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -283,7 +284,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         count = 1
         for input in inputs:
             for file in input.file_names:
-                file, _ = os.path.splitext(file)    # Remove possible '.zip'
+                file, _ = os.path.splitext(file)    # Remove possible extension
                 # Skip the our metadata source reference
                 if self._meta_data_source_file == file:
                     continue

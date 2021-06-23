@@ -15,7 +15,8 @@ from . import main_product_header, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('zip_extension', '_zip_extension', 'str')
 ]
 _HDR_PARAMS = [
     # All
@@ -115,7 +116,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         for input in input_products:
             if input.file_type in hv_products:
                 for file in input.file_names:
-                    file, _ = os.path.splitext(file)    # Remove possible '.zip'
+                    file, _ = os.path.splitext(file)    # Remove possible extension
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
