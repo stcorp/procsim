@@ -33,7 +33,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
-        self._create_date: Optional[datetime.datetime] = None
+        self._creation_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
@@ -50,13 +50,12 @@ class ProductGeneratorBase(IProductGenerator):
     def _create_name_generator(self, hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
         '''
         Create product name generator and setup fields required for level0/1/2,
-        using the metadata in hdr.
+        using the metadata in hdr. Creation time will be set to 'now' by the
+        name generator, if self._creation_date is not set.
 
         The start/stop times are copied from the begin/end position fields,
         the 'phenomenon' times, which seem to contain the correct times.
-        Create date is 'now' (UTC)
         '''
-        create_date = datetime.datetime.utcnow()
 
         acq = hdr.acquisitions[0]
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
@@ -64,7 +63,7 @@ class ProductGeneratorBase(IProductGenerator):
         name_gen.start_time = hdr.begin_position
         name_gen.stop_time = hdr.end_position
         name_gen.baseline_identifier = hdr.product_baseline
-        name_gen.set_creation_date(create_date)
+        name_gen.set_creation_date(self._creation_date)
         name_gen.mission_phase = acq.mission_phase
         name_gen.global_coverage_id = acq.global_coverage_id
         name_gen.major_cycle_id = acq.major_cycle_id

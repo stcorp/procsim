@@ -17,6 +17,7 @@ from . import constants, product_generator, product_name
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('creation_date', '_creation_date', 'date'),
     ('zip_output', '_zip_output', 'bool'),
     ('zip_extension', '_zip_extension', 'str')
 ]
@@ -91,7 +92,6 @@ class RAW_xxx_10(RawProductGeneratorBase):
         # Base class is doing part of the setup
         super(RAW_xxx_10, self).generate_output()
 
-        create_date = datetime.datetime.utcnow()
         start = self._hdr.begin_position
         stop = self._hdr.end_position
 
@@ -101,7 +101,7 @@ class RAW_xxx_10(RawProductGeneratorBase):
         name_gen.start_time = start
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(create_date)
+        name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()
@@ -181,13 +181,12 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def _create_product(self, acq_start, acq_stop):
         # Construct product name and set metadata fields
-        create_date = datetime.datetime.utcnow()
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
         name_gen.start_time = acq_start
         name_gen.stop_time = acq_stop
         name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(create_date)
+        name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
 
         dir_name = name_gen.generate_path_name()

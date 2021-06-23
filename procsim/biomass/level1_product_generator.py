@@ -19,6 +19,7 @@ _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('creation_date', '_creation_date', 'date'),
     ('zip_extension', '_zip_extension', 'str')
 ]
 _HDR_PARAMS = [
@@ -138,7 +139,6 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         if not self._enable_framing:

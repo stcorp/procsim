@@ -46,7 +46,6 @@ class Aux(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
         SUFFIXES = {
             'AUX_ATT___': 'attitude',
@@ -81,7 +80,7 @@ class Aux(product_generator.ProductGeneratorBase):
         name_gen.start_time = start
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._create_date)
+        name_gen.set_creation_date(self._creation_date)
 
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)

@@ -12,7 +12,8 @@ from . import product_generator
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date')
+    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('creation_date', '_creation_date', 'date')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -56,7 +57,6 @@ class Level2a(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         name_gen = self._create_name_generator(self._hdr)

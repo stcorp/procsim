@@ -16,6 +16,7 @@ from . import main_product_header, product_generator, product_name
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('creation_date', '_creation_date', 'date'),
     ('zip_extension', '_zip_extension', 'str')
 ]
 _HDR_PARAMS = [
@@ -201,8 +202,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super(Sx_RAW__0x, self).generate_output()
-
-        self._create_date = self._hdr.end_position   # HACK: fill in current date?
 
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             self._logger.error('start/end positions must be known')

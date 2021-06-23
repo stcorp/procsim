@@ -47,6 +47,7 @@
 
       // Outputs to generate
       "output_path": "workspace",  // default is CWD, or read from job order if any
+      "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
       "zip_output": true,
       "outputs": [
         {

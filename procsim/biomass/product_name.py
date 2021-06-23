@@ -144,7 +144,12 @@ class ProductName:
             self._frame_slice_nr_str = '{:03}'.format(int(nr))
 
     def set_creation_date(self, time: Optional[datetime.datetime]):
-        # Convert to 'compact create date, see the spec.
+        '''
+        Convert to 'compact create date, see the spec.
+        If set to None, use 'now'.
+        '''
+        if time is None:
+            time = datetime.datetime.utcnow()
         sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''
         for i in range(6):

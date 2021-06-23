@@ -38,7 +38,7 @@
       "begin_position": "2021-02-01T00:00:00.000Z",
       "end_position": "2021-02-01T01:38:10.000Z",
 
-      // Some metadata for level 0 product (can be omitted, then defaults are used)
+      // Some metadata for raw product (can be omitted, then defaults are used)
       "acquisition_date": "2021-02-01T01:38:10.000Z",
       "acquisition_station": "SP",
       "num_isp": 387200,
@@ -48,7 +48,8 @@
       // Outputs to generate
       "zip_output": true,
       "zip_extension": ".zip",
-      "output_path": "data/raw_sm",  // default is CWD, or read from job order if any
+      "output_path": "data/raw_sm",  // Default is CWD, or read from job order if any
+      "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
       "outputs": [
         {
           "enable": true,
