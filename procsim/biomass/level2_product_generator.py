@@ -8,7 +8,7 @@ Biomass Level 2a product generators, format according to
 from typing import List, Tuple
 import os
 
-from . import product_generator, product_name
+from . import product_generator
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
