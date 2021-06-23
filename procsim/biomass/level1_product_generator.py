@@ -314,7 +314,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         for hdr in self._hdrs:
             self._generate_level1_stacked_product(hdr)
 
-    def _generate_level1_stacked_product(self, hdr):
+    def _generate_level1_stacked_product(self, hdr: main_product_header.MainProductHeader):
         hdr.product_type = self._resolve_wildcard_product_type()
 
         # Setup MPH

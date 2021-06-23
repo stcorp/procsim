@@ -90,7 +90,7 @@ class RAW_xxx_10(RawProductGeneratorBase):
 
     def generate_output(self):
         # Base class is doing part of the setup
-        super(RAW_xxx_10, self).generate_output()
+        super().generate_output()
 
         start = self._hdr.begin_position
         stop = self._hdr.end_position
