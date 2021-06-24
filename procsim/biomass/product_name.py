@@ -62,7 +62,7 @@ class ProductName:
 
     @mission_phase.setter
     def mission_phase(self, phase: Optional[str]):
-        if str is not None:
+        if phase is not None:
             idx = self.MISSION_PHASES.index(phase.capitalize())
             self._mission_phase_id = self.MISSION_PHASES[idx][0]
 
