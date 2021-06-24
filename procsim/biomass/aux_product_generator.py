@@ -41,31 +41,48 @@ class Aux(product_generator.ProductGeneratorBase):
         'AUX_PP2_AB', 'AUX_PP3___', 'AUX_PPS___', 'AUX_TEC___',
     ]
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+        self._files = []    # Files to generate, including paths.
+
+    def _generate_default_file_list(self):
+        '''
+        Generates a default file list for AUX products.
+        Common rules:
+        If a file is of type xml, a related xsd is placed in
+        a 'support/' dir. A dataset suffix, e.g. _attitude', is added only if
+        more than 1 file is in the data directory.
+        '''
+        DEFAULT_SUFFIX_EXTENSION = {
+            'AUX_ATT___': ('attitude', 'xml'),
+            'AUX_CAL_AB': ('above_ground', 'xml'),
+            'AUX_ERP___': ('rotation', 'txt'),
+            'AUX_GMF___': ('mag', 'txt'),
+            'AUX_INS___': ('insparam', 'xml'),
+            'AUX_ORB___': ('orbit', 'xml'),
+            'AUX_PP1___': ('l1params', 'xml'),
+            'AUX_PP2_2A': ('l2aparams', 'xml'),
+            'AUX_PP2_FH': ('forestheight', 'xml'),
+            'AUX_PP2_FD': ('forestdist', 'xml'),
+            'AUX_PP2_AB': ('l2above_ground', 'xml'),
+            'AUX_PP3___': ('l3params', 'xml'),
+            'AUX_PPS___': ('stackparams', 'xml'),
+            'AUX_TEC___': ('tec', 'txt')
+        }
+        suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
+        self._files.append('data/$NAME.{}'.format(extension))
+        if extension == 'xml':
+            self._files.append('support/{}.xsd'.format(suffix))
+
     def get_params(self):
         return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()
 
-        SUFFIXES = {
-            'AUX_ATT___': 'attitude',
-            'AUX_CAL_AB': 'above_ground',
-            'AUX_ERP___': 'rotation',
-            'AUX_GMF___': 'mag',
-            'AUX_INS___': 'insparam',
-            'AUX_ORB___': 'orbit',
-            'AUX_PP1___': 'l1params',
-            'AUX_PP2_2A': 'l2aparams',
-            'AUX_PP2_FH': 'forestheight',
-            'AUX_PP2_FD': 'forestdist',
-            'AUX_PP2_AB': 'l2above_ground',
-            'AUX_PP3___': 'l3params',
-            'AUX_PPS___': 'stackparams',
-            'AUX_TEC___': 'tec',
-        }
-        self._create_aux_product(SUFFIXES[self._output_type], '.xml')
+        if self._files == []:
+            self._generate_default_file_list()
 
-    def _create_aux_product(self, suffix, extension):
         # Setup MPH
         self._hdr.product_type = self._output_type
 
@@ -85,7 +102,7 @@ class Aux(product_generator.ProductGeneratorBase):
         dir_name = name_gen.generate_path_name()
         self._hdr.set_product_filename(dir_name)
 
-        # Create directories and files
+        # Create root directory and header
         self._logger.info('Create {}'.format(dir_name))
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
@@ -93,15 +110,11 @@ class Aux(product_generator.ProductGeneratorBase):
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
 
-        data_dir = os.path.join(dir_name, 'data')
-        os.makedirs(data_dir, exist_ok=True)
-        file_name = os.path.join(data_dir, name_gen.generate_binary_file_name('_' + suffix, extension))
-        self._generate_bin_file(file_name, self._size_mb)
-
-        # This component has to be considered optional because
-        # it shall not be used in case AUX data format is not XML
-        if extension == '.xml':
-            support_dir = os.path.join(dir_name, 'support')
-            os.makedirs(support_dir, exist_ok=True)
-            file_name = os.path.join(support_dir, suffix + '.xsd')
-            self._generate_bin_file(file_name, 0)
+        # Create aux files
+        base_name = name_gen.generate_binary_file_name('', '')
+        for file in self._files:
+            file = file.replace('$NAME', base_name)
+            full_dirname = os.path.join(dir_name, os.path.dirname(file))
+            os.makedirs(full_dirname, exist_ok=True)
+            full_filename = os.path.join(dir_name, file)
+            self._generate_bin_file(full_filename, self._size_mb / len(self._files))
