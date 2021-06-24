@@ -208,7 +208,10 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             return
         # Find data take(s) in this slice and create products for each segment.
         start = self._hdr.begin_position
-        for dt in self._scenario_config.get('data_takes'):
+        data_takes = self._scenario_config.get('data_takes')
+        if data_takes is None:
+            raise ScenarioError('Missing "data_takes" section in scenario')
+        for dt in data_takes:
             dt_start_str = dt.get('start')
             dt_stop_str = dt.get('stop')
             if dt_start_str is None or dt_stop_str is None:
