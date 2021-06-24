@@ -185,9 +185,10 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
         if is_enabled is None or is_enabled:
             # Find parameters for this output in JobOrder task config
             job_output_cfg = None
-            for job_output_cfg in job_task.outputs:
-                if job_output_cfg.type == product_type:
-                    break
+            if job_task is not None:
+                for job_output_cfg in job_task.outputs:
+                    if job_output_cfg.type == product_type:
+                        break
             generator = _output_generator_factory(mission, logger, job_output_cfg, scenario, output_cfg)
             if generator is None:
                 sys.exit(1)
