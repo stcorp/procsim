@@ -5,8 +5,12 @@ Procsim Changelog
     - Add: Optional 'compact_creation_date_epoch' variable in scenario
     - Add: Optional 'zip_extension' variable in scenario (default is ".zip")
     - Add: Optional 'creation_date' variable in scenario (default is current date)
-    - fix: ProcessingDate in MPH now equal to product's creation date
-    - fix: Add xmllint to container
+    - Add: Optional 'files' variable to specify the files in AUX product (use e.g. 'procsim -i AUX_TEC___' for help)
+    - Add: Support for AUX_PP0___ product type
+    - Fix: ProcessingDate in MPH is now equal to product's creation date
+    - Fix: Added missing xmllint to container
+    - Fix: Removed suffix from AUX filenames in /data directory
+    - Fix: AUX_ERP, AUX_GMF and AUX_TEC have type 'txt', and no xsd associated
 
 [v1.1.1] - 2021/04/29
     - Fix: processingMode/@codespace must be @codeSpace in MPH
