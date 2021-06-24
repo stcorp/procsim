@@ -12,6 +12,7 @@ from . import product_generator, product_name
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+    ('files', '_files', 'array of str')
 ]
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'int'),
@@ -29,10 +30,26 @@ class Aux(product_generator.ProductGeneratorBase):
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 Auxiliary products.
 
-    Currently, all AUX products consist of the MPH and a single XML + XSD
-    representing the data and the XML schema respective.
-    The suffixes used in the name of the data files are derived from the product
-    type description, and are just examples!
+    By default, all AUX products consist of the MPH and subdirectories data/ and
+    support/, containing a single XML file and the XML schema respective.
+    The suffix used in the name of the data file is derived from the product
+    type description, and is just an example.
+
+    This behavior can be overruled by adding a "files" section, specifying for
+    each file its full name and path (relative to the root of the product
+    directory). You can use the $NAME variable, which expands to the full
+    product name, in lowercase, as defined in BIO-ESA-EOPG-EEGS-TN-0050.
+    Example:
+
+      "outputs": [
+        {
+          "type": "AUX_PP1___",
+          "files": [
+              "data/$NAME_l1params.xml",
+              "support/l1params.xsd"
+          ]
+        },
+        ...
     '''
 
     PRODUCTS = [

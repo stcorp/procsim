@@ -185,6 +185,8 @@ class ProductGeneratorBase(IProductGenerator):
             val = float(val)
             if type(old_val) == datetime.timedelta:
                 val = datetime.timedelta(0, val)    # We expect seconds here
+        elif ptype == 'array of str':
+            pass
         else:
             pass
         self._logger.debug('{} {}{} to {}'.format(
