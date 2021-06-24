@@ -264,6 +264,8 @@ class MainProductHeader:
 
     @property
     def product_type(self):
+        if self._product_type is None:
+            return ''
         return self._product_type.type
 
     @product_type.setter
