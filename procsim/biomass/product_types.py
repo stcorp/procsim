@@ -80,6 +80,7 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('AUX_GMF___', 'aux', 'Geomagnetic Field Product'),
     ProductType('AUX_INS___', 'aux', 'Instrument Parameter Product'),
     ProductType('AUX_ORB___', 'aux', 'Orbit Product'),
+    ProductType('AUX_PP0___', 'aux', 'Processing Parameters for L0-Processor Product'),
     ProductType('AUX_PP1___', 'aux', 'Processing Parameters for L1-Processor Product'),
     ProductType('AUX_PP2_2A', 'aux', 'Processing Parameters for L2a-Processor Product'),
     ProductType('AUX_PP2_FH', 'aux', 'Processing Parameters for L2-Forest Height Processor Product'),

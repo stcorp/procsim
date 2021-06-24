@@ -54,8 +54,8 @@ class Aux(product_generator.ProductGeneratorBase):
 
     PRODUCTS = [
         'AUX_ATT___', 'AUX_CAL_AB', 'AUX_ERP___', 'AUX_GMF___', 'AUX_INS___',
-        'AUX_ORB___', 'AUX_PP1___', 'AUX_PP2_2A', 'AUX_PP2_FH', 'AUX_PP2_FD',
-        'AUX_PP2_AB', 'AUX_PP3___', 'AUX_PPS___', 'AUX_TEC___',
+        'AUX_ORB___', 'AUX_PP0___', 'AUX_PP1___', 'AUX_PP2_2A', 'AUX_PP2_FH',
+        'AUX_PP2_FD', 'AUX_PP2_AB', 'AUX_PP3___', 'AUX_PPS___', 'AUX_TEC___',
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -77,6 +77,7 @@ class Aux(product_generator.ProductGeneratorBase):
             'AUX_GMF___': ('mag', 'txt'),
             'AUX_INS___': ('insparam', 'xml'),
             'AUX_ORB___': ('orbit', 'xml'),
+            'AUX_PP0___': ('l0params', 'xml'),
             'AUX_PP1___': ('l1params', 'xml'),
             'AUX_PP2_2A': ('l2aparams', 'xml'),
             'AUX_PP2_FH': ('forestheight', 'xml'),
