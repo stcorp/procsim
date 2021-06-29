@@ -146,8 +146,6 @@ class ProductGeneratorBase(IProductGenerator):
                 file = root
                 if not os.path.isdir(file):
                     # TODO: add some code (here?) to support Orbit prediction files, which are not a directory!
-                    # Currently, these will generate a warning.
-                    self._logger.warning('input {} not recognized, expect a directory'.format(file))
                     continue
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
