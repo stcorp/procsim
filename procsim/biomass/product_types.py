@@ -88,7 +88,11 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('AUX_PP2_AB', 'aux', 'Processing Parameters for L2-Above Ground Biomass Processor Product'),
     ProductType('AUX_PP3___', 'aux', 'Processing Parameters for L3 Processor Product'),
     ProductType('AUX_PPS___', 'aux', 'Processing Parameters for Stack-Processor Product'),
-    ProductType('AUX_TEC___', 'aux', 'Total Electron Content Product')
+    ProductType('AUX_TEC___', 'aux', 'Total Electron Content Product'),
+
+    ProductType('MPL_ORBREF', 'mpl', 'Reference Orbit File'),
+    ProductType('MPL_REFAUX', 'mpl', 'Reference Orbit Auxiliary File, times and orbit numbers'),
+    ProductType('MPL_ORBPRE', 'mpl', 'Reference Orbit File, orbit state vectors'),
 ]
 
 RAWS_PRODUCT_TYPES: List[str] = [
