@@ -4,7 +4,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import bisect
-import datetime
 import os
 import shutil
 import zipfile
