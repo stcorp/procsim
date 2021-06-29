@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Task_Table>
-  <Processor_Name>l0preproc_sm</Processor_Name>
+  <Processor_Name>l0preproc_ec</Processor_Name>
   <Version>01.01</Version>
   <Test>No</Test>
   <Min_Disk_Space units="MB">1500</Min_Disk_Space>
@@ -63,7 +63,7 @@
           <Version>05.03L01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../test/level0_task1.sh</File_Name>
+          <File_Name>../../test/biomass/level0_task1.sh</File_Name>
           <List_of_Inputs count="5">
             <Input>
               <Mode>ALWAYS</Mode>
@@ -123,7 +123,7 @@
                   <Retrieval_Mode>LatestValCover</Retrieval_Mode>
                   <T0 units="secs">0</T0>
                   <T1 units="secs">0</T1>
-                  <File_Type>RAW_025_10</File_Type>
+                  <File_Type>RAW_035_10</File_Type>
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
@@ -139,7 +139,7 @@
                   <Retrieval_Mode>LatestValCover</Retrieval_Mode>
                   <T0 units="secs">0</T0>
                   <T1 units="secs">0</T1>
-                  <File_Type>RAW_026_10</File_Type>
+                  <File_Type>RAW_036_10</File_Type>
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
@@ -168,13 +168,13 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>RAWS025_10</File_Type>
+              <File_Type>RAWS035_10</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>RAWS026_10</File_Type>
+              <File_Type>RAWS036_10</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>

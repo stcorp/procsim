@@ -16,9 +16,9 @@ python3 -m unittest discover
 
 # System tests
 echo
-echo "Run system tests"
+echo "Run Biomass system tests"
 echo
-test/test.sh
+test/biomass/test.sh
 
 # Test examples
 echo

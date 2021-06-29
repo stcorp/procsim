@@ -1,4 +1,5 @@
 {
+    "log_level": "debug",
     "mission": "biomass",
     "scenarios": [
         {
@@ -17,7 +18,14 @@
             "output_path": "data/aux",
             "outputs": [
                 {
-                    "type": "AUX_PP1___"
+                    "type": "AUX_PP0___"
+                },
+                {
+                    "type": "AUX_PP1___",
+                    "files": [
+                        "data/test_$NAME_1.xml",
+                        "support/test_2.xsd"
+                    ]
                 },
                 {
                     "type": "AUX_TEC___"

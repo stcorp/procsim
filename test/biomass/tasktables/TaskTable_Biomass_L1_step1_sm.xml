@@ -29,7 +29,7 @@
           <Version>01.01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../test/level1_task1.sh</File_Name>
+          <File_Name>../../test/biomass/level1_task1.sh</File_Name>
           <List_of_Inputs count="4">
             <Input>
               <Mode>ALWAYS</Mode>
