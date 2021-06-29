@@ -1,15 +1,22 @@
 # Procsim
+Procsim is a tool to simulate satellite data processor tasks.
+
 In the Payload Data Ground Segment (PDGS) of a satellite mission, the data processing functionality is handled by at least one Processing Facility (PF) which integrates one or more processors.
 The PF is responsible of the processing orchestration, implementing the logic to: prepare the input data for the processing, trigger the processing (performed by the processors), collect the output data.
 The processor is the entity responsible of the data processing and is composed by one or more Tasks.
 
 Tasks (executables) are called by the PF with a single command line argument: the file name of a JobOrder file. The JobOrder contains information for the Task, such as processing parameters, location of input data and which output data is expected.
 
-This tool, Procsim, can be used to simulate a generic Task, in order to test the interface between the Processing Facility and the software implementing the Task.
+This tool, Procsim, can be used to simulate such Tasks, in order to test the interface between the Processing Facility and the software implementing the Task.
 
 Procsim does not do any 'real' processing, but reads and interprets the JobOrder, consumes resources (CPU, disk and memory) and generates output data with correct directory/file names and valid Main Product Headers.
 
 During execution, logging is produced, with log levels according to those specified in the JobOrder. However, log levels can be overruled on the command line or in the configuration file. The program exits with an exit code which can be specified.
+
+# Supported missions
+Procsim consists of a common core and mission-specific plugins containing the mission-specific code.
+Currently, the following missions are supported:
+- Biomass
 
 # Installation instructions
 To use procsim, you will need:
@@ -69,7 +76,7 @@ Optionally, you can specify a specific scenario using `-s`, followed by the name
 ## Scenario configuration
 Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated. 
 
-The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Times, such as the slice period, are in seconds with type float.
+The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Time periods, such as the slice period, are in seconds with type float.
 
 A configuration file can contain one or multiple scenarios. The scenario is selected by automatically using the combination of task file name (i.e. the name of the executable called by the PF) and the JobOrder contents, or manually using an additonal command line parameter.
 
@@ -84,7 +91,7 @@ The configuration file is structured as following:
 }
 ```
 A JSON editor with syntax checking and coloring, such as Visual Studio Code, is recommended to create and edit the configuration files.
-The parameters are described below.
+The configuration parameters are described below.
 
 - `mission` : string, mandatory. Must match the name of plugin, in this case biomass.
 
@@ -221,11 +228,13 @@ Supported scenario parameters for product type AC_RAW__0A are:
    - major_cycle_id (str)
    - repeat_cycle_id (str)
    - track_nr (str)
-   - slice_frame_nr (int)
    - output_path (str)
+   - compact_creation_date_epoch (date)
+   - creation_date (date)
+   - zip_extension (str)
    - leading_margin (float)
    - trailing_margin (float)
-```
+   ```
 
 # Sample code
 Directory `examples` contains examples of scenario configurations, job orders and scripts to demonstrate them.
