@@ -120,6 +120,8 @@ class JobOrderParser:
         tree = et.parse(filename)
         root = tree.getroot()
         proc = root.find('Processor_Configuration')
+        if proc is None:
+            raise ProcsimException('Job order error')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
         self.node = proc.findtext('Processing_Node')
