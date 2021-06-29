@@ -41,6 +41,25 @@
                 },
                 {
                     "type": "AUX_PP2_2A"
+                },
+                {
+                    "file_class": "TEST",
+                    "zip_output": true,
+                    "baseline": 0,
+                    "version_nr": 1,
+                    "type": "MPL_ORBREF"
+                },
+                {
+                    "zip_output": true,
+                    "baseline": 0,
+                    "version_nr": 1,
+                    "type": "MPL_REFAUX"
+                },
+                {
+                    "zip_output": true,
+                    "baseline": 0,
+                    "version_nr": 1,
+                    "type": "MPL_ORBPRE"
                 }
             ]
         }
