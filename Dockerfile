@@ -5,4 +5,5 @@ COPY procsim/ procsim/
 COPY setup.py .
 COPY README.md .
 RUN python3 /app/setup.py install
+RUN rm -rf /app/*
 ENTRYPOINT ["procsim"]
