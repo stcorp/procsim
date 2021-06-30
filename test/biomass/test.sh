@@ -1,12 +1,17 @@
 #!/bin/sh
-#-----------------------------------------------------------
-# Test processor stubs using PVML.
-# 
-# NB: Call from workspace root!
-#-----------------------------------------------------------
+#-------------------------------------------------------------------
+# Test Biomass processor stubs by generating a chain of products,
+# from raw and aux data up to level 2a.
+# To run the script, an external 'Processor Management Layer' must
+# be available on the test system.
+#
+# NB: Call this script from the project's root!
+#-------------------------------------------------------------------
 
 # Exit when any command fails
 set -e
+
+PVML_CMD="python3 pvml/pvml.py"
 
 # Clean up
 rm -rf data
@@ -20,7 +25,13 @@ mkdir -p workspace
 # Run test jobs.
 # --------------------------------
 
+echo '  *** Generate aux data'
+mkdir -p data
+procsim -s "Aux generator" test/biomass/procsim_aux_scenario.json
+
 # Generate test data
+echo
+echo
 echo '  *** Generate raw data (measurement mode)'
 mkdir -p data
 procsim -s "Raw data generator, measurement mode" test/biomass/procsim_config.json
@@ -28,46 +39,40 @@ procsim -s "Raw data generator, measurement mode" test/biomass/procsim_config.js
 # Level 0 steps
 echo
 echo '  *** L0 step 1a first datatake (measurement mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_sm.xml
 echo
 echo '  *** L0 step 1b second datatake (measurement mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1b_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1b_sm.xml
 
 echo
 echo '  *** L0 step 2, 3, 4 complete slice (measurement mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_sm.xml
 echo
 echo '  *** L0 step 2, 3, 4 incomplete (first) slice (measurement mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2b_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2b_sm.xml
 echo
 echo '  *** L0 step 2, 3, 4 split slice (measurement mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2c_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2c_sm.xml
 
 # Level 1 steps
 echo
-echo '  *** Generate aux data for Level 1 processor'
-mkdir -p data
-procsim -s "Aux generator" test/biomass/procsim_aux_scenario.json
-
-echo
 echo '  *** L1 step 1, input complete slice'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_sm.xml
 
 echo
 echo '  *** L1 step 2'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_stack.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_stack.xml
 
 # Level 2 steps
 echo
 echo '  *** L2a'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l2a.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l2a.xml
 
 
 # --------------------------------
 # RO mode
 # --------------------------------
 
-# Generate test data
 echo
 echo
 echo '  *** Generate raw data (ro mode)'
@@ -77,14 +82,14 @@ procsim -s "Raw data generator, ro mode" test/biomass/procsim_config.json
 # Level 0 steps
 echo
 echo '  *** L0 step 1a (ro mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_ro.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_ro.xml
 echo
 echo '  *** L0 step 1b (ro mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1b_ro.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1b_ro.xml
 
 echo
 echo '  *** L0 step 2, 3, 4 (ro mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_ro.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_ro.xml
 
 # --------------------------------
 # EC mode
@@ -101,8 +106,8 @@ procsim -s "Raw data generator, ec mode" test/biomass/procsim_config.json
 # Level 0 steps
 echo
 echo '  *** L0 step 1 (ec mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_ec.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_ec.xml
 
 echo
 echo '  *** L0 step 2, 3, 4, 5 (ec mode)'
-python3 pvml/pvml.py test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_ec.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_ec.xml
