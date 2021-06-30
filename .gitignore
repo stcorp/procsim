@@ -9,11 +9,6 @@ data/
 examples/JobOrder.1.xml
 examples/JobOrder.2.xml
 
-# IDE stuff
-.idea/
-.vscode/
-.env
-
 # Build artefacts
 *.tgz
 *.tar
