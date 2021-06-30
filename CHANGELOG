@@ -7,10 +7,13 @@ Procsim Changelog
     - Add: Optional 'creation_date' variable in scenario (default is current date)
     - Add: Optional 'files' variable to specify the files in AUX product (use e.g. 'procsim -i AUX_TEC___' for help)
     - Add: Support for AUX_PP0___ product type
+    - Add: Support for new Level 2a file types FP_VBG_L2A, FP_FD__L2A, FP_FH__L2A, FP_ACM_L2A
+    - Add: Generator for MPL_ORBREF, MPL_REFAUX and MPL_ORBPRE types
     - Fix: ProcessingDate in MPH is now equal to product's creation date
     - Fix: Added missing xmllint to container
     - Fix: Removed suffix from AUX filenames in /data directory
     - Fix: AUX_ERP, AUX_GMF and AUX_TEC have type 'txt', and no xsd associated
+    - Fix: No warning on products not being a directory (MPL_xxx types)
 
 [v1.1.1] - 2021/04/29
     - Fix: processingMode/@codespace must be @codeSpace in MPH
