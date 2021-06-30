@@ -72,13 +72,13 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>FH_COH_L2A</File_Type>
+              <File_Type>FP_FH__L2A</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>AGB_GN_L2A</File_Type>
+              <File_Type>FP_VBG_L2A</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>

@@ -70,9 +70,16 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('S3_STA__1M', 'l1', 'Stripmap L1 Coregistered stack – Monitoring product'),
     ProductType('RO_SCS__1S', 'l1', 'RX Only L1 Single look Complex Slant range – Standard product'),
 
+    # Old L2a types (to be removed in the future)
     ProductType('AGB_GN_L2A', 'l2a', 'L2a Above Ground Biomass product: ground cancelled, calibrated and multilooked image'),
     ProductType('FD_COV_L2A', 'l2a', 'L2a Forest Disturbance product: covariance of ground cancelled image'),
     ProductType('FH_COH_L2A', 'l2a', 'L2a Forest Height product'),
+
+    # New L2a types
+    ProductType('FP_VBG_L2A', 'l2a', 'L2a Above Ground Biomass product: ground cancelled, calibrated and multilooked image'),
+    ProductType('FP_FD__L2A', 'l2a', 'L2a Forest Disturbance product: covariance of ground cancelled image'),
+    ProductType('FP_FH__L2A', 'l2a', 'L2a Forest Height product'),
+    ProductType('FP_ACM_L2A', 'l2a', 'L2a product'),
 
     ProductType('AUX_ATT___', 'aux', 'Attitude Product'),
     ProductType('AUX_CAL_AB', 'aux', 'Calibration Parameters for L2-Above Ground Biomass Processor Product'),

@@ -883,11 +883,11 @@
 
       "outputs": [
         {
-          "type": "FH_COH_L2A",
+          "type": "FP_FH__L2A",
           "metadata_source": ".*S._STA__1S.*"
         },
         {
-          "type": "AGB_GN_L2A",
+          "type": "FP_VBG_L2A",
           "metadata_source": ".*S._STA__1S.*"
         }
       ]

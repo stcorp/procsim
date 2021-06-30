@@ -162,7 +162,7 @@
       <matchExpression><![CDATA[.*S[x123]_STA__1M.*]]></matchExpression>
     </productType>
 
-    <!-- Level 2 -->
+    <!-- Level 2a, OLD -->
     <productType name="FH_COH_L2A">
       <matchExpression><![CDATA[.*FH_COH_L2A.*]]></matchExpression>
     </productType>
@@ -171,6 +171,20 @@
     </productType>
     <productType name="FD_COV_L2A">
       <matchExpression><![CDATA[.*FD_COV_L2A.*]]></matchExpression>
+    </productType>
+
+    <!-- Level 2a, NEW -->
+    <productType name="FP_VBG_L2A">
+      <matchExpression><![CDATA[.*FP_VBG_L2A.*]]></matchExpression>
+    </productType>
+    <productType name="FP_FD__L2A">
+      <matchExpression><![CDATA[.*FP_FD__L2A.*]]></matchExpression>
+    </productType>
+    <productType name="FP_FH__L2A">
+      <matchExpression><![CDATA[.*FP_FH__L2A.*]]></matchExpression>
+    </productType>
+    <productType name="FP_ACM_L2A">
+      <matchExpression><![CDATA[.*FP_ACM_L2A.*]]></matchExpression>
     </productType>
 
   </productTypes>
