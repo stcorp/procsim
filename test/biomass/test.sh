@@ -11,7 +11,7 @@
 # Exit when any command fails
 set -e
 
-PVML_CMD="python3 pvml/pvml.py"
+PVML_CMD="python3 ../pvml/pvml.py"
 
 # Clean up
 rm -rf data
