@@ -40,8 +40,3 @@ tar zcf $PACKAGE.tgz $PACKAGE
 rm -rf $PACKAGE
 
 echo "Created package $PACKAGE"
-
-# create and export container image
-# podman build -t procsim .
-# podman save procsim -o ${PACKAGE}_docker_image.tar
-# echo "Created ${PACKAGE}_docker_image.tar"
