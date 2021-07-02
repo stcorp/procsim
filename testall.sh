@@ -18,7 +18,7 @@ python3 -m unittest discover
 echo
 echo "Run Biomass system tests"
 echo
-test/biomass/test.sh
+test/biomass/test.sh "python3 ../pvml/pvml.py"
 
 # Test examples
 echo
