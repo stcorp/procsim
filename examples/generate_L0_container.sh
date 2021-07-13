@@ -3,7 +3,7 @@
 # S&T podmanized procsim demo.
 #
 # - Make sure the procsim container image is available!
-# - Replace 'podman' by 'podman' to use podman.
+# - Replace 'podman' by 'docker' to use docker.
 #
 # The generated files have the creation date in their file name.
 # The JobOrder templates have wildcards for the creation date part, the
