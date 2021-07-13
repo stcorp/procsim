@@ -25,7 +25,7 @@ To use procsim, you will need:
 
  - Python version 3.6 or higher.
 
- - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2 package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
+ - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2-utils package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
 Procsim is distributed as a source distribution created using `setuptools`. It can be installed in several ways, for example using pip or by invoking setup.py manually. Note: installation using setup.py requires super user privileges in most cases.
 
