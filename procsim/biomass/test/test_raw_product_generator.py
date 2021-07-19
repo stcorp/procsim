@@ -42,6 +42,10 @@ class RAWSxxx_10Test(unittest.TestCase):
         end_is_aligned = rest < SIGMA * 2
         return start_is_aligned, end_is_aligned
 
+    @staticmethod
+    def calc_nr_products_in_dir():
+        return len([name for name in os.listdir(TEST_DIR) if os.path.isdir(os.path.join(TEST_DIR, name))])
+
     def create_class_under_test(self):
         logger = _Logger()
         job_config = None
@@ -61,7 +65,10 @@ class RAWSxxx_10Test(unittest.TestCase):
             'num_isp': 387200,
             'num_isp_erroneous': 0,
             'num_isp_corrupt': 0,
-            'zip_output': False
+            'zip_output': False,
+            'slice_overlap_start': 5.0,
+            'slice_overlap_end': 7.0,
+            'slice_minimum_duration': 15.0
         }
         self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000)
         self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000)
@@ -83,9 +90,10 @@ class RAWSxxx_10Test(unittest.TestCase):
         hdr.parse(files[0])
         return hdr
 
-    def testSlicerCase1(self):
+    def testNormal(self):
         '''
-        Datatake overlaps with ANX. Expect slice 62, aligned to anx#1,
+        Datatake length = 5 minutes.
+        Overlaps with ANX. Expect slice 62, aligned to anx#1,
         then slice 1, 2, 3, aligned to anx#2.
         '''
         gen = self.create_class_under_test()
@@ -100,6 +108,8 @@ class RAWSxxx_10Test(unittest.TestCase):
         gen.generate_output()
 
         # Test output. We expect 4 files.
+        self.assertEqual(self.calc_nr_products_in_dir(), 4)
+
         anx = self.anx1
 
         hdr = self.parse_product('BIO_RAWS025_10_20210201T002432_20210201T002539_D20210101T000000_10_??????')
@@ -138,6 +148,78 @@ class RAWSxxx_10Test(unittest.TestCase):
         start_aligned, end_aligned = self.is_aligned(hdr.validity_start, hdr.validity_stop, anx)
         self.assertTrue(start_aligned)
         self.assertTrue(end_aligned)
+
+    def testMergeShortSlices(self):
+        '''
+        Datatake from 3.7 seconds before ANX2.
+        Expect slice 62 to be merged with slice 1,
+        then slice 2, 3.
+        '''
+        gen = self.create_class_under_test()
+
+        # Normally we read this from input products, but now we set it by hand.
+        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0)
+        end = datetime.datetime(2021, 2, 1, 0, 30, 23, 0)
+        gen._hdr.validity_start = gen._hdr.begin_position = begin
+        gen._hdr.validity_stop = gen._hdr.end_position = end
+
+        gen.read_scenario_parameters()
+        gen.generate_output()
+
+        # Test output.
+        self.assertEqual(self.calc_nr_products_in_dir(), 3)
+
+        anx = self.anx2
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002530_20210201T002715_D20210101T000000_10_??????')
+        self.assertNotEqual(hdr.begin_position, hdr.validity_start)
+        self.assertEqual(hdr.end_position, hdr.validity_stop)
+        start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
+        self.assertFalse(start_aligned)
+        self.assertTrue(end_aligned)
+
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002703_20210201T002850_D20210101T000000_10_??????')
+        self.assertEqual(hdr.begin_position, hdr.validity_start)
+        self.assertEqual(hdr.end_position, hdr.validity_stop)
+        start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
+        self.assertTrue(start_aligned)
+        self.assertTrue(end_aligned)
+
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002838_20210201T003023_D20210101T000000_10_??????')
+        self.assertEqual(hdr.begin_position, hdr.validity_start)
+        self.assertNotEqual(hdr.end_position, hdr.validity_stop)
+        self.assertEqual(hdr.end_position, end)
+        start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
+        self.assertTrue(start_aligned)
+        self.assertFalse(end_aligned)
+        start_aligned, end_aligned = self.is_aligned(hdr.validity_start, hdr.validity_stop, anx)
+        self.assertTrue(start_aligned)
+        self.assertTrue(end_aligned)
+
+    def testMergeToSingleSlice(self):
+        '''
+        Datatake from 4 seconds before slice #1 to 1 second after slice #1.
+        Expect slice 62 and slice 2 to be merged with slice 1.
+        '''
+        gen = self.create_class_under_test()
+
+        # Normally we read this from input products, but now we set it by hand.
+        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0)
+        end = datetime.datetime(2021, 2, 1, 0, 27, 9, 0)
+        gen._hdr.validity_start = gen._hdr.begin_position = begin
+        gen._hdr.validity_stop = gen._hdr.end_position = end
+
+        gen.read_scenario_parameters()
+        gen.generate_output()
+
+        # Test output.
+        self.assertEqual(self.calc_nr_products_in_dir(), 1)
+        anx = self.anx2
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002530_20210201T002709_D20210101T000000_10_??????')
+        self.assertNotEqual(hdr.begin_position, hdr.validity_start)
+        self.assertNotEqual(hdr.end_position, hdr.validity_stop)
+        start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
+        self.assertFalse(start_aligned)
+        self.assertFalse(end_aligned)
 
 
 if __name__ == '__main__':

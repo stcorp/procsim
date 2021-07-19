@@ -15,3 +15,4 @@ FRAME_LOWER_BOUND = datetime.timedelta(0, 8.0)
 SLICE_GRID_SPACING = 5 * FRAME_GRID_SPACING
 SLICE_OVERLAP_START = datetime.timedelta(0, 5.0)
 SLICE_OVERLAP_END = datetime.timedelta(0, 7.0)
+SLICE_MINIMUM_DURATION = datetime.timedelta(0, 0.0)

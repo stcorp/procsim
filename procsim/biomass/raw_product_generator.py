@@ -4,6 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import bisect
+from datetime import timedelta
 import os
 import shutil
 import zipfile
@@ -126,13 +127,14 @@ class RAWSxxx_10(RawProductGeneratorBase):
         "2021-02-01T02:03:43.725Z"
       ],
 
-    Edge cases:
+    'Special' cases:
     - ANX falls within an acquisition. Slice 62 ends at the grid defined by
         the 'old' ANX, slice 1 starts at the 'new' ANX.
-    - Acquisition starts ts=0..5 seconds before the end of slice n. Create
-        slice n+1 with lead time ts.
-    - Acquisition ends te=0..7 seconds after the end of slice n. Create
-        slice n with trail time te.
+    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
+        slice n. The first slice will be slice n+1, with the acquisition
+        starting at Tstart.
+    - Acquisition ends with Tend <= slice_minimum_duration after the end of
+        slice n. Slice n ends at Tend.
 
     The generator adjusts the following metadata:
     - phenomenonTime, acquisition begin/end times.
@@ -149,6 +151,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
         ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
         ('slice_overlap_start', '_slice_overlap_start', 'float'),
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
         ('orbital_period', '_orbital_period', 'float')
     ]
 
@@ -164,6 +167,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
         self._slice_grid_spacing = constants.SLICE_GRID_SPACING
         self._slice_overlap_start = constants.SLICE_OVERLAP_START
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
 
     def get_params(self):
@@ -197,7 +201,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def _get_anx(self, t):
         # Returns the latest ANX before the given time
-        idx = bisect.bisect(self._anx_list, t) - 1  # anx_list[idx-1] <= tstart
+        idx = bisect.bisect(self._anx_list, t) - 1
         return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
 
     def _generate_sliced_output(self):
@@ -208,39 +212,80 @@ class RAWSxxx_10(RawProductGeneratorBase):
             return
 
         start = segment_start
+        sigma = timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
         while start < segment_end:
-            # Find slice
-            anx = self._get_anx(start)
-            n = (start - anx) // self._slice_grid_spacing
+            # Find slice nr for this start time
+            anx = self._get_anx(start + sigma)
+            n = (start + sigma - anx) // self._slice_grid_spacing
 
-            # Test if the first slice starts within the 'start overlap time' of
-            # the next slice. In that case, use that slice instead.
-            s = start + self._slice_overlap_start
-            anx2 = self._get_anx(s)
-            n2 = (s - anx) // self._slice_grid_spacing
-            if n2 != n:
-                n = n2
-                anx = anx2
-                self._logger.debug('Slice start is within lead time of next slice, using that one.')
+            # Calculate slice start/end, phenomenon start/end (aka acquisition start/end)
+            # and validity start/end, which is the slice start/end time with the lead/trail
+            # overlap times added.
+            slice_start = anx + n * self._slice_grid_spacing
+            slice_end = anx + (n + 1) * self._slice_grid_spacing
+            validity_start = slice_start - self._slice_overlap_start
+            validity_end = slice_end + self._slice_overlap_end
+            acq_start = max(validity_start, segment_start)
+            acq_end = min(validity_end, segment_end)
 
-            # Calculate the 'theoretical' slice start/end times, i.e. the grid
-            # nodes, with overlap added.
-            slice_start = anx + n * self._slice_grid_spacing - self._slice_overlap_start
-            slice_end = anx + (n + 1) * self._slice_grid_spacing + self._slice_overlap_end
+            # Additional rule:
+            # "Two consecutive slices of the same product type shall be merged into a single one
+            # if the sensing duration of one of them is lower than a configurable threshold.
+            # The requirement only applies to consecutive slices at the beginning and at the end
+            # of a data take or in case of incomplete slices."
+
+            # Merge with next slice if too short and first slice.
+            acq_duration = acq_end - acq_start
+            if acq_duration < self._slice_minimum_duration and acq_start != validity_start:
+                # Find slice nr for the next slice
+                previous_n = n
+                anx = self._get_anx(slice_end + sigma)
+                n = (slice_end + sigma - anx) // self._slice_grid_spacing
+                slice_end = anx + (n + 1) * self._slice_grid_spacing
+                validity_end = slice_end + self._slice_overlap_end
+                acq_end = min(validity_end, segment_end)
+                self._logger.debug('First slice #{} ({}s) is shorter than {}s, merged to #{}.'.format(
+                    previous_n + 1,
+                    acq_duration.seconds,
+                    self._slice_minimum_duration.seconds,
+                    n + 1
+                ))
+
+            # Is this the last slice? If not, check if next slice will be too short,
+            # merge with this slice in that case.
+            if segment_end > slice_end:
+                next_anx = self._get_anx(slice_end + sigma)
+                next_n = (slice_end + sigma - next_anx) // self._slice_grid_spacing
+                next_slice_start = next_anx + next_n * self._slice_grid_spacing
+                next_slice_end = next_anx + (next_n + 1) * self._slice_grid_spacing
+                next_validity_start = next_slice_start - self._slice_overlap_start
+                next_validity_end = next_slice_end + self._slice_overlap_end
+                next_acq_start = max(next_validity_start, segment_start)
+                next_acq_end = min(next_validity_end, segment_end)
+                next_slice_duration = next_acq_end - next_acq_start
+                if next_slice_duration < self._slice_minimum_duration and next_acq_end != next_slice_end:
+                    slice_end = next_slice_end
+                    validity_end = next_validity_end
+                    acq_end = next_acq_end
+                    self._logger.debug('Last slice #{} ({}s) is shorter than {}s, merged with {}.'.format(
+                        next_n + 1,
+                        next_slice_duration.seconds,
+                        self._slice_minimum_duration.seconds,
+                        n + 1
+                    ))
+
             slice_nr = (n % slices_per_orbit) + 1
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
-
-            # Calculate the 'real' start/end times
-            acq_start = max(slice_start, segment_start)
-            acq_end = min(slice_end, segment_end)
-            self._hdr.set_validity_times(slice_start, slice_end)
-            self._logger.debug('Create slice #{}, {}-{}, anx {}'.format(
+            self._hdr.set_validity_times(validity_start, validity_end)
+            self._logger.debug('Create slice #{}, acq {}-{}, validity {}-{} anx {}'.format(
                 slice_nr,
-                acq_start,
-                acq_end,
-                anx
+                acq_start.strftime("%Y-%m-%d %H:%M:%S"),
+                acq_end.strftime("%Y-%m-%d %H:%M:%S"),
+                validity_start.strftime("%Y-%m-%d %H:%M:%S"),
+                validity_end.strftime("%Y-%m-%d %H:%M:%S"),
+                anx.strftime("%Y-%m-%d %H:%M:%S")
             ))
             self._create_product(acq_start, acq_end)
 
-            start = acq_end
+            start = slice_end
