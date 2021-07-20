@@ -1,7 +1,8 @@
 Procsim Changelog
 -----------------
 
-[v1.2.0] - To be released
+[v1.2.0] - 2021/07/20
+    - Add: Optional 'slice_minimum_duration' variable for raw sliced products
     - Add: Optional 'compact_creation_date_epoch' variable in scenario
     - Add: Optional 'zip_extension' variable in scenario (default is ".zip")
     - Add: Optional 'creation_date' variable in scenario (default is current date)
