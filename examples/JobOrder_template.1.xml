@@ -49,52 +49,62 @@
         <Input>
           <Input_ID />
           <Alternative_ID />
-          <List_of_File_Types>
-            <File_Type>RAW_022_10</File_Type>
-            <List_of_File_Names>
-              <File_Name>./workspace/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
-            </List_of_File_Names>
-          </List_of_File_Types>
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_022_10</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
         </Input>
         <Input>
           <Input_ID />
           <Alternative_ID />
-          <List_of_File_Types>
-            <File_Type>RAW_023_10</File_Type>
-            <List_of_File_Names>
-              <File_Name>workspace/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
-            </List_of_File_Names>
-          </List_of_File_Types>
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_023_10</File_Type>
+              <List_of_File_Names>
+                <File_Name>workspace/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
         </Input>
         <Input>
           <Input_ID />
           <Alternative_ID />
-          <List_of_File_Types>
-            <File_Type>RAW_024_10</File_Type>
-            <List_of_File_Names>
-              <File_Name>workspace/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
-            </List_of_File_Names>
-          </List_of_File_Types>
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_024_10</File_Type>
+              <List_of_File_Names>
+                <File_Name>workspace/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
         </Input>
         <Input>
           <Input_ID />
           <Alternative_ID />
-          <List_of_File_Types>
-            <File_Type>RAW_025_10</File_Type>
-            <List_of_File_Names>
-              <File_Name>workspace/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</File_Name>
-            </List_of_File_Names>
-          </List_of_File_Types>
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_025_10</File_Type>
+              <List_of_File_Names>
+                <File_Name>workspace/BIO_RAW_025_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
         </Input>
         <Input>
           <Input_ID />
           <Alternative_ID />
-          <List_of_File_Types>
-            <File_Type>RAW_026_10</File_Type>
-            <List_of_File_Names>
-              <File_Name>workspace/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</File_Name>
-            </List_of_File_Names>
-          </List_of_File_Types>
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_026_10</File_Type>
+              <List_of_File_Names>
+                <File_Name>workspace/BIO_RAW_026_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
         </Input>
       </List_of_Inputs>
       <List_of_Outputs>

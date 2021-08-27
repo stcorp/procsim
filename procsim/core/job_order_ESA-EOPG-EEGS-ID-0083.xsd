@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created according to ESA-EOPG-EEGS-ID-0083 1.0.-->
+<!-- Created according to ESA-EOPG-EEGS-ID-0083 1.3.-->
 <!-- TODO: Attributes! -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
   <xs:element name="Job_Order">
@@ -133,14 +133,20 @@
                               <xs:sequence>
                                 <xs:element name="Input_ID" type="xs:string"/>
                                 <xs:element name="Alternative_ID" type="xs:string"/>
-                                <xs:element name="List_of_File_Types">
+                                <xs:element name="List_of_Selected_Inputs" minOccurs="1" maxOccurs="1">
                                   <xs:complexType>
                                     <xs:sequence>
-                                      <xs:element name="File_Type" type="xs:string"/>
-                                      <xs:element name="List_of_File_Names">
+                                      <xs:element name="Selected_Input" minOccurs="1" maxOccurs="unbounded">
                                         <xs:complexType>
                                           <xs:sequence>
-                                            <xs:element name="File_Name" type="xs:string" maxOccurs="unbounded"/>
+                                            <xs:element name="File_Type" type="xs:string"/>
+                                            <xs:element name="List_of_File_Names">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element name="File_Name" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
                                           </xs:sequence>
                                         </xs:complexType>
                                       </xs:element>

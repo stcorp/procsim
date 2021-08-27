@@ -1,7 +1,7 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 
-Read JobOrders, according to ESA-EOPG-EEGS-ID-0083
+Read JobOrders, according to ESA-EOPG-EEGS-ID-0083 v1.3
 '''
 import os
 import re
@@ -133,7 +133,7 @@ class JobOrderParser:
             self.stderr_levels.append(level_el.text or '')
         self.intermediate_output_enable = proc.findtext('Intermediate_Output_Enable') == 'true'
 
-        # Build list of tasks
+        # Build list of tasks. Add every input file found to the list of inputs
         for task_el in root.find('List_of_Tasks').findall('Task'):
             task = JobOrderTask()
             task.name = task_el.findtext('Task_Name', '')
@@ -149,14 +149,18 @@ class JobOrderParser:
                 input = JobOrderInput()
                 input.id = input_el.findtext('Input_ID', '')
                 input.alternative_input_id = input_el.findtext('Alternative_ID', '')
-                file_types_el = input_el.find('List_of_File_Types')
-                input.file_type = file_types_el.findtext('File_Type', '')
-                for file_name_el in file_types_el.find('List_of_File_Names').findall('File_Name'):
-                    # input.file_names.append(file_name_el.text or '')
-
-                    # HACK alert: in ICD2020, there are NO regex filenames, all file names must be fully specified!
-                    # This must be patched in the PF (PVML in this case)
-                    input.file_names.extend(self._find_matching_files(file_name_el.text))
+                list_of_selected_inputs_el = input_el.find('List_of_Selected_Inputs')
+                if list_of_selected_inputs_el:
+                    selected_inputs = list_of_selected_inputs_el.findall('Selected_Input')
+                    for selected_input in selected_inputs:
+                        input.file_type = selected_input.findtext('File_Type', '')
+                        list_of_file_names = selected_input.find('List_of_File_Names')
+                        if list_of_file_names:
+                            for file_name_el in list_of_file_names.findall('File_Name'):
+                                # input.file_names.append(file_name_el.text or '')
+                                # HACK alert: in ICD2020, there are NO regex filenames, all file names must be fully specified!
+                                # This must be patched in the PF (PVML in this case)
+                                input.file_names.extend(self._find_matching_files(file_name_el.text))
                 task.inputs.append(input)
 
             for output_el in task_el.find('List_of_Outputs').findall('Output'):

@@ -25,7 +25,7 @@ def main():
     dest = argv[1]
     print('Read {}'.format(src))
     tree = et.parse(src)
-    for el in tree.findall('List_of_Tasks/Task/List_of_Inputs/Input/List_of_File_Types/List_of_File_Names/File_Name'):
+    for el in tree.findall('List_of_Tasks/Task/List_of_Inputs/Input/List_of_Selected_Inputs/Selected_Input/List_of_File_Names/File_Name'):
         if el.text is not None:
             files = glob.glob(el.text)
             if len(files) != 1:
