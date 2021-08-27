@@ -168,6 +168,8 @@ def _log_processor_parameters(parameters, logger):
 
 
 def _log_inputs(inputs, logger):
+    if not inputs:
+        logger.info('No input files')
     for input in inputs:
         for file_name in input.file_names:
             logger.info('Input type {}: {}'.format(input.file_type, os.path.basename(file_name)))
