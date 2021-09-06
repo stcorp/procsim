@@ -30,6 +30,9 @@ class ProductGeneratorBase(IProductGenerator):
         ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
         ('creation_date', '_creation_date', 'date'),
         ('zip_extension', '_zip_extension', 'str'),
+        ('begin_end_position_from_toi', '_begin_end_position_from_toi', 'bool'),
+        ('toi_start_offset', '_toi_start_offset', 'float'),
+        ('toi_stop_offset', '_toi_stop_offset', 'float')
     ]
 
     _COMMON_HDR_PARAMS = [
@@ -42,6 +45,8 @@ class ProductGeneratorBase(IProductGenerator):
         self._scenario_config = scenario_config
         self._output_config = output_config
         self._job_config_baseline = None if job_config is None else job_config.baseline
+        self._job_toi_start = None if job_config is None else job_config.toi_start
+        self._job_toi_stop = None if job_config is None else job_config.toi_stop
         self._logger = logger
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
@@ -54,6 +59,9 @@ class ProductGeneratorBase(IProductGenerator):
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
         self._creation_date: Optional[datetime.datetime] = None
         self._zip_extension = '.zip'
+        self._begin_end_position_from_toi = False
+        self._toi_start_offset = 0.0
+        self._toi_stop_offset = 0.0
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         '''
@@ -213,6 +221,18 @@ class ProductGeneratorBase(IProductGenerator):
         gen_params, hdr_params, acq_params = self.get_params()
         return [(param, ptype) for param, _, ptype in hdr_params + acq_params + gen_params]
 
+    def _apply_begin_end_position_from_toi(self):
+        """
+        Override begin/end position with values read from the job order, if present.
+        Apply adjustable offset, in seconds.
+        """
+        if not self._job_toi_start:
+            raise ScenarioError('No TOI start in jobOrder')
+        if not self._job_toi_stop:
+            raise ScenarioError('No TOI stop in jobOrder')
+        self._hdr.begin_position = self._job_toi_start + datetime.timedelta(seconds=self._toi_start_offset)
+        self._hdr.end_position = self._job_toi_stop + datetime.timedelta(seconds=self._toi_stop_offset)
+
     def read_scenario_parameters(self):
         '''
         Parse metadata parameters from scenario_config (either 'global' or for this output).
@@ -225,6 +245,9 @@ class ProductGeneratorBase(IProductGenerator):
                 self._read_config_param(config, param, self._hdr.acquisitions[0], acq_field, type)
             for param, self_field, type in gen_params:
                 self._read_config_param(config, param, self, self_field, type)
+
+        if self._begin_end_position_from_toi:
+            self._apply_begin_end_position_from_toi()
 
     def generate_output(self):
         '''
