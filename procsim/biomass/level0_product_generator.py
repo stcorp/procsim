@@ -6,25 +6,14 @@ format according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import datetime
 import os
-from typing import List, Iterable
+from typing import Iterable, List
 
-from procsim.core.job_order import JobOrderInput
 from procsim.core.exceptions import ScenarioError
+from procsim.core.job_order import JobOrderInput
 
 from . import main_product_header, product_generator, product_name
 
-_GENERATOR_PARAMS = [
-    ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('creation_date', '_creation_date', 'date'),
-    ('zip_extension', '_zip_extension', 'str')
-]
 _HDR_PARAMS = [
-    # All
-    ('baseline', 'product_baseline', 'int'),
-    # All but sliced products
-    ('begin_position', 'begin_position', 'date'),
-    ('end_position', 'end_position', 'date'),
     # Level 0 only
     ('num_l0_lines', 'nr_l0_lines', 'str'),
     ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
@@ -87,7 +76,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS + self._ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -252,7 +242,8 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # Retrieves the metadata
@@ -364,14 +355,15 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         self._trailing_margin = self.DEFAULT_TRAILING_MARGIN
 
     def get_params(self):
-        return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen + self._GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()
 
         # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
-            raise ScenarioError('begin/end position must be set')
+            raise ScenarioError('Begin/end position must be set')
 
         # Adjust start/stop times, add margins
         self._hdr.begin_position -= datetime.timedelta(0, self._leading_margin)

@@ -24,28 +24,43 @@ class ProductGeneratorBase(IProductGenerator):
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
+    # These parameters are common for ALL product generators
+    _COMMON_GENERATOR_PARAMS = [
+        ('output_path', '_output_path', 'str'),
+        ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
+        ('creation_date', '_creation_date', 'date'),
+        ('zip_extension', '_zip_extension', 'str'),
+    ]
+
+    _COMMON_HDR_PARAMS = [
+        ('baseline', 'product_baseline', 'int'),
+        ('begin_position', 'begin_position', 'date'),
+        ('end_position', 'end_position', 'date')
+    ]
+
     def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
-        self._output_path: str = '.' if job_config is None else job_config.dir
         self._job_config_baseline = None if job_config is None else job_config.baseline
         self._logger = logger
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
-        self._creation_date: Optional[datetime.datetime] = None
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+
+        # Parameters that can be set in scenario
+        self._output_path: str = '.' if job_config is None else job_config.dir
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
+        self._creation_date: Optional[datetime.datetime] = None
         self._zip_extension = '.zip'
 
-    @abc.abstractmethod
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         '''
         Returns lists with generator- and metadata parameters that can be used
         in the scenario.
         '''
-        pass
+        return self._COMMON_GENERATOR_PARAMS, self._COMMON_HDR_PARAMS, []
 
     def _create_name_generator(self, hdr: main_product_header.MainProductHeader) -> product_name.ProductName:
         '''

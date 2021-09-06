@@ -16,16 +16,7 @@ from . import (constants, main_product_header, product_generator, product_name,
 
 _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
-_GENERATOR_PARAMS = [
-    ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('creation_date', '_creation_date', 'date'),
-    ('zip_extension', '_zip_extension', 'str')
-]
 _HDR_PARAMS = [
-    ('baseline', 'product_baseline', 'int'),
-    ('begin_position', 'begin_position', 'date'),
-    ('end_position', 'end_position', 'date'),
     # L0 + L1
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
@@ -84,7 +75,8 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
-        return _GENERATOR_PARAMS + self._GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen + self._GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)
@@ -220,7 +212,8 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         list()
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def _check_sanity(self, file, hdr) -> bool:
         # Compare metadata fields, test if they suit the input requirements for
