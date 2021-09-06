@@ -1,6 +1,14 @@
 Procsim Changelog
 -----------------
 
+[v1.3.0] - 2021/09/06
+    - Add: Optional 'begin_end_position_from_toi' variable for all products.
+           When set to true, TOI from Job Order is used as begin/end positions.
+    - Add: Optional 'toi_start_offset', 'toi_stop_offset' variable.
+           This time, in seconds, is added to the TOI start/stop times.
+    - Chg: CHG: Modified procsim to support Generic Processor ICD v1.3
+    - Chg: Improved error messages in main product header generator
+
 [v1.2.0] - 2021/07/20
     - Add: Optional 'slice_minimum_duration' variable for raw sliced products
     - Add: Optional 'compact_creation_date_epoch' variable in scenario
