@@ -13,7 +13,12 @@
     <List_of_Stderr_Log_Levels />
     <Intermediate_Output_Enable>true</Intermediate_Output_Enable>
     <Processing_Station>GAT</Processing_Station>
-    <Request />
+    <Request>
+      <TOI>
+        <Start>2021-02-01T01:02:03.123000</Start>
+        <Stop>2021-02-01T01:02:03.456000</Stop>
+      </TOI>
+    </Request>
   </Processor_Configuration>
   <List_of_Tasks>
     <Task>

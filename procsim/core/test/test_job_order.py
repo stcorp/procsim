@@ -1,8 +1,8 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
+import datetime
 import errno
-import glob
 import os
 import shutil
 import unittest
@@ -107,6 +107,8 @@ class JobOrderParserTest(unittest.TestCase):
         self.assertEqual(sim.tasks[0].amount_of_ram_mb, 1073741824)
         self.assertEqual(sim.tasks[0].disk_space_mb, 1073741824)
         self.assertEqual(sim.tasks[0].nr_cpu_cores, 1)
+        self.assertEqual(sim.toi_start, datetime.datetime(2021, 2, 1, 1, 2, 3, 123000))
+        self.assertEqual(sim.toi_stop, datetime.datetime(2021, 2, 1, 1, 2, 3, 456000))
 
         params = set(sim.tasks[0].processing_parameters)
         self.assertIn('Product_Counter', params)
@@ -118,6 +120,8 @@ class JobOrderParserTest(unittest.TestCase):
         inputs = sim.tasks[0].inputs
         self.assertEqual(len(inputs), 5)
         self.assertTrue(equal_ignore_order(inputs, expected_inputs))
+
+        # TODO: test outputs
 
 
 if __name__ == '__main__':
