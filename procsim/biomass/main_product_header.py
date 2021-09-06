@@ -355,9 +355,12 @@ class MainProductHeader:
         mph.set(gml + 'id', self.eop_identifier + '_1')
 
         # Some parameters have no default and MUST be set prior to generation
-        if self.begin_position is None or self.end_position is None or \
-                self.validity_start is None or self.validity_stop is None:
-            raise ScenarioError('Times must be set before creating MPH')
+        if self.begin_position is None or self.end_position is None:
+            raise ScenarioError('Begin/end position must be set before creating MPH')
+        if self.validity_start is None or self.validity_stop is None:
+            raise ScenarioError('Validity start/stop must be set before creating MPH')
+        if not self.eop_identifier:
+            raise ScenarioError('The eop_identifier (file name) must be set before creating MPH')
 
         # By convention, time_position is equal to end_position
         self.time_position = self.end_position
@@ -505,8 +508,10 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
 
         if level in ['raw']:
-            if self.acquisition_date is None or self.acquisition_station is None:
-                raise ScenarioError('Acquisition time/station must be set prior to generating MPH')
+            if self.acquisition_date is None:
+                raise ScenarioError('Acquisition time must be set prior to generating MPH')
+            if self.acquisition_station is None:
+                raise ScenarioError('Acquisition station must be set prior to generating MPH')
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station

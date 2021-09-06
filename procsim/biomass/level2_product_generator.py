@@ -10,15 +10,7 @@ import os
 
 from . import product_generator
 
-_GENERATOR_PARAMS = [
-    ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('creation_date', '_creation_date', 'date')
-]
 _HDR_PARAMS = [
-    ('baseline', 'product_baseline', 'int'),
-    ('begin_position', 'begin_position', 'date'),
-    ('end_position', 'end_position', 'date'),
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
     ('footprint_polygon', 'footprint_polygon', 'str'),
@@ -49,7 +41,8 @@ class Level2a(product_generator.ProductGeneratorBase):
         super().__init__(logger, job_config, scenario_config, output_config)
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()

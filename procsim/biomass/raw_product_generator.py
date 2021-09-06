@@ -15,14 +15,9 @@ from procsim.core.exceptions import ScenarioError
 from . import constants, product_generator, product_name
 
 _GENERATOR_PARAMS = [
-    ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('creation_date', '_creation_date', 'date'),
-    ('zip_output', '_zip_output', 'bool'),
-    ('zip_extension', '_zip_extension', 'str')
+    ('zip_output', '_zip_output', 'bool')
 ]
 _HDR_PARAMS = [
-    ('baseline', 'product_baseline', 'int'),
     ('acquisition_date', 'acquisition_date', 'date'),
     ('acquisition_station', 'acquisition_station', 'str'),
     ('num_isp', 'nr_instrument_source_packets', 'int'),
@@ -42,7 +37,8 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self._zip_output = False
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen + _GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def _create_raw_product(self, dir_name, name_gen):
         self._logger.info('Create {}'.format(dir_name))

@@ -6,7 +6,8 @@ Read JobOrders, according to ESA-EOPG-EEGS-ID-0083 v1.3
 import os
 import re
 import subprocess
-from typing import List
+import datetime
+from typing import List, Optional
 from xml.etree import ElementTree as et
 
 from procsim.core.exceptions import ProcsimException
@@ -25,6 +26,12 @@ class JobOrderInput():
         self.file_type: str
         self.file_names: List[str] = []
 
+    def __eq__(self, other):
+        return self.id == other.id and \
+               self.alternative_input_id == other.alternative_input_id and \
+               self.file_type == other.file_type and \
+               self.file_names == other.file_names
+
 
 class JobOrderOutput():
     '''
@@ -35,6 +42,8 @@ class JobOrderOutput():
         self.dir: str
         self.baseline: int
         self.file_name_pattern: str
+        self.toi_start: Optional[datetime.datetime]
+        self.toi_stop: Optional[datetime.datetime]
 
 
 class JobOrderIntermediateOutput():
@@ -69,6 +78,14 @@ class JobOrderParser:
     Only errors are logged, since the logger is not setup yet (it needs info
     from the JobOrder for that).
     '''
+    ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+
+    @classmethod
+    def _time_from_iso(cls, timestr: Optional[str]) -> Optional[datetime.datetime]:
+        if timestr is None:
+            return None
+        timestr = timestr[:-1]  # strip 'Z'
+        return datetime.datetime.strptime(timestr, cls.ISO_TIME_FORMAT)
 
     def __init__(self, logger, schema):
         self._logger = logger
@@ -84,8 +101,13 @@ class JobOrderParser:
         self.tasks: List[JobOrderTask] = []
         self.stdout_levels: List[str] = ['INFO', 'PROGRESS', 'WARNING', 'ERROR']
         self.stderr_levels: List[str] = []
+        self.toi_start = None
+        self.toi_stop = None
 
-    def read(self, filename):
+    def read(self, filename: str):
+        """
+        Check against schema, if available, and parse job order.
+        """
         if filename is not None:
             self._check_against_schema(filename, self._schema)
             self._parse(filename)
@@ -121,7 +143,7 @@ class JobOrderParser:
         root = tree.getroot()
         proc = root.find('Processor_Configuration')
         if proc is None:
-            raise ProcsimException('Job order error')
+            raise ProcsimException('Job order error, Processor_Configuration missing')
         self.processor_name = proc.findtext('Processor_Name')
         self.processor_version = proc.findtext('Processor_Version')
         self.node = proc.findtext('Processing_Node')
@@ -132,6 +154,12 @@ class JobOrderParser:
         for level_el in proc.find('List_of_Stderr_Log_Levels').findall('Stderr_Log_Level'):
             self.stderr_levels.append(level_el.text or '')
         self.intermediate_output_enable = proc.findtext('Intermediate_Output_Enable') == 'true'
+        request = proc.find('Request')
+        if request:
+            toi = request.find('TOI')
+            if toi:
+                self.toi_start = self._time_from_iso(toi.findtext('Start'))   # TODO: to datetime
+                self.toi_stop = self._time_from_iso(toi.findtext('Stop'))    # to datetime
 
         # Build list of tasks. Add every input file found to the list of inputs
         for task_el in root.find('List_of_Tasks').findall('Task'):
@@ -169,6 +197,8 @@ class JobOrderParser:
                 output.dir = output_el.findtext('File_Dir', '')  # Can be empty or omitted
                 output.baseline = int(output_el.findtext('Baseline', '0'))
                 output.file_name_pattern = output_el.findtext('File_Name_Pattern', '')
+                output.toi_start = self.toi_start  # TOI Start/stop are common for all outputs
+                output.toi_stop = self.toi_stop
                 task.outputs.append(output)
 
             if self.intermediate_output_enable:
