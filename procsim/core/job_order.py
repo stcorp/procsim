@@ -25,6 +25,12 @@ class JobOrderInput():
         self.file_type: str
         self.file_names: List[str] = []
 
+    def __eq__(self, other):
+        return self.id == other.id and \
+               self.alternative_input_id == other.alternative_input_id and \
+               self.file_type == other.file_type and \
+               self.file_names == other.file_names
+
 
 class JobOrderOutput():
     '''
