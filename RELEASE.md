@@ -2,7 +2,7 @@
 
 - Ensure that the software is release-ready.
 - If a new major or minor version is needed:
-  - Create release branch
+  - Create release branch, named `release_<major>.<minor>.x`
   - Create Jenkins release job
 - Update the version number in version.py.
 - Update CHANGELOG.
