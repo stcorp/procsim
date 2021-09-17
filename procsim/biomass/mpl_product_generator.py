@@ -52,7 +52,8 @@ class Mpl(product_generator.ProductGeneratorBase):
         self._zip_output = False
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen + _GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def _generate_file_name(self):
         return '{}_{}_{}_{}_{}_{:>02}{:>02}.EOF'.format(

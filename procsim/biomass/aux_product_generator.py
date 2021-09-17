@@ -93,7 +93,8 @@ class Aux(product_generator.ProductGeneratorBase):
             self._files.append('support/{}.xsd'.format(suffix))
 
     def get_params(self):
-        return _GENERATOR_PARAMS, _HDR_PARAMS, _ACQ_PARAMS
+        gen, hdr, acq = super().get_params()
+        return gen + _GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
     def generate_output(self):
         super().generate_output()
