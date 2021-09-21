@@ -10,7 +10,7 @@ import datetime
 from typing import List, Optional
 from xml.etree import ElementTree as et
 
-from procsim.core.exceptions import ProcsimException
+from procsim.core.exceptions import ParseError, ProcsimException
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 JOB_ORDER_SCHEMA = os.path.join(THIS_DIR, 'job_order_ESA-EOPG-EEGS-ID-0083.xsd')
@@ -28,9 +28,9 @@ class JobOrderInput():
 
     def __eq__(self, other):
         return self.id == other.id and \
-               self.alternative_input_id == other.alternative_input_id and \
-               self.file_type == other.file_type and \
-               self.file_names == other.file_names
+            self.alternative_input_id == other.alternative_input_id and \
+            self.file_type == other.file_type and \
+            self.file_names == other.file_names
 
 
 class JobOrderOutput():
@@ -149,9 +149,15 @@ class JobOrderParser:
         self.node = proc.findtext('Processing_Node')
         self.stdout_levels = []
         self.stderr_levels = []
-        for level_el in proc.find('List_of_Stdout_Log_Levels').findall('Stdout_Log_Level'):
+        stdout_log_levels = proc.find('List_of_Stdout_Log_Levels')
+        if stdout_log_levels is None:
+            raise ParseError(stdout_log_levels)
+        for level_el in stdout_log_levels.findall('Stdout_Log_Level'):
             self.stdout_levels.append(level_el.text or '')
-        for level_el in proc.find('List_of_Stderr_Log_Levels').findall('Stderr_Log_Level'):
+        stderr_log_levels = proc.find('List_of_Stderr_Log_Levels')
+        if stderr_log_levels is None:
+            raise ParseError(stderr_log_levels)
+        for level_el in stderr_log_levels.findall('Stderr_Log_Level'):
             self.stderr_levels.append(level_el.text or '')
         self.intermediate_output_enable = proc.findtext('Intermediate_Output_Enable') == 'true'
         request = proc.find('Request')
@@ -162,7 +168,10 @@ class JobOrderParser:
                 self.toi_stop = self._time_from_iso(toi.findtext('Stop'))    # to datetime
 
         # Build list of tasks. Add every input file found to the list of inputs
-        for task_el in root.find('List_of_Tasks').findall('Task'):
+        tasks = root.find('List_of_Tasks')
+        if tasks is None:
+            raise ParseError(tasks)
+        for task_el in tasks.findall('Task'):
             task = JobOrderTask()
             task.name = task_el.findtext('Task_Name', '')
             task.version = task_el.findtext('Task_Version', '')
@@ -173,7 +182,10 @@ class JobOrderParser:
             task.outputs = []
             task.intermediate_outputs = []
 
-            for input_el in task_el.find('List_of_Inputs').findall('Input'):
+            inputs = task_el.find('List_of_Inputs')
+            if inputs is None:
+                raise ParseError(inputs)
+            for input_el in inputs.findall('Input'):
                 input = JobOrderInput()
                 input.id = input_el.findtext('Input_ID', '')
                 input.alternative_input_id = input_el.findtext('Alternative_ID', '')
@@ -191,7 +203,10 @@ class JobOrderParser:
                                 input.file_names.extend(self._find_matching_files(file_name_el.text))
                 task.inputs.append(input)
 
-            for output_el in task_el.find('List_of_Outputs').findall('Output'):
+            outputs = task_el.find('List_of_Outputs')
+            if outputs is None:
+                raise ParseError(outputs)
+            for output_el in outputs.findall('Output'):
                 output = JobOrderOutput()
                 output.type = output_el.findtext('File_Type', '')
                 output.dir = output_el.findtext('File_Dir', '')  # Can be empty or omitted
@@ -202,14 +217,20 @@ class JobOrderParser:
                 task.outputs.append(output)
 
             if self.intermediate_output_enable:
-                for int_output_el in task_el.find('List_of_Intermediate_Outputs').findall('Intermediate_Output'):
+                intermediate_outputs = task_el.find('List_of_Intermediate_Outputs')
+                if intermediate_outputs is None:
+                    raise ParseError(intermediate_outputs)
+                for int_output_el in intermediate_outputs.findall('Intermediate_Output'):
                     int_output = JobOrderIntermediateOutput()
                     int_output.id = int_output_el.findtext('Intermediate_Output_ID', '')
                     int_output.file_name = int_output_el.findtext('Intermediate_Output_File', '')
                     task.intermediate_outputs.append(int_output)
 
             # List of processing parameters
-            for param in task_el.find('List_of_Proc_Parameters').findall('Proc_Parameter'):
+            proc_parameters = task_el.find('List_of_Proc_Parameters')
+            if proc_parameters is None:
+                raise ParseError(proc_parameters)
+            for param in proc_parameters.findall('Proc_Parameter'):
                 task.processing_parameters[param.findtext('Name')] = param.findtext('Value')
 
             self.tasks.append(task)

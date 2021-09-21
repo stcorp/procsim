@@ -5,6 +5,9 @@ Exceptions
 '''
 
 
+from typing import Any
+
+
 class ProcsimException(Exception):
     '''
     Base for all procsim exceptions
@@ -31,3 +34,12 @@ class GeneratorError(ProcsimException):
     Error in generator
     '''
     pass
+
+
+class ParseError(ProcsimException):
+    '''
+    Error parsing XML
+    '''
+    def __init__(self, value: Any, message: str = 'Error parsing XML. Received invalid value') -> None:
+        super().__init__(value)
+        print(message, value)

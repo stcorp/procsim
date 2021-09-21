@@ -13,11 +13,11 @@ TODO:
 
 import datetime
 from logging import raiseExceptions
-from typing import List, Optional
+from typing import Any, List, Optional, Tuple, TypeVar
 from xml.etree import ElementTree as et
 
 from procsim.core import utils
-from procsim.core.exceptions import ScenarioError
+from procsim.core.exceptions import ParseError, ScenarioError
 
 from . import product_types
 
@@ -116,21 +116,21 @@ class Acquisition:
 
     def __eq__(self, other):
         return self.orbit_number == other.orbit_number and \
-               self.last_orbit_number == other.last_orbit_number and \
-               self.anx_date == other.anx_date and \
-               self.start_time == other.start_time and \
-               self.completion_time == other.completion_time and \
-               self.instrument_config_id == other.instrument_config_id and \
-               self.orbit_drift_flag == other.orbit_drift_flag and \
-               self.major_cycle_id == other.major_cycle_id and \
-               self.repeat_cycle_id == other.repeat_cycle_id and \
-               self.slice_frame_nr == other.slice_frame_nr and \
-               self.orbit_direction == other.orbit_direction and \
-               self.track_nr == other.track_nr and \
-               self.mission_phase == other.mission_phase and \
-               self.global_coverage_id == other.global_coverage_id and \
-               self.major_cycle_id == other.major_cycle_id and \
-               self.data_take_id == other.data_take_id
+            self.last_orbit_number == other.last_orbit_number and \
+            self.anx_date == other.anx_date and \
+            self.start_time == other.start_time and \
+            self.completion_time == other.completion_time and \
+            self.instrument_config_id == other.instrument_config_id and \
+            self.orbit_drift_flag == other.orbit_drift_flag and \
+            self.major_cycle_id == other.major_cycle_id and \
+            self.repeat_cycle_id == other.repeat_cycle_id and \
+            self.slice_frame_nr == other.slice_frame_nr and \
+            self.orbit_direction == other.orbit_direction and \
+            self.track_nr == other.track_nr and \
+            self.mission_phase == other.mission_phase and \
+            self.global_coverage_id == other.global_coverage_id and \
+            self.major_cycle_id == other.major_cycle_id and \
+            self.data_take_id == other.data_take_id
 
 
 class MainProductHeader:
@@ -317,6 +317,8 @@ class MainProductHeader:
     def _insert_time_period(self, parent, start: datetime.datetime, stop: datetime.datetime, id):
         # Insert TimePeriod element
         time_period = et.SubElement(parent, gml + 'TimePeriod')
+        if self.eop_identifier is None:
+            raise ParseError(self.eop_identifier)
         time_period.set(gml + 'id', self.eop_identifier + '_' + str(id))
         begin_position = et.SubElement(time_period, gml + 'beginPosition')
         begin_position.text = _time_as_iso(start)    # Start date and time of the product
@@ -349,9 +351,13 @@ class MainProductHeader:
 
     def write(self, file_name):
         # Create MPH and write to file (TODO: split in generate and write methods?)
+        if self._product_type is None:
+            raise ParseError(self._product_type)
         level = self._product_type.level
 
         mph = et.Element(bio + 'EarthObservation')
+        if self.eop_identifier is None:
+            raise ParseError(self.eop_identifier)
         mph.set(gml + 'id', self.eop_identifier + '_1')
 
         # Some parameters have no default and MUST be set prior to generation
@@ -578,25 +584,54 @@ class MainProductHeader:
         tree = et.parse(file_name)
         root = tree.getroot()
         phenomenon_time = root.find(om + 'phenomenonTime')
-        self.begin_position, self.end_position = self._parse_time_period(phenomenon_time, 2)
+        begin_position, end_position = self._parse_time_period(phenomenon_time, 2)
+        if begin_position is None:
+            raise ParseError(begin_position)
+        if end_position is None:
+            raise ParseError(end_position)
+        self.begin_position, self.end_position = begin_position, end_position
 
         result_time = root.find(om + 'resultTime')
+        if result_time is None:
+            raise ParseError(result_time)
         time_instant = result_time.find(gml + 'TimeInstant')
         # time_instant.set(gml + 'id', self.eop_identifier + '_3')
-        self.time_position = _time_from_iso(time_instant.findtext(gml + 'timePosition'))
+        if time_instant is None:
+            raise ParseError(time_instant)
+        time_position = _time_from_iso(time_instant.findtext(gml + 'timePosition'))
+        if time_position is None:
+            raise ParseError(time_position)
+        self.time_position = time_position
 
         valid_time = root.find(om + 'validTime')
-        self.validity_start, self.validity_stop = self._parse_time_period(valid_time, 4)
+        validity_start, validity_stop = self._parse_time_period(valid_time, 4)
+        if validity_start is None:
+            raise ParseError(validity_start)
+        if validity_stop is None:
+            raise ParseError(validity_stop)
+        self.validity_start, self.validity_stop = validity_start, validity_stop
 
         procedure = root.find(om + 'procedure')  # Procedure used to sense the data
+        if procedure is None:
+            raise ParseError(procedure)
         earth_observation_equipment = procedure.find(eop + 'EarthObservationEquipment')  # Equipment used to sense the data
         # earth_observation_equipment.set(gml + 'id', self.eop_identifier + '_5')
+        if earth_observation_equipment is None:
+            raise ParseError(earth_observation_equipment)
         platform = earth_observation_equipment.find(eop + 'platform')  # Platform description
+        if platform is None:
+            raise ParseError(platform)
         Platform = platform.find(eop + 'Platform')  # Nested element for platform description
+        if Platform is None:
+            raise ParseError(Platform)
         self._platform_shortname = Platform.findtext(eop + 'shortName')
 
-        instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
+        instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description\
+        if instrument is None:
+            raise ParseError(instrument)
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
+        if Instrument is None:
+            raise ParseError(Instrument)
         self._sensor_name = Instrument.findtext(eop + 'shortName')
 
         # Mandatory for L0, L1, L2A products
@@ -660,19 +695,33 @@ class MainProductHeader:
         # observed_property.set(xsi + 'nil', 'true')
         # observed_property.set('nilReason', 'inapplicable')
         feature_of_interest = root.find(om + 'featureOfInterest')  # Observed area
+        if feature_of_interest is None:
+            raise ParseError(feature_of_interest)
 
         # Mandatory for L1, *L2A products
         footprint = feature_of_interest.find(eop + 'Footprint')
         if footprint is not None:
             # footprint.set(gml + 'id', self.eop_identifier + '_6')
             multi_extent_of = footprint.find(eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
+            if multi_extent_of is None:
+                raise ParseError(multi_extent_of)
             multi_surface = multi_extent_of.find(gml + 'MultiSurface')
+            if multi_surface is None:
+                raise ParseError(multi_surface)
             # multi_surface.set(gml + 'id', self.eop_identifier + '_7')
             surface_member = multi_surface.find(gml + 'surfaceMember')
+            if surface_member is None:
+                raise ParseError(surface_member)
             polygon = surface_member.find(gml + 'Polygon')
+            if polygon is None:
+                raise ParseError(polygon)
             # polygon.set(gml + 'id', self.eop_identifier + '_8')
             exterior = polygon.find(gml + 'exterior')
+            if exterior is None:
+                raise ParseError(exterior)
             linear_ring = exterior.find(gml + 'LinearRing')
+            if linear_ring is None:
+                raise ParseError(linear_ring)
             self.footprint_polygon = linear_ring.findtext(gml + 'posList')  # Footprint points
 
             #
@@ -681,19 +730,29 @@ class MainProductHeader:
 
             # center_of = feature_of_interest.find(eop + 'centerOf')  # Acquisition centre representation structure
             center_of = footprint.find(eop + 'centerOf')  # Acquisition centre representation structure
+            if center_of is None:
+                raise ParseError(center_of)
 
             point = center_of.find(gml + 'Point')
+            if point is None:
+                raise ParseError(point)
             # point.set(gml + 'id', self.eop_identifier + '_9')
             self.center_points = point.findtext(gml + 'pos')  # Coordinates of the centre of the acquisition
 
         result = root.find(om + 'result')  # Observation result
+        if result is None:
+            raise ParseError(result)
         earth_observation_result = result.find(eop + 'EarthObservationResult')
+        if earth_observation_result is None:
+            raise ParseError(earth_observation_result)
         # earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
 
         # Mandatory for L1 products
         browse = earth_observation_result.find(eop + 'browse')
         if browse is not None:
             browse_info = browse.find(eop + 'BrowseInformation')
+            if browse_info is None:
+                raise ParseError(browse_info)
             self._browse_type = browse_info.findtext(eop + 'type')
             self.browse_ref_id = browse_info.findtext(eop + 'referenceSystemIdentifier')  # Coordinate reference system name
             # browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
@@ -703,6 +762,8 @@ class MainProductHeader:
         self.products.clear()
         for product in earth_observation_result.findall(eop + 'product'):
             product_information = product.find(bio + 'ProductInformation')
+            if product_information is None:
+                raise ParseError(product_information)
             file_name = self._parse_file_name(product_information)
             version = product_information.findtext(eop + 'version')
             if version is not None:
@@ -714,9 +775,19 @@ class MainProductHeader:
                 self.products.append({'file_name': file_name, 'size': size, 'representation': representation})
 
         meta_data_property = root.find(eop + 'metaDataProperty')  # Observation metadata
+        if meta_data_property is None:
+            raise ParseError(meta_data_property)
         earth_observation_meta_data = meta_data_property.find(bio + 'EarthObservationMetaData')
-        self.eop_identifier = earth_observation_meta_data.findtext(eop + 'identifier')
-        self.doi = earth_observation_meta_data.find(eop + 'doi').text  # Digital Object Identifier'
+        if earth_observation_meta_data is None:
+            raise ParseError(earth_observation_meta_data)
+        eop_identifier = earth_observation_meta_data.findtext(eop + 'identifier')
+        if eop_identifier is None:
+            raise ParseError(eop_identifier)
+        self.eop_identifier = eop_identifier
+        doi = earth_observation_meta_data.find(eop + 'doi')
+        if doi is None:
+            raise ParseError(doi)
+        self.doi = doi.text  # Digital Object Identifier'
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
         type = product_types.find_product(type_code)
@@ -728,16 +799,31 @@ class MainProductHeader:
         downlinked_to = earth_observation_meta_data.find(eop + 'downlinkedTo')
         if downlinked_to is not None:
             downlink_info = downlinked_to.find(eop + 'DownlinkInformation')
+            if downlink_info is None:
+                raise ParseError(downlink_info)
             self.acquisition_station = downlink_info.findtext(eop + 'acquisitionStation')
             self.acquisition_date = _time_from_iso(downlink_info.findtext(eop + 'acquisitionDate'))
 
         processing = earth_observation_meta_data.find(eop + 'processing')  # Data processing information
+        if processing is None:
+            raise ParseError(processing)
         processing_info = processing.find(bio + 'ProcessingInformation')
+        if processing_info is None:
+            raise ParseError(processing_info)
         self.processing_centre_code = processing_info.findtext(eop + 'processingCenter')
         # proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
-        self.processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
-        self.processor_name = processing_info.findtext(eop + 'processorName')
-        self.processor_version = processing_info.findtext(eop + 'processorVersion')
+        processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
+        if processing_date is None:
+            raise ParseError(processing_date)
+        self.processing_date = processing_date
+        processor_name = processing_info.findtext(eop + 'processorName')
+        if processor_name is None:
+            raise ParseError(processor_name)
+        self.processor_name = processor_name
+        processor_version = processing_info.findtext(eop + 'processorVersion')
+        if processor_version is None:
+            raise ParseError(processor_version)
+        self.processor_version = processor_version
         self._processing_level = processing_info.findtext(eop + 'processingLevel')
 
         self.auxiliary_ds_file_names.clear()
@@ -745,7 +831,10 @@ class MainProductHeader:
             if proc_info.text is not None:
                 self.auxiliary_ds_file_names.append(proc_info.text)
 
-        self.processing_mode = processing_info.find(eop + 'processingMode').text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        processing_mode = processing_info.find(eop + 'processingMode')
+        if processing_mode is None:
+            raise ParseError(processing_mode)
+        self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
 
         # Mandatory for level 0, 1 and 2a
         self.biomass_source_product_ids.clear()
