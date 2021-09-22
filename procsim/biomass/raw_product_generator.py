@@ -14,6 +14,8 @@ from procsim.core.exceptions import ScenarioError
 
 from . import constants, product_generator, product_name
 
+BYTES_PER_MB = 1024**2
+
 _GENERATOR_PARAMS = [
     ('zip_output', '_zip_output', 'bool')
 ]
@@ -44,14 +46,24 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self._logger.info('Create {}'.format(dir_name))
         full_dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(full_dir_name, exist_ok=True)
-        mph_file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        full_mph_file_name = os.path.join(self._output_path, mph_file_name)
-        self._hdr.write(full_mph_file_name)
-        bin_file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-        full_bin_file_name = os.path.join(self._output_path, bin_file_name)
+
+        bin_file_name = name_gen.generate_binary_file_name()
+        full_bin_file_name = os.path.join(full_dir_name, bin_file_name)
         self._generate_bin_file(full_bin_file_name, self._size_mb)
+        
+        mph_file_name = name_gen.generate_mph_file_name()
+        full_mph_file_name = os.path.join(full_dir_name, mph_file_name)
+        self._hdr.products.append({
+            'file_name': './' + bin_file_name,  # The binary file is generated in the same folder as the MPH.
+            'size': self._size_mb * BYTES_PER_MB,
+            'representation': None
+        })
+        self._hdr.write(full_mph_file_name)
+
         if self._zip_output:
-            self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [mph_file_name, bin_file_name])
+            arc_mph_file_name = os.path.join(dir_name, mph_file_name)
+            arc_bin_file_name = os.path.join(dir_name, bin_file_name)
+            self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [arc_mph_file_name, arc_bin_file_name])
 
     def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):
         # Note: Deletes input files afterwards
