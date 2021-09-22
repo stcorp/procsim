@@ -180,9 +180,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size_mb//2)
+        self._generate_bin_file(file_name, self._size_mb // 2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size_mb//2)
+        self._generate_bin_file(file_name, self._size_mb // 2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
@@ -309,9 +309,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size_mb//2)
+        self._generate_bin_file(file_name, self._size_mb // 2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size_mb//2)
+        self._generate_bin_file(file_name, self._size_mb // 2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))

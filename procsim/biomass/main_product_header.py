@@ -13,7 +13,7 @@ TODO:
 
 import datetime
 from logging import raiseExceptions
-from typing import Any, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, TypeVar
 from xml.etree import ElementTree as et
 
 from procsim.core import utils
@@ -161,9 +161,9 @@ class MainProductHeader:
         self._product_type: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
 
-        self.products = [
+        self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
-            {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
+            # {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
         ]
         self.doi = 'DOI'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
