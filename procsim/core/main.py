@@ -77,10 +77,11 @@ def _output_generator_factory(mission, logger, job_output_cfg, scenario_cfg, out
 
 
 def _compare_outputs(scenario, task):
-    # Every output type in the scenario should be in the task config
+    # Every output type in the scenario should be in the task config, but not the other way around:
+    # the job order for each task represents all POSSIBLE outputs of that task.
     scenario_output_types = {op['type'] for op in scenario['outputs']}
     task_output_types = {op.type for op in task.outputs}
-    return scenario_output_types == task_output_types
+    return scenario_output_types.issubset(task_output_types)
 
 
 def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_name) -> Tuple[dict, JobOrderTask]:
