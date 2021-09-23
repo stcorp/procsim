@@ -349,6 +349,13 @@ class MainProductHeader:
         # et.SubElement(service_reference, ows + 'RequestMessage')  # download request (empty)
         return file_name
 
+    def append_product(self, product_path: str, size: Optional[int] = None, representation_path: Optional[str] = None) -> None:
+        self.products.append({
+            'file_name': product_path,
+            'size': size,
+            'representation': representation_path
+        })
+
     def write(self, file_name):
         # Create MPH and write to file (TODO: split in generate and write methods?)
         if self._product_type is None:

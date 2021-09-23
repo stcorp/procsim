@@ -304,9 +304,6 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
-
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
         self._generate_bin_file(file_name, self._size_mb // 2)
@@ -318,6 +315,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._generate_bin_file(file_name, 0)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
         self._generate_bin_file(file_name, 0)
+
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_name)
 
 
 class AC_RAW__0A(product_generator.ProductGeneratorBase):

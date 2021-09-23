@@ -6,7 +6,7 @@ import datetime
 import os
 import re
 import zipfile
-from typing import Iterable, Optional, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -14,6 +14,9 @@ from procsim.core.job_order import JobOrderInput, JobOrderOutput
 from procsim.core.logger import Logger
 
 from . import main_product_header, product_name
+
+
+BYTES_PER_MB: int = 1024**2
 
 
 class ProductGeneratorBase(IProductGenerator):
@@ -134,6 +137,8 @@ class ProductGeneratorBase(IProductGenerator):
             file.write(os.urandom(max(amount, 0)))
             size -= amount
         file.close()
+
+        self._hdr.append_product(file_name, size_mb * BYTES_PER_MB)
 
     def _unzip(self, archive_name):
         # Sanity check: only raw products should be zipped
