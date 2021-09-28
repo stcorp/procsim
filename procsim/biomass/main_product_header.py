@@ -626,7 +626,7 @@ class MainProductHeader:
             raise ParseError(Platform)
         self._platform_shortname = Platform.findtext(eop + 'shortName')
 
-        instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description\
+        instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         if instrument is None:
             raise ParseError(instrument)
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
@@ -787,7 +787,7 @@ class MainProductHeader:
         doi = earth_observation_meta_data.find(eop + 'doi')
         if doi is None:
             raise ParseError(doi)
-        self.doi = doi.text  # Digital Object Identifier'
+        self.doi = doi.text  # Digital Object Identifier
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
         type = product_types.find_product(type_code)
