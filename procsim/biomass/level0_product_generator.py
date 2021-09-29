@@ -84,6 +84,12 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
+        start = self._hdr.begin_position
+        stop = self._hdr.end_position
+        if start is None or stop is None:
+            self._logger.info('Cannot "merge" incomplete H or V slices, no data from input files available. Set metadata_source in output section.')
+            return True
+
         # 'Merge' incomplete H or V slices. If either H or V (or both?) consists
         # of multiple parts, then use the overall time as period for the output.
         #
@@ -98,11 +104,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         else:
             hv_products = ['RAWS035_10', 'RAWS036_10']
 
-        start = self._hdr.begin_position
-        stop = self._hdr.end_position
-        if start is None or stop is None:
-            self._logger.error('Start and stop must be known')
-            return False
         nr_hv_found = [0, 0]
         for input in input_products:
             if input.file_type in hv_products:
