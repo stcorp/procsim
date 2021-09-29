@@ -1,7 +1,6 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
-import abc
 import datetime
 import os
 import re
@@ -186,7 +185,8 @@ class ProductGeneratorBase(IProductGenerator):
 
         if (pattern is not None) and (not mph_is_parsed):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
-        return mph_is_parsed
+            return False
+        return True
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
