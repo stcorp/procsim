@@ -382,7 +382,7 @@ def main(argv=None):
         generators = _create_product_generators(logger, config['mission'], job_task, scenario)
         for gen in generators:
             if job_task.inputs and not gen.parse_inputs(job_task.inputs):
-                sys.exit(1)
+                raise GeneratorError('Parsing inputs failed')
             gen.read_scenario_parameters()
             gen.generate_output()
 
