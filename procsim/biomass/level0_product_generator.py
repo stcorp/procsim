@@ -175,20 +175,20 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
-
         # H/V measurement data
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
+        self._add_file_to_product(file_path, self._size_mb // 2)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
+        self._add_file_to_product(file_path, self._size_mb // 2)
 
         # Ancillary products, low rate
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
-        self._generate_bin_file(file_name, 0)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
-        self._generate_bin_file(file_name, 0)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
+        self._add_file_to_product(file_path, 0)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
+        self._add_file_to_product(file_path, 0)
+
+        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_path)
 
     def generate_output(self):
         super(Sx_RAW__0x, self).generate_output()
@@ -306,15 +306,15 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # H/V measurement data
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxh'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
+        self._add_file_to_product(file_name, self._size_mb // 2)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_rxv'))
-        self._generate_bin_file(file_name, self._size_mb // 2)
+        self._add_file_to_product(file_name, self._size_mb // 2)
 
         # Ancillary products, low rate
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxh'))
-        self._generate_bin_file(file_name, 0)
+        self._add_file_to_product(file_name, 0)
         file_name = os.path.join(dir_name, name_gen.generate_binary_file_name('_ia_rxv'))
-        self._generate_bin_file(file_name, 0)
+        self._add_file_to_product(file_name, 0)
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
@@ -386,7 +386,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-        self._generate_bin_file(file_name, self._size_mb)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        self._add_file_to_product(file_path, self._size_mb)
+        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_path)

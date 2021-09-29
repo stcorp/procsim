@@ -21,6 +21,7 @@ from procsim.core.exceptions import ParseError, ScenarioError
 
 from . import product_types
 
+
 mph_namespaces = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",
     'ows': "http://www.opengis.net/ows/2.0",
@@ -349,10 +350,10 @@ class MainProductHeader:
         # et.SubElement(service_reference, ows + 'RequestMessage')  # download request (empty)
         return file_name
 
-    def append_product(self, product_path: str, size: Optional[int] = None, representation_path: Optional[str] = None) -> None:
+    def append_file(self, product_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         self.products.append({
             'file_name': product_path,
-            'size': size,
+            'size': size_mb * 2**20 if size_mb else None,
             'representation': representation_path
         })
 
@@ -503,9 +504,9 @@ class MainProductHeader:
             product = et.SubElement(earth_observation_result, eop + 'product')
             product_information = et.SubElement(product, bio + 'ProductInformation')
             self._insert_file_name(product_information, prod['file_name'])
-            if 'size' in prod:
+            if prod.get('size') is not None:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-                if prod['representation'] is not None:    # Mandatory for if type is XML
+                if prod.get('representation') is not None:    # Mandatory for if type is XML
                     et.SubElement(product_information, bio + 'rds').text = prod['representation']
             else:
                 et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self.product_baseline)
@@ -797,9 +798,9 @@ class MainProductHeader:
         self.doi = doi.text  # Digital Object Identifier'
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
-        type = product_types.find_product(type_code)
-        if type is not None:
-            self._product_type = type
+        product_type = product_types.find_product(type_code)
+        if product_type is not None:
+            self._product_type = product_type
         self.product_status = earth_observation_meta_data.findtext(eop + 'status')
 
         # Mandatory for Raw data: Downlink information

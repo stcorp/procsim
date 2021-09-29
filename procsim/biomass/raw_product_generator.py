@@ -47,7 +47,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
 
         bin_file_name = name_gen.generate_binary_file_name()
         full_bin_file_name = os.path.join(full_dir_name, bin_file_name)
-        self._generate_bin_file(full_bin_file_name, self._size_mb)
+        self._add_file_to_product(full_bin_file_name, self._size_mb)
         
         mph_file_name = name_gen.generate_mph_file_name()
         full_mph_file_name = os.path.join(full_dir_name, mph_file_name)

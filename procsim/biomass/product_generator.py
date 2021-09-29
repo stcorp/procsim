@@ -6,7 +6,7 @@ import datetime
 import os
 import re
 import zipfile
-from typing import Iterable, List, Optional, Tuple
+from typing import Any, Iterable, List, Optional, Tuple, Type
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -16,7 +16,20 @@ from procsim.core.logger import Logger
 from . import main_product_header, product_name
 
 
-BYTES_PER_MB: int = 1024**2
+class GeneratedFile():
+    '''Hold some information on a file that is to be generated.'''
+    def __init__(self, path: List[str], suffix: str, extension: str, representation: Optional['GeneratedFile'] = None) -> None:
+        self.path: List[str] = path
+        self.suffix: str = suffix
+        self.extension: str = extension
+        self.representation: Optional['GeneratedFile'] = representation
+
+    def get_full_path(self, name_gen: product_name.ProductName, base_dir: str = '') -> str:
+        return os.path.join(base_dir, *self.path, name_gen.generate_binary_file_name('_' + self.suffix, self.extension))
+
+
+def generate_file_list(file_information):
+    return [GeneratedFile(dirs, suffix, extension, schema) for dirs, suffix, extension, schema in file_information]
 
 
 class ProductGeneratorBase(IProductGenerator):
@@ -123,12 +136,22 @@ class ProductGeneratorBase(IProductGenerator):
         timestr = timestr[:-1]  # strip 'Z'
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 
-    def _generate_bin_file(self, file_name, size_mb):
+    def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation: Optional[str] = None) -> None:
+        '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
+        self._hdr.append_file(file_path, size_mb, representation)
+        if representation is not None:
+            self._generate_bin_file(representation, 0)
+        self._generate_bin_file(file_path, size_mb)
+
+    def _generate_bin_file(self, file_path, size_mb):
         '''Generate binary file starting with a short ASCII header, followed by
         size (in MB) random data bytes.'''
+        # Make sure encompassing folder exists.
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
         CHUNK_SIZE = 2**20
         size = size_mb * 2**20
-        file = open(file_name, 'wb')
+        file = open(file_path, 'wb')
         hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
         file.write(hdr)
         size -= len(hdr)
@@ -137,8 +160,6 @@ class ProductGeneratorBase(IProductGenerator):
             file.write(os.urandom(max(amount, 0)))
             size -= amount
         file.close()
-
-        self._hdr.append_product(file_name, size_mb * BYTES_PER_MB)
 
     def _unzip(self, archive_name):
         # Sanity check: only raw products should be zipped

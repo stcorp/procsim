@@ -6,10 +6,13 @@ format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
 import os
+from dataclasses import dataclass
 from typing import Iterable, List, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
+
+from .product_generator import GeneratedFile
 
 from . import (constants, main_product_header, product_generator, product_name,
                product_types)
@@ -84,49 +87,49 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         self._hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
-        # List with files: array of directory, suffix, extension
-        files = [
-            (['annotation'], 'annot', 'xml'),
-            (['annotation', 'calibration'], 'cal', 'xml'),
-            (['annotation', 'calibration'], 'ant', 'dat'),
-            (['annotation', 'calibration'], 'noise', 'dat'),
-            (['annotation', 'navigation'], 'orb', 'xml'),
-            (['annotation', 'navigation'], 'att', 'xml'),
-            (['annotation', 'geometry'], 'geoloc', 'tiff'),
+        annot_schema = GeneratedFile(['schema'], 'Annotation', 'xsd')
+        orb_schema = GeneratedFile(['schema'], 'Orbit', 'xsd')
+        att_schema = GeneratedFile(['schema'], 'Attitude', 'xsd')
 
-            (['preview'], 'map', 'kml'),
-            (['preview'], 'ql', 'png'),
+        bin_files = [
+            GeneratedFile(['annotation'], 'annot', 'xml', annot_schema),
+            GeneratedFile(['annotation', 'calibration'], 'cal', 'xml', annot_schema),
+            GeneratedFile(['annotation', 'navigation'], 'orb', 'xml', orb_schema),
+            GeneratedFile(['annotation', 'navigation'], 'att', 'xml', att_schema),
+                
+            GeneratedFile(['annotation', 'calibration'], 'ant', 'dat'),
+            GeneratedFile(['annotation', 'calibration'], 'noise', 'dat'),
+            GeneratedFile(['annotation', 'geometry'], 'geoloc', 'tiff'),
 
-            (['measurement', 'rfi'], 'rfi', 'tbd'),
-            (['measurement', 'ionosphere'], 'iono', 'tiff'),
+            GeneratedFile(['preview'], 'map', 'kml'),
+            GeneratedFile(['preview'], 'ql', 'png'),
 
-            (['schema'], 'Annotation', 'xsd'),
-            (['schema'], 'Orbit', 'xsd'),
-            (['schema'], 'Attitude', 'xsd')
+            GeneratedFile(['measurement', 'rfi'], 'rfi', 'tbd'),
+            GeneratedFile(['measurement', 'ionosphere'], 'iono', 'tiff')
         ]
         if self._hdr.product_type in product_types.L1S_PRODUCTS:
-            files += [
-                (['measurement'], 'i_hh', 'tiff'),
-                (['measurement'], 'i_hv', 'tiff'),
-                (['measurement'], 'i_vh', 'tiff'),
-                (['measurement'], 'i_vv', 'tiff')
+            bin_files += [
+                GeneratedFile(['measurement'], 'i_hh', 'tiff'),
+                GeneratedFile(['measurement'], 'i_hv', 'tiff'),
+                GeneratedFile(['measurement'], 'i_vh', 'tiff'),
+                GeneratedFile(['measurement'], 'i_vv', 'tiff')
             ]
 
-        # Create MPH
         base_path = os.path.join(self._output_path, dir_name)
         os.makedirs(base_path, exist_ok=True)
+
+        # Create product files
+        nr_binfiles = sum(1 for file in bin_files if file.extension != 'xml')
+        for file in bin_files:
+            self._add_file_to_product(
+                file_path=file.get_full_path(name_gen, base_path),
+                size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
+                representation=file.representation.get_full_path(name_gen, base_path) if file.representation else None
+            )
+
+        # Create MPH
         file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
-
-        # Create other product files
-        XML = ['xml', 'xsd']
-        nr_binfiles = len([ext for _, _, ext in files if ext in XML])
-        for dirs, suffix, ext in files:
-            path = os.path.join(base_path, *dirs)
-            os.makedirs(path, exist_ok=True)
-            file_name = os.path.join(path, name_gen.generate_binary_file_name('_' + suffix, ext))
-            size = 0 if ext in XML else self._size_mb // nr_binfiles
-            self._generate_bin_file(file_name, size)
 
     def generate_output(self):
         super().generate_output()
@@ -317,52 +320,51 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         hdr.set_product_filename(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
-        # List with files: array of directory, suffix, extension
-        files = [
-            (['master_annotation'], 'annot', 'xml'),
-            (['master_annotation', 'navigation'], 'orb', 'xml'),
-            (['master_annotation', 'navigation'], 'att', 'xml'),
-            (['master_annotation', 'geometry'], 'geoloc', 'tiff'),
+        annot_schema = GeneratedFile(['schema'], 'Annotation', 'xsd')
+        orb_schema = GeneratedFile(['schema'], 'Orbit', 'xsd')
+        att_schema = GeneratedFile(['schema'], 'Attitude', 'xsd')
 
-            (['annotation'], 'annot', 'xml'),
-            (['annotation', 'calibration'], 'cal', 'xml'),
-            (['annotation', 'calibration'], 'noise', 'dat'),
-            (['annotation', 'navigation'], 'orb', 'xml'),
-            (['annotation', 'navigation'], 'att', 'xml'),
+        bin_files = [
+            GeneratedFile(['master_annotation'], 'annot', 'xml', annot_schema),
+            GeneratedFile(['master_annotation', 'navigation'], 'orb', 'xml', orb_schema),
+            GeneratedFile(['master_annotation', 'navigation'], 'att', 'xml', att_schema),
+            GeneratedFile(['master_annotation', 'geometry'], 'geoloc', 'tiff'),
 
-            (['coregistration'], 'shift', 'tiff'),
+            GeneratedFile(['annotation'], 'annot', 'xml'),
+            GeneratedFile(['annotation', 'calibration'], 'cal', 'xml'),
+            GeneratedFile(['annotation', 'calibration'], 'noise', 'dat'),
+            GeneratedFile(['annotation', 'navigation'], 'orb', 'xml'),
+            GeneratedFile(['annotation', 'navigation'], 'att', 'xml'),
 
-            (['InSAR'], 'delta_iono', 'tiff'),
-            (['InSAR'], 'rfi_impact', 'tiff'),
-            (['InSAR'], 'ground_cal', 'tiff'),
+            GeneratedFile(['coregistration'], 'shift', 'tiff'),
 
-            (['preview'], 'map', 'kml'),
-            (['preview'], 'ql', 'png'),
+            GeneratedFile(['InSAR'], 'delta_iono', 'tiff'),
+            GeneratedFile(['InSAR'], 'rfi_impact', 'tiff'),
+            GeneratedFile(['InSAR'], 'ground_cal', 'tiff'),
 
-            (['schema'], 'Annotation', 'xsd'),
-            (['schema'], 'Orbit', 'xsd'),
-            (['schema'], 'Attitude', 'xsd')
+            GeneratedFile(['preview'], 'map', 'kml'),
+            GeneratedFile(['preview'], 'ql', 'png'),
         ]
         if hdr.product_type in product_types.L1S_PRODUCTS:
-            files += [
-                (['measurement'], 'i_hh', 'tiff'),
-                (['measurement'], 'i_hv', 'tiff'),
-                (['measurement'], 'i_vh', 'tiff'),
-                (['measurement'], 'i_vv', 'tiff')
+            bin_files += [
+                GeneratedFile(['measurement'], 'i_hh', 'tiff'),
+                GeneratedFile(['measurement'], 'i_hv', 'tiff'),
+                GeneratedFile(['measurement'], 'i_vh', 'tiff'),
+                GeneratedFile(['measurement'], 'i_vv', 'tiff')
             ]
 
-        # Create MPH
         base_path = os.path.join(self._output_path, dir_name)
         os.makedirs(base_path, exist_ok=True)
+
+        # Create product files
+        nr_binfiles = sum(1 for file in bin_files if file.extension != 'xml')
+        for file in bin_files:
+            self._add_file_to_product(
+                file_path=file.get_full_path(name_gen, base_path),
+                size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
+                representation=file.representation.get_full_path(name_gen, base_path) if file.representation else None
+            )
+
+        # Create MPH
         file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
         hdr.write(file_name)
-
-        # Create other product files
-        XML = ['xml', 'xsd']
-        nr_binfiles = len([ext for _, _, ext in files if ext in XML])
-        for dirs, suffix, ext in files:
-            path = os.path.join(base_path, *dirs)
-            os.makedirs(path, exist_ok=True)
-            file_name = os.path.join(path, name_gen.generate_binary_file_name('_' + suffix, ext))
-            size = 0 if ext in XML else self._size_mb // nr_binfiles
-            self._generate_bin_file(file_name, size)

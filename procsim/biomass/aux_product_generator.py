@@ -88,9 +88,9 @@ class Aux(product_generator.ProductGeneratorBase):
             'AUX_TEC___': ('tec', 'txt')
         }
         suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
-        self._files.append('data/$NAME.{}'.format(extension))
+        self._files.append(f'data/$NAME.{extension}')
         if extension == 'xml':
-            self._files.append('support/{}.xsd'.format(suffix))
+            self._files.append(f'support/{suffix}.xsd')
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -122,12 +122,9 @@ class Aux(product_generator.ProductGeneratorBase):
         self._hdr.set_product_filename(dir_name)
 
         # Create root directory and header
-        self._logger.info('Create {}'.format(dir_name))
+        self._logger.info(f'Create {dir_name}')
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
-
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
 
         # Create aux files
         base_name = name_gen.generate_binary_file_name('', '')
@@ -136,4 +133,7 @@ class Aux(product_generator.ProductGeneratorBase):
             full_dirname = os.path.join(dir_name, os.path.dirname(file))
             os.makedirs(full_dirname, exist_ok=True)
             full_filename = os.path.join(dir_name, file)
-            self._generate_bin_file(full_filename, self._size_mb / len(self._files))
+            self._add_file_to_product(full_filename, self._size_mb // len(self._files))
+
+        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_name)

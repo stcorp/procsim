@@ -56,10 +56,10 @@ class Level2a(product_generator.ProductGeneratorBase):
 
         # Full specs are not known yet. For now, generate MPH and one data file.
         os.makedirs(dir_name, exist_ok=True)
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
-        self._hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
-        self._generate_bin_file(file_name, self._size_mb)
+        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        self._add_file_to_product(file_path, self._size_mb)
+        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_path)
 
 
 class Level2b(product_generator.ProductGeneratorBase):
