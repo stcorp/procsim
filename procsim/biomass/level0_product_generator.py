@@ -202,6 +202,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         data_takes = self._scenario_config.get('data_takes')
         if data_takes is None:
             raise ScenarioError('Missing "data_takes" section in scenario')
+
+        nr_products_generated = 0
         for dt in data_takes:
             dt_start_str = dt.get('start')
             dt_stop_str = dt.get('stop')
@@ -213,9 +215,13 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
                 end = min(self._hdr.end_position, dt_stop)
                 self._generate_product(start, end, dt)
+                nr_products_generated += 1
                 if end >= self._hdr.end_position:
                     break
                 start = end
+
+        if nr_products_generated == 0:
+            self._logger.info('No products generated, start/stop outside data takes?')
 
 
 class Sx_RAW__0M(product_generator.ProductGeneratorBase):
