@@ -84,7 +84,8 @@ class JobOrderParser:
     def _time_from_iso(cls, timestr: Optional[str]) -> Optional[datetime.datetime]:
         if timestr is None:
             return None
-        timestr = timestr[:-1]  # strip 'Z'
+        if timestr[-1] == 'Z':
+            timestr = timestr[:-1]  # strip 'Z', if any
         return datetime.datetime.strptime(timestr, cls.ISO_TIME_FORMAT)
 
     def __init__(self, logger, schema):
