@@ -15,7 +15,7 @@
     <Processing_Station>GAT</Processing_Station>
     <Request>
       <TOI>
-        <Start>2021-02-01T01:02:03.123000</Start>
+        <Start>2021-02-01T01:02:03.123456</Start>
         <Stop>2021-02-01T01:02:03.456000</Stop>
       </TOI>
     </Request>

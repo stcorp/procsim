@@ -107,7 +107,7 @@ class JobOrderParserTest(unittest.TestCase):
         self.assertEqual(sim.tasks[0].amount_of_ram_mb, 1073741824)
         self.assertEqual(sim.tasks[0].disk_space_mb, 1073741824)
         self.assertEqual(sim.tasks[0].nr_cpu_cores, 1)
-        self.assertEqual(sim.toi_start, datetime.datetime(2021, 2, 1, 1, 2, 3, 123000))
+        self.assertEqual(sim.toi_start, datetime.datetime(2021, 2, 1, 1, 2, 3, 123456))
         self.assertEqual(sim.toi_stop, datetime.datetime(2021, 2, 1, 1, 2, 3, 456000))
 
         params = set(sim.tasks[0].processing_parameters)
