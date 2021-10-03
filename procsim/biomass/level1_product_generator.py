@@ -308,16 +308,17 @@ class Level1Stack(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
         for hdr in self._hdrs:
-            self._generate_level1_stacked_product(hdr)
+            self._hdr = hdr
+            self._generate_level1_stacked_product()
 
-    def _generate_level1_stacked_product(self, hdr: main_product_header.MainProductHeader):
-        hdr.product_type = self._resolve_wildcard_product_type()
-        hdr.processing_date = self._creation_date
+    def _generate_level1_stacked_product(self):
+        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.processing_date = self._creation_date
 
         # Setup MPH
-        name_gen = self._create_name_generator(hdr)
+        name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        hdr.initialize_product_list(dir_name)
+        self._hdr.initialize_product_list(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
         annot_schema = GeneratedFile(['schema'], 'Annotation', 'xsd')
@@ -345,7 +346,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             GeneratedFile(['preview'], 'map', 'kml'),
             GeneratedFile(['preview'], 'ql', 'png'),
         ]
-        if hdr.product_type in product_types.L1S_PRODUCTS:
+        if self._hdr.product_type in product_types.L1S_PRODUCTS:
             bin_files += [
                 GeneratedFile(['measurement'], 'i_hh', 'tiff'),
                 GeneratedFile(['measurement'], 'i_hv', 'tiff'),
@@ -367,4 +368,4 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
         # Create MPH
         file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
-        hdr.write(file_name)
+        self._hdr.write(file_name)
