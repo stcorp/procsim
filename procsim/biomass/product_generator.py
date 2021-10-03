@@ -160,6 +160,10 @@ class ProductGeneratorBase(IProductGenerator):
         relative_file_path = './' + os.path.relpath(file_path, mph_path)
         relative_representation_path = None if representation_path is None else './' + os.path.relpath(representation_path, mph_path)
         self._hdr.append_file(relative_file_path, size_mb, relative_representation_path)
+        # If this file is in the preview folder and has the png extension, set it as the browse file.
+        if self._hdr.browse_image_filename == '' and relative_file_path.startswith('./preview/') and relative_file_path.endswith('.png'):
+            self._hdr.browse_image_filename = relative_file_path
+
         if representation_path is not None:
             print(f'GENERATING REPRESENTATION {representation_path}')
             self._generate_bin_file(representation_path, 0)
