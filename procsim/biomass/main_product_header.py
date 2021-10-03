@@ -353,7 +353,7 @@ class MainProductHeader:
     def append_file(self, product_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         self.products.append({
             'file_name': product_path,
-            'size': size_mb * 2**20 if size_mb else None,
+            'size': None if size_mb is None else size_mb * 2**20,
             'representation': representation_path
         })
 
