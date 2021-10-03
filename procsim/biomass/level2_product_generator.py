@@ -51,7 +51,7 @@ class Level2a(product_generator.ProductGeneratorBase):
 
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
         # Full specs are not known yet. For now, generate MPH and one data file.

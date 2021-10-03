@@ -281,12 +281,14 @@ class MainProductHeader:
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
-    def set_product_filename(self, filename: str):
+    def initialize_product_list(self, filename: str):
         '''
         Must be the directory name (without path)
         '''
         self.eop_identifier = filename
-        self.products[0] = {'file_name': filename}
+
+        self.products.clear()
+        self.products.append({'file_name': filename})
 
     def set_phenomenon_times(self, start, end):
         '''

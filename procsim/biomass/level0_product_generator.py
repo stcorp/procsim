@@ -168,7 +168,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -297,7 +297,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
@@ -379,7 +379,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         acq.slice_frame_nr = None
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))

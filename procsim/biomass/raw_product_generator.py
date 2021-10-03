@@ -107,7 +107,7 @@ class RAW_xxx_10(RawProductGeneratorBase):
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
         self._hdr.set_validity_times(start, stop)
 
         self._create_raw_product(dir_name, name_gen)
@@ -195,7 +195,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
         self._hdr.set_phenomenon_times(acq_start, acq_stop)
 
         self._create_raw_product(dir_name, name_gen)

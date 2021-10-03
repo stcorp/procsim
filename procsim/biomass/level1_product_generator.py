@@ -84,7 +84,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
         annot_schema = GeneratedFile(['schema'], 'Annotation', 'xsd')
@@ -124,7 +124,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             self._add_file_to_product(
                 file_path=file.get_full_path(name_gen, base_path),
                 size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
-                representation=file.representation.get_full_path(name_gen, base_path) if file.representation else None
+                representation_path=file.representation.get_full_path(name_gen, base_path) if file.representation else None
             )
 
         # Create MPH
@@ -317,7 +317,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         # Setup MPH
         name_gen = self._create_name_generator(hdr)
         dir_name = name_gen.generate_path_name()
-        hdr.set_product_filename(dir_name)
+        hdr.initialize_product_list(dir_name)
         self._logger.info('Create {}'.format(dir_name))
 
         annot_schema = GeneratedFile(['schema'], 'Annotation', 'xsd')
@@ -330,11 +330,11 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             GeneratedFile(['master_annotation', 'navigation'], 'att', 'xml', att_schema),
             GeneratedFile(['master_annotation', 'geometry'], 'geoloc', 'tiff'),
 
-            GeneratedFile(['annotation'], 'annot', 'xml'),
-            GeneratedFile(['annotation', 'calibration'], 'cal', 'xml'),
+            GeneratedFile(['annotation'], 'annot', 'xml', annot_schema),
+            GeneratedFile(['annotation', 'calibration'], 'cal', 'xml', annot_schema),
             GeneratedFile(['annotation', 'calibration'], 'noise', 'dat'),
-            GeneratedFile(['annotation', 'navigation'], 'orb', 'xml'),
-            GeneratedFile(['annotation', 'navigation'], 'att', 'xml'),
+            GeneratedFile(['annotation', 'navigation'], 'orb', 'xml', orb_schema),
+            GeneratedFile(['annotation', 'navigation'], 'att', 'xml', att_schema),
 
             GeneratedFile(['coregistration'], 'shift', 'tiff'),
 
@@ -362,7 +362,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             self._add_file_to_product(
                 file_path=file.get_full_path(name_gen, base_path),
                 size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
-                representation=file.representation.get_full_path(name_gen, base_path) if file.representation else None
+                representation_path=file.representation.get_full_path(name_gen, base_path) if file.representation else None
             )
 
         # Create MPH

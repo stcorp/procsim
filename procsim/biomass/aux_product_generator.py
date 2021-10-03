@@ -119,7 +119,7 @@ class Aux(product_generator.ProductGeneratorBase):
         name_gen.set_creation_date(self._creation_date)
 
         dir_name = name_gen.generate_path_name()
-        self._hdr.set_product_filename(dir_name)
+        self._hdr.initialize_product_list(dir_name)
 
         # Create root directory and header
         self._logger.info(f'Create {dir_name}')
