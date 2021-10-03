@@ -18,14 +18,27 @@ from . import main_product_header, product_name
 
 class GeneratedFile():
     '''Hold some information on a file that is to be generated.'''
-    def __init__(self, path: List[str], suffix: str, extension: str, representation: Optional['GeneratedFile'] = None) -> None:
+    def __init__(self, path: List[str] = [], suffix: str = '', extension: str = '', representation: Optional['GeneratedFile'] = None) -> None:
         self.path: List[str] = path
         self.suffix: str = suffix
         self.extension: str = extension
         self.representation: Optional['GeneratedFile'] = representation
 
+        self._name: Optional[str] = None  # Override automatic name generation.
+    
+    def set_name_information(self, new_name: str) -> None:
+        dir_name, self._name = os.path.split(new_name)
+        self.path = dir_name.split(os.sep)
+        print(dir_name)
+        base_name, self.extension = os.path.splitext(self._name)
+        if self.extension:
+            self.extension = self.extension[1:]  # Trim period off extension.
+        self.suffix = base_name.rsplit('_')[-1]
+
     def get_full_path(self, name_gen: product_name.ProductName, base_dir: str = '') -> str:
-        return os.path.join(base_dir, *self.path, name_gen.generate_binary_file_name('_' + self.suffix, self.extension))
+        if self._name is None:
+            self._name = name_gen.generate_binary_file_name('_' + self.suffix, self.extension)
+        return os.path.join(base_dir, *self.path, self._name)
 
 
 def generate_file_list(file_information):
@@ -136,11 +149,20 @@ class ProductGeneratorBase(IProductGenerator):
         timestr = timestr[:-1]  # strip 'Z'
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 
-    def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation: Optional[str] = None) -> None:
+    def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
-        self._hdr.append_file(file_path, size_mb, representation)
-        if representation is not None:
-            self._generate_bin_file(representation, 0)
+        try:
+            mph_path = os.path.join(self._output_path, self._hdr.products[0]['file_name'])
+        except (IndexError, KeyError) as e:
+            self._logger.error("No MPH directory found. Set the product name via 'MainProductHeader.set_product_filename(filename)'.")
+            raise e
+        
+        relative_file_path = './' + os.path.relpath(file_path, mph_path)
+        relative_representation_path = None if representation_path is None else './' + os.path.relpath(representation_path, mph_path)
+        self._hdr.append_file(relative_file_path, size_mb, relative_representation_path)
+        if representation_path is not None:
+            print(f'GENERATING REPRESENTATION {representation_path}')
+            self._generate_bin_file(representation_path, 0)
         self._generate_bin_file(file_path, size_mb)
 
     def _generate_bin_file(self, file_path, size_mb):

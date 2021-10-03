@@ -58,6 +58,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
             arc_bin_file_name = os.path.join(dir_name, bin_file_name)
             self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [arc_mph_file_name, arc_bin_file_name])
 
+    # TODO: Refactor to only require directory name.
     def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):
         # Note: Deletes input files afterwards
         self._logger.debug('Archive to zip, extension {}'.format(self._zip_extension))

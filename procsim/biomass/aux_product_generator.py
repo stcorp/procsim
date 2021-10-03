@@ -5,9 +5,10 @@ Biomass Aux product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0054
 '''
 import os
+from typing import List
 
 from . import product_generator, product_name
-
+from .product_generator import GeneratedFile
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
@@ -60,7 +61,8 @@ class Aux(product_generator.ProductGeneratorBase):
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        self._files = []    # Files to generate, including paths.
+        self._files: List[str] = []  # Files to generate, including paths.
+        self._generated_files: List[GeneratedFile] = []  # GeneratedFile objects to facilitate linking representations
 
     def _generate_default_file_list(self):
         '''
@@ -88,9 +90,25 @@ class Aux(product_generator.ProductGeneratorBase):
             'AUX_TEC___': ('tec', 'txt')
         }
         suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
-        self._files.append(f'data/$NAME.{extension}')
+
+        file = GeneratedFile(['data'], suffix, extension)
         if extension == 'xml':
-            self._files.append(f'support/{suffix}.xsd')
+            file.representation = GeneratedFile(['support'], suffix, 'xsd')
+        self._generated_files.append(file)
+
+    def _generate_files_from_names(self, name_gen: product_name.ProductName) -> None:
+        for filename in self._files:
+            file = GeneratedFile()
+            file.set_name_information(filename.replace('$NAME', name_gen.generate_binary_file_name('', '')))
+
+            # If the file is a schema, find the first element in the list that is an xml file and attach it as representation.
+            if os.path.splitext(filename)[1] == '.xsd':
+                for i, possible_xml in enumerate(self._generated_files):
+                    if possible_xml.extension == 'xml' and possible_xml.representation is None:
+                        self._generated_files[i].representation = file
+                        break
+            else:
+                self._generated_files.append(file)
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -98,9 +116,6 @@ class Aux(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
-
-        if self._files == []:
-            self._generate_default_file_list()
 
         # Setup MPH
         self._hdr.product_type = self._output_type
@@ -127,13 +142,14 @@ class Aux(product_generator.ProductGeneratorBase):
         os.makedirs(dir_name, exist_ok=True)
 
         # Create aux files
-        base_name = name_gen.generate_binary_file_name('', '')
-        for file in self._files:
-            file = file.replace('$NAME', base_name)
-            full_dirname = os.path.join(dir_name, os.path.dirname(file))
-            os.makedirs(full_dirname, exist_ok=True)
-            full_filename = os.path.join(dir_name, file)
-            self._add_file_to_product(full_filename, self._size_mb // len(self._files))
+        if self._files:
+            self._generate_files_from_names(name_gen)
+        else:
+            self._generate_default_file_list()
+
+        for file in self._generated_files:
+            representation_path = file.representation.get_full_path(name_gen, dir_name) if file.representation else None
+            self._add_file_to_product(file.get_full_path(name_gen, dir_name), self._size_mb // len(self._generated_files), representation_path)
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
