@@ -6,7 +6,6 @@ format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
 import os
-from dataclasses import dataclass
 from typing import Iterable, List, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
