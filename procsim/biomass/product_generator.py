@@ -234,8 +234,6 @@ class ProductGeneratorBase(IProductGenerator):
 
         # The baseline ID is not copied from any source, but read from job order
         # (if available) or set in scenario config.
-        if self._job_config_baseline is None:
-            raise TypeError(self._job_config_baseline)
         self._hdr.product_baseline = self._job_config_baseline
 
         if (pattern is not None) and (not mph_is_parsed):
