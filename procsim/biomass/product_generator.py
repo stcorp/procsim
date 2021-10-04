@@ -1,12 +1,11 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
-import abc
 import datetime
 import os
 import re
 import zipfile
-from typing import Any, Iterable, List, Optional, Tuple, Type
+from typing import Any, Iterable, List, Optional, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -39,10 +38,6 @@ class GeneratedFile():
         if self._name is None:
             self._name = name_gen.generate_binary_file_name('_' + self.suffix, self.extension)
         return os.path.join(base_dir, *self.path, self._name)
-
-
-def generate_file_list(file_information):
-    return [GeneratedFile(dirs, suffix, extension, schema) for dirs, suffix, extension, schema in file_information]
 
 
 class ProductGeneratorBase(IProductGenerator):
