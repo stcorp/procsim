@@ -114,4 +114,4 @@ $PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_e
 
 
 # Check whether MPH contents and folder contents correspond.
-python -c 'import procsim.biomass.test.test_main_product_header as testmph;  testmph.assertMPHMatchesProductRecursive("workspace/");'
+python -c 'import procsim.biomass.test.test_main_product_header as testmph; testmph.assertMPHMatchesProductRecursive("workspace/");'

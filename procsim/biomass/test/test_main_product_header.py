@@ -68,8 +68,7 @@ def assertMPHMatchesProduct(product_folder_path: Union[str, Path]) -> None:
         assert filename is not None
         size_element = product_info.find(eop + 'size')
         assert size_element is not None and size_element.text is not None
-        # For now, round file sizes to MB. TODO: Need more accurate measure of file size in MPH.
-        size = roundToMB(int(size_element.text))
+        size = int(size_element.text)
 
         files_in_mph.add((filename, size))
 
@@ -82,8 +81,7 @@ def assertMPHMatchesProduct(product_folder_path: Union[str, Path]) -> None:
     file_paths = list(Path(product_folder_path).rglob('*.*'))  # Assume that all files and only files contain a period in their name.
     file_paths.remove(Path(os.path.join(product_folder_path, mph_filename)))
     for file_path in file_paths:
-        # For now, round file sizes to MB. TODO: Need more accurate measure of file size in MPH.
-        file_size = roundToMB(os.stat(file_path).st_size)
+        file_size = os.stat(file_path).st_size
         files_in_directory.add(('./' + os.path.relpath(file_path, product_folder_path), file_size))
 
     # Check whether directory files are listed in MPH.
@@ -95,10 +93,6 @@ def assertMPHMatchesProduct(product_folder_path: Union[str, Path]) -> None:
     filenames_in_directory = {file[0] for file in files_in_directory}
     for mph_represenation in representations_in_mph:
         assert mph_represenation in filenames_in_directory, f'Found representation {mph_represenation} in MPH but not in directory {product_folder_path}.'
-
-
-def roundToMB(size: int) -> int:
-    return (size // 2 ** 20) * 2**20
 
 
 def get_l1_test_mph():

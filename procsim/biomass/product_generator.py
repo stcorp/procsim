@@ -169,18 +169,15 @@ class ProductGeneratorBase(IProductGenerator):
             self._generate_bin_file(representation_path, 0)
         self._generate_bin_file(file_path, size_mb)
 
-    def _generate_bin_file(self, file_path, size_mb):
+    def _generate_bin_file(self, file_path: str, size_mb: Optional[int]) -> None:
         '''Generate binary file starting with a short ASCII header, followed by
         size (in MB) random data bytes.'''
         # Make sure encompassing folder exists.
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         CHUNK_SIZE = 2**20
-        size = size_mb * 2**20
+        size = size_mb * 2**20 if size_mb is not None else 0
         file = open(file_path, 'wb')
-        hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
-        file.write(hdr)
-        size -= len(hdr)
         while size > 0:
             amount = min(size, CHUNK_SIZE)
             file.write(os.urandom(max(amount, 0)))

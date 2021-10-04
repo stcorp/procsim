@@ -159,7 +159,7 @@ The parameters are described below.
 
   - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim -i` to get a list with supported product types.
 
-  - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set, minimal sized files are produced (a few bytes).
+  - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set or set to zero, an empty file is generated.
 
   - `enable` : boolean, optional. When set to false, a warning is logged and this output product is not generated. Default is true.
 
