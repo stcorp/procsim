@@ -68,7 +68,6 @@ class Level2a(product_generator.ProductGeneratorBase):
 
         # Full specs are not known yet. For now, generate MPH and one data file.
         base_path = os.path.join(self._output_path, dir_name)
-        print('here. make {}'.format(base_path))
         os.makedirs(base_path, exist_ok=True)
         file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
