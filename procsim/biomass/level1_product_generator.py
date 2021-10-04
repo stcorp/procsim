@@ -26,7 +26,6 @@ _HDR_PARAMS = [
     ('footprint_polygon', 'footprint_polygon', 'str'),
     ('center_points', 'center_points', 'str'),
     ('browse_ref_id', 'browse_ref_id', 'str'),
-    ('browse_image_filename', 'browse_image_filename', 'str')
 ]
 _ACQ_PARAMS = [
     # L0 + L1
