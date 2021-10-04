@@ -84,6 +84,12 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
+        start = self._hdr.begin_position
+        stop = self._hdr.end_position
+        if start is None or stop is None:
+            self._logger.info('Cannot "merge" incomplete H or V slices, no data from input files available. Set metadata_source in output section.')
+            return True
+
         # 'Merge' incomplete H or V slices. If either H or V (or both?) consists
         # of multiple parts, then use the overall time as period for the output.
         #
@@ -98,11 +104,6 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         else:
             hv_products = ['RAWS035_10', 'RAWS036_10']
 
-        start = self._hdr.begin_position
-        stop = self._hdr.end_position
-        if start is None or stop is None:
-            self._logger.error('Start and stop must be known')
-            return False
         nr_hv_found = [0, 0]
         for input in input_products:
             if input.file_type in hv_products:
@@ -191,16 +192,27 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         self._hdr.write(file_path)
 
     def generate_output(self):
-        super(Sx_RAW__0x, self).generate_output()
+        super().generate_output()
 
+        # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
-            self._logger.error('start/end positions must be known')
-            return
+            raise ScenarioError('begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+            self._logger.debug('Use begin_position as input for validity start time')
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+            self._logger.debug('Use end_position as input for validity stop time')
+
         # Find data take(s) in this slice and create products for each segment.
         start = self._hdr.begin_position
         data_takes = self._scenario_config.get('data_takes')
         if data_takes is None:
             raise ScenarioError('Missing "data_takes" section in scenario')
+
+        nr_products_generated = 0
         for dt in data_takes:
             dt_start_str = dt.get('start')
             dt_stop_str = dt.get('stop')
@@ -212,9 +224,13 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             if dt_start <= start <= dt_stop:  # Segment starts within this data take
                 end = min(self._hdr.end_position, dt_stop)
                 self._generate_product(start, end, dt)
+                nr_products_generated += 1
                 if end >= self._hdr.end_position:
                     break
                 start = end
+
+        if nr_products_generated == 0:
+            self._logger.info('No products generated, start/stop outside data takes?')
 
 
 class Sx_RAW__0M(product_generator.ProductGeneratorBase):
@@ -250,13 +266,14 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
-        # The final product should cover the complete data take.
-        id = self._hdr.acquisitions[0].data_take_id
         start = self._hdr.begin_position
         stop = self._hdr.end_position
         if start is None or stop is None:
-            self._logger.error('Start/stop must be known')
-            return False
+            self._logger.info('Cannot "merge" incomplete H or V slices, no data from input files available. Set metadata_source in output section.')
+            return True
+
+        # The final product should cover the complete data take.
+        id = self._hdr.acquisitions[0].data_take_id
         for input in input_products:
             for file in input.file_names:
                 gen = product_name.ProductName(self._compact_creation_date_epoch)
@@ -287,6 +304,14 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+            self._logger.debug('Use begin_position as input for validity start time')
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+            self._logger.debug('Use end_position as input for validity stop time')
 
         # Setup all fields mandatory for a level0 product.
         self._hdr.product_type = self._resolve_wildcard_product_type()
@@ -364,6 +389,14 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+            self._logger.debug('Use begin_position as input for validity start time')
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+            self._logger.debug('Use end_position as input for validity stop time')
 
         # Adjust start/stop times, add margins
         self._hdr.begin_position -= datetime.timedelta(0, self._leading_margin)

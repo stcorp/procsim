@@ -34,7 +34,7 @@ _ACQ_PARAMS = [
     ('major_cycle_id', 'major_cycle_id', 'str'),
     ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
     ('track_nr', 'track_nr', 'str'),
-    # ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ('slice_frame_nr', 'slice_frame_nr', 'int')
 ]
 
 
@@ -132,6 +132,18 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+            self._logger.debug('Use begin_position as input for validity start time')
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+            self._logger.debug('Use end_position as input for validity stop time')
+
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         if not self._enable_framing:
@@ -164,7 +176,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             raise ScenarioError('Cannot perform framing, slice nr. is not known')
         delta = (slice_end - slice_start) - self._frame_grid_spacing * 5
         if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
-            raise GeneratorError('Cannot perform framing, slice length != 5x frame length ({} != 5x{})'.format(
+            raise GeneratorError('Cannot perform framing, slice length (without overlaps) != 5x frame length ({} != 5x{})'.format(
                 slice_end - slice_start, self._frame_grid_spacing))
 
         for n in range(5):
@@ -305,11 +317,27 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
+
+        if not self._hdrs:
+            self._logger.debug('No metadata from input products, generate stacked product using scenario parameters')
+            self._hdrs.append(self._hdr)
+
         for hdr in self._hdrs:
             self._hdr = hdr
             self._generate_level1_stacked_product()
 
     def _generate_level1_stacked_product(self):
+
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.processing_date = self._creation_date
 

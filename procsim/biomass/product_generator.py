@@ -230,7 +230,8 @@ class ProductGeneratorBase(IProductGenerator):
 
         if (pattern is not None) and (not mph_is_parsed):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
-        return mph_is_parsed
+            return False
+        return True
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
@@ -274,7 +275,7 @@ class ProductGeneratorBase(IProductGenerator):
             raise ScenarioError('No TOI start in jobOrder')
         if not self._job_toi_stop:
             raise ScenarioError('No TOI stop in jobOrder')
-        self._hdr.begin_position = self._job_toi_start + datetime.timedelta(seconds=self._toi_start_offset)
+        self._hdr.begin_position = self._job_toi_start - datetime.timedelta(seconds=self._toi_start_offset)
         self._hdr.end_position = self._job_toi_stop + datetime.timedelta(seconds=self._toi_stop_offset)
 
     def read_scenario_parameters(self):

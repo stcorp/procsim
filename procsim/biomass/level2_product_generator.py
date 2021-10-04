@@ -5,8 +5,10 @@ Biomass Level 2a product generators, format according to
 - BIO-ESA-EOPG-EEGS-TN-0115 'L2a Product Guidelines'.
 - BIO-ESA-EOPG-EEGS-TN-0046 'BIOMASS Production Model'.
 '''
-from typing import List, Tuple
 import os
+from typing import List, Tuple
+
+from procsim.core.exceptions import ScenarioError
 
 from . import product_generator
 
@@ -47,6 +49,16 @@ class Level2a(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
         name_gen = self._create_name_generator(self._hdr)
@@ -55,10 +67,11 @@ class Level2a(product_generator.ProductGeneratorBase):
         self._logger.info('Create {}'.format(dir_name))
 
         # Full specs are not known yet. For now, generate MPH and one data file.
-        os.makedirs(dir_name, exist_ok=True)
-        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        base_path = os.path.join(self._output_path, dir_name)
+        os.makedirs(base_path, exist_ok=True)
+        file_path = os.path.join(base_path, name_gen.generate_binary_file_name())
         self._add_file_to_product(file_path, self._size_mb)
-        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        file_path = os.path.join(base_path, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
 
 

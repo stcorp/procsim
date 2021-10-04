@@ -1,0 +1,77 @@
+{
+    "mission": "biomass",
+    "scenarios": [
+        {
+            "name": "generate_all",
+            "file_name": "N/A",
+            "processor_name": "procsim",
+            "processor_version": "1.2.0",
+            "task_name": "N/A",
+            "task_version": "N/A",
+            "log_level": "debug",
+            "anx": [
+                "2017-01-01T06:00:01.272000Z",
+                "2017-01-01T07:38:12.217000Z"
+            ],
+            "data_takes": [
+                {
+                    "data_take_id": "8282",
+                    "start": "2017-01-01T06:01:31.394000Z",
+                    "stop": "2017-01-01T06:03:44.504000Z",
+                    "swath": "S1",
+                    "operational_mode": "SM"
+                }
+            ],
+            "mission_phase": "Tomographic",
+            "global_coverage_id": "01",
+            "major_cycle_id": "01",
+            "repeat_cycle_id": "01",
+            "track_nr": "1",
+            "begin_position": "2017-01-01T06:01:31.394Z",
+            "end_position": "2017-01-01T06:03:06.410Z",  // Adjust begin/end to end up with a correct slice length
+            "baseline": 1,
+
+            "slice_overlap_start": 0,
+            "slice_overlap_end": 0,
+            "swath": "S1",
+            "slice_frame_nr": 3,    // for level1 products
+
+            // Raw
+            "acquisition_date": "2021-02-01T01:38:10.000Z",
+            "acquisition_station": "SP",
+
+            "output_path": "workspace/all",
+            "outputs": [
+              {"type": "AUX_ATT___"},{"type": "AUX_CAL_AB"},{"type": "AUX_ERP___"},{"type": "AUX_GMF___"},{"type": "AUX_INS___"},{"type": "AUX_ORB___"},
+              {"type": "AUX_PP0___"},{"type": "AUX_PP1___"},{"type": "AUX_PP2_2A"},{"type": "AUX_PP2_FH"},{"type": "AUX_PP2_FD"},{"type": "AUX_PP2_AB"},
+              {"type": "AUX_PP3___"},{"type": "AUX_PPS___"},{"type": "AUX_TEC___"},
+
+              {"type": "MPL_ORBREF"},{"type": "MPL_REFAUX"},{"type": "MPL_ORBPRE"},
+
+              {"type": "RAW_022_10"},{"type": "RAW_023_10"},{"type": "RAW_024_10"},{"type": "RAW_025_10"},{"type": "RAW_026_10"},{"type": "RAW_027_10"},
+              {"type": "RAW_028_10"},{"type": "RAW_035_10"},{"type": "RAW_036_10"},
+
+              {"type": "RAWS022_10"},{"type": "RAWS023_10"},{"type": "RAWS024_10"},{"type": "RAWS025_10"},{"type": "RAWS026_10"},{"type": "RAWS027_10"},
+              {"type": "RAWS028_10"},{"type": "RAWS035_10"},{"type": "RAWS036_10"},
+
+              {"type": "S1_RAW__0S"},{"type": "S2_RAW__0S"},{"type": "S3_RAW__0S"},{"type": "S1_RAWP_0M"},{"type": "S2_RAWP_0M"},
+              {"type": "S3_RAWP_0M"},{"type": "RO_RAW__0S"},{"type": "RO_RAWP_0M"},{"type": "EC_RAWP_0M"},{"type": "EC_RAWP_0S"},
+
+              {"type": "S1_RAW__0M"},{"type": "S2_RAW__0M"},{"type": "S3_RAW__0M"},{"type": "RO_RAW__0M"},{"type": "EC_RAW__0M"},
+              {"type": "EC_RAW__0S"},
+
+              {"type": "AC_RAW__0A"},
+
+              {"type": "S1_SCS__1S"},{"type": "S2_SCS__1S"},{"type": "S3_SCS__1S"},{"type": "S1_SCS__1M"},{"type": "S2_SCS__1M"},
+              {"type": "S3_SCS__1M"},{"type": "S1_DGM__1S"},{"type": "S2_DGM__1S"},{"type": "S3_DGM__1S"},
+              {"type": "RO_SCS__1S"},
+
+              {"type": "S1_STA__1S"},{"type": "S2_STA__1S"},{"type": "S3_STA__1S"},{"type": "S1_STA__1M"},{"type": "S2_STA__1M"},
+              {"type": "S3_STA__1M"},
+
+              {"type": "AGB_GN_L2A"},{"type": "FD_COV_L2A"},{"type": "FH_COH_L2A"},{"type": "FP_VBG_L2A"},{"type": "FP_FD__L2A"},{"type": "FP_FH__L2A"},
+              {"type": "FP_ACM_L2A"}
+            ]
+        }
+    ]
+}

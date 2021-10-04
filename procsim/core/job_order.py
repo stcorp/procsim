@@ -84,7 +84,8 @@ class JobOrderParser:
     def _time_from_iso(cls, timestr: Optional[str]) -> Optional[datetime.datetime]:
         if timestr is None:
             return None
-        timestr = timestr[:-1]  # strip 'Z'
+        if timestr[-1] == 'Z':
+            timestr = timestr[:-1]  # strip 'Z', if any
         return datetime.datetime.strptime(timestr, cls.ISO_TIME_FORMAT)
 
     def __init__(self, logger, schema):
@@ -133,9 +134,12 @@ class JobOrderParser:
         # For now, assume the path is 'fixed' and the regex does not contain slashes.
         rootdir = os.path.dirname(os.path.abspath(pattern))
         files = []
-        for file in os.scandir(rootdir):
-            if re.match(pattern, file.path) or os.path.abspath(pattern) == file.path:
-                files.append(file.path)
+        if os.path.isdir(rootdir):
+            for file in os.scandir(rootdir):
+                if re.match(pattern, file.path) or os.path.abspath(pattern) == file.path:
+                    files.append(file.path)
+        else:
+            self._logger.warning('Cannot open directory {} (which is used in jobOrder)'.format(rootdir))
         return files
 
     def _parse(self, filename):
