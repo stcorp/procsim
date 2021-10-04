@@ -493,7 +493,7 @@ class MainProductHeader:
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
         earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
 
-        if level in ['l1']:
+        if level in ['l1'] and self.browse_image_filename != '':
             browse = et.SubElement(earth_observation_result, eop + 'browse')
             browse_info = et.SubElement(browse, eop + 'BrowseInformation')
             et.SubElement(browse_info, eop + 'type').text = self._browse_type
