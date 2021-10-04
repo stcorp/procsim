@@ -5,8 +5,10 @@ Biomass Level 2a product generators, format according to
 - BIO-ESA-EOPG-EEGS-TN-0115 'L2a Product Guidelines'.
 - BIO-ESA-EOPG-EEGS-TN-0046 'BIOMASS Production Model'.
 '''
-from typing import List, Tuple
 import os
+from typing import List, Tuple
+
+from procsim.core.exceptions import ScenarioError
 
 from . import product_generator
 
@@ -46,6 +48,16 @@ class Level2a(product_generator.ProductGeneratorBase):
 
     def generate_output(self):
         super().generate_output()
+
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
 
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
