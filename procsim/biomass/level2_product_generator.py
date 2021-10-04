@@ -67,10 +67,12 @@ class Level2a(product_generator.ProductGeneratorBase):
         self._logger.info('Create {}'.format(dir_name))
 
         # Full specs are not known yet. For now, generate MPH and one data file.
-        os.makedirs(dir_name, exist_ok=True)
-        file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        base_path = os.path.join(self._output_path, dir_name)
+        print('here. make {}'.format(base_path))
+        os.makedirs(base_path, exist_ok=True)
+        file_name = os.path.join(base_path, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
-        file_name = os.path.join(dir_name, name_gen.generate_binary_file_name())
+        file_name = os.path.join(base_path, name_gen.generate_binary_file_name())
         self._generate_bin_file(file_name, self._size_mb)
 
 
