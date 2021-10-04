@@ -7,7 +7,6 @@ import bisect
 from datetime import timedelta
 import os
 import shutil
-import zipfile
 from typing import List
 
 from procsim.core.exceptions import ScenarioError
@@ -54,19 +53,8 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self._hdr.write(full_mph_file_name)
 
         if self._zip_output:
-            arc_mph_file_name = os.path.join(dir_name, mph_file_name)
-            arc_bin_file_name = os.path.join(dir_name, bin_file_name)
-            self._zip_directory(full_dir_name, [full_mph_file_name, full_bin_file_name], [arc_mph_file_name, arc_bin_file_name])
-
-    # TODO: Refactor to only require directory name.
-    def _zip_directory(self, dir_name: str, filenames: List[str], arcnames: List[str]):
-        # Note: Deletes input files afterwards
-        self._logger.debug('Archive to zip, extension {}'.format(self._zip_extension))
-        with zipfile.ZipFile(dir_name + self._zip_extension, 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
-            for filename, arcname in zip(filenames, arcnames):
-                zipped.write(filename, arcname)
-            zipped.close()
-            shutil.rmtree(dir_name)
+            shutil.make_archive(full_dir_name, 'zip', self._output_path, dir_name)
+            shutil.rmtree(full_dir_name)
 
 
 class RAW_xxx_10(RawProductGeneratorBase):
