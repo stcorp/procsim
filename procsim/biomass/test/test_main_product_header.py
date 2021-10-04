@@ -75,6 +75,8 @@ def assertMPHMatchesProduct(product_folder_path: Union[str, Path]) -> None:
         representation_element = product_info.find(bio + 'rds')
         if representation_element is not None and representation_element.text is not None:
             representations_in_mph.add(representation_element.text)
+        else:
+            assert os.path.splitext(filename)[1] != '.xml', f'Found xml file {filename} without representation.'
 
     # Gather information of files actually in the directory and check if these correspond to MPH.
     files_in_directory: Set[Tuple[str, int]] = set()
