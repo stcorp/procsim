@@ -6,7 +6,7 @@ format according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import datetime
 import os
-from typing import Iterable, List
+from typing import Iterable
 
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput

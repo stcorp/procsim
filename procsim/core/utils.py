@@ -5,7 +5,6 @@ Common XML/JSON helper functions
 '''
 
 import re
-from xml.etree import ElementTree as et
 
 
 def indent_xml(element, level=0):

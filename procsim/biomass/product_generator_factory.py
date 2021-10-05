@@ -4,7 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass output product generator factory.
 '''
 
-from typing import List, Optional
+from typing import Optional
 
 from procsim.core.exceptions import ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator

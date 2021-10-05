@@ -6,7 +6,6 @@ Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 import bisect
 from datetime import timedelta
 import os
-import shutil
 from typing import List
 
 from procsim.core.exceptions import ScenarioError
@@ -47,7 +46,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         bin_file_name = name_gen.generate_binary_file_name()
         full_bin_file_name = os.path.join(full_dir_name, bin_file_name)
         self._add_file_to_product(full_bin_file_name, self._size_mb)
-        
+
         mph_file_name = name_gen.generate_mph_file_name()
         full_mph_file_name = os.path.join(full_dir_name, mph_file_name)
         self._hdr.write(full_mph_file_name)

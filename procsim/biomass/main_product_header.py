@@ -12,8 +12,7 @@ TODO:
 '''
 
 import datetime
-from logging import raiseExceptions
-from typing import Any, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Optional
 from xml.etree import ElementTree as et
 
 from procsim.core import utils
