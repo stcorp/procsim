@@ -88,13 +88,15 @@ def assertMPHMatchesProduct(product_folder_path: Union[str, Path]) -> None:
 
     # Check whether directory files are listed in MPH.
     for dir_file in files_in_directory:
-        assert dir_file in files_in_mph or dir_file[0] in representations_in_mph, f'Found {dir_file} in directory {product_folder_path} but not in MPH.'
+        assert dir_file in files_in_mph or dir_file[0] in representations_in_mph, \
+            f'Found {dir_file} in directory {product_folder_path} but not in MPH.'
     # Check whether MPH files are in directory.
     for mph_file in files_in_mph:
         assert mph_file in files_in_directory, f'Found file {mph_file} in MPH but not in directory {product_folder_path}.'
     filenames_in_directory = {file[0] for file in files_in_directory}
     for mph_represenation in representations_in_mph:
-        assert mph_represenation in filenames_in_directory, f'Found representation {mph_represenation} in MPH but not in directory {product_folder_path}.'
+        assert mph_represenation in filenames_in_directory, \
+            f'Found representation {mph_represenation} in MPH but not in directory {product_folder_path}.'
 
 
 def get_l1_test_mph():

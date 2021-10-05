@@ -96,7 +96,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             GeneratedFile(['annotation', 'calibration'], 'cal', 'xml', annot_schema),
             GeneratedFile(['annotation', 'navigation'], 'orb', 'xml', orb_schema),
             GeneratedFile(['annotation', 'navigation'], 'att', 'xml', att_schema),
-                
+
             GeneratedFile(['annotation', 'calibration'], 'ant', 'dat'),
             GeneratedFile(['annotation', 'calibration'], 'noise', 'dat'),
             GeneratedFile(['annotation', 'geometry'], 'geoloc', 'tiff'),

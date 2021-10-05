@@ -24,7 +24,7 @@ class GeneratedFile():
         self.representation: Optional['GeneratedFile'] = representation
 
         self._name: Optional[str] = None  # Override automatic name generation.
-    
+
     def set_name_information(self, new_name: str) -> None:
         dir_name, self._name = os.path.split(new_name)
         self.path = dir_name.split(os.sep)
@@ -151,7 +151,7 @@ class ProductGeneratorBase(IProductGenerator):
         except (IndexError, KeyError) as e:
             self._logger.error("No MPH directory found. Set the product name via 'MainProductHeader.set_product_filename(filename)'.")
             raise e
-        
+
         relative_file_path = './' + os.path.relpath(file_path, mph_path)
         relative_representation_path = None if representation_path is None else './' + os.path.relpath(representation_path, mph_path)
         self._hdr.append_file(relative_file_path, size_mb, relative_representation_path)
