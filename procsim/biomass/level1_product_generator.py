@@ -172,8 +172,6 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         slice_end -= self._slice_overlap_end
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
 
-        print('{} {} {} {}'.format(slice_start, slice_end, self._slice_overlap_start, self._slice_overlap_end))
-
         # Sanity checks
         if slice_nr is None:
             raise ScenarioError('Cannot perform framing, slice nr. is not known')
