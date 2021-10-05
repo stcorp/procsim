@@ -10,6 +10,18 @@ import time
 _MB = 2**20
 
 
+def do_work(time_to_waste, nr_steps, logger, nr_log_messages):
+    step = int(100 / nr_steps)
+    for progress in range(0, 100, step):
+        if nr_log_messages > 0:
+            logger.progress('Working, progress {}%'.format(progress))
+        now = time.time()
+        while now + time_to_waste / nr_steps > time.time():
+            x = 2
+            # for n in range(25):
+            #     x = x * x
+
+
 class WorkSimulator:
     '''
     This class is responsible for consuming memory, CPU cycles and disk space.
@@ -67,30 +79,18 @@ class WorkSimulator:
         self.memory_block = None
 
     def _eat_cpu_cycles(self):
-
-        def do_work(step, nr_log_messages):
-            for progress in range(0, 100, step):
-                if nr_log_messages > 0:
-                    self._logger.progress('Working, progress {}%'.format(progress))
-                now = time.time()
-                while now + self._time / nr_steps > time.time():
-                    x = 2
-                    # for n in range(25):
-                    #     x = x * x
-
         if self._time > 0:
             self._logger.debug('Start processing on {} cores'.format(self._nr_cpu))
             nr_steps = max(self._nr_progress_log_messages, 1)
-            step = int(100 / nr_steps)
             procs = []
             for n in range(self._nr_cpu - 1):
-                proc = multiprocessing.Process(target=do_work, args=(step, 0))
+                proc = multiprocessing.Process(target=do_work, args=(self._time, nr_steps, self._logger, 0))
                 procs.append(proc)
                 proc.start()
-            do_work(step, self._nr_progress_log_messages)
+            do_work(self._time, nr_steps, self._logger, self._nr_progress_log_messages)
             for proc in procs:
                 proc.join()
-
+            
     def start(self):
         '''Blocks until done'''
         self._create_temp_file()
