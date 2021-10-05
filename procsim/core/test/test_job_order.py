@@ -82,7 +82,7 @@ class JobOrderParserTest(unittest.TestCase):
                 file_name = file_name.replace('$PATH', path)
                 entry.file_names.append(file_name)
                 try:
-                    os.mknod(os.path.join(THIS_DIR, file_name))
+                    open(file_name, 'w').close()
                 except OSError as exc:
                     if exc.errno != errno.EEXIST:
                         raise
