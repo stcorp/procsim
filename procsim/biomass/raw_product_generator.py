@@ -53,8 +53,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         self._hdr.write(full_mph_file_name)
 
         if self._zip_output:
-            shutil.make_archive(full_dir_name, 'zip', self._output_path, dir_name)
-            shutil.rmtree(full_dir_name)
+            self.zip_folder(full_dir_name, self._zip_extension)
 
 
 class RAW_xxx_10(RawProductGeneratorBase):

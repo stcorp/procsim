@@ -4,6 +4,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 import datetime
 import os
 import re
+import shutil
 import zipfile
 from typing import Any, Iterable, List, Optional, Tuple
 
@@ -179,21 +180,25 @@ class ProductGeneratorBase(IProductGenerator):
             size -= amount
         file.close()
 
-    def _unzip(self, archive_name):
-        # Sanity check: only raw products should be zipped
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.parse_path(archive_name)
-        if name_gen.level != 'raw':
-            self._logger.warning('{} should not be a zip!'.format(os.path.basename(archive_name)))
-        # Unzip and delete archive
-        with zipfile.ZipFile(archive_name, mode='r') as zipped:
-            keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
-            self._logger.debug('Extract {}{}'.format(
+    @staticmethod
+    def zip_folder(full_dir_name: str, extension: Optional[str] = None) -> None:
+        root_dir, base_dir = os.path.split(os.path.normpath(full_dir_name))
+        old_name = shutil.make_archive(full_dir_name, 'zip', root_dir, base_dir)
+        if extension is not None:
+            new_name = os.path.splitext(old_name)[0] + extension
+            os.rename(old_name, new_name)
+        shutil.rmtree(full_dir_name)
+
+    @staticmethod
+    def unzip(archive_path: str, keep_zip: bool = False, logger: Optional[Logger] = None) -> None:
+        archive_dir, archive_name = os.path.split(archive_path)
+        if logger is not None:
+            logger.debug('Extract {}{}'.format(
                 '(keep zip) ' if keep_zip else '',
-                os.path.basename(archive_name)))
-            zipped.extractall(self._output_path)
-            if not keep_zip:
-                os.remove(archive_name)
+                os.path.basename(archive_path)))
+        shutil.unpack_archive(archive_name, archive_dir, 'zip')
+        if not keep_zip:
+            os.remove(archive_path)
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
@@ -209,7 +214,13 @@ class ProductGeneratorBase(IProductGenerator):
             for file in input.file_names:
                 root, ext = os.path.splitext(file)
                 if os.path.isfile(file) and ext.lower() == self._zip_extension:
-                    self._unzip(file)
+                    # Sanity check: only raw products should be zipped
+                    name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    name_gen.parse_path(file)
+                    if name_gen.level != 'raw':
+                        self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
+                    keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
+                    self.unzip(file, keep_zip, logger=self._logger)
                 file = root
                 if not os.path.isdir(file):
                     # TODO: add some code (here?) to support Orbit prediction files, which are not a directory!
