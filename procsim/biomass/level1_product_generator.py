@@ -18,6 +18,8 @@ _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
 _HDR_PARAMS = [
     # L0 + L1
+    ('validity_start', 'validity_start', 'date'),
+    ('validity_stop', 'validity_stop', 'date'),
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
     ('footprint_polygon', 'footprint_polygon', 'str'),
@@ -170,6 +172,8 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         slice_end -= self._slice_overlap_end
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
 
+        print('{} {} {} {}'.format(slice_start, slice_end, self._slice_overlap_start, self._slice_overlap_end))
+
         # Sanity checks
         if slice_nr is None:
             raise ScenarioError('Cannot perform framing, slice nr. is not known')
@@ -177,7 +181,6 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
             raise GeneratorError('Cannot perform framing, slice length (without overlaps) != 5x frame length ({} != 5x{})'.format(
                 slice_end - slice_start, self._frame_grid_spacing))
-
         for n in range(5):
             frame_nr = 1 + n + (slice_nr - 1) * 5
             frame_start = slice_start + n * self._frame_grid_spacing
@@ -276,17 +279,17 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(inputs):
             return False
 
-        if self._hdr.product_type not in _L1_SCS_PRODUCTS:
-            self._logger.error('metadata_source of Stack product must be an Sx_SCS__1S product.')
-            return True
+        if self._meta_data_source:
+            if self._hdr.product_type not in _L1_SCS_PRODUCTS:
+                self._logger.error('metadata_source of Stack product must be an Sx_SCS__1S product.')
+                return True
+            self._hdrs.append(self._hdr)
 
         # Here we store the meta data for every output product. Start with the
         # 'metadata source' (the first Sx_SCS product)
-        self._hdrs.append(self._hdr)
 
         # Go again over the list with input products. For every other SCS
         # product, do a sanity check and store meta data if ok.
-        count = 1
         for input in inputs:
             for file in input.file_names:
                 file, _ = os.path.splitext(file)    # Remove possible extension
@@ -302,8 +305,8 @@ class Level1Stack(product_generator.ProductGeneratorBase):
                     continue
                 if self._check_sanity(file, hdr):
                     self._hdrs.append(hdr)
-                    count += 1
         phase = self._hdr.acquisitions[0].mission_phase
+        count = len(self._hdrs)
         if count < 2:
             self._logger.warning('At least two Sx_SCS__1S products needed to generate the Stack')
         elif phase == 'TOMOGRAPHIC' and count > 7:
