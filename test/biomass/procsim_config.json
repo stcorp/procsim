@@ -815,7 +815,6 @@
       "footprint_polygon": "-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648",
       "center_points": "-7.492090 -63.27095",
       "browse_ref_id": "EPSG:4326",
-      "browse_image_filename": "./preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png",
 
       // Frame grid definition. All times are in seconds.
       "frame_grid_spacing": 19.003162,

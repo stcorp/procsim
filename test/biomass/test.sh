@@ -111,3 +111,7 @@ $PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step1a_e
 echo
 echo '  *** L0 step 2, 3, 4, 5 (ec mode)'
 $PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2a_ec.xml
+
+
+# Check whether MPH contents and folder contents correspond.
+python3 -c 'import procsim.biomass.test.test_main_product_header as testmph; testmph.assertMPHMatchesProductRecursive("workspace/");'

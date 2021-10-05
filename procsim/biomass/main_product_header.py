@@ -13,13 +13,14 @@ TODO:
 
 import datetime
 from logging import raiseExceptions
-from typing import Any, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, TypeVar
 from xml.etree import ElementTree as et
 
 from procsim.core import utils
 from procsim.core.exceptions import ParseError, ScenarioError
 
 from . import product_types
+
 
 mph_namespaces = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",
@@ -161,9 +162,8 @@ class MainProductHeader:
         self._product_type: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
 
-        self.products = [
+        self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
-            {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
         ]
         self.doi = 'DOI'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
@@ -280,12 +280,14 @@ class MainProductHeader:
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
-    def set_product_filename(self, filename: str):
+    def initialize_product_list(self, filename: str):
         '''
         Must be the directory name (without path)
         '''
         self.eop_identifier = filename
-        self.products[0] = {'file_name': filename}
+
+        self.products.clear()
+        self.products.append({'file_name': filename})
 
     def set_phenomenon_times(self, start, end):
         '''
@@ -348,6 +350,13 @@ class MainProductHeader:
         file_name = service_reference.get(xlink + 'href')
         # et.SubElement(service_reference, ows + 'RequestMessage')  # download request (empty)
         return file_name
+
+    def append_file(self, product_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
+        self.products.append({
+            'file_name': product_path,
+            'size': None if size_mb is None else size_mb * 2**20,
+            'representation': representation_path
+        })
 
     def write(self, file_name):
         # Create MPH and write to file (TODO: split in generate and write methods?)
@@ -483,7 +492,7 @@ class MainProductHeader:
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
         earth_observation_result.set(gml + 'id', self.eop_identifier + '_10')
 
-        if level in ['l1']:
+        if level in ['l1'] and self.browse_image_filename != '':
             browse = et.SubElement(earth_observation_result, eop + 'browse')
             browse_info = et.SubElement(browse, eop + 'BrowseInformation')
             et.SubElement(browse_info, eop + 'type').text = self._browse_type
@@ -496,9 +505,9 @@ class MainProductHeader:
             product = et.SubElement(earth_observation_result, eop + 'product')
             product_information = et.SubElement(product, bio + 'ProductInformation')
             self._insert_file_name(product_information, prod['file_name'])
-            if 'size' in prod:
+            if prod.get('size') is not None:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-                if prod['representation'] is not None:    # Mandatory for if type is XML
+                if prod.get('representation') is not None:    # Mandatory for if type is XML
                     et.SubElement(product_information, bio + 'rds').text = prod['representation']
             else:
                 et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self.product_baseline)
@@ -790,9 +799,9 @@ class MainProductHeader:
         self.doi = doi.text  # Digital Object Identifier
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
-        type = product_types.find_product(type_code)
-        if type is not None:
-            self._product_type = type
+        product_type = product_types.find_product(type_code)
+        if product_type is not None:
+            self._product_type = product_type
         self.product_status = earth_observation_meta_data.findtext(eop + 'status')
 
         # Mandatory for Raw data: Downlink information

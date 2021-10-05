@@ -4,8 +4,9 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 import datetime
 import os
 import re
+import shutil
 import zipfile
-from typing import Iterable, Optional, List, Tuple
+from typing import Any, Iterable, List, Optional, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -13,6 +14,31 @@ from procsim.core.job_order import JobOrderInput, JobOrderOutput
 from procsim.core.logger import Logger
 
 from . import main_product_header, product_name
+
+
+class GeneratedFile():
+    '''Hold some information on a file that is to be generated.'''
+    def __init__(self, path: List[str] = [], suffix: str = '', extension: str = '', representation: Optional['GeneratedFile'] = None) -> None:
+        self.path: List[str] = path
+        self.suffix: str = suffix
+        self.extension: str = extension
+        self.representation: Optional['GeneratedFile'] = representation
+
+        self._name: Optional[str] = None  # Override automatic name generation.
+    
+    def set_name_information(self, new_name: str) -> None:
+        dir_name, self._name = os.path.split(new_name)
+        self.path = dir_name.split(os.sep)
+        print(dir_name)
+        base_name, self.extension = os.path.splitext(self._name)
+        if self.extension:
+            self.extension = self.extension[1:]  # Trim period off extension.
+        self.suffix = base_name.rsplit('_')[-1]
+
+    def get_full_path(self, name_gen: product_name.ProductName, base_dir: str = '') -> str:
+        if self._name is None:
+            self._name = name_gen.generate_binary_file_name('_' + self.suffix, self.extension)
+        return os.path.join(base_dir, *self.path, self._name)
 
 
 class ProductGeneratorBase(IProductGenerator):
@@ -119,36 +145,60 @@ class ProductGeneratorBase(IProductGenerator):
         timestr = timestr[:-1]  # strip 'Z'
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 
-    def _generate_bin_file(self, file_name, size_mb):
+    def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
+        '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
+        try:
+            mph_path = os.path.join(self._output_path, self._hdr.products[0]['file_name'])
+        except (IndexError, KeyError) as e:
+            self._logger.error("No MPH directory found. Set the product name via 'MainProductHeader.set_product_filename(filename)'.")
+            raise e
+        
+        relative_file_path = './' + os.path.relpath(file_path, mph_path)
+        relative_representation_path = None if representation_path is None else './' + os.path.relpath(representation_path, mph_path)
+        self._hdr.append_file(relative_file_path, size_mb, relative_representation_path)
+        # If this file is in the preview folder and has the png extension, set it as the browse file.
+        if self._hdr.browse_image_filename == '' and relative_file_path.startswith('./preview/') and relative_file_path.endswith('.png'):
+            self._hdr.browse_image_filename = relative_file_path
+
+        if representation_path is not None:
+            print(f'GENERATING REPRESENTATION {representation_path}')
+            self._generate_bin_file(representation_path, 0)
+        self._generate_bin_file(file_path, size_mb)
+
+    def _generate_bin_file(self, file_path: str, size_mb: Optional[int]) -> None:
         '''Generate binary file starting with a short ASCII header, followed by
         size (in MB) random data bytes.'''
+        # Make sure encompassing folder exists.
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
         CHUNK_SIZE = 2**20
-        size = size_mb * 2**20
-        file = open(file_name, 'wb')
-        hdr = bytes('procsim dummy binary', 'utf-8') + b'\0'
-        file.write(hdr)
-        size -= len(hdr)
+        size = size_mb * 2**20 if size_mb is not None else 0
+        file = open(file_path, 'wb')
         while size > 0:
             amount = min(size, CHUNK_SIZE)
             file.write(os.urandom(max(amount, 0)))
             size -= amount
         file.close()
 
-    def _unzip(self, archive_name):
-        # Sanity check: only raw products should be zipped
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.parse_path(archive_name)
-        if name_gen.level != 'raw':
-            self._logger.warning('{} should not be a zip!'.format(os.path.basename(archive_name)))
-        # Unzip and delete archive
-        with zipfile.ZipFile(archive_name, mode='r') as zipped:
-            keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
-            self._logger.debug('Extract {}{}'.format(
+    @staticmethod
+    def zip_folder(full_dir_name: str, extension: Optional[str] = None) -> None:
+        root_dir, base_dir = os.path.split(os.path.normpath(full_dir_name))
+        old_name = shutil.make_archive(full_dir_name, 'zip', root_dir, base_dir)
+        if extension is not None:
+            new_name = os.path.splitext(old_name)[0] + extension
+            os.rename(old_name, new_name)
+        shutil.rmtree(full_dir_name)
+
+    @staticmethod
+    def unzip(archive_path: str, keep_zip: bool = False, logger: Optional[Logger] = None) -> None:
+        archive_dir, archive_name = os.path.split(archive_path)
+        if logger is not None:
+            logger.debug('Extract {}{}'.format(
                 '(keep zip) ' if keep_zip else '',
-                os.path.basename(archive_name)))
-            zipped.extractall(self._output_path)
-            if not keep_zip:
-                os.remove(archive_name)
+                os.path.basename(archive_path)))
+        shutil.unpack_archive(archive_name, archive_dir, 'zip')
+        if not keep_zip:
+            os.remove(archive_path)
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
@@ -164,7 +214,13 @@ class ProductGeneratorBase(IProductGenerator):
             for file in input.file_names:
                 root, ext = os.path.splitext(file)
                 if os.path.isfile(file) and ext.lower() == self._zip_extension:
-                    self._unzip(file)
+                    # Sanity check: only raw products should be zipped
+                    name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    name_gen.parse_path(file)
+                    if name_gen.level != 'raw':
+                        self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
+                    keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
+                    self.unzip(file, keep_zip, logger=self._logger)
                 file = root
                 if not os.path.isdir(file):
                     # TODO: add some code (here?) to support Orbit prediction files, which are not a directory!

@@ -65,12 +65,12 @@ class Mpl(product_generator.ProductGeneratorBase):
             self._hdr.product_baseline,
             self._version_nr)
 
-    def _zip_files(self, dir_name: str, filenames: List[str], arcnames: List[str]):
+    def _zip_files(self, dir_name: str, filenames: List[str]):
         # Note: Deletes input file(s) afterwards
-        self._logger.debug('Archive to zip, extension {}'.format(self._zip_extension))
+        self._logger.debug(f'Archive to zip, extension {self._zip_extension}')
         with zipfile.ZipFile(dir_name + self._zip_extension, 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
-            for filename, arcname in zip(filenames, arcnames):
-                zipped.write(filename, arcname)
+            for filename in filenames:
+                zipped.write(filename, os.path.basename(filename))
                 os.remove(filename)
             zipped.close()
 
@@ -78,11 +78,11 @@ class Mpl(product_generator.ProductGeneratorBase):
         super().generate_output()
 
         file_name = self._generate_file_name()
-        self._logger.info('Create {}'.format(file_name))
+        self._logger.info(f'Create {file_name}')
         os.makedirs(self._output_path, exist_ok=True)
         full_file_name = os.path.join(self._output_path, file_name)
         self._generate_bin_file(full_file_name, self._size_mb)
 
         if self._zip_output:
-            base, extension = os.path.splitext(full_file_name)
-            self._zip_files(base, [full_file_name], [file_name])
+            base = os.path.splitext(full_file_name)[0]
+            self._zip_files(base, [full_file_name])
