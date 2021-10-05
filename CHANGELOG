@@ -1,14 +1,17 @@
 Procsim Changelog
 -----------------
 
-next release
-    - Fix: issue 3, require scenario output types to be a subset of task job order possible outputs, instead of being strictly equal
-    - Fix: issue 9, toi_start_offset is the nr. of seconds to be SUBTRACTED from (and not added to) the TOI start time
-    - Fix: issue 10, include scenario parameters that are common to all generators in AUX and MPL generation    
-    - Fix: do not abort if no input data is present AND no metadata_source is given
-    - Fix: rounding error in parsing TOI from job order
-    - Chg: derive validity start/stop from begin/end position if not known
-    - Fix: output_path for level2 products was incorrect
+[v1.4.0] - 2021/10/05
+    - Fix: Issue 3, require scenario output types to be a subset of task job order possible outputs, instead of being strictly equal.
+    - Fix: Issue 6, a list with internal files is added to the MPH (including the browse image).
+    - Fix: Issue 9, toi_start_offset is the nr. of seconds to be SUBTRACTED from (and not added to) the TOI start time.
+    - Fix: Issue 10, include scenario parameters that are common to all generators in AUX and MPL generation.
+    - Fix: Do not abort if no input data is present AND no metadata_source is given.
+    - Fix: Rounding error in parsing TOI from job order.
+    - Chg: Derive validity start/stop from begin/end position if not known.
+           This allows creation of all products without the need for input products.
+    - Chg: Added optional validity_start and validity_stop parameters for L1 types.
+    - Fix: Output_path for level2 products was incorrect.
 
 [v1.3.0] - 2021/09/06
     - Add: Optional 'begin_end_position_from_toi' variable for all products.
