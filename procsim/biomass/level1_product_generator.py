@@ -89,7 +89,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         orb_schema = GeneratedFile(['schema'], 'Orbit', 'xsd')
         att_schema = GeneratedFile(['schema'], 'Attitude', 'xsd')
 
-        bin_files = [
+        files = [
             GeneratedFile(['annotation'], 'annot', 'xml', annot_schema),
             GeneratedFile(['annotation', 'calibration'], 'cal', 'xml', annot_schema),
             GeneratedFile(['annotation', 'navigation'], 'orb', 'xml', orb_schema),
@@ -106,7 +106,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             GeneratedFile(['measurement', 'ionosphere'], 'iono', 'tiff')
         ]
         if self._hdr.product_type in product_types.L1S_PRODUCTS:
-            bin_files += [
+            files += [
                 GeneratedFile(['measurement'], 'i_hh', 'tiff'),
                 GeneratedFile(['measurement'], 'i_hv', 'tiff'),
                 GeneratedFile(['measurement'], 'i_vh', 'tiff'),
@@ -117,8 +117,8 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         os.makedirs(base_path, exist_ok=True)
 
         # Create product files
-        nr_binfiles = sum(1 for file in bin_files if file.extension != 'xml')
-        for file in bin_files:
+        nr_binfiles = sum(1 for file in files if file.extension != 'xml')
+        for file in files:
             self._add_file_to_product(
                 file_path=file.get_full_path(name_gen, base_path),
                 size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
@@ -322,15 +322,15 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             self._logger.debug('No metadata from input products, generate stacked product using scenario parameters')
             self._hdrs.append(self._hdr)
 
+        # TODO: Make Product class to hold header and file list to uncouple hard link between generator and MPH.
         for hdr in self._hdrs:
+            # Sanity check
+            if hdr.begin_position is None or hdr.end_position is None:
+                raise ScenarioError('Begin/end position must be set')
             self._hdr = hdr
             self._generate_level1_stacked_product()
 
     def _generate_level1_stacked_product(self):
-
-        # Sanity check
-        if self._hdr.begin_position is None or self._hdr.end_position is None:
-            raise ScenarioError('Begin/end position must be set')
 
         # If not read from an input product, use begin/end position as starting point
         if self._hdr.validity_start is None:
@@ -351,7 +351,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         orb_schema = GeneratedFile(['schema'], 'Orbit', 'xsd')
         att_schema = GeneratedFile(['schema'], 'Attitude', 'xsd')
 
-        bin_files = [
+        files = [
             GeneratedFile(['master_annotation'], 'annot', 'xml', annot_schema),
             GeneratedFile(['master_annotation', 'navigation'], 'orb', 'xml', orb_schema),
             GeneratedFile(['master_annotation', 'navigation'], 'att', 'xml', att_schema),
@@ -373,7 +373,7 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             GeneratedFile(['preview'], 'ql', 'png'),
         ]
         if self._hdr.product_type in product_types.L1S_PRODUCTS:
-            bin_files += [
+            files += [
                 GeneratedFile(['measurement'], 'i_hh', 'tiff'),
                 GeneratedFile(['measurement'], 'i_hv', 'tiff'),
                 GeneratedFile(['measurement'], 'i_vh', 'tiff'),
@@ -384,8 +384,8 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         os.makedirs(base_path, exist_ok=True)
 
         # Create product files
-        nr_binfiles = sum(1 for file in bin_files if file.extension != 'xml')
-        for file in bin_files:
+        nr_binfiles = sum(1 for file in files if file.extension != 'xml')
+        for file in files:
             self._add_file_to_product(
                 file_path=file.get_full_path(name_gen, base_path),
                 size_mb=0 if file.extension == 'xml' else self._size_mb // nr_binfiles,
