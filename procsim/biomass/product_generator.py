@@ -5,7 +5,6 @@ import datetime
 import os
 import re
 import shutil
-import zipfile
 from typing import Any, Iterable, List, Optional, Tuple
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
@@ -192,12 +191,11 @@ class ProductGeneratorBase(IProductGenerator):
     @staticmethod
     def unzip(archive_path: str, keep_zip: bool = False, logger: Optional[Logger] = None) -> None:
         archive_dir, archive_name = os.path.split(archive_path)
-        with zipfile.ZipFile(archive_path, mode='r') as zipped:
-            if logger is not None:
-                logger.debug('Extract {}{}'.format(
-                    '(keep zip) ' if keep_zip else '',
-                    os.path.basename(archive_name)))
-            zipped.extractall(archive_dir)
+        if logger is not None:
+            logger.debug('Extract {}{}'.format(
+                '(keep zip) ' if keep_zip else '',
+                os.path.basename(archive_name)))
+        shutil.unpack_archive(archive_path, archive_dir, 'zip')
         if not keep_zip:
             os.remove(archive_path)
 
