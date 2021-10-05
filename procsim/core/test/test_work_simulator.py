@@ -8,6 +8,7 @@ import queue
 import subprocess
 import threading
 import time
+from typing import Tuple
 import unittest
 
 from procsim.core import work_simulator
@@ -30,16 +31,32 @@ class _Logger:
         print(*args, **kwargs)
 
 
+def _get_memkb_cputime(pid: int) -> Tuple[int, datetime.datetime]:
+    cmd = f"ps -o rss,cputime -p {pid} | tail -1 | awk '{{print $1,$2}}'"
+    ps = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+    mem_kb, cputime = ps.stdout.split(sep=b' ')
+
+    return int(mem_kb), datetime.datetime.strptime(cputime.decode('utf-8'), '%M:%S.%f\n')
+
+
 def _meas_resource_usage(meas_time: float = 0.2):
     # Return used memory in MB and cpu load in %
-    # Use top to retrieve cpu load and memory usage
+    # Run ps twice to determine CPU % from elapsed CPU time.
     pid = os.getpid()
-    cmd = "top -b -n 2 -d {} -p {} | tail -1 | awk '{{print $5,$9}}'".format(meas_time, pid)
 
-    top = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
-    mem, cpu = top.stdout.split(sep=b' ')
-    cpu = cpu.replace(b',', b'.')
-    return int(mem) / _KB, float(cpu)
+    mem_kb, first_cpu_time = _get_memkb_cputime(pid)
+    first_run_time = datetime.datetime.now()
+
+    time.sleep(meas_time)
+
+    _, second_cpu_time = _get_memkb_cputime(pid)
+    second_run_time = datetime.datetime.now()
+
+    elapsed_time = second_run_time - first_run_time
+    elapsed_cpu_time = second_cpu_time - first_cpu_time
+    cpu_pct = elapsed_cpu_time / elapsed_time * 100
+
+    return mem_kb * _KB / _MB, cpu_pct
 
 
 class WorkSimulatorTest(unittest.TestCase):
