@@ -164,7 +164,6 @@ class MainProductHeader:
 
         self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
-            # {'file_name': 'product filename', 'size': 100, 'representation': './schema/bio_l1_product.xsd'}
         ]
         self.doi = 'DOI'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
