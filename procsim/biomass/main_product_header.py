@@ -431,11 +431,11 @@ class MainProductHeader:
                     et.SubElement(acquisition, eop + 'orbitDirection').text = acq.orbit_direction
                     tracknr = et.SubElement(acquisition, eop + 'wrsLongitudeGrid')
                     tracknr.text = acq.track_nr
-                    tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
+                    tracknr.set('codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 if level in ['l0', 'l1', 'l2a'] or self._product_type.type in product_types.RAWS_PRODUCT_TYPES:
                     framenr = et.SubElement(acquisition, eop + 'wrsLatitudeGrid')
                     framenr.text = str(acq.slice_frame_nr) if acq.slice_frame_nr is not None else '___'
-                    framenr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:frames')
+                    framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, eop + 'ascendingNodeDate').text = _time_as_iso(acq.anx_date)
                     et.SubElement(acquisition, eop + 'startTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.start_time)
@@ -672,11 +672,11 @@ class MainProductHeader:
                 acq.last_orbit_number = _to_int(acquisition.findtext(eop + 'lastOrbitNumber')) or acq.last_orbit_number
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection') or acq.orbit_direction
                 acq.track_nr = acquisition.findtext(eop + 'wrsLongitudeGrid') or acq.track_nr
-                # tracknr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
+                # tracknr.set('codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 nr = acquisition.findtext(eop + 'wrsLatitudeGrid')
                 if nr is not None:
                     acq.slice_frame_nr = int(nr) if not nr == '___' else None
-                # framenr.set(eop + 'codeSpace', 'urn:esa:eop:Biomass:frames')
+                # framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
                 acq.anx_date = _time_from_iso(acquisition.findtext(eop + 'ascendingNodeDate')) or acq.anx_date
                 # TODO ={'uom': 'ms'}
                 acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
