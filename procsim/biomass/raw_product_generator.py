@@ -3,7 +3,6 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 
 Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
-import bisect
 from datetime import timedelta
 import os
 from typing import List
@@ -187,11 +186,6 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         self._create_raw_product(dir_name, name_gen)
 
-    def _get_anx(self, t):
-        # Returns the latest ANX before the given time
-        idx = bisect.bisect(self._anx_list, t) - 1
-        return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
-
     def _generate_sliced_output(self):
         segment_start = self._hdr.begin_position
         segment_end = self._hdr.end_position
@@ -205,6 +199,8 @@ class RAWSxxx_10(RawProductGeneratorBase):
         while start < segment_end:
             # Find slice nr for this start time
             anx = self._get_anx(start + sigma)
+            if anx is None:
+                continue
             n = (start + sigma - anx) // self._slice_grid_spacing
 
             # Calculate slice start/end, phenomenon start/end (aka acquisition start/end)
@@ -225,10 +221,11 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
             # Merge with next slice if too short and first slice.
             acq_duration = acq_end - acq_start
-            if acq_duration < self._slice_minimum_duration and acq_start != validity_start:
+            next_anx = self._get_anx(slice_end + sigma)
+            if acq_duration < self._slice_minimum_duration and acq_start != validity_start and next_anx is not None:
                 # Find slice nr for the next slice
                 previous_n = n
-                anx = self._get_anx(slice_end + sigma)
+                anx = next_anx
                 n = (slice_end + sigma - anx) // self._slice_grid_spacing
                 slice_end = anx + (n + 1) * self._slice_grid_spacing
                 validity_end = slice_end + self._slice_overlap_end
@@ -242,8 +239,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
             # Is this the last slice? If not, check if next slice will be too short,
             # merge with this slice in that case.
-            if segment_end > slice_end:
-                next_anx = self._get_anx(slice_end + sigma)
+            if segment_end > slice_end and next_anx is not None:
                 next_n = (slice_end + sigma - next_anx) // self._slice_grid_spacing
                 next_slice_start = next_anx + next_n * self._slice_grid_spacing
                 next_slice_end = next_anx + (next_n + 1) * self._slice_grid_spacing
