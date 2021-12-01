@@ -222,19 +222,17 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_D{}_{:02}_{}'\
-                .format(
-                    self.time_to_str(self.downlink_time),
-                    self.baseline_identifier,
-                    self._compact_create_date
-                )
+            name = self._generate_prefix() + '_D{}_{:02}_{}'.format(
+                self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
+                self._compact_create_date
+            )
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{:02}_{}'\
-                .format(
-                    self.baseline_identifier,
-                    self._compact_create_date
-                )
+            name = self._generate_prefix() + '_{:02}_{}'.format(
+                self.baseline_identifier,
+                self._compact_create_date
+            )
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')
@@ -249,17 +247,16 @@ class ProductName:
             if self._frame_slice_nr_str is None:
                 raise ScenarioError('frame_slice_nr must be set')
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'\
-                .format(
-                    self._mission_phase_id,
-                    self._global_coverage_id_str,
-                    self._major_cycle_id_str,
-                    self._repeat_cycle_id_str,
-                    self._track_nr,
-                    self._frame_slice_nr_str,
-                    self.baseline_identifier,
-                    self._compact_create_date
-                )
+            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'.format(
+                self._mission_phase_id,
+                self._global_coverage_id_str,
+                self._major_cycle_id_str,
+                self._repeat_cycle_id_str,
+                self._track_nr,
+                self._frame_slice_nr_str,
+                self.baseline_identifier,
+                self._compact_create_date
+            )
         return name
 
     def generate_mph_file_name(self):
@@ -284,17 +281,16 @@ class ProductName:
             )
         else:
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
-            name = self._generate_prefix() + '_{}_G{}_M{}_C{}_T{}_F{}{}{}'\
-                .format(
-                    self._mission_phase_id,
-                    self._global_coverage_id_str,
-                    self._major_cycle_id_str,
-                    self._repeat_cycle_id_str,
-                    self._track_nr,
-                    self._frame_slice_nr_str,
-                    suffix,
-                    extension
-                )
+            name = self._generate_prefix() + '_{}_G{}_M{}_C{}_T{}_F{}{}{}'.format(
+                self._mission_phase_id,
+                self._global_coverage_id_str,
+                self._major_cycle_id_str,
+                self._repeat_cycle_id_str,
+                self._track_nr,
+                self._frame_slice_nr_str,
+                suffix,
+                extension
+            )
         return name.lower()
 
     def dump_info(self, path=None):
