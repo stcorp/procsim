@@ -169,7 +169,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             
         # Determine and set the slice number if not set already.
         if self._hdr.acquisitions[0].slice_frame_nr is None:
-            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(start, constants.SLICE_GRID_SPACING)
+            # Get slice number from middle of slice to deal with merged slices.
+            middle = start + (stop - start) / 2
+            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -322,7 +324,10 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
-        self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(self._hdr.begin_position, constants.SLICE_GRID_SPACING)
+        
+        # Get slice number from middle of slice to deal with merged slices.
+        middle_position = self._hdr.begin_position + (self._hdr.end_position - self._hdr.begin_position) / 2
+        self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle_position, constants.SLICE_GRID_SPACING)
 
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
@@ -412,7 +417,11 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._output_type
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
-        self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(self._hdr.begin_position, constants.SLICE_GRID_SPACING)
+        
+        # Get slice number from middle of slice to deal with merged slices.
+        middle_position = self._hdr.begin_position + (self._hdr.end_position - self._hdr.begin_position) / 2
+        self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle_position, constants.SLICE_GRID_SPACING)
+        
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
