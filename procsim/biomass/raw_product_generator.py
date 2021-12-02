@@ -4,9 +4,9 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
 '''
 import bisect
-from datetime import timedelta
+import datetime
 import os
-from typing import List
+from typing import List, Tuple
 
 from procsim.core.exceptions import ScenarioError
 
@@ -186,94 +186,67 @@ class RAWSxxx_10(RawProductGeneratorBase):
         self._hdr.set_phenomenon_times(acq_start, acq_stop)
 
         self._create_raw_product(dir_name, name_gen)
-
-    def _get_anx(self, t):
-        # Returns the latest ANX before the given time
-        idx = bisect.bisect(self._anx_list, t) - 1
-        return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
-
-    def _generate_sliced_output(self):
+        
+    def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
+        if segment_start is None or segment_end is None:
+            self._logger.error('Phenomenon begin/end times must be known')
+            return []
+        
+        # If insufficient ANX are specified, infer the others.
+        anx_list = self._anx_list.copy()
+        while segment_start < anx_list[0]:
+            anx_list.insert(0, anx_list[0] - self._orbital_period)
+        while segment_end > anx_list[-1]:
+            anx_list.append(anx_list[-1] + self._orbital_period)
+        
+        # Find ANX list that covers the segment duration.
+        anx_idx_start = bisect.bisect_right(anx_list, segment_start) - 1
+        anx_idx_end = bisect.bisect_left(anx_list, segment_end) + 1
+        
+        # Determine the slices that make up the space between ANX.
+        slice_edges = []
+        slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
+        for anx in anx_list[anx_idx_start:anx_idx_end - 1]:
+            new_slice_edges = [(anx + i * self._slice_grid_spacing, anx + (i + 1) * self._slice_grid_spacing) for i in range(slices_per_orbit)]
+            slice_edges.extend(new_slice_edges)
+            
+        # Only keep the slices that overlap the segment.
+        slice_edges = [slice for slice in slice_edges if slice[1] >= segment_start and slice[0] <= segment_end]
+        
+        # Merge the first and last slice with their neighbour if they are going to be too short.
+        if slice_edges[0][1] - segment_start < self._slice_minimum_duration:
+            slice_edges[1] = (slice_edges[0][0], slice_edges[1][1])
+            del slice_edges[0]
+        if segment_end - slice_edges[-1][0] < self._slice_minimum_duration:
+            slice_edges[-2] = (slice_edges[-2][0], slice_edges[-1][1])
+            del slice_edges[-1]
+        
+        return slice_edges
+    
+    def _generate_sliced_output(self) -> None:
         segment_start = self._hdr.begin_position
         segment_end = self._hdr.end_position
         if segment_start is None or segment_end is None:
             self._logger.error('Phenomenon begin/end times must be known')
             return
-
-        start = segment_start
-        sigma = timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
-        slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
-        while start < segment_end:
-            # Find slice nr for this start time
-            anx = self._get_anx(start + sigma)
-            n = (start + sigma - anx) // self._slice_grid_spacing
-
-            # Calculate slice start/end, phenomenon start/end (aka acquisition start/end)
-            # and validity start/end, which is the slice start/end time with the lead/trail
-            # overlap times added.
-            slice_start = anx + n * self._slice_grid_spacing
-            slice_end = anx + (n + 1) * self._slice_grid_spacing
+        
+        slice_edges = self._get_slice_edges(segment_start, segment_end)
+        
+        for slice_start, slice_end in slice_edges:
+            # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
+            slice_middle = slice_start + (slice_end - slice_start) / 2
+            anx = self._get_anx(slice_middle)
+            slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
+            if anx is None or slice_nr is None:
+                continue
             validity_start = slice_start - self._slice_overlap_start
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
             acq_end = min(validity_end, segment_end)
-
-            # Additional rule:
-            # "Two consecutive slices of the same product type shall be merged into a single one
-            # if the sensing duration of one of them is lower than a configurable threshold.
-            # The requirement only applies to consecutive slices at the beginning and at the end
-            # of a data take or in case of incomplete slices."
-
-            # Merge with next slice if too short and first slice.
-            acq_duration = acq_end - acq_start
-            if acq_duration < self._slice_minimum_duration and acq_start != validity_start:
-                # Find slice nr for the next slice
-                previous_n = n
-                anx = self._get_anx(slice_end + sigma)
-                n = (slice_end + sigma - anx) // self._slice_grid_spacing
-                slice_end = anx + (n + 1) * self._slice_grid_spacing
-                validity_end = slice_end + self._slice_overlap_end
-                acq_end = min(validity_end, segment_end)
-                self._logger.debug('First slice #{} ({}s) is shorter than {}s, merged to #{}.'.format(
-                    previous_n + 1,
-                    acq_duration.seconds,
-                    self._slice_minimum_duration.seconds,
-                    n + 1
-                ))
-
-            # Is this the last slice? If not, check if next slice will be too short,
-            # merge with this slice in that case.
-            if segment_end > slice_end:
-                next_anx = self._get_anx(slice_end + sigma)
-                next_n = (slice_end + sigma - next_anx) // self._slice_grid_spacing
-                next_slice_start = next_anx + next_n * self._slice_grid_spacing
-                next_slice_end = next_anx + (next_n + 1) * self._slice_grid_spacing
-                next_validity_start = next_slice_start - self._slice_overlap_start
-                next_validity_end = next_slice_end + self._slice_overlap_end
-                next_acq_start = max(next_validity_start, segment_start)
-                next_acq_end = min(next_validity_end, segment_end)
-                next_slice_duration = next_acq_end - next_acq_start
-                if next_slice_duration < self._slice_minimum_duration and next_acq_end != next_slice_end:
-                    slice_end = next_slice_end
-                    validity_end = next_validity_end
-                    acq_end = next_acq_end
-                    self._logger.debug('Last slice #{} ({}s) is shorter than {}s, merged with {}.'.format(
-                        next_n + 1,
-                        next_slice_duration.seconds,
-                        self._slice_minimum_duration.seconds,
-                        n + 1
-                    ))
-
-            slice_nr = (n % slices_per_orbit) + 1
-            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._hdr.acquisitions[0].slice_frame_nr = slice_nr + 1
             self._hdr.set_validity_times(validity_start, validity_end)
-            self._logger.debug('Create slice #{}, acq {}-{}, validity {}-{} anx {}'.format(
-                slice_nr,
-                acq_start.strftime("%Y-%m-%d %H:%M:%S"),
-                acq_end.strftime("%Y-%m-%d %H:%M:%S"),
-                validity_start.strftime("%Y-%m-%d %H:%M:%S"),
-                validity_end.strftime("%Y-%m-%d %H:%M:%S"),
-                anx.strftime("%Y-%m-%d %H:%M:%S")
-            ))
+            self._logger.debug((f'Create slice #{slice_nr + 1}\n'
+                                f'  acq {acq_start}  -  {acq_end}\n'
+                                f'  validity {validity_start}  -  {validity_end}\n'
+                                f'  anx {anx}'))
             self._create_product(acq_start, acq_end)
-
-            start = slice_end
