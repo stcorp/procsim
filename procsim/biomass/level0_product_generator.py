@@ -390,6 +390,10 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('Begin/end position must be set')
 
+        # Adjust start/stop times, add margins
+        self._hdr.begin_position -= datetime.timedelta(0, self._leading_margin)
+        self._hdr.end_position += datetime.timedelta(0, self._trailing_margin)
+
         # If not read from an input product, use begin/end position as starting point
         if self._hdr.validity_start is None:
             self._hdr.validity_start = self._hdr.begin_position
@@ -397,12 +401,6 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         if self._hdr.validity_stop is None:
             self._hdr.validity_stop = self._hdr.end_position
             self._logger.debug('Use end_position as input for validity stop time')
-
-        # Adjust start/stop times, add margins
-        self._hdr.begin_position -= datetime.timedelta(0, self._leading_margin)
-        self._hdr.end_position += datetime.timedelta(0, self._trailing_margin)
-        self._hdr.validity_start = self._hdr.begin_position
-        self._hdr.validity_stop = self._hdr.end_position
 
         # Setup other MPH fields
         self._hdr.product_type = self._output_type
