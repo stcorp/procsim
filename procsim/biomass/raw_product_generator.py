@@ -30,6 +30,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
     This abstract class is responsible for creating raw products and is used as
     base class for the specific raw product generators.
     '''
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         self._zip_output = False
@@ -186,33 +187,33 @@ class RAWSxxx_10(RawProductGeneratorBase):
         self._hdr.set_phenomenon_times(acq_start, acq_stop)
 
         self._create_raw_product(dir_name, name_gen)
-        
+
     def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
         if segment_start is None or segment_end is None:
             self._logger.error('Phenomenon begin/end times must be known')
             return []
-        
+
         # If insufficient ANX are specified, infer the others.
         anx_list = self._anx_list.copy()
         while segment_start < anx_list[0]:
             anx_list.insert(0, anx_list[0] - self._orbital_period)
         while segment_end > anx_list[-1]:
             anx_list.append(anx_list[-1] + self._orbital_period)
-        
+
         # Find ANX list that covers the segment duration.
         anx_idx_start = bisect.bisect_right(anx_list, segment_start) - 1
         anx_idx_end = bisect.bisect_left(anx_list, segment_end) + 1
-        
+
         # Determine the slices that make up the space between ANX.
         slice_edges = []
         slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
         for anx in anx_list[anx_idx_start:anx_idx_end - 1]:
             new_slice_edges = [(anx + i * self._slice_grid_spacing, anx + (i + 1) * self._slice_grid_spacing) for i in range(slices_per_orbit)]
             slice_edges.extend(new_slice_edges)
-            
+
         # Only keep the slices that overlap the segment.
         slice_edges = [slice for slice in slice_edges if slice[1] >= segment_start and slice[0] <= segment_end]
-        
+
         # Merge the first and last slice with their neighbour if they are going to be too short.
         if slice_edges[0][1] - segment_start < self._slice_minimum_duration:
             slice_edges[1] = (slice_edges[0][0], slice_edges[1][1])
@@ -220,18 +221,18 @@ class RAWSxxx_10(RawProductGeneratorBase):
         if segment_end - slice_edges[-1][0] < self._slice_minimum_duration:
             slice_edges[-2] = (slice_edges[-2][0], slice_edges[-1][1])
             del slice_edges[-1]
-        
+
         return slice_edges
-    
+
     def _generate_sliced_output(self) -> None:
         segment_start = self._hdr.begin_position
         segment_end = self._hdr.end_position
         if segment_start is None or segment_end is None:
             self._logger.error('Phenomenon begin/end times must be known')
             return
-        
+
         slice_edges = self._get_slice_edges(segment_start, segment_end)
-        
+
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
