@@ -1,12 +1,15 @@
 '''
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
+import bisect
 import datetime
 import os
 import re
 import shutil
 from typing import Any, Iterable, List, Optional, Tuple
+from xml.etree import ElementTree as et
 
+from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
@@ -17,6 +20,7 @@ from . import main_product_header, product_name
 
 class GeneratedFile():
     '''Hold some information on a file that is to be generated.'''
+
     def __init__(self, path: List[str] = [], suffix: str = '', extension: str = '', representation: Optional['GeneratedFile'] = None) -> None:
         self.path: List[str] = path
         self.suffix: str = suffix
@@ -77,6 +81,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+        self._anx_list = []
 
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
@@ -220,10 +225,9 @@ class ProductGeneratorBase(IProductGenerator):
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
                     keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
                     self.unzip(file, keep_zip, logger=self._logger)
+                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES:
+                    self._parse_orbit_prediction_file(file)
                 file = root
-                if not os.path.isdir(file):
-                    # TODO: add some code (here?) to support Orbit prediction files, which are not a directory!
-                    continue
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)
@@ -242,6 +246,36 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
             return False
         return True
+
+    def _parse_orbit_prediction_file(self, file_name: str) -> List[datetime.datetime]:
+        '''Get ANX timestamp information from orbit prediction file.'''
+        root = et.parse(file_name).getroot()
+
+        self._anx_list = []
+        for osv in root.findall('{*}Data_Block/{*}List_of_OSVs/{*}OSV'):
+            utc_timestamp = osv.find('{*}UTC')
+            if utc_timestamp is not None and utc_timestamp.text is not None:
+                # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+                self._anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
+        self._anx_list.sort()
+
+        return self._anx_list
+
+    def _get_anx(self, t: datetime.datetime) -> Optional[datetime.datetime]:
+        # Check whether a previous ANX can possibly be found.
+        if not self._anx_list or t < self._anx_list[0]:
+            self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')
+            return None
+        # Returns the latest ANX before the given time
+        # idx = bisect.bisect(self._anx_list, t) - 1
+        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
+        idx = bisect.bisect(self._anx_list, t + sigma) - 1
+        return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
+
+    def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
+        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
+        previous_anx = self._get_anx(start)
+        return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
