@@ -8,6 +8,7 @@ import datetime
 import os
 from typing import Iterable
 
+from procsim.biomass import constants
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
 
@@ -165,6 +166,12 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             start,
             stop
         )
+            
+        # Determine and set the slice number if not set already.
+        if self._hdr.acquisitions[0].slice_frame_nr is None:
+            # Get slice number from middle of slice to deal with merged slices.
+            middle = start + (stop - start) / 2
+            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -317,8 +324,7 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
-        acq = self._hdr.acquisitions[0]
-        acq.slice_frame_nr = None
+        self._hdr.acquisitions[0].slice_frame_nr = None
 
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
@@ -408,8 +414,8 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._output_type
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
-        acq = self._hdr.acquisitions[0]
-        acq.slice_frame_nr = None
+        self._hdr.acquisitions[0].slice_frame_nr = None
+        
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
