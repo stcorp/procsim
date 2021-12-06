@@ -214,29 +214,27 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._logger.debug('Use end_position as input for validity stop time')
 
         # Find data take(s) in this slice and create products for each segment.
-        start = self._hdr.begin_position
         data_takes = self._scenario_config.get('data_takes')
-        if data_takes is None:
+        if not data_takes:
             raise ScenarioError('Missing "data_takes" section in scenario')
+        if any([dt.get('start') is None or dt.get('stop') is None for dt in data_takes]):
+            raise ScenarioError('data_take in config should contain start/stop elements')
+        data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
 
-        nr_products_generated = 0
+        # Select the data takes that fall within the begin and end position.
+        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= self._hdr.end_position
+                      and self._time_from_iso(dt['stop']) >= self._hdr.begin_position]
+
+        start = self._hdr.begin_position
+        stop = self._hdr.end_position
+        if data_takes and start < self._time_from_iso(data_takes[0]['start']):
+            self._logger.warning('Start time outside data takes: using first data take start time')
         for dt in data_takes:
-            dt_start_str = dt.get('start')
-            dt_stop_str = dt.get('stop')
-            if dt_start_str is None or dt_stop_str is None:
-                self._logger.error('data_take in config should contain start/stop elements')
-                return
-            dt_start = self._time_from_iso(dt_start_str)
-            dt_stop = self._time_from_iso(dt_stop_str)
-            if dt_start <= start <= dt_stop:  # Segment starts within this data take
-                end = min(self._hdr.end_position, dt_stop)
-                self._generate_product(start, end, dt)
-                nr_products_generated += 1
-                if end >= self._hdr.end_position:
-                    break
-                start = end
+            dt_start = self._time_from_iso(dt['start'])
+            dt_stop = self._time_from_iso(dt['stop'])
+            self._generate_product(max(start, dt_start), min(dt_stop, stop), dt)
 
-        if nr_products_generated == 0:
+        if len(data_takes) == 0:
             self._logger.info('No products generated, start/stop outside data takes?')
 
 
