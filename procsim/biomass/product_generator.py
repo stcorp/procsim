@@ -9,6 +9,7 @@ import shutil
 from typing import Any, Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
+from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
@@ -79,6 +80,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+        self._anx_list = []
 
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
@@ -222,10 +224,9 @@ class ProductGeneratorBase(IProductGenerator):
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
                     keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
                     self.unzip(file, keep_zip, logger=self._logger)
+                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES:
+                    self._parse_orbit_prediction_file(file)
                 file = root
-                if not os.path.isdir(file):
-                    # TODO: add some code (here?) to support Orbit prediction files, which are not a directory!
-                    continue
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
                     gen.parse_path(file)

@@ -121,6 +121,8 @@ L1S_PRODUCTS: List[str] = [
     'S1_STA__1S', 'S2_STA__1S', 'S3_STA__1S'
 ]
 
+ORBPRE_PRODUCT_TYPES: List[str] = ['MPL_ORBPRE']
+
 
 def find_product(product_type_code: str) -> Optional[ProductType]:
     '''Return ProductType for a given product_type_code, or None if not found'''
