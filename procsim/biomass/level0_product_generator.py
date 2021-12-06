@@ -166,7 +166,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             start,
             stop
         )
-            
+
         # Determine and set the slice number if not set already.
         if self._hdr.acquisitions[0].slice_frame_nr is None:
             # Get slice number from middle of slice to deal with merged slices.
@@ -413,7 +413,7 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
         self._hdr.incomplete_l0_slice = False
         self._hdr.partial_l0_slice = False
         self._hdr.acquisitions[0].slice_frame_nr = None
-        
+
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)

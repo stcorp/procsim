@@ -20,6 +20,7 @@ from . import main_product_header, product_name
 
 class GeneratedFile():
     '''Hold some information on a file that is to be generated.'''
+
     def __init__(self, path: List[str] = [], suffix: str = '', extension: str = '', representation: Optional['GeneratedFile'] = None) -> None:
         self.path: List[str] = path
         self.suffix: str = suffix
@@ -245,7 +246,7 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
             return False
         return True
-    
+
     def _parse_orbit_prediction_file(self, file_name: str) -> List[datetime.datetime]:
         '''Get ANX timestamp information from orbit prediction file.'''
         root = et.parse(file_name).getroot()
@@ -257,7 +258,7 @@ class ProductGeneratorBase(IProductGenerator):
                 # Trim 'UTC=' off the start of the timestamp and convert to datetime.
                 self._anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
         self._anx_list.sort()
-        
+
         return self._anx_list
 
     def _get_anx(self, t: datetime.datetime) -> Optional[datetime.datetime]:
@@ -266,12 +267,15 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')
             return None
         # Returns the latest ANX before the given time
-        idx = bisect.bisect(self._anx_list, t) - 1
+        # idx = bisect.bisect(self._anx_list, t) - 1
+        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
+        idx = bisect.bisect(self._anx_list, t + sigma) - 1
         return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
-    
+
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
+        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         previous_anx = self._get_anx(start)
-        return (start - previous_anx) // spacing + 1 if previous_anx is not None else None
+        return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
