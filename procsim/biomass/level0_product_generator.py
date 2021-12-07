@@ -205,13 +205,24 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('begin/end position must be set')
 
-        # If not read from an input product, use begin/end position as starting point
+        # If not read from an input product, set validity time to slice bounds.
+        # Get slice bounds from middle of slice to deal with merged slices.
+        middle_position = self._hdr.begin_position + (self._hdr.end_position - self._hdr.begin_position) / 2
+        slice_bounds = self._get_slice_frame_interval(middle_position, constants.SLICE_GRID_SPACING)
         if self._hdr.validity_start is None:
-            self._hdr.validity_start = self._hdr.begin_position
-            self._logger.debug('Use begin_position as input for validity start time')
+            if slice_bounds is None:
+                self._logger.warning(f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.begin_position} as validity start.')
+                self._hdr.validity_start = self._hdr.begin_position
+            else:
+                self._logger.debug(f'Use slice start {slice_bounds[0]} as input for validity start time')
+                self._hdr.validity_start = slice_bounds[0] - constants.SLICE_OVERLAP_START
         if self._hdr.validity_stop is None:
-            self._hdr.validity_stop = self._hdr.end_position
-            self._logger.debug('Use end_position as input for validity stop time')
+            if slice_bounds is None:
+                self._logger.warning(f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.end_position} as validity end.')
+                self._hdr.validity_stop = self._hdr.end_position
+            else:
+                self._logger.debug(f'Use slice end {slice_bounds[1]} as input for validity stop time')
+                self._hdr.validity_stop = slice_bounds[1] + constants.SLICE_OVERLAP_END
 
         # Find data take(s) in this slice and create products for each segment.
         data_takes = self._scenario_config.get('data_takes')
