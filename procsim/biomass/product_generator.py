@@ -277,7 +277,9 @@ class ProductGeneratorBase(IProductGenerator):
         previous_anx = self._get_anx(start)
         return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
 
-    def _get_slice_frame_interval(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
+    def _get_slice_frame_interval(self,
+                                  start: datetime.datetime,
+                                  spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
         previous_anx = self._get_anx(start)
         if previous_anx is None:
             return None
