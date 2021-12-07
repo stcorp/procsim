@@ -277,6 +277,16 @@ class ProductGeneratorBase(IProductGenerator):
         previous_anx = self._get_anx(start)
         return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
 
+    def _get_slice_frame_interval(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
+        previous_anx = self._get_anx(start)
+        if previous_anx is None:
+            return None
+        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
+        slice_nr = (start + sigma - previous_anx) // spacing
+        slice_start = previous_anx + slice_nr * spacing
+        slice_end = previous_anx + (slice_nr + 1) * spacing
+        return slice_start, slice_end
+
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
         If param_name is in config, read and set in obj.field.
