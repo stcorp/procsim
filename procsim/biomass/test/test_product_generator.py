@@ -2,30 +2,12 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import datetime
-import os
 import tempfile
 import unittest
 
 from procsim.biomass.product_generator import ProductGeneratorBase
 from procsim.core.job_order import JobOrderOutput
 from procsim.core.logger import Logger
-
-TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
-
-
-class _Logger:
-    def __init__(self):
-        self.count = 0
-
-    def debug(self, *args, **kwargs):
-        # print(*args, **kwargs)
-        pass
-
-    def info(self, *args, **kwargs):
-        pass
-
-    def error(self, *args, **kwargs):
-        print(*args, **kwargs)
 
 
 ORBPRE_DATA = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>

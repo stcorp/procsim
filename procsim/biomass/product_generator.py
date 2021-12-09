@@ -6,7 +6,7 @@ import datetime
 import os
 import re
 import shutil
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
