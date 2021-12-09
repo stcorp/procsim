@@ -137,8 +137,6 @@ class ProductGeneratorBaseTest(unittest.TestCase):
         self.assertEqual(base._anx_list[1], datetime.datetime(2021, 12, 9, 15, 30, 0))
         self.assertEqual(base._anx_list[2], datetime.datetime(2021, 12, 9, 18, 0, 0))
 
-        print(base._anx_list)
-
 
 if __name__ == '__main__':
     unittest.main()
