@@ -211,14 +211,14 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         slice_bounds = self._get_slice_frame_interval(middle_position, constants.SLICE_GRID_SPACING)
         if self._hdr.validity_start is None:
             if slice_bounds is None:
-                self._logger.warning(f'Could not find slice bounds. Using {self._hdr.begin_position} as validity start.')
+                self._logger.warning(f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.begin_position} as validity start.')
                 self._hdr.validity_start = self._hdr.begin_position
             else:
                 self._logger.debug(f'Use slice start {slice_bounds[0]} as input for validity start time')
                 self._hdr.validity_start = slice_bounds[0] - constants.SLICE_OVERLAP_START
         if self._hdr.validity_stop is None:
             if slice_bounds is None:
-                self._logger.warning(f'Could not find slice bounds. Using {self._hdr.end_position} as validity end.')
+                self._logger.warning(f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.end_position} as validity end.')
                 self._hdr.validity_stop = self._hdr.end_position
             else:
                 self._logger.debug(f'Use slice end {slice_bounds[1]} as input for validity stop time')
