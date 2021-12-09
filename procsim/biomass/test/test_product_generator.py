@@ -128,7 +128,14 @@ class ProductGeneratorBaseTest(unittest.TestCase):
         path = f.name
         f.close()
 
+        self.assertEqual(base._anx_list, [])
+
         base._parse_orbit_prediction_file(path)
+
+        self.assertEqual(len(base._anx_list), 3)
+        self.assertEqual(base._anx_list[0], datetime.datetime(2021, 12, 9, 13, 0, 0))
+        self.assertEqual(base._anx_list[1], datetime.datetime(2021, 12, 9, 15, 30, 0))
+        self.assertEqual(base._anx_list[2], datetime.datetime(2021, 12, 9, 18, 0, 0))
 
         print(base._anx_list)
 
