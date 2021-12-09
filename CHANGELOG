@@ -1,6 +1,13 @@
 Procsim Changelog
 -----------------
 
+[v1.5.0] - 2021/12/08
+    - Chg: Read orbit prediction files and retrieve ANX timestamps.
+    - Fix: Issue 13, all product generators can use ANX, if any, to determine slice/frame numbers.
+    - Fix: Issue 14, correct partial L0 slices are generated.
+    - Fix: Issue 15, L0 product generator generates products with a validity time that corresponds with the slice bounds.
+    - Fix: Issue 16, 'eop:codeSpace' in MPH is 'codeSpace' (without namespace).
+
 [v1.4.0] - 2021/10/05
     - Fix: Issue 3, require scenario output types to be a subset of task job order possible outputs, instead of being strictly equal.
     - Fix: Issue 6, a list with internal files is added to the MPH (including the browse image).
