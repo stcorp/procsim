@@ -282,7 +282,7 @@ class ProductGeneratorBase(IProductGenerator):
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
         sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         previous_anx = self._get_anx(start)
-        return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
+        return (start + sigma - previous_anx) // spacing + 1 if previous_anx is not None else None
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
