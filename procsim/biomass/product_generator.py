@@ -6,7 +6,7 @@ import datetime
 import os
 import re
 import shutil
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
@@ -251,12 +251,19 @@ class ProductGeneratorBase(IProductGenerator):
         '''Get ANX timestamp information from orbit prediction file.'''
         root = et.parse(file_name).getroot()
 
+        # Get the default namespace, if any.
+        ns = {}
+        if root.tag[0] == '{':
+            uri = root.tag[1:root.tag.index('}')]
+            ns['d'] = uri
+
+        # Find all OSV elements containing ANX timestamps.
         self._anx_list = []
-        for osv in root.findall('{*}Data_Block/{*}List_of_OSVs/{*}OSV'):
-            utc_timestamp = osv.find('{*}UTC')
-            if utc_timestamp is not None and utc_timestamp.text is not None:
+        for utc_timestamp in root.findall('d:Data_Block/d:List_of_OSVs/d:OSV/d:UTC', ns):
+            if utc_timestamp.text is not None:
                 # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-                self._anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
+                self._anx_list.append(self._time_from_iso(utc_timestamp.text[4:]))
+
         self._anx_list.sort()
 
         return self._anx_list
@@ -275,7 +282,7 @@ class ProductGeneratorBase(IProductGenerator):
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
         sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         previous_anx = self._get_anx(start)
-        return (start + sigma - previous_anx) // spacing if previous_anx is not None else None
+        return (start + sigma - previous_anx) // spacing + 1 if previous_anx is not None else None
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
