@@ -258,11 +258,11 @@ class ProductGeneratorBase(IProductGenerator):
             ns['d'] = uri
 
         # Find all OSV elements containing ANX timestamps.
-        anx_list = []
+        self._anx_list = []
         for utc_timestamp in root.findall('d:Data_Block/d:List_of_OSVs/d:OSV/d:UTC', ns):
             if utc_timestamp.text is not None:
                 # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-                anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
+                self._anx_list.append(self._time_from_iso(utc_timestamp.text[4:]))
 
         self._anx_list.sort()
 
