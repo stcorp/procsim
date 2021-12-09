@@ -251,12 +251,19 @@ class ProductGeneratorBase(IProductGenerator):
         '''Get ANX timestamp information from orbit prediction file.'''
         root = et.parse(file_name).getroot()
 
-        self._anx_list = []
-        for osv in root.findall('{*}Data_Block/{*}List_of_OSVs/{*}OSV'):
-            utc_timestamp = osv.find('{*}UTC')
-            if utc_timestamp is not None and utc_timestamp.text is not None:
+        # Get the default namespace, if any.
+        ns = {}
+        if root.tag[0] == '{':
+            uri = root.tag[1:root.tag.index('}')]
+            ns['d'] = uri
+
+        # Find all OSV elements containing ANX timestamps.
+        anx_list = []
+        for utc_timestamp in root.findall('d:Data_Block/d:List_of_OSVs/d:OSV/d:UTC', ns):
+            if utc_timestamp.text is not None:
                 # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-                self._anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
+                anx_list.append(datetime.datetime.fromisoformat(utc_timestamp.text[4:]))
+
         self._anx_list.sort()
 
         return self._anx_list
