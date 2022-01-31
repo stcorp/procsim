@@ -225,7 +225,8 @@ class ProductGeneratorBase(IProductGenerator):
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
                     keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
                     self.unzip(file, keep_zip, logger=self._logger)
-                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES:
+                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
+                    # Only parse orbit prediction files if no ANX information was present in the scenario.
                     self._parse_orbit_prediction_file(file)
                 file = root
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
