@@ -147,10 +147,8 @@ class RAWSxxx_10(RawProductGeneratorBase):
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         # Get anx list from config. Can be located at either scenario or product level
-        anx_list = output_config.get('anx') or scenario_config.get('anx')
-        if anx_list is None:
-            raise ScenarioError('ANX must be configured for RAWSxxx_10 product')
-        self._anx_list = [self._time_from_iso(anx) for anx in anx_list]
+        scenario_anx_list = output_config.get('anx', []) or scenario_config.get('anx', [])
+        self._anx_list.extend([self._time_from_iso(anx) for anx in scenario_anx_list])
         self._anx_list.sort()
         self._enable_slicing = True
         self._slice_grid_spacing = constants.SLICE_GRID_SPACING
@@ -189,10 +187,6 @@ class RAWSxxx_10(RawProductGeneratorBase):
         self._create_raw_product(dir_name, name_gen)
 
     def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
-        if segment_start is None or segment_end is None:
-            self._logger.error('Phenomenon begin/end times must be known')
-            return []
-
         # If insufficient ANX are specified, infer the others.
         anx_list = self._anx_list.copy()
         while segment_start < anx_list[0]:
@@ -228,8 +222,10 @@ class RAWSxxx_10(RawProductGeneratorBase):
         segment_start = self._hdr.begin_position
         segment_end = self._hdr.end_position
         if segment_start is None or segment_end is None:
-            self._logger.error('Phenomenon begin/end times must be known')
-            return
+            raise ScenarioError('Phenomenon begin/end times must be known')
+
+        if not self._anx_list:
+            raise ScenarioError('ANX must be configured for RAWSxxx_10 product, either in the scenario or orbit prediction file')
 
         slice_edges = self._get_slice_edges(segment_start, segment_end)
 
