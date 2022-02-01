@@ -88,6 +88,12 @@
           "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_026_10",
           "size": 20
+        },
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW___HKTM",
+          "size": 20
         }
       ],
       "exit_code": 0
@@ -338,6 +344,10 @@
           "type": "RAW_024_10",
           "size": 0
         },
+        {
+          "type": "RAW___HKTM",
+          "size": 0
+        },
         // Data take #1
         {
           "begin_position": "2021-02-01T00:24:32.000Z",
@@ -585,6 +595,10 @@
         },
         {
           "type": "RAW_024_10",
+          "size": 0
+        },
+        {
+          "type": "RAW___HKTM",
           "size": 0
         },
         // Data take #1

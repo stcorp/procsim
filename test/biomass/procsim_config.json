@@ -53,6 +53,11 @@
       "outputs": [
         {
           "enable": true,
+          "type": "RAW___HKTM",
+          "size": 10
+        },
+        {
+          "enable": true,
           "type": "RAW_022_10",
           "size": 10
         },
@@ -331,6 +336,10 @@
       // Outputs to generate
       "outputs": [
         {
+          "type": "RAW___HKTM",
+          "size": 0
+        },
+        {
           "type": "RAW_022_10",
           "size": 0
         },
@@ -582,6 +591,10 @@
 
       // Outputs to generate
       "outputs": [
+        {
+          "type": "RAW___HKTM",
+          "size": 0
+        },
         {
           "type": "RAW_022_10",
           "size": 0

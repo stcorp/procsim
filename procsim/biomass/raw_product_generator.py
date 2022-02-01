@@ -63,7 +63,7 @@ class RAW_xxx_10(RawProductGeneratorBase):
     '''
     PRODUCTS = ['RAW_022_10', 'RAW_023_10', 'RAW_024_10', 'RAW_025_10',
                 'RAW_026_10', 'RAW_027_10', 'RAW_028_10', 'RAW_035_10',
-                'RAW_036_10']
+                'RAW_036_10', 'RAW___HKTM']
 
     HDR_PARAMS = [
         ('begin_position', 'begin_position', 'date'),

@@ -52,7 +52,7 @@
               {"type": "MPL_ORBREF"},{"type": "MPL_REFAUX"},{"type": "MPL_ORBPRE"},
 
               {"type": "RAW_022_10"},{"type": "RAW_023_10"},{"type": "RAW_024_10"},{"type": "RAW_025_10"},{"type": "RAW_026_10"},{"type": "RAW_027_10"},
-              {"type": "RAW_028_10"},{"type": "RAW_035_10"},{"type": "RAW_036_10"},
+              {"type": "RAW_028_10"},{"type": "RAW_035_10"},{"type": "RAW_036_10"},{"type": "RAW___HKTM"},
 
               {"type": "RAWS022_10"},{"type": "RAWS023_10"},{"type": "RAWS024_10"},{"type": "RAWS025_10"},{"type": "RAWS026_10"},{"type": "RAWS027_10"},
               {"type": "RAWS028_10"},{"type": "RAWS035_10"},{"type": "RAWS036_10"},
