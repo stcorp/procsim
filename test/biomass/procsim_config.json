@@ -44,6 +44,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "zip_output": true,
@@ -51,6 +54,11 @@
       "output_path": "data/raw_sm",  // Default is CWD, or read from job order if any
       "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
       "outputs": [
+        {
+          "enable": true,
+          "type": "RAW___HKTM",
+          "size": 10
+        },
         {
           "enable": true,
           "type": "RAW_022_10",
@@ -327,9 +335,16 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
+        {
+          "type": "RAW___HKTM",
+          "size": 0
+        },
         {
           "type": "RAW_022_10",
           "size": 0
@@ -579,9 +594,16 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
+        {
+          "type": "RAW___HKTM",
+          "size": 0
+        },
         {
           "type": "RAW_022_10",
           "size": 0

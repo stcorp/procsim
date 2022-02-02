@@ -35,6 +35,17 @@ class _TestData():
 _TEST_DATA: List[_TestData] = [
     _TestData(
         'raw',
+        'BIO_RAW___HKTM_20210201T000000_20210201T013810_D20210201T013811_01_B07390',
+        'bio_raw___hktm_20210201t000000_20210201t013810_d20210201t013811.dat',
+        'RAW___HKTM',
+        datetime.datetime(2021, 2, 1, 0, 0, 0),
+        datetime.datetime(2021, 2, 1, 1, 38, 10),
+        datetime.datetime(2021, 2, 1, 1, 39, 0),
+        1,
+        datetime.datetime(2021, 2, 1, 1, 38, 11)
+    ),
+    _TestData(
+        'raw',
         'BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_B07390',
         'bio_raw_022_10_20210201t000000_20210201t013810_d20210201t013811.dat',
         'RAW_022_10',

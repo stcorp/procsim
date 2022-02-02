@@ -44,6 +44,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "output_path": "workspace",  // default is CWD, or read from job order if any
@@ -87,6 +90,12 @@
           "begin_position": "2021-02-01T00:34:32.000Z",
           "end_position": "2021-02-01T00:39:32.000Z",
           "type": "RAW_026_10",
+          "size": 20
+        },
+        {
+          "begin_position": "2021-02-01T00:34:32.000Z",
+          "end_position": "2021-02-01T00:39:32.000Z",
+          "type": "RAW___HKTM",
           "size": 20
         }
       ],
@@ -323,6 +332,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
@@ -336,6 +348,10 @@
         },
         {
           "type": "RAW_024_10",
+          "size": 0
+        },
+        {
+          "type": "RAW___HKTM",
           "size": 0
         },
         // Data take #1
@@ -572,6 +588,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
@@ -585,6 +604,10 @@
         },
         {
           "type": "RAW_024_10",
+          "size": 0
+        },
+        {
+          "type": "RAW___HKTM",
           "size": 0
         },
         // Data take #1
