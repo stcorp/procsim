@@ -173,7 +173,13 @@ class RAWSxxx_10(RawProductGeneratorBase):
         ('slice_overlap_start', '_slice_overlap_start', 'float'),
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
         ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
-        ('orbital_period', '_orbital_period', 'float')
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    HDR_PARAMS = [
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -191,7 +197,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
-        return gen + self.GENERATOR_PARAMS, hdr, acq
+        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq
 
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
