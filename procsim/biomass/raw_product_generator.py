@@ -18,9 +18,6 @@ _GENERATOR_PARAMS = [
 _HDR_PARAMS = [
     ('acquisition_date', 'acquisition_date', 'date'),
     ('acquisition_station', 'acquisition_station', 'str'),
-    ('num_isp', 'nr_instrument_source_packets', 'int'),
-    ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
-    ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
 ]
 _ACQ_PARAMS = []
 
@@ -107,10 +104,10 @@ class RAW_xxx_10(UnslicedRawGeneratorBase):
                 'RAW_026_10', 'RAW_027_10', 'RAW_028_10', 'RAW_035_10',
                 'RAW_036_10']
 
-    _HDR_PARAMS = [
-        ('nr_instrument_source_packets', 'nr_instrument_source_packets', 'int'),
-        ('nr_instrument_source_packets_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
-        ('nr_instrument_source_packets_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
+    HDR_PARAMS = [
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
     def get_params(self):
@@ -125,10 +122,10 @@ class RAW___HKTM(UnslicedRawGeneratorBase):
     '''
     PRODUCTS = ['RAW___HKTM']
 
-    _HDR_PARAMS = [
-        ('nr_transfer_frames_packets', 'nr_transfer_frames_packets', 'int'),
-        ('nr_transfer_frames_packets_erroneous', 'nr_transfer_frames_packets_erroneous', 'int'),
-        ('nr_transfer_frames_packets_corrupt', 'nr_transfer_frames_packets_corrupt', 'int'),
+    HDR_PARAMS = [
+        ('num_tf', 'nr_transfer_frames', 'int'),
+        ('num_tf_erroneous', 'nr_transfer_frames_erroneous', 'int'),
+        ('num_tf_corrupt', 'nr_transfer_frames_corrupt', 'int')
     ]
 
     def get_params(self):
