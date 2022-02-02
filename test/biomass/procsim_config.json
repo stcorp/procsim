@@ -44,6 +44,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "zip_output": true,
@@ -332,6 +335,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
@@ -588,6 +594,9 @@
       "num_isp": 387200,
       "num_isp_erroneous": 0,
       "num_isp_corrupt": 0,
+      "num_tf": 387200,
+      "num_tf_erroneous": 0,
+      "num_tf_corrupt": 0,
 
       // Outputs to generate
       "outputs": [
