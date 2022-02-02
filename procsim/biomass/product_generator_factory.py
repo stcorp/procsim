@@ -19,7 +19,7 @@ from . import mpl_product_generator as mpl
 _GENERATORS = [
     aux.Aux,
     mpl.Mpl,
-    raw.RAW_xxx_10, raw.RAWSxxx_10,
+    raw.RAW_xxx_10, raw.RAW___HKTM, raw.RAWSxxx_10,
     level0.Sx_RAW__0x, level0.Sx_RAW__0M, level0.AC_RAW__0A,
     level1.Level1Stripmap, level1.Level1Stack,
     level2.Level2a

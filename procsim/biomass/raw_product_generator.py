@@ -56,14 +56,11 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
             self.zip_folder(full_dir_name, self._zip_extension)
 
 
-class RAW_xxx_10(RawProductGeneratorBase):
+class UnslicedRawGeneratorBase(RawProductGeneratorBase):
     '''
     This class implements the RawProductGeneratorBase and is responsible for
     the raw products generation.
     '''
-    PRODUCTS = ['RAW_022_10', 'RAW_023_10', 'RAW_024_10', 'RAW_025_10',
-                'RAW_026_10', 'RAW_027_10', 'RAW_028_10', 'RAW_035_10',
-                'RAW_036_10', 'RAW___HKTM']
 
     HDR_PARAMS = [
         ('begin_position', 'begin_position', 'date'),
@@ -99,6 +96,44 @@ class RAW_xxx_10(RawProductGeneratorBase):
         self._hdr.set_validity_times(start, stop)
 
         self._create_raw_product(dir_name, name_gen)
+
+
+class RAW_xxx_10(UnslicedRawGeneratorBase):
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    raw non-HKTM product generation.
+    '''
+    PRODUCTS = ['RAW_022_10', 'RAW_023_10', 'RAW_024_10', 'RAW_025_10',
+                'RAW_026_10', 'RAW_027_10', 'RAW_028_10', 'RAW_035_10',
+                'RAW_036_10']
+
+    _HDR_PARAMS = [
+        ('nr_instrument_source_packets', 'nr_instrument_source_packets', 'int'),
+        ('nr_instrument_source_packets_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('nr_instrument_source_packets_corrupt', 'nr_instrument_source_packets_corrupt', 'int'),
+    ]
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + self.HDR_PARAMS, acq
+
+
+class RAW___HKTM(UnslicedRawGeneratorBase):
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    HKTM product generation.
+    '''
+    PRODUCTS = ['RAW___HKTM']
+
+    _HDR_PARAMS = [
+        ('nr_transfer_frames_packets', 'nr_transfer_frames_packets', 'int'),
+        ('nr_transfer_frames_packets_erroneous', 'nr_transfer_frames_packets_erroneous', 'int'),
+        ('nr_transfer_frames_packets_corrupt', 'nr_transfer_frames_packets_corrupt', 'int'),
+    ]
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + self.HDR_PARAMS, acq
 
 
 class RAWSxxx_10(RawProductGeneratorBase):
