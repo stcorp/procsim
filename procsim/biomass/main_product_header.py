@@ -176,13 +176,13 @@ class MainProductHeader:
         self.acquisition_station: Optional[str] = None
         self.acquisition_date: Optional[datetime.datetime] = None
         # Raw, HKTM only
-        self.nr_transfer_frames = None
-        self.nr_transfer_frames_erroneous = None
-        self.nr_transfer_frames_corrupt = None
+        self.nr_transfer_frames: Optional[int] = None
+        self.nr_transfer_frames_erroneous: Optional[int] = None
+        self.nr_transfer_frames_corrupt: Optional[int] = None
         # Raw, science/ancillary only
-        self.nr_instrument_source_packets = None
-        self.nr_instrument_source_packets_erroneous = None
-        self.nr_instrument_source_packets_corrupt = None
+        self.nr_instrument_source_packets: Optional[int] = None
+        self.nr_instrument_source_packets_erroneous: Optional[int] = None
+        self.nr_instrument_source_packets_corrupt: Optional[int] = None
 
         # L0 only
         self.nr_l0_lines: Optional[str] = None           # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
@@ -558,14 +558,15 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, bio + 'TAI-UTC').text = str(self.tai_utc_diff)
 
         if level in ['raw']:
+            # Set transfer frames or instrument source packets to 0 if not present.
             if self._product_type.type == 'RAW___HKTM':
-                et.SubElement(earth_observation_meta_data, bio + 'numOfTFs').text = str(self.nr_transfer_frames)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfTFs').text = str(self.nr_transfer_frames or 0)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous or 0)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt or 0)
             else:
-                et.SubElement(earth_observation_meta_data, bio + 'numOfISPs').text = str(self.nr_instrument_source_packets)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfISPsWithErrors').text = str(self.nr_instrument_source_packets_erroneous)
-                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedISPs').text = str(self.nr_instrument_source_packets_corrupt)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfISPs').text = str(self.nr_instrument_source_packets or 0)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfISPsWithErrors').text = str(self.nr_instrument_source_packets_erroneous or 0)
+                et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedISPs').text = str(self.nr_instrument_source_packets_corrupt or 0)
 
         if level in ['l0']:
             et.SubElement(earth_observation_meta_data, bio + 'numOfLines').text = self.nr_l0_lines
