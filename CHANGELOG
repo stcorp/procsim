@@ -1,6 +1,10 @@
 Procsim Changelog
 -----------------
 
+[v1.6.0] - 2021/02/14
+    - Add: Issue 23, support the production of RAW___HKTM products.
+    - Fix: Issue 24, ANX no longer has to be specified in the scenario if an orbit prediction file is present.
+
 [v1.5.0] - 2021/12/08
     - Chg: Read orbit prediction files and retrieve ANX timestamps.
     - Fix: Issue 13, all product generators can use ANX, if any, to determine slice/frame numbers.
