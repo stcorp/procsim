@@ -1,7 +1,7 @@
 Procsim Changelog
 -----------------
 
-[v1.6.0] - 2021/02/14
+[v1.6.0] - 2022/02/14
     - Add: Issue 23, support the production of RAW___HKTM products.
     - Fix: Issue 24, ANX no longer has to be specified in the scenario if an orbit prediction file is present.
 

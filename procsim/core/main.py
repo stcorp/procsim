@@ -243,7 +243,7 @@ def _generate_intermediate_files(logger, job_task: Optional[JobOrderTask]):
 
 
 versiontext = "procsim v" + __version__ + \
-    ", Copyright (C) 2021 S[&]T, The Netherlands."
+    ", Copyright (C) 2022 S[&]T, The Netherlands."
 procsim_description = \
     "Simulate a processor task, using a scenario read from config_filename."
 
