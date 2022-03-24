@@ -127,7 +127,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         # MPL ORBPRE
         level='mpl',
-        dir='BIO_TEST_MPL_ORBPRE_20210201T000000_20210202T000000_0001',
+        dir='BIO_TEST_MPL_ORBPRE_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_ORBPRE',
         start=datetime.datetime(2021, 2, 1, 0, 0, 0),
@@ -141,7 +141,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         # MPL ORBREF
         level='mpl',
-        dir='BIO_TEST_MPL_ORBREF_20210201T000000_20210202T000000_0001',
+        dir='BIO_TEST_MPL_ORBREF_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_ORBREF',
         start=datetime.datetime(2021, 2, 1, 0, 0, 0),
@@ -155,7 +155,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         # MPL REFAUX
         level='mpl',
-        dir='BIO_TEST_MPL_REFAUX_20210201T000000_20210202T000000_0001',
+        dir='BIO_TEST_MPL_REFAUX_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_REFAUX',
         start=datetime.datetime(2021, 2, 1, 0, 0, 0),
