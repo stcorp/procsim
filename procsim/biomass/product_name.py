@@ -53,6 +53,10 @@ class ProductName:
         self._track_nr = None
         self._frame_slice_nr_str = None
 
+        # MPL only
+        self._file_class = None
+        self._version_nr = None
+
     @property
     def mission_phase(self):
         for phase in self.MISSION_PHASES:
@@ -143,6 +147,29 @@ class ProductName:
                 raise GeneratorError('frame_slice_nr should be 3 digits')
             self._frame_slice_nr_str = '{:03}'.format(int(nr))
 
+    @property
+    def file_class(self):
+        return self._file_class
+
+    @file_class.setter
+    def file_class(self, class_type):
+        if class_type != 'OPER' and class_type != 'TEST':
+            raise GeneratorError('file_class should be OPER or TEST')
+        self._file_class = class_type
+
+    @property
+    def version_nr(self):
+        if self._version_nr is not None:
+            return int(self._version_nr)
+        return None
+
+    @version_nr.setter
+    def version_nr(self, nr):
+        inr = int(nr)
+        if inr < 0 or inr > 99:
+            raise GeneratorError('version_nr should be 2 digits')
+        self._version_nr = f'{inr:02}'
+
     def set_creation_date(self, time: Optional[datetime.datetime]):
         '''
         Convert to 'compact create date, see the spec.
@@ -207,12 +234,7 @@ class ProductName:
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
         # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>
-        name = '{}_{}_{}_{}'\
-            .format(constants.SATELLITE_ID,
-                    self._file_type,
-                    self.time_to_str(self.start_time),
-                    self.time_to_str(self.stop_time))
-        return name
+        return f'{constants.SATELLITE_ID}_{self._file_type}_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'
 
     def generate_path_name(self):
         # Returns directory name
@@ -233,6 +255,10 @@ class ProductName:
                 self.baseline_identifier,
                 self._compact_create_date
             )
+        elif self._level == 'mpl':
+            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
+                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
+                + f'_{self.baseline_identifier:02}{self.version_nr:02}'
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')
