@@ -200,7 +200,9 @@ class ProductNameTest(unittest.TestCase):
             self.assertEqual(pn.baseline_identifier, d.baseline)
             self.assertEqual(pn.start_time, d.start)
             self.assertEqual(pn.stop_time, d.stop)
-            self.assertEqual(pn._compact_create_date, d.dir[-6:])
+            if pn._compact_create_date:
+                # Not all product names have a creation date.
+                self.assertEqual(pn._compact_create_date, d.dir[-6:])
             if d.level == 'raw':
                 self.assertEqual(pn.downlink_time, d.downlink)
             elif d.level == 'aux':
@@ -212,6 +214,10 @@ class ProductNameTest(unittest.TestCase):
                 self.assertEqual(pn.repeat_cycle_id, d.repeat_cycle_id)
                 self.assertEqual(pn._track_nr, d.track_nr)
                 self.assertEqual(pn.frame_slice_nr, d.frame_nr)
+            elif d.level == 'mpl':
+                self.assertEqual(pn.file_class, d.file_class)
+                self.assertEqual(pn.baseline_identifier, d.baseline)
+                self.assertEqual(pn.version_nr, d.version_nr)
             else:
                 assert()
 

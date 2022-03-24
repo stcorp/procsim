@@ -6,11 +6,32 @@ BIO-ESA-EOPG-EEGS-TN-0050, BIOMASS Products Naming Convention.
 '''
 import datetime
 import os
+import re
 from typing import Optional
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 
 from . import constants, product_types
+
+# REGEXes for Biomass product names.
+# Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
+# For now, consider them all as 'validity'.
+_REGEX_RAW_PRODUCT_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'D(?P<downlink_time>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})$')
+
+_REGEX_L012_PRODUCT_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<mission_phase>[CIT])_G(?P<global_cov>[0-9_]{2})_M(?P<major>[0-9_]{2})_C(?P<repeat>[0-9_]{2})_'
+    r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})$')
+
+_REGEX_AUX_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_'
+    r'(?P<create_date>[0-9A-Z]{6})$')
+
+_REGEX_FOS_FILE_NAME = re.compile(
+    r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})(?P<version>[0-9]{2})$')
 
 
 class ProductName:
@@ -187,49 +208,59 @@ class ProductName:
                 date36 = chr(x + 65 - 10) + date36
         self._compact_create_date = date36
 
-    def _parse_raw(self, file):
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self.downlink_time = self.str_to_time(file[48:63])
-        self.baseline_identifier = int(file[64:66])
-        self._compact_create_date = file[67:73]
+    def _parse_raw(self, re_result):
+        self.file_type = re_result['type']
+        self.start_time = self.str_to_time(re_result['vstart'])
+        self.stop_time = self.str_to_time(re_result['vstop'])
+        self.downlink_time = self.str_to_time(re_result['downlink_time'])
+        self.baseline_identifier = int(re_result['baseline'])
+        self._compact_create_date = re_result['create_date']
 
-    def _parse_aux(self, file):
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self.baseline_identifier = int(file[47:49])
-        self._compact_create_date = file[50:56]
+    def _parse_aux(self, re_result):
+        self.file_type = re_result['type']
+        self.start_time = self.str_to_time(re_result['vstart'])
+        self.stop_time = self.str_to_time(re_result['vstop'])
+        self.baseline_identifier = int(re_result['baseline'])
+        self._compact_create_date = re_result['create_date']
 
-    def _parse_level0_1_2a(self, file):
-        # Format:
-        # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-        # We can't split using 'split', as the IDs can also contain underscores!
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self._mission_phase_id = file[47]
-        self._global_coverage_id_str = file[50:52]
-        self._major_cycle_id_str = file[54:56]
-        self._repeat_cycle_id_str = file[58:60]
-        self._track_nr = file[62:65]
-        self._frame_slice_nr_str = file[67:70]
-        self.baseline_identifier = int(file[71:73])
-        self._compact_create_date = file[74:80]
+    def _parse_level0_1_2a(self, re_result):
+        self.file_type = re_result['type']
+        self.start_time = self.str_to_time(re_result['vstart'])
+        self.stop_time = self.str_to_time(re_result['vstop'])
+        self._mission_phase_id = re_result['mission_phase']
+        self._global_coverage_id_str = re_result['global_cov']
+        self._major_cycle_id_str = re_result['major']
+        self._repeat_cycle_id_str = re_result['repeat']
+        self._track_nr = re_result['track']
+        self._frame_slice_nr_str = re_result['frame_slice']
+        self.baseline_identifier = int(re_result['baseline'])
+        self._compact_create_date = re_result['create_date']
+
+    def _parse_mpl(self, re_result):
+        self.file_class = re_result['class']
+        self.file_type = re_result['type']
+        self.start_time = self.str_to_time(re_result['vstart'])
+        self.stop_time = self.str_to_time(re_result['vstop'])
+        self.baseline_identifier = int(re_result['baseline'])
+        self.version_nr = int(re_result['version'])
 
     def parse_path(self, path):
-        # Extract parameters from path name, return True if succesfull.
-        file = os.path.basename(path)
-        id = file[0:3]
-        if id != constants.SATELLITE_ID:
-            raise GeneratorError('Incorrect satellite ID in file path {}, must be {}'.format(id, constants.SATELLITE_ID))
-        self.file_type = file[4:14]
-        if self._level == 'raw':
-            self._parse_raw(file)
-        elif self._level == 'aux':
-            self._parse_aux(file)
-        elif self._level == 'l0' or self._level == 'l1' or self._level == '2a' or self._level == 'aux':
-            self._parse_level0_1_2a(file)
-        else:
-            raise GeneratorError('Cannot handle type {}'.format(self.file_type))
+        # Extract parameters from path name, return True if successful.
+        filename = os.path.basename(path)
+
+        REGEX_PARSE_FUNCTIONS = [
+            (_REGEX_RAW_PRODUCT_NAME, self._parse_raw),
+            (_REGEX_AUX_NAME, self._parse_aux),
+            (_REGEX_L012_PRODUCT_NAME, self._parse_level0_1_2a),
+            (_REGEX_FOS_FILE_NAME, self._parse_mpl)]
+
+        for regex, parse_function in REGEX_PARSE_FUNCTIONS:
+            m = regex.match(filename)
+            if m:
+                parse_function(m.groupdict())
+                return True
+
+        raise GeneratorError(f'Cannot recognise file {filename}')
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
