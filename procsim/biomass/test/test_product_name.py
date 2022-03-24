@@ -125,11 +125,39 @@ _TEST_DATA: List[_TestData] = [
         None
     ),
     _TestData(
-        # MPL
+        # MPL ORBPRE
         level='mpl',
         dir='BIO_TEST_MPL_ORBPRE_20210201T000000_20210202T000000_0001',
         bin=None,
         type='MPL_ORBPRE',
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        baseline=0,
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        file_class='TEST',
+        version_nr=1
+    ),
+    _TestData(
+        # MPL ORBREF
+        level='mpl',
+        dir='BIO_TEST_MPL_ORBREF_20210201T000000_20210202T000000_0001',
+        bin=None,
+        type='MPL_ORBREF',
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        baseline=0,
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        file_class='TEST',
+        version_nr=1
+    ),
+    _TestData(
+        # MPL REFAUX
+        level='mpl',
+        dir='BIO_TEST_MPL_REFAUX_20210201T000000_20210202T000000_0001',
+        bin=None,
+        type='MPL_REFAUX',
         start=datetime.datetime(2021, 2, 1, 0, 0, 0),
         stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
         create=datetime.datetime(2022, 2, 22, 10, 15, 6),
