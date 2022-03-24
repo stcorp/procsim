@@ -109,6 +109,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         for input in input_products:
             if input.file_type in hv_products:
                 for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
@@ -294,6 +297,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
         id = self._hdr.acquisitions[0].data_take_id
         for input in input_products:
             for file in input.file_names:
+                # Skip non-directory products. These have already been parsed in the superclass.
+                if not os.path.isdir(file):
+                    continue
                 gen = product_name.ProductName(self._compact_creation_date_epoch)
                 gen.parse_path(file)
                 # Derive mph file name from product name, parse header

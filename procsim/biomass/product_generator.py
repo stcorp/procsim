@@ -207,7 +207,7 @@ class ProductGeneratorBase(IProductGenerator):
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
         For all files:
-            - check if it is a (zipped) directory (all biomass products are directories)
+            - check if it is a (zipped) directory (all biomass products except MPL are directories)
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
