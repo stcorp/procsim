@@ -47,7 +47,11 @@ class ProductName:
 
     @classmethod
     def str_to_time(cls, s):
-        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT)
+        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT) if s else None
+
+    @classmethod
+    def str_to_int(cls, s):
+        return int(s) if s else None
 
     @classmethod
     def time_to_str(cls, t):
@@ -174,7 +178,7 @@ class ProductName:
 
     @file_class.setter
     def file_class(self, class_type):
-        if class_type != 'OPER' and class_type != 'TEST':
+        if class_type and class_type != 'OPER' and class_type != 'TEST':
             raise GeneratorError('file_class should be OPER or TEST')
         self._file_class = class_type
 
@@ -186,6 +190,8 @@ class ProductName:
 
     @version_nr.setter
     def version_nr(self, nr):
+        if not nr:
+            return
         inr = int(nr)
         if inr < 0 or inr > 99:
             raise GeneratorError('version_nr should be 2 digits')
@@ -208,56 +214,29 @@ class ProductName:
                 date36 = chr(x + 65 - 10) + date36
         self._compact_create_date = date36
 
-    def _parse_raw(self, re_result):
-        self.file_type = re_result['type']
-        self.start_time = self.str_to_time(re_result['vstart'])
-        self.stop_time = self.str_to_time(re_result['vstop'])
-        self.downlink_time = self.str_to_time(re_result['downlink_time'])
-        self.baseline_identifier = int(re_result['baseline'])
-        self._compact_create_date = re_result['create_date']
-
-    def _parse_aux(self, re_result):
-        self.file_type = re_result['type']
-        self.start_time = self.str_to_time(re_result['vstart'])
-        self.stop_time = self.str_to_time(re_result['vstop'])
-        self.baseline_identifier = int(re_result['baseline'])
-        self._compact_create_date = re_result['create_date']
-
-    def _parse_level0_1_2a(self, re_result):
-        self.file_type = re_result['type']
-        self.start_time = self.str_to_time(re_result['vstart'])
-        self.stop_time = self.str_to_time(re_result['vstop'])
-        self._mission_phase_id = re_result['mission_phase']
-        self._global_coverage_id_str = re_result['global_cov']
-        self._major_cycle_id_str = re_result['major']
-        self._repeat_cycle_id_str = re_result['repeat']
-        self._track_nr = re_result['track']
-        self._frame_slice_nr_str = re_result['frame_slice']
-        self.baseline_identifier = int(re_result['baseline'])
-        self._compact_create_date = re_result['create_date']
-
-    def _parse_mpl(self, re_result):
-        self.file_class = re_result['class']
-        self.file_type = re_result['type']
-        self.start_time = self.str_to_time(re_result['vstart'])
-        self.stop_time = self.str_to_time(re_result['vstop'])
-        self.baseline_identifier = int(re_result['baseline'])
-        self.version_nr = int(re_result['version'])
-
     def parse_path(self, path):
         # Extract parameters from path name, return True if successful.
         filename = os.path.basename(path)
 
-        REGEX_PARSE_FUNCTIONS = [
-            (_REGEX_RAW_PRODUCT_NAME, self._parse_raw),
-            (_REGEX_AUX_NAME, self._parse_aux),
-            (_REGEX_L012_PRODUCT_NAME, self._parse_level0_1_2a),
-            (_REGEX_FOS_FILE_NAME, self._parse_mpl)]
-
-        for regex, parse_function in REGEX_PARSE_FUNCTIONS:
-            m = regex.match(filename)
-            if m:
-                parse_function(m.groupdict())
+        # Set all fields that can be extracted from the filename; set others to None.
+        for regex in [_REGEX_RAW_PRODUCT_NAME, _REGEX_AUX_NAME, _REGEX_L012_PRODUCT_NAME, _REGEX_FOS_FILE_NAME]:
+            match = regex.match(filename)
+            if match:
+                match_dict = match.groupdict()
+                self.file_class = match_dict.get('class')
+                self.file_type = match_dict.get('type')
+                self.start_time = self.str_to_time(match_dict.get('vstart'))
+                self.stop_time = self.str_to_time(match_dict.get('vstop'))
+                self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
+                self.baseline_identifier = self.str_to_int(match_dict.get('baseline'))
+                self._compact_create_date = match_dict.get('create_date')
+                self._mission_phase_id = match_dict.get('mission_phase')
+                self._global_coverage_id_str = match_dict.get('global_cov')
+                self._major_cycle_id_str = match_dict.get('major')
+                self._repeat_cycle_id_str = match_dict.get('repeat')
+                self._track_nr = match_dict.get('track')
+                self._frame_slice_nr_str = match_dict.get('frame_slice')
+                self.version_nr = self.str_to_int(match_dict.get('version'))
                 return True
 
         raise GeneratorError(f'Cannot recognise file {filename}')
