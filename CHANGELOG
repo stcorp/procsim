@@ -1,6 +1,9 @@
 Procsim Changelog
 -----------------
 
+[v1.6.1] - 2022/03/25
+    - Fix: Issue 27, MPL file formats are now properly recognized.
+
 [v1.6.0] - 2022/02/14
     - Add: Issue 23, support the production of RAW___HKTM products.
     - Fix: Issue 24, ANX no longer has to be specified in the scenario if an orbit prediction file is present.
