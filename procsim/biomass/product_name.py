@@ -18,20 +18,20 @@ from . import constants, product_types
 # For now, consider them all as 'validity'.
 _REGEX_RAW_PRODUCT_NAME = re.compile(
     r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'D(?P<downlink_time>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[A-Z]{3}))?$')
+    r'D(?P<downlink_time>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 _REGEX_L012_PRODUCT_NAME = re.compile(
     r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
     r'(?P<mission_phase>[CIT])_G(?P<global_cov>[0-9_]{2})_M(?P<major>[0-9_]{2})_C(?P<repeat>[0-9_]{2})_'
-    r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[A-Z]{3}))?$')
+    r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 _REGEX_AUX_NAME = re.compile(
     r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_'
-    r'(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[A-Z]{3}))?$')
+    r'(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 _REGEX_FOS_FILE_NAME = re.compile(
     r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
-    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})(?P<version>[0-9]{2})(?:.(?P<extension>[A-Z]{3}))?$')
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})(?P<version>[0-9]{2})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 
 class ProductName:
