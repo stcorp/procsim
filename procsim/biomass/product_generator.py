@@ -69,7 +69,7 @@ class ProductGeneratorBase(IProductGenerator):
         ('end_position', 'end_position', 'date')
     ]
 
-    def __init__(self, logger: Logger, job_config: JobOrderOutput, scenario_config: dict, output_config: dict):
+    def __init__(self, logger, job_config: Optional[JobOrderOutput], scenario_config: dict, output_config: dict):
         self._scenario_config = scenario_config
         self._output_config = output_config
         self._job_config_baseline = None if job_config is None else job_config.baseline
