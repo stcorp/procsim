@@ -6,11 +6,32 @@ BIO-ESA-EOPG-EEGS-TN-0050, BIOMASS Products Naming Convention.
 '''
 import datetime
 import os
+import re
 from typing import Optional
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 
 from . import constants, product_types
+
+# REGEXes for Biomass product names.
+# Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
+# For now, consider them all as 'validity'.
+_REGEX_RAW_PRODUCT_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'D(?P<downlink_time>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+
+_REGEX_L012_PRODUCT_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<mission_phase>[CIT])_G(?P<global_cov>[0-9_]{2})_M(?P<major>[0-9_]{2})_C(?P<repeat>[0-9_]{2})_'
+    r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+
+_REGEX_AUX_NAME = re.compile(
+    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_'
+    r'(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+
+_REGEX_FOS_FILE_NAME = re.compile(
+    r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})(?P<version>[0-9]{2})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 
 class ProductName:
@@ -26,7 +47,11 @@ class ProductName:
 
     @classmethod
     def str_to_time(cls, s):
-        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT)
+        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT) if s else None
+
+    @classmethod
+    def str_to_int(cls, s):
+        return int(s) if s else None
 
     @classmethod
     def time_to_str(cls, t):
@@ -52,6 +77,10 @@ class ProductName:
         self._repeat_cycle_id_str = None
         self._track_nr = None
         self._frame_slice_nr_str = None
+
+        # MPL only
+        self._file_class = None
+        self._version_nr = None
 
     @property
     def mission_phase(self):
@@ -143,6 +172,31 @@ class ProductName:
                 raise GeneratorError('frame_slice_nr should be 3 digits')
             self._frame_slice_nr_str = '{:03}'.format(int(nr))
 
+    @property
+    def file_class(self):
+        return self._file_class
+
+    @file_class.setter
+    def file_class(self, class_type):
+        if class_type and class_type != 'OPER' and class_type != 'TEST':
+            raise GeneratorError('file_class should be OPER or TEST')
+        self._file_class = class_type
+
+    @property
+    def version_nr(self):
+        if self._version_nr is not None:
+            return int(self._version_nr)
+        return None
+
+    @version_nr.setter
+    def version_nr(self, nr):
+        if not nr:
+            return
+        inr = int(nr)
+        if inr < 0 or inr > 99:
+            raise GeneratorError('version_nr should be 2 digits')
+        self._version_nr = f'{inr:02}'
+
     def set_creation_date(self, time: Optional[datetime.datetime]):
         '''
         Convert to 'compact create date, see the spec.
@@ -160,59 +214,37 @@ class ProductName:
                 date36 = chr(x + 65 - 10) + date36
         self._compact_create_date = date36
 
-    def _parse_raw(self, file):
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self.downlink_time = self.str_to_time(file[48:63])
-        self.baseline_identifier = int(file[64:66])
-        self._compact_create_date = file[67:73]
-
-    def _parse_aux(self, file):
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self.baseline_identifier = int(file[47:49])
-        self._compact_create_date = file[50:56]
-
-    def _parse_level0_1_2a(self, file):
-        # Format:
-        # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>_<P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-        # We can't split using 'split', as the IDs can also contain underscores!
-        self.start_time = self.str_to_time(file[15:30])
-        self.stop_time = self.str_to_time(file[31:46])
-        self._mission_phase_id = file[47]
-        self._global_coverage_id_str = file[50:52]
-        self._major_cycle_id_str = file[54:56]
-        self._repeat_cycle_id_str = file[58:60]
-        self._track_nr = file[62:65]
-        self._frame_slice_nr_str = file[67:70]
-        self.baseline_identifier = int(file[71:73])
-        self._compact_create_date = file[74:80]
-
     def parse_path(self, path):
-        # Extract parameters from path name, return True if succesfull.
-        file = os.path.basename(path)
-        id = file[0:3]
-        if id != constants.SATELLITE_ID:
-            raise GeneratorError('Incorrect satellite ID in file path {}, must be {}'.format(id, constants.SATELLITE_ID))
-        self.file_type = file[4:14]
-        if self._level == 'raw':
-            self._parse_raw(file)
-        elif self._level == 'aux':
-            self._parse_aux(file)
-        elif self._level == 'l0' or self._level == 'l1' or self._level == '2a' or self._level == 'aux':
-            self._parse_level0_1_2a(file)
-        else:
-            raise GeneratorError('Cannot handle type {}'.format(self.file_type))
+        # Extract parameters from path name, return True if successful.
+        filename = os.path.basename(path)
+
+        # Set all fields that can be extracted from the filename; set others to None.
+        for regex in [_REGEX_RAW_PRODUCT_NAME, _REGEX_AUX_NAME, _REGEX_L012_PRODUCT_NAME, _REGEX_FOS_FILE_NAME]:
+            match = regex.match(filename)
+            if match:
+                match_dict = match.groupdict()
+                self.file_class = match_dict.get('class')
+                self.file_type = match_dict.get('type')
+                self.start_time = self.str_to_time(match_dict.get('vstart'))
+                self.stop_time = self.str_to_time(match_dict.get('vstop'))
+                self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
+                self.baseline_identifier = self.str_to_int(match_dict.get('baseline'))
+                self._compact_create_date = match_dict.get('create_date')
+                self._mission_phase_id = match_dict.get('mission_phase')
+                self._global_coverage_id_str = match_dict.get('global_cov')
+                self._major_cycle_id_str = match_dict.get('major')
+                self._repeat_cycle_id_str = match_dict.get('repeat')
+                self._track_nr = match_dict.get('track')
+                self._frame_slice_nr_str = match_dict.get('frame_slice')
+                self.version_nr = self.str_to_int(match_dict.get('version'))
+                return True
+
+        raise GeneratorError(f'Cannot recognize file {filename}')
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
         # <MMM>_<TTTTTTTTTT>_<yyyymmddThhmmss>_<YYYYMMDDTHHMMSS>
-        name = '{}_{}_{}_{}'\
-            .format(constants.SATELLITE_ID,
-                    self._file_type,
-                    self.time_to_str(self.start_time),
-                    self.time_to_str(self.stop_time))
-        return name
+        return f'{constants.SATELLITE_ID}_{self._file_type}_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'
 
     def generate_path_name(self):
         # Returns directory name
@@ -233,6 +265,10 @@ class ProductName:
                 self.baseline_identifier,
                 self._compact_create_date
             )
+        elif self._level == 'mpl':
+            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
+                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
+                + f'_{self.baseline_identifier:02}{self.version_nr:02}.EOF'
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')

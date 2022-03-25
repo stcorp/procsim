@@ -291,6 +291,9 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         # product, do a sanity check and store meta data if ok.
         for input in inputs:
             for file in input.file_names:
+                # Skip non-directory products. These have already been parsed in the superclass.
+                if not os.path.isdir(file):
+                    continue
                 file, _ = os.path.splitext(file)    # Remove possible extension
                 # Skip the our metadata source reference
                 if self._meta_data_source_file == file:

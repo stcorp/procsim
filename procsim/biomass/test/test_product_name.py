@@ -12,7 +12,7 @@ from procsim.core.exceptions import GeneratorError, ScenarioError
 class _TestData():
     def __init__(self, level, dir, bin, type, start, stop, create, baseline, downlink,
                  mission_phase=None, global_coverage_id=None, major_cycle_id=None, repeat_cycle_id=None,
-                 track_nr=None, frame_nr=None, suffix=None):
+                 track_nr=None, frame_nr=None, suffix=None, file_class=None, version_nr=None):
         self.level = level
         self.dir = dir
         self.bin = bin
@@ -30,6 +30,8 @@ class _TestData():
         self.track_nr = track_nr
         self.frame_nr = frame_nr
         self.suffix = suffix
+        self.file_class = file_class
+        self.version_nr = version_nr
 
 
 _TEST_DATA: List[_TestData] = [
@@ -121,6 +123,48 @@ _TEST_DATA: List[_TestData] = [
         None,
         'Interferometric', 'NA', '03', '03', '022', None,
         None
+    ),
+    _TestData(
+        # MPL ORBPRE
+        level='mpl',
+        dir='BIO_TEST_MPL_ORBPRE_20210201T000000_20210202T000000_0001.EOF',
+        bin=None,
+        type='MPL_ORBPRE',
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        baseline=0,
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        file_class='TEST',
+        version_nr=1
+    ),
+    _TestData(
+        # MPL ORBREF
+        level='mpl',
+        dir='BIO_TEST_MPL_ORBREF_20210201T000000_20210202T000000_0001.EOF',
+        bin=None,
+        type='MPL_ORBREF',
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        baseline=0,
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        file_class='TEST',
+        version_nr=1
+    ),
+    _TestData(
+        # MPL REFAUX
+        level='mpl',
+        dir='BIO_TEST_MPL_REFAUX_20210201T000000_20210202T000000_0001.EOF',
+        bin=None,
+        type='MPL_REFAUX',
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        baseline=0,
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        file_class='TEST',
+        version_nr=1
     )
 ]
 
@@ -153,6 +197,11 @@ class ProductNameTest(unittest.TestCase):
                 pn.downlink_time = d.downlink
             elif d.level == 'aux':
                 pass
+            elif d.level == 'mpl':
+                pn.file_class = d.file_class
+                pn.downlink_time = d.downlink
+                pn.mission_phase = d.mission_phase
+                pn.version_nr = d.version_nr
             else:
                 pn.mission_phase = str(d.mission_phase)
                 pn.global_coverage_id = d.global_coverage_id
@@ -166,7 +215,9 @@ class ProductNameTest(unittest.TestCase):
             bin = pn.generate_binary_file_name(d.suffix)
             self.assertEqual(path, d.dir)
             self.assertEqual(mph, d.mph)
-            self.assertEqual(bin, d.bin)
+            if d.bin:
+                # Only compare binary files if we expect one to exist.
+                self.assertEqual(bin, d.bin)
 
     def testParse(self):
         for d in _TEST_DATA:
@@ -177,7 +228,9 @@ class ProductNameTest(unittest.TestCase):
             self.assertEqual(pn.baseline_identifier, d.baseline)
             self.assertEqual(pn.start_time, d.start)
             self.assertEqual(pn.stop_time, d.stop)
-            self.assertEqual(pn._compact_create_date, d.dir[-6:])
+            if pn._compact_create_date:
+                # Not all product names have a creation date.
+                self.assertEqual(pn._compact_create_date, d.dir[-6:])
             if d.level == 'raw':
                 self.assertEqual(pn.downlink_time, d.downlink)
             elif d.level == 'aux':
@@ -189,6 +242,10 @@ class ProductNameTest(unittest.TestCase):
                 self.assertEqual(pn.repeat_cycle_id, d.repeat_cycle_id)
                 self.assertEqual(pn._track_nr, d.track_nr)
                 self.assertEqual(pn.frame_slice_nr, d.frame_nr)
+            elif d.level == 'mpl':
+                self.assertEqual(pn.file_class, d.file_class)
+                self.assertEqual(pn.baseline_identifier, d.baseline)
+                self.assertEqual(pn.version_nr, d.version_nr)
             else:
                 assert()
 
