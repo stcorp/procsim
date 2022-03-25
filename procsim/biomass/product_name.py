@@ -239,7 +239,7 @@ class ProductName:
                 self.version_nr = self.str_to_int(match_dict.get('version'))
                 return True
 
-        raise GeneratorError(f'Cannot recognise file {filename}')
+        raise GeneratorError(f'Cannot recognize file {filename}')
 
     def _generate_prefix(self):
         # First part is the same for raw and level0/1/2a
