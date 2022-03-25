@@ -90,7 +90,7 @@ class ProductName:
         return None
 
     @mission_phase.setter
-    def mission_phase(self, phase: Optional[str]):
+    def mission_phase(self, phase):
         if phase is not None:
             idx = self.MISSION_PHASES.index(phase.capitalize())
             self._mission_phase_id = self.MISSION_PHASES[idx][0]
@@ -149,7 +149,7 @@ class ProductName:
         return self._track_nr
 
     @track_nr.setter
-    def track_nr(self, nr: Optional[str]):
+    def track_nr(self, nr):
         if nr is None or nr == '___':
             self._track_nr = '___'
         else:
@@ -298,7 +298,7 @@ class ProductName:
     def generate_mph_file_name(self):
         return self.generate_path_name().lower() + '.xml'
 
-    def generate_binary_file_name(self, suffix='', extension='.dat'):
+    def generate_binary_file_name(self, suffix=None, extension='.dat'):
         if suffix is None:
             suffix = ''
         if extension is None:
