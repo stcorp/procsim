@@ -1,6 +1,9 @@
 Procsim Changelog
 -----------------
 
+[v1.6.2] - 2022/04/20
+    - Fix: Issue 29, dataTakeID not included in the output AUX_ORB___ and AUX_ATT___ products
+
 [v1.6.1] - 2022/03/25
     - Fix: Issue 27, MPL file formats are now properly recognized.
 
