@@ -158,7 +158,7 @@ class MainProductHeader:
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
 
-        self._product_type: Optional[product_types.ProductType] = None
+        self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
 
         self.products: List[Dict[str, Any]] = [
@@ -222,7 +222,7 @@ class MainProductHeader:
             self.time_position == other.time_position and \
             self.validity_start == other.validity_start and \
             self.validity_stop == other.validity_stop and \
-            self._product_type == other._product_type and \
+            self._product_type_info == other._product_type_info and \
             self.product_baseline == other.product_baseline and \
             self.processing_date == other.processing_date and \
             self.processor_name == other.processor_name and \
@@ -263,19 +263,19 @@ class MainProductHeader:
 
     @property
     def product_type(self):
-        if self._product_type is None:
+        if self._product_type_info is None:
             return ''
-        return self._product_type.type
+        return self._product_type_info.type
 
     @product_type.setter
     def product_type(self, type: str):
         '''
         Type must be one of the predefined BIOMASS types
         '''
-        product_type = product_types.find_product(type)
-        if product_type is not None:
-            self._product_type = product_type
-            self._processing_level = 'other: {}'.format(product_type.level.upper())
+        product_type_info = product_types.find_product(type)
+        if product_type_info is not None:
+            self._product_type_info = product_type_info
+            self._processing_level = 'other: {}'.format(product_type_info.level.upper())
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
@@ -359,9 +359,9 @@ class MainProductHeader:
 
     def write(self, file_name):
         # Create MPH and write to file (TODO: split in generate and write methods?)
-        if self._product_type is None:
-            raise ParseError(self._product_type)
-        level = self._product_type.level
+        if self._product_type_info is None:
+            raise ParseError(self._product_type_info)
+        level = self._product_type_info.level
 
         mph = et.Element(bio + 'EarthObservation')
         if self.eop_identifier is None:
@@ -518,7 +518,7 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
-        et.SubElement(earth_observation_meta_data, eop + 'productType').text = self._product_type.type
+        et.SubElement(earth_observation_meta_data, eop + 'productType').text = self.product_type
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
 
         if level in ['raw']:
@@ -559,7 +559,7 @@ class MainProductHeader:
 
         if level in ['raw']:
             # Set transfer frames or instrument source packets to 0 if not present.
-            if self._product_type.type == 'RAW___HKTM':
+            if self.product_type == 'RAW___HKTM':
                 et.SubElement(earth_observation_meta_data, bio + 'numOfTFs').text = str(self.nr_transfer_frames or 0)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous or 0)
                 et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt or 0)
@@ -799,9 +799,9 @@ class MainProductHeader:
         self.doi = doi.text  # Digital Object Identifier
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
-        product_type = product_types.find_product(type_code)
-        if product_type is not None:
-            self._product_type = product_type
+        product_type_info = product_types.find_product(type_code)
+        if product_type_info is not None:
+            self._product_type_info = product_type_info
         self.product_status = earth_observation_meta_data.findtext(eop + 'status')
 
         # Mandatory for Raw data: Downlink information
