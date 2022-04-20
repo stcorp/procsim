@@ -419,7 +419,7 @@ class MainProductHeader:
                 swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
                 swath_id.text = s['swath_id']
 
-        if level in ['l0', 'l1', 'l2a'] or self._product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
+        if level in ['l0', 'l1', 'l2a'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
                 self.product_type in product_types.RAWS_PRODUCT_TYPES:
             acquisition_params = et.SubElement(earth_observation_equipment, eop + 'acquisitionParameters')
             acquisition = et.SubElement(acquisition_params, bio + 'Acquisition')
@@ -432,7 +432,7 @@ class MainProductHeader:
                     tracknr = et.SubElement(acquisition, eop + 'wrsLongitudeGrid')
                     tracknr.text = acq.track_nr
                     tracknr.set('codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
-                if level in ['l0', 'l1', 'l2a'] or self._product_type.type in product_types.RAWS_PRODUCT_TYPES:
+                if level in ['l0', 'l1', 'l2a'] or self.product_type in product_types.RAWS_PRODUCT_TYPES:
                     framenr = et.SubElement(acquisition, eop + 'wrsLatitudeGrid')
                     framenr.text = str(acq.slice_frame_nr) if acq.slice_frame_nr is not None else '___'
                     framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
@@ -447,7 +447,7 @@ class MainProductHeader:
                     et.SubElement(acquisition, bio + 'missionPhase').text = acq.mission_phase
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, bio + 'instrumentConfID').text = str(acq.instrument_config_id)
-                if level in ['l0', 'l1'] or self._product_type in ['AUX_ATT___', 'AUX_ORB___']:
+                if level in ['l0', 'l1'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___']:
                     et.SubElement(acquisition, bio + 'dataTakeID').text = str(acq.data_take_id)
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, bio + 'orbitDriftFlag').text = str(acq.orbit_drift_flag).lower()
