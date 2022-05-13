@@ -1,0 +1,88 @@
+'''
+Copyright (C) 2021 S[&]T, The Netherlands.
+'''
+import datetime
+import tempfile
+import unittest
+
+from procsim.biomass.product_generator import ProductGeneratorBase
+
+TEST_DIR = tempfile.TemporaryDirectory()
+
+
+class _Logger:
+    def __init__(self):
+        self.count = 0
+
+    def debug(self, *args, **kwargs):
+        # print(*args, **kwargs)
+        pass
+
+    def info(self, *args, **kwargs):
+        pass
+
+    def warning(self, *args, **kwargs):
+        print(*args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        print(*args, **kwargs)
+
+
+VFRA_DATA = '''<?xml version="1.0" ?>
+<Earth_Explorer_File xmlns="">
+    <Earth_Explorer_Header>
+        <Fixed_Header>
+            <File_Name>BIO_TEST_CPF_L1VFRA_20220421T143831_20220421T143852_01_BN3ZGI</File_Name>
+            <File_Description>L1 Virtual Frame</File_Description>
+            <Notes/>
+            <Mission>BIOMASS</Mission>
+            <File_Class>OPER</File_Class>
+            <File_Type>CPF_L1VFRA</File_Type>
+            <Validity_Period>
+                <Validity_Start>UTC=2022-04-21T14:38:31</Validity_Start>
+                <Validity_Stop>UTC=2022-04-21T14:38:52</Validity_Stop>
+            </Validity_Period>
+            <File_Version>01</File_Version>
+            <Source>
+                <System>PDGS</System>
+                <Creator>L1_F</Creator>
+                <Creator_Version>1.0</Creator_Version>
+                <Creation_Date>UTC=2022-04-22T12:17:06</Creation_Date>
+            </Source>
+        </Fixed_Header>
+        <Variable_Header/>
+    </Earth_Explorer_Header>
+    <Data_Block type="xml">
+        <source_L0S>L0S_Product_Name</source_L0S>
+        <source_L0M>L0M_Product_Name</source_L0M>
+        <source_AUX_ORB>AUX_ORB_Product_Name</source_AUX_ORB>
+        <frame_id>155</frame_id>
+        <frame_start_time>UTC=2022-04-21T14:38:31.123456</frame_start_time>
+        <frame_stop_time>UTC=2022-04-21T14:38:52.654321</frame_stop_time>
+        <frame_Status>NOMINAL</frame_Status>
+        <ops_angle_start unit="deg">178.838710</ops_angle_start>
+        <ops_angle_stop unit="deg">180</ops_angle_stop>
+    </Data_Block>
+</Earth_Explorer_File>'''
+
+
+class VirtualFrameParsingTest(unittest.TestCase):
+
+    def test_settings_from_file(self) -> None:
+        config = {'type': 'test'}
+        gen = ProductGeneratorBase(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
+
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(VFRA_DATA.encode('utf-8'))
+            virtual_frame_path = f.name
+
+        gen._parse_virtual_frame_file(virtual_frame_path)
+
+        self.assertEqual(gen._frame_id, 155)
+        self.assertEqual(gen._frame_start_time, datetime.datetime(2022, 4, 21, 14, 38, 31, 123456))
+        self.assertEqual(gen._frame_stop_time, datetime.datetime(2022, 4, 21, 14, 38, 52, 654321))
+        self.assertEqual(gen._frame_status, 'NOMINAL')
+
+
+if __name__ == '__main__':
+    unittest.main()

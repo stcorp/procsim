@@ -9,7 +9,7 @@ import shutil
 from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
-from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
+from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES, VFRA_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
@@ -83,6 +83,12 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source_file = None
         self._anx_list = []
 
+        # Parameters related to virtual frames. TODO: Move to header?
+        self._frame_id = None
+        self._frame_start_time = None
+        self._frame_stop_time = None
+        self._frame_status = None
+
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
@@ -146,7 +152,8 @@ class ProductGeneratorBase(IProductGenerator):
         return self._time_from_iso(timestr)
 
     def _time_from_iso(self, timestr):
-        timestr = timestr[:-1]  # strip 'Z'
+        if timestr[-1] == 'Z':
+            timestr = timestr[:-1]
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
 
     def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
@@ -207,7 +214,7 @@ class ProductGeneratorBase(IProductGenerator):
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
         For all files:
-            - check if it is a (zipped) directory (all biomass products except MPL are directories)
+            - check if it is a (zipped) directory (all biomass products except MPL and VFRA are directories)
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
@@ -225,9 +232,13 @@ class ProductGeneratorBase(IProductGenerator):
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
                     keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
                     self.unzip(file, keep_zip, logger=self._logger)
-                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
-                    # Only parse orbit prediction files if no ANX information was present in the scenario.
-                    self._parse_orbit_prediction_file(file)
+                if not os.path.isdir(root):
+                    # Handle single file products.
+                    if input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
+                        # Only parse orbit prediction files if no ANX information was present in the scenario.
+                        self._parse_orbit_prediction_file(file)
+                    elif input.file_type in VFRA_PRODUCT_TYPES:
+                        self._parse_virtual_frame_file(file)
                 file = root
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
@@ -268,6 +279,32 @@ class ProductGeneratorBase(IProductGenerator):
         self._anx_list.sort()
 
         return self._anx_list
+
+    def _parse_virtual_frame_file(self, file_name: str) -> None:
+        '''Get frame information from virtual frame file.'''
+        root = et.parse(file_name).getroot()
+
+        # Find all OSV elements containing frame ID, start/stop time and status. No XML namespaces are expected.
+        frame_id_node = root.find('Data_Block/frame_id')
+        if frame_id_node is not None and frame_id_node.text is not None:
+            self._frame_id = int(frame_id_node.text)
+
+        frame_start_time_node = root.find('Data_Block/frame_start_time')
+        if frame_start_time_node is not None and frame_start_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._frame_start_time = self._time_from_iso(frame_start_time_node.text[4:])
+
+        frame_stop_time_node = root.find('Data_Block/frame_stop_time')
+        if frame_stop_time_node is not None and frame_stop_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._frame_stop_time = self._time_from_iso(frame_stop_time_node.text[4:])
+
+        frame_status_node = root.find('Data_Block/frame_Status')
+        if frame_status_node is not None and frame_status_node.text is not None:
+            self._frame_status = frame_status_node.text
+
+        if not self._frame_id or not self._frame_start_time or not self._frame_stop_time or not self._frame_status:
+            self._logger.warning(f'Could not parse frame information from {file_name}.')
 
     def _get_anx(self, t: datetime.datetime) -> Optional[datetime.datetime]:
         # Check whether a previous ANX can possibly be found.
