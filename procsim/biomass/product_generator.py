@@ -3,6 +3,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import bisect
 import datetime
+from math import ceil
 import os
 import re
 import shutil
@@ -312,27 +313,39 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')
             return None
         # Returns the latest ANX before the given time
-        # idx = bisect.bisect(self._anx_list, t) - 1
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
-        idx = bisect.bisect(self._anx_list, t + sigma) - 1
+        idx = bisect.bisect(self._anx_list, t) - 1
         return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
 
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         previous_anx = self._get_anx(start)
-        return (start + sigma - previous_anx) // spacing + 1 if previous_anx is not None else None
+        return (start - previous_anx) // spacing + 1 if previous_anx is not None else None
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
                                   spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
         previous_anx = self._get_anx(start)
-        if previous_anx is None:
+        slice_frame_nr = self._get_slice_frame_nr(start, spacing)
+        if previous_anx is None or slice_frame_nr is None:
             return None
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
-        slice_nr = (start + sigma - previous_anx) // spacing
-        slice_start = previous_anx + slice_nr * spacing
-        slice_end = previous_anx + (slice_nr + 1) * spacing
-        return slice_start, slice_end
+        slice_frame_start = previous_anx + (slice_frame_nr - 1) * spacing
+        slice_frame_end = previous_anx + slice_frame_nr * spacing
+        return slice_frame_start, slice_frame_end
+
+    def _get_slice_frame_boundaries_in_interval(self, start: datetime.datetime,
+                                                stop: datetime.datetime,
+                                                spacing: datetime.timedelta) -> List[datetime.datetime]:
+        boundaries = []
+
+        previous_anx = self._get_anx(start)
+        if previous_anx:
+            # Get the first slice/frame boundary >= the start time.
+            start_slice_frame_idx = ceil((start - previous_anx) / spacing)
+            boundary = previous_anx + start_slice_frame_idx * spacing
+            while boundary <= stop:
+                boundaries.append(boundary)
+                boundary += spacing
+
+        return boundaries
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
