@@ -123,6 +123,8 @@ L1S_PRODUCTS: List[str] = [
 
 ORBPRE_PRODUCT_TYPES: List[str] = ['MPL_ORBPRE']
 
+VFRA_PRODUCT_TYPES: List[str] = ['CPF_L1VFRA']
+
 
 def find_product(product_type_code: str) -> Optional[ProductType]:
     '''Return ProductType for a given product_type_code, or None if not found'''
