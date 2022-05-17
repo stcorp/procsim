@@ -4,8 +4,10 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 import datetime
 import tempfile
 import unittest
+from procsim.biomass.level1_product_generator import Level1PreProcessor
 
 from procsim.biomass.product_generator import ProductGeneratorBase
+from procsim.core.exceptions import ScenarioError
 
 TEST_DIR = tempfile.TemporaryDirectory()
 
@@ -29,7 +31,7 @@ class _Logger:
 
 
 VFRA_DATA = '''<?xml version="1.0" ?>
-<Earth_Explorer_File xmlns="">
+<Earth_Explorer_File>
     <Earth_Explorer_Header>
         <Fixed_Header>
             <File_Name>BIO_TEST_CPF_L1VFRA_20220421T143831_20220421T143852_01_BN3ZGI</File_Name>
@@ -69,6 +71,7 @@ VFRA_DATA = '''<?xml version="1.0" ?>
 class VirtualFrameParsingTest(unittest.TestCase):
 
     def test_settings_from_file(self) -> None:
+        '''Check whether settings are properly read from the test data.'''
         config = {'type': 'test'}
         gen = ProductGeneratorBase(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
 
@@ -82,6 +85,32 @@ class VirtualFrameParsingTest(unittest.TestCase):
         self.assertEqual(gen._frame_start_time, datetime.datetime(2022, 4, 21, 14, 38, 31, 123456))
         self.assertEqual(gen._frame_stop_time, datetime.datetime(2022, 4, 21, 14, 38, 52, 654321))
         self.assertEqual(gen._frame_status, 'NOMINAL')
+
+    def test_no_frame_info(self) -> None:
+        '''Verify that an exception is thrown if framing is attempted without frame info.'''
+        config = {
+            'output_path': TEST_DIR,
+            'type': 'RAWS025_10',
+            'processor_name': 'unittest',
+            'processor_version': '01.01',
+            'baseline': 10,
+            'acquisition_date': '2021-01-01T00:00:00.000Z',
+            'acquisition_station': 'unittest',
+            'num_isp': 387200,
+            'num_isp_erroneous': 0,
+            'num_isp_corrupt': 0,
+            'num_tf': 387200,
+            'num_tf_erroneous': 0,
+            'num_tf_corrupt': 0,
+            'zip_output': False,
+            'slice_overlap_start': 5.0,
+            'slice_overlap_end': 7.0,
+            'slice_minimum_duration': 15.0
+        }
+        gen = Level1PreProcessor(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
+        gen._enable_framing = True
+        with self.assertRaises(ScenarioError):
+            gen.generate_output()
 
 
 if __name__ == '__main__':
