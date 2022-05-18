@@ -5,6 +5,7 @@ Biomass Level 1 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
+from enum import Enum
 import os
 from typing import Iterable, List, Tuple
 from textwrap import dedent
@@ -39,6 +40,12 @@ _ACQ_PARAMS = [
     ('track_nr', 'track_nr', 'str'),
     ('slice_frame_nr', 'slice_frame_nr', 'int')
 ]
+
+
+class FrameStatus(str, Enum):
+    NOMINAL = 'NOMINAL'
+    PARTIAL = 'PARTIAL'
+    MERGED = 'MERGED'
 
 
 class Frame:
@@ -179,7 +186,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
                 validity_stop=frame_bounds[fi + 1] + self._frame_overlap,
                 sensing_start=max(frame_bounds[fi], acq_start),
                 sensing_stop=min(frame_bounds[fi + 1] + self._frame_overlap, acq_end),
-                status='NOMINAL'
+                status=FrameStatus.NOMINAL
             ))
 
         # If the first or last frame are too short, merge them with their neghbours.
@@ -191,12 +198,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
                 frames[-2].sensing_stop = frames[-1].sensing_stop
                 frames.pop()
 
-        # If the first or last frame are partial, mark them as such.
-        for frame in [frames[0], frames[-1]]:
+        # If any frames are partial or merged, mark them as such.
+        for frame in frames:
             if frame.sensing_stop - frame.sensing_start < frame.validity_stop - frame.validity_start:
-                frame.status = 'PARTIAL'
+                frame.status = FrameStatus.PARTIAL
             elif frame.sensing_stop - frame.sensing_start > frame.validity_stop - frame.validity_start:
-                frame.status = 'MERGED'
+                frame.status = FrameStatus.MERGED
 
         return frames
 
