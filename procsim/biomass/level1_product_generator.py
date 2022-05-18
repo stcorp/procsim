@@ -124,13 +124,17 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
         slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
-        first_frame_nr = slice_nr * NUM_FRAMES_PER_SLICE + 1 if slice_nr else None
+        first_frame_nr = (slice_nr - 1) * NUM_FRAMES_PER_SLICE + 1 if slice_nr else None
 
         # Sanity checks
         if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
             raise ScenarioError('Start/stop times must be known here!')
         if slice_nr is None or first_frame_nr is None:
             raise ScenarioError('Cannot perform framing, slice nr. is not known')
+
+        # Align slice start and end with grid.
+        slice_start += self._slice_overlap_start
+        slice_end -= self._slice_overlap_end
 
         # Check whether slice is incomplete. If so, the slice number is unreliable, so try to get the first frame number from ANX info.
         delta = (slice_end - slice_start) - self._frame_grid_spacing * NUM_FRAMES_PER_SLICE
@@ -142,7 +146,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
                     ({slice_end - slice_start} != {NUM_FRAMES_PER_SLICE}x{self._frame_grid_spacing}). \
                     Additionally, the slice frame number could not be determined from the ANX information.'))
 
-        frames = self._generate_frames(acq_start, acq_end, first_frame_nr)
+        frames = self._generate_frames(slice_start, acq_start, acq_end, first_frame_nr)
 
         # Generate the virtual frame products.
         for frame in frames:
@@ -154,34 +158,27 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
 
             self._generate_product()
 
-    def _generate_frames(self, start: datetime.datetime, end: datetime.datetime, first_frame_nr: int) -> List[Frame]:
+    def _generate_frames(self, slice_start: datetime.datetime,
+                         acq_start: datetime.datetime, acq_end: datetime.datetime,
+                         first_frame_nr: int) -> List[Frame]:
         """
         Generate a list of Frame objects between start and end times.
         """
         # Get frame boundaries between the slice validity start and end.
-        frame_bounds = self._get_slice_frame_boundaries_in_interval(start, end, self._frame_grid_spacing)
-
-        # If the acquisition start/end are not included in the bounds, add them.
-        if not frame_bounds or frame_bounds[0] > start:
-            frame_bounds.insert(0, start)
-        if frame_bounds[-1] < end:
-            frame_bounds.append(end)
+        frame_bounds = [slice_start + d * self._frame_grid_spacing for d in range(NUM_FRAMES_PER_SLICE + 1)]
 
         # Map to frame instances.
         frames = []
-        for fi in range(len(frames) - 1):
-            sensing_start = frame_bounds[fi]
-            sensing_stop = min(frame_bounds[fi + 1] + self._frame_overlap, end)
-            validity_period = self._get_slice_frame_interval(sensing_start + (sensing_stop - sensing_start) / 2, self._frame_grid_spacing)
-            if validity_period is None:
-                raise GeneratorError(f'Could not retrieve validity period of frame {fi}.')
-            frame_nr = self._get_slice_frame_nr(validity_period[0], self._frame_grid_spacing)
+        for fi in range(len(frame_bounds) - 1):
+            # Continue if the acquisition start occurs after the frame bounds, or the acquisition end before.
+            if acq_start > frame_bounds[fi + 1] or acq_end < frame_bounds[fi]:
+                continue
             frames.append(Frame(
-                id=frame_nr if frame_nr else 0,
-                validity_start=validity_period[0],
-                validity_stop=validity_period[1] + self._frame_overlap,
-                sensing_start=sensing_start,
-                sensing_stop=sensing_stop,
+                id=fi + first_frame_nr,
+                validity_start=frame_bounds[fi],
+                validity_stop=frame_bounds[fi + 1] + self._frame_overlap,
+                sensing_start=max(frame_bounds[fi], acq_start),
+                sensing_stop=min(frame_bounds[fi + 1] + self._frame_overlap, acq_end),
                 status='NOMINAL'
             ))
 
@@ -189,17 +186,17 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         if len(frames) > 1:
             if frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
                 frames[1].sensing_start = frames[0].sensing_start
-                frames[1].status = 'MERGED'
                 frames.pop(0)
             if frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
                 frames[-2].sensing_stop = frames[-1].sensing_stop
-                frames[-2].status = 'MERGED'
                 frames.pop()
 
         # If the first or last frame are partial, mark them as such.
         for frame in [frames[0], frames[-1]]:
-            if frame.sensing_stop - frame.sensing_start < self._frame_grid_spacing:
+            if frame.sensing_stop - frame.sensing_start < frame.validity_stop - frame.validity_start:
                 frame.status = 'PARTIAL'
+            elif frame.sensing_stop - frame.sensing_start > frame.validity_stop - frame.validity_start:
+                frame.status = 'MERGED'
 
         return frames
 
