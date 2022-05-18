@@ -50,13 +50,13 @@ STANDARD_CONFIG = {
 }
 
 
-class VirtualFrameGeneratorTest(unittest.TestCase):
+class FrameGeneratorTest(unittest.TestCase):
+    gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
+
     '''Try to create frames from an entire slice including overlaps on either side.'''
     def test_entire_slice(self) -> None:
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        frames = gen._generate_frames(ANX1,
-                                      ANX1 - constants.SLICE_OVERLAP_START, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END,
-                                      1)
+        frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
         for fi, frame in enumerate(frames[:-1]):
@@ -69,9 +69,7 @@ class VirtualFrameGeneratorTest(unittest.TestCase):
 
     def test_slice_no_overlap(self) -> None:
         '''Try to create frames from a slice that does not include overlaps on either side.'''
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-
-        frames = gen._generate_frames(ANX1, ANX1, ANX1 + constants.SLICE_GRID_SPACING, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1, ANX1 + constants.SLICE_GRID_SPACING, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
         for fi, frame in enumerate(frames[:-1]):
@@ -92,11 +90,9 @@ class VirtualFrameGeneratorTest(unittest.TestCase):
 
     def test_partial_slice(self) -> None:
         '''Create frames from a slice that is missing data in its first frame range.'''
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-
         # Choose offset just on the edge of the frame getting merged.
         test_offset = constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP - constants.FRAME_MINIMUM_DURATION
-        frames = gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
         # The first frame should have a shorter sensing time since the overlap can't be applied.
@@ -118,11 +114,9 @@ class VirtualFrameGeneratorTest(unittest.TestCase):
 
     def test_frame_merge(self) -> None:
         '''Make the first frame so short that it's merged into its neighbour.'''
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-
         # Choose offset just over the edge of the frame getting merged.
         test_offset = constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP - constants.FRAME_MINIMUM_DURATION + datetime.timedelta(microseconds=1)
-        frames = gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         # The first frame should have a longer sensing time since it resulted from a merge.
@@ -144,10 +138,9 @@ class VirtualFrameGeneratorTest(unittest.TestCase):
 
     def test_missing_frame(self) -> None:
         '''Shorten the slice so that the first or last frame goes missing entirely.'''
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-
         # Remove first frame.
-        frames = gen._generate_frames(ANX1, ANX1 + constants.FRAME_GRID_SPACING, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1 + constants.FRAME_GRID_SPACING,
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         for fi, frame in enumerate(frames):
             if fi == 0:
@@ -160,8 +153,8 @@ class VirtualFrameGeneratorTest(unittest.TestCase):
             self.assertEqual(frame.status, 'NOMINAL')
 
         # Remove last frame. All other frames should be nominal.
-        frames = gen._generate_frames(ANX1, ANX1,
-                                      ANX1 + constants.SLICE_GRID_SPACING - constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1,
+                                           ANX1 + constants.SLICE_GRID_SPACING - constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP, 1)
         for frame in frames:
             print(frame.sensing_stop - frame.sensing_start)
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
