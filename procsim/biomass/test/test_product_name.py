@@ -79,7 +79,7 @@ _TEST_DATA: List[_TestData] = [
         datetime.datetime(2020, 1, 1, 0, 0, 0),
         1,
         None,
-        'Interferometric', '03', '03', '03', '022', 61,
+        'Interferometric', '3', '3', '3', '22', 61,
         '_rxh'
     ),
     _TestData(
@@ -93,7 +93,7 @@ _TEST_DATA: List[_TestData] = [
         datetime.datetime(2020, 1, 1, 0, 0, 0),
         1,
         None,
-        'Interferometric', '03', '03', '03', '022', None,
+        'Interferometric', '3', '3', '3', '22', None,
         '_rxh'
     ),
     _TestData(
@@ -107,7 +107,7 @@ _TEST_DATA: List[_TestData] = [
         datetime.datetime(2020, 1, 1, 0, 0, 0),
         1,
         None,
-        'Interferometric', 'NA', '03', '03', '022', None,
+        'Interferometric', 'NA', '3', '3', '22', None,
         None
     ),
     _TestData(
@@ -121,7 +121,7 @@ _TEST_DATA: List[_TestData] = [
         datetime.datetime(2020, 1, 1, 0, 0, 0),
         1,
         None,
-        'Interferometric', 'NA', '03', '03', '022', None,
+        'Interferometric', 'NA', '3', '3', '22', None,
         None
     ),
     _TestData(
@@ -240,7 +240,7 @@ class ProductNameTest(unittest.TestCase):
                 self.assertEqual(pn.global_coverage_id, d.global_coverage_id)
                 self.assertEqual(pn.major_cycle_id, d.major_cycle_id)
                 self.assertEqual(pn.repeat_cycle_id, d.repeat_cycle_id)
-                self.assertEqual(pn._track_nr, d.track_nr)
+                self.assertEqual(pn.track_nr, d.track_nr)
                 self.assertEqual(pn.frame_slice_nr, d.frame_nr)
             elif d.level == 'mpl':
                 self.assertEqual(pn.file_class, d.file_class)

@@ -112,29 +112,36 @@ class ProductName:
         return self._level
 
     @property
-    def global_coverage_id(self):
-        return self._global_coverage_id_str if not self._global_coverage_id_str == '__' else 'NA'
+    def global_coverage_id(self) -> Optional[str]:
+        '''Return global_coverage_id in 'Main product header format', so 'NA' or a number, without leading zeros.'''
+        return 'NA' if self._global_coverage_id_str is None or self._global_coverage_id_str == '__' else \
+            self._global_coverage_id_str.lstrip('0') or '0'
 
     @global_coverage_id.setter
-    def global_coverage_id(self, id):
+    def global_coverage_id(self, id: Optional[str]) -> None:
+        '''Convert to string with correct formatting for product name'''
         if id is None or id == 'NA':
             id = '__'
+        else:
+            id = '{:>02}'.format(id)    # Add leading zeros if needed
         self.GLOBAL_COVERAGE_IDS.index(id)  # Test
         self._global_coverage_id_str = id
 
     @property
-    def major_cycle_id(self):
-        return self._major_cycle_id_str
+    def major_cycle_id(self) -> Optional[str]:
+        return self._major_cycle_id_str.lstrip('0') or '0' if self._major_cycle_id_str else None
 
     @major_cycle_id.setter
-    def major_cycle_id(self, id):
+    def major_cycle_id(self, id: Optional[str]):
         id = '{:>02}'.format(id)    # Add leading zeros if needed
         self.MAJOR_CYCLE_IDS.index(id)  # Test
         self._major_cycle_id_str = id
 
     @property
     def repeat_cycle_id(self):
-        return self._repeat_cycle_id_str if self._repeat_cycle_id_str != '__' else None
+        '''Return repeat cycle ID in 'Main product header format', so None, 'DR', or a number without leading zeros.'''
+        return None if not self._repeat_cycle_id_str or self._repeat_cycle_id_str == '__' else \
+            self._repeat_cycle_id_str.lstrip('0') or '0'
 
     @repeat_cycle_id.setter
     def repeat_cycle_id(self, id):
@@ -146,7 +153,8 @@ class ProductName:
 
     @property
     def track_nr(self):
-        return self._track_nr
+        return None if self._track_nr is None or self._track_nr == '___' else \
+            self._track_nr.lstrip('0') or '0'
 
     @track_nr.setter
     def track_nr(self, nr):
@@ -154,7 +162,7 @@ class ProductName:
             self._track_nr = '___'
         else:
             if int(nr) < 0 or int(nr) > 999:
-                raise GeneratorError('track_nr should be 0..999 or ___')
+                raise GeneratorError('track_nr should be 0..999 or None or ___')
             self._track_nr = '{:03}'.format(int(nr))
 
     @property
@@ -231,7 +239,7 @@ class ProductName:
                 self.baseline_identifier = self.str_to_int(match_dict.get('baseline'))
                 self._compact_create_date = match_dict.get('create_date')
                 self._mission_phase_id = match_dict.get('mission_phase')
-                self._global_coverage_id_str = match_dict.get('global_cov')
+                self._global_coverage_id_str: Optional[str] = match_dict.get('global_cov')
                 self._major_cycle_id_str = match_dict.get('major')
                 self._repeat_cycle_id_str = match_dict.get('repeat')
                 self._track_nr = match_dict.get('track')
