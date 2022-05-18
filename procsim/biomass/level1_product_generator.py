@@ -10,6 +10,7 @@ import os
 from typing import Iterable, List, Tuple
 from textwrap import dedent
 from xml.etree import ElementTree as et
+import xml.dom.minidom as md
 
 from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, SLICE_GRID_SPACING
 from procsim.core.exceptions import GeneratorError, ScenarioError
@@ -19,6 +20,10 @@ from . import constants, main_product_header, product_generator, product_name, p
 from .product_generator import GeneratedFile
 
 _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
+
+
+DATETIME_FORMAT = '%Y%m%dT%H%M%S'
+
 
 _HDR_PARAMS = [
     # L0 + L1
@@ -79,12 +84,13 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     PRODUCTS = ['CPF_L1VFRA']
 
     _GENERATOR_PARAMS: List[tuple] = [
+        ('file_class', '_file_class', 'str'),
         ('enable_framing', '_enable_framing', 'bool'),
         ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
         ('frame_overlap', '_frame_overlap', 'float'),
         ('frame_lower_bound', '_frame_lower_bound', 'float'),
         ('slice_overlap_start', '_slice_overlap_start', 'float'),
-        ('slice_overlap_end', '_slice_overlap_end', 'float')
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict) -> None:
@@ -97,6 +103,10 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
 
         self._frame_status = None
+        self._file_class = 'TEST'
+        self._version_nr = 1
+        self._hdr.product_baseline = 0  # This is the default for VFRA
+        self._zip_output = False
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         gen, hdr, acq = super().get_params()
@@ -216,10 +226,52 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         os.makedirs(self._output_path, exist_ok=True)
         full_file_name = os.path.join(self._output_path, file_name)
 
-        root = et.Element('Earth_Explorer_File')
+        # Check validity times.
+        if self._hdr.validity_start is None or self._hdr.validity_stop is None:
+            raise GeneratorError('Validity start/stop times must be known here.')
 
+        root = et.Element('Earth_Explorer_File')
+        earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
+        fixed_header_node = et.SubElement(earth_explorer_header_node, 'Fixed_Header')
+        et.SubElement(fixed_header_node, 'File_Name').text = file_name[:-5]
+        et.SubElement(fixed_header_node, 'File_Description').text = 'L1 Virtual Frame'
+        et.SubElement(fixed_header_node, 'Notes').text = ''
+        et.SubElement(fixed_header_node, 'Mission').text = 'BIOMASS'
+        et.SubElement(fixed_header_node, 'File_Class').text = 'OPER'
+        et.SubElement(fixed_header_node, 'File_Type').text = 'CPF_L1VFRA'
+        validity_period_node = et.SubElement(fixed_header_node, 'Validity_Period')
+        et.SubElement(fixed_header_node, 'File_Version').text = '01'
+        source_node = et.SubElement(fixed_header_node, 'Source')
+
+        et.SubElement(validity_period_node, 'Validity_Start').text = self._hdr.validity_start.strftime(DATETIME_FORMAT)
+        et.SubElement(validity_period_node, 'Validity_Stop').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)
+
+        et.SubElement(source_node, 'System').text = 'PDGS'
+        et.SubElement(source_node, 'Creator').text = 'L1_F'
+        et.SubElement(source_node, 'Creator_Version').text = '1'
+        et.SubElement(source_node, 'Creation_Date').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)  # TODO
+
+        et.SubElement(earth_explorer_header_node, 'Variable_Header')
+
+        data_block_node = et.SubElement(root, 'Data_Block')
+        et.SubElement(data_block_node, 'source_L0S').text = ''
+        et.SubElement(data_block_node, 'source_L0M').text = ''
+        et.SubElement(data_block_node, 'source_AUX_ORB').text = ''
+        et.SubElement(data_block_node, 'frame_id').text = ''
+        et.SubElement(data_block_node, 'frame_start_time').text = ''
+        et.SubElement(data_block_node, 'frame_stop_time').text = ''
+        et.SubElement(data_block_node, 'frame_status').text = ''
+        et.SubElement(data_block_node, 'ops_angle_start').text = ''
+        et.SubElement(data_block_node, 'ops_angle_stop').text = ''
+
+        # Insert some indentation.
+        dom = md.parseString(et.tostring(root, encoding='unicode'))
+        xml_string = dom.toprettyxml(indent='    ')
+
+        print(f'Filename: {full_file_name}')
         with open(full_file_name, 'w') as file:
-            file.write(et.tostring(root, encoding='utf-8'))
+            file.write(xml_string)
+            print(xml_string)
 
 
 class Level1Stripmap(product_generator.ProductGeneratorBase):

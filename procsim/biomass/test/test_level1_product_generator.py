@@ -36,6 +36,7 @@ ANX2 = ANX1 + constants.ORBITAL_PERIOD
 
 STANDARD_CONFIG = {
     'output_path': TEST_DIR,
+    'class': 'TEST',
     'type': 'CPF_L1VFRA',
     'processor_name': 'unittest',
     'processor_version': '01.01',
@@ -166,6 +167,20 @@ class FrameGeneratorTest(unittest.TestCase):
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
+
+
+class VirtualFrameProductTest(unittest.TestCase):
+    '''Test virtual frame production.'''
+    def test_product_name(self) -> None:
+        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
+        gen._output_path = TEST_DIR
+        gen._hdr.product_type = 'CPF_L1VFRA'
+        gen._hdr.product_baseline = 1
+        gen._hdr.begin_position = ANX1
+        gen._hdr.end_position = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+        gen._hdr.validity_start = ANX1
+        gen._hdr.validity_stop = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+        gen._generate_product()
 
 
 if __name__ == '__main__':
