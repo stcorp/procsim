@@ -11,7 +11,7 @@ from typing import Iterable, List, Tuple
 from textwrap import dedent
 from xml.etree import ElementTree as et
 
-from procsim.biomass.constants import NUM_FRAMES_PER_SLICE
+from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, SLICE_GRID_SPACING
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
 
@@ -143,15 +143,17 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         slice_start += self._slice_overlap_start
         slice_end -= self._slice_overlap_end
 
-        # Check whether slice is incomplete. If so, the slice number is unreliable, so try to get the first frame number from ANX info.
+        # Check whether slice is incomplete. If so, the slice number/range is unreliable, so try to get them from ANX info.
         delta = (slice_end - slice_start) - self._frame_grid_spacing * NUM_FRAMES_PER_SLICE
         if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
             first_frame_nr = self._get_slice_frame_nr(acq_start, self._frame_grid_spacing)
-            if first_frame_nr is None:
+            slice_bounds = self._get_slice_frame_interval(acq_start, SLICE_GRID_SPACING)
+            if first_frame_nr is None or slice_bounds is None:
                 raise GeneratorError(dedent(f'\
                     Cannot perform framing, slice length (without overlaps) != {NUM_FRAMES_PER_SLICE}x frame length \
                     ({slice_end - slice_start} != {NUM_FRAMES_PER_SLICE}x{self._frame_grid_spacing}). \
                     Additionally, the slice frame number could not be determined from the ANX information.'))
+            slice_start, slice_end = slice_bounds
 
         frames = self._generate_frames(slice_start, acq_start, acq_end, first_frame_nr)
 
