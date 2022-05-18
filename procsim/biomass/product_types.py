@@ -100,6 +100,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('MPL_ORBREF', 'mpl', 'Reference Orbit File'),
     ProductType('MPL_REFAUX', 'mpl', 'Reference Orbit Auxiliary File, times and orbit numbers'),
     ProductType('MPL_ORBPRE', 'mpl', 'Reference Orbit File, orbit state vectors'),
+
+    ProductType('CPF_L1VFRA', 'l1fvra', 'L1 Virtual Frame'),
 ]
 
 RAWS_PRODUCT_TYPES: List[str] = [

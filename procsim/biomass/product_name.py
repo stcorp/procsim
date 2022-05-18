@@ -269,6 +269,10 @@ class ProductName:
             name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
                 + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
                 + f'_{self.baseline_identifier:02}{self.version_nr:02}.EOF'
+        elif self._level == 'l1fvra':
+            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
+                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
+                + f'_{self.baseline_identifier:02}_{self._compact_create_date}.EOF'
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')
