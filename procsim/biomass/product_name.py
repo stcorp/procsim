@@ -42,7 +42,7 @@ class ProductName:
     '''
     This class is responsible for creating and parsing directory/file names.
     '''
-    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)
+    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
     MISSION_PHASES = [('Commissioning'), ('Interferometric'), ('Tomographic')]
     GLOBAL_COVERAGE_IDS = ['__', '01', '02', '03', '04', '05', '06']
@@ -207,7 +207,7 @@ class ProductName:
         If set to None, use 'now'.
         '''
         if time is None:
-            time = datetime.datetime.utcnow()
+            time = datetime.datetime.now(tz=datetime.timezone.utc)
         sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''
         for i in range(6):
