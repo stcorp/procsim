@@ -120,8 +120,6 @@ class JobOrderParserTest(unittest.TestCase):
         self.assertEqual(len(inputs), 5)
         self.assertTrue(equal_ignore_order(inputs, expected_inputs))
 
-        # TODO: test outputs
-
 
 if __name__ == '__main__':
     unittest.main()
