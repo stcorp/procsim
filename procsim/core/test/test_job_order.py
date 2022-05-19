@@ -90,7 +90,6 @@ class JobOrderParserTest(unittest.TestCase):
             entry.alternative_input_id = input[2]
             entry.id = input[3]
             expected_inputs.append(entry)
-        expected_inputs
 
         logger = _Logger()
         sim = job_order.job_order_parser_factory('ESA-EOPG-EEGS-ID-0083', logger)
