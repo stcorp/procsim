@@ -22,7 +22,9 @@ from .product_generator import GeneratedFile
 _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 
 
-DATETIME_FORMAT = '%Y%m%dT%H%M%S'
+FILENAME_DATETIME_FORMAT = '%Y%m%dT%H%M%S'
+FIELD_DATETIME_FORMAT = 'UTC=%Y-%m-%dT%H:%M:%S'
+FIELD_DATETIME_FORMAT_MICROSECONDS = 'UTC=%Y-%m-%dT%H:%M:%S.%f'
 
 
 _HDR_PARAMS = [
@@ -257,13 +259,13 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(fixed_header_node, 'File_Version').text = '01'
         source_node = et.SubElement(fixed_header_node, 'Source')
 
-        et.SubElement(validity_period_node, 'Validity_Start').text = self._hdr.validity_start.strftime(DATETIME_FORMAT)
-        et.SubElement(validity_period_node, 'Validity_Stop').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)
+        et.SubElement(validity_period_node, 'Validity_Start').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT)
+        et.SubElement(validity_period_node, 'Validity_Stop').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT)
 
         et.SubElement(source_node, 'System').text = 'PDGS'
         et.SubElement(source_node, 'Creator').text = 'L1_F'
         et.SubElement(source_node, 'Creator_Version').text = '1'
-        et.SubElement(source_node, 'Creation_Date').text = self._creation_date.strftime(DATETIME_FORMAT) if self._creation_date else ''
+        et.SubElement(source_node, 'Creation_Date').text = self._creation_date.strftime(FIELD_DATETIME_FORMAT) if self._creation_date else ''
 
         et.SubElement(earth_explorer_header_node, 'Variable_Header')
 
@@ -272,8 +274,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(data_block_node, 'source_L0M').text = ''
         et.SubElement(data_block_node, 'source_AUX_ORB').text = ''
         et.SubElement(data_block_node, 'frame_id').text = str(self._hdr.acquisitions[0].slice_frame_nr)
-        et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(DATETIME_FORMAT)
-        et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)
+        et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
+        et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
         et.SubElement(data_block_node, 'frame_status').text = self._frame_status
         et.SubElement(data_block_node, 'ops_angle_start').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr))
         et.SubElement(data_block_node, 'ops_angle_stop').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr + 1))
