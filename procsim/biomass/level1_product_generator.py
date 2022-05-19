@@ -5,13 +5,14 @@ Biomass Level 1 product generators,
 format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
-from enum import Enum
 import os
-from typing import Iterable, List, Tuple
-from textwrap import dedent
-from xml.etree import ElementTree as et
 import xml.dom.minidom as md
+from enum import Enum
+from textwrap import dedent
+from typing import Iterable, List, Tuple
+from xml.etree import ElementTree as et
 
+import re
 from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, ORBITAL_PERIOD, SLICE_GRID_SPACING
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
@@ -25,6 +26,11 @@ _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
 FILENAME_DATETIME_FORMAT = '%Y%m%dT%H%M%S'
 FIELD_DATETIME_FORMAT = 'UTC=%Y-%m-%dT%H:%M:%S'
 FIELD_DATETIME_FORMAT_MICROSECONDS = 'UTC=%Y-%m-%dT%H:%M:%S.%f'
+
+
+L0S_PATTERN = re.compile(r'^S[0-9]_RAW__0S$')
+L0M_PATTERN = re.compile(r'^S[0-9]_RAW__0M$')
+AUX_ORB_TYPE = 'AUX_ORB___'
 
 
 _HDR_PARAMS = [
@@ -111,9 +117,47 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         self._zip_output = False
         self._hdr.product_type = 'CPF_L1VFRA'
 
+        self._source_L0S = None
+        self._source_L0M = None
+        self._source_AUX_ORB = None
+
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         gen, hdr, acq = super().get_params()
         return gen + self._GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        if not super().parse_inputs(input_products):
+            return False
+
+        # Find the L0S, L0M and AUX_ORB products in the input list.
+        source_L0S_files = []
+        source_L0M_files = []
+        source_AUX_ORB_files = []
+        for input in input_products:
+            for file in input.file_names:
+                gen = product_name.ProductName(self._compact_creation_date_epoch)
+                gen.parse_path(file)
+
+                if gen.file_type and L0S_PATTERN.match(gen.file_type):
+                    source_L0S_files.append(file)
+                elif gen.file_type and L0M_PATTERN.match(gen.file_type):
+                    source_L0M_files.append(file)
+                elif gen.file_type == AUX_ORB_TYPE:
+                    source_AUX_ORB_files.append(file)
+                else:
+                    raise ScenarioError(f'Unknown input file type: {gen.file_type} of file {file}')
+
+        # Expect exactly one input file for each product type.
+        if len(source_L0S_files) != 1 or len(source_L0M_files) != 1 or len(source_AUX_ORB_files) != 1:
+            raise ScenarioError(f'Expected exactly one L0S, L0M and AUX_ORB input file, got',
+                                {len(source_L0S_files), len(source_L0M_files), len(source_AUX_ORB_files)})
+
+        # Strip any path and extension off the filename.
+        self._source_L0S = os.path.splitext(os.path.basename(source_L0S_files[0]))[0]
+        self._source_L0M = os.path.splitext(os.path.basename(source_L0M_files[0]))[0]
+        self._source_AUX_ORB = os.path.splitext(os.path.basename(source_AUX_ORB_files[0]))[0]
+
+        return True
 
     def generate_output(self) -> None:
         super().generate_output()
@@ -270,9 +314,9 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(earth_explorer_header_node, 'Variable_Header')
 
         data_block_node = et.SubElement(root, 'Data_Block', {'type': 'xml'})
-        et.SubElement(data_block_node, 'source_L0S').text = ''
-        et.SubElement(data_block_node, 'source_L0M').text = ''
-        et.SubElement(data_block_node, 'source_AUX_ORB').text = ''
+        et.SubElement(data_block_node, 'source_L0S').text = self._source_L0S
+        et.SubElement(data_block_node, 'source_L0M').text = self._source_L0M
+        et.SubElement(data_block_node, 'source_AUX_ORB').text = self._source_AUX_ORB
         et.SubElement(data_block_node, 'frame_id').text = str(self._hdr.acquisitions[0].slice_frame_nr)
         et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
         et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
@@ -475,6 +519,8 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         '''
         if not super().parse_inputs(inputs):
             return False
+
+        # TODO: Parse virtual frames here.
 
         if self._meta_data_source:
             if self._hdr.product_type not in _L1_SCS_PRODUCTS:

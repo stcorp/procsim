@@ -182,6 +182,41 @@ class VirtualFrameProductTest(unittest.TestCase):
         gen._frame_status = 'NOMINAL'
         gen._generate_product()
 
+    def test_parse_inputs(self) -> None:
+        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
+        gen._output_path = str(TEST_DIR)
+
+        L0S_input = JobOrderInput()
+        L0S_input.id = '1'
+        L0S_input.alternative_input_id = ''
+        L0S_input.file_type = 'S1_RAW__0S'
+        L0S_input.file_names = ['$PATH/BIO_S1_RAW__0S_20210201T002432_20210201T002539_T_G___M01_C___T000_F062_00_BJNPAC.zip']  # zip just for testing
+
+        L0M_input = JobOrderInput()
+        L0M_input.id = '2'
+        L0M_input.alternative_input_id = ''
+        L0M_input.file_type = 'S1_RAW__0M'
+        L0M_input.file_names = ['$PATH/BIO_S1_RAW__0M_20210201T002432_20210201T002539_T_G___M01_C___T000_F____00_BJNPAD']
+
+        AUX_ORB_input = JobOrderInput()
+        AUX_ORB_input.id = '3'
+        AUX_ORB_input.alternative_input_id = ''
+        AUX_ORB_input.file_type = 'AUX_ORB___'
+        AUX_ORB_input.file_names = ['$PATH/BIO_AUX_ORB____20210201T002512_20210201T002715_00_BJNPAC']
+
+        # Any combination of 0, 1, 2, 4 or more inputs should raise an exception.
+        for num_inputs in [0, 1, 2, 4, 5]:
+            for combination in itertools.combinations([L0S_input, L0M_input, AUX_ORB_input], num_inputs):
+                with self.assertRaises(ScenarioError):
+                    gen.parse_inputs(combination)
+
+        # Should not raise an exception.
+        gen.parse_inputs([L0S_input, L0M_input, AUX_ORB_input])
+
+        self.assertEqual(gen._source_L0S, 'BIO_S1_RAW__0S_20210201T002432_20210201T002539_T_G___M01_C___T000_F062_00_BJNPAC')
+        self.assertEqual(gen._source_L0M, 'BIO_S1_RAW__0M_20210201T002432_20210201T002539_T_G___M01_C___T000_F____00_BJNPAD')
+        self.assertEqual(gen._source_AUX_ORB, 'BIO_AUX_ORB____20210201T002512_20210201T002715_00_BJNPAC')
+
 
 if __name__ == '__main__':
     unittest.main()
