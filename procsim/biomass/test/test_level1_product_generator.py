@@ -174,12 +174,12 @@ class VirtualFrameProductTest(unittest.TestCase):
     def test_product_name(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
         gen._output_path = TEST_DIR
-        gen._hdr.product_type = 'CPF_L1VFRA'
-        gen._hdr.product_baseline = 1
-        gen._hdr.begin_position = ANX1
-        gen._hdr.end_position = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
-        gen._hdr.validity_start = ANX1
-        gen._hdr.validity_stop = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+
+        # Set frame information manually.
+        gen._hdr.acquisitions[0].slice_frame_nr = gen._hdr.acquisitions[0].slice_frame_nr
+        gen._hdr.set_phenomenon_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
+        gen._hdr.set_validity_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
+        gen._frame_status = 'NOMINAL'
         gen._generate_product()
 
 
