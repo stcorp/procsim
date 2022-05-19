@@ -107,6 +107,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         self._version_nr = 1
         self._hdr.product_baseline = 0  # This is the default for VFRA
         self._zip_output = False
+        self._hdr.product_type = 'CPF_L1VFRA'
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         gen, hdr, acq = super().get_params()
@@ -221,6 +222,10 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
 
     def _generate_product(self) -> None:
         name_gen = self._create_name_generator(self._hdr)
+        if self._creation_date is None:
+            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
+        name_gen.set_creation_date(self._creation_date)
+        name_gen._file_class = self._file_class
         file_name = name_gen.generate_path_name()
         self._logger.info(f'Create {file_name}')
         os.makedirs(self._output_path, exist_ok=True)
@@ -249,7 +254,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(source_node, 'System').text = 'PDGS'
         et.SubElement(source_node, 'Creator').text = 'L1_F'
         et.SubElement(source_node, 'Creator_Version').text = '1'
-        et.SubElement(source_node, 'Creation_Date').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)  # TODO
+        et.SubElement(source_node, 'Creation_Date').text = self._creation_date.strftime(DATETIME_FORMAT) if self._creation_date else ''
 
         et.SubElement(earth_explorer_header_node, 'Variable_Header')
 
@@ -257,10 +262,10 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(data_block_node, 'source_L0S').text = ''
         et.SubElement(data_block_node, 'source_L0M').text = ''
         et.SubElement(data_block_node, 'source_AUX_ORB').text = ''
-        et.SubElement(data_block_node, 'frame_id').text = ''
-        et.SubElement(data_block_node, 'frame_start_time').text = ''
-        et.SubElement(data_block_node, 'frame_stop_time').text = ''
-        et.SubElement(data_block_node, 'frame_status').text = ''
+        et.SubElement(data_block_node, 'frame_id').text = str(self._hdr.acquisitions[0].slice_frame_nr)
+        et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(DATETIME_FORMAT)
+        et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)
+        et.SubElement(data_block_node, 'frame_status').text = self._frame_status
         et.SubElement(data_block_node, 'ops_angle_start').text = ''
         et.SubElement(data_block_node, 'ops_angle_stop').text = ''
 
@@ -268,6 +273,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         dom = md.parseString(et.tostring(root, encoding='unicode'))
         xml_string = dom.toprettyxml(indent='    ')
 
+        print()
         print(f'Filename: {full_file_name}')
         with open(full_file_name, 'w') as file:
             file.write(xml_string)
