@@ -364,6 +364,10 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
                 'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S', 'Sx_DGM__1S',
                 'RO_SCS__1S']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._frame_status = None
+
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         gen, hdr, acq = super().get_params()
         return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
@@ -386,23 +390,23 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         # Find all OSV elements containing frame ID, start/stop time and status. No XML namespaces are expected.
         frame_id_node = root.find('Data_Block/frame_id')
         if frame_id_node is not None and frame_id_node.text is not None:
-            self._frame_id = int(frame_id_node.text)
+            self._hdr.acquisitions[0].slice_frame_nr = int(frame_id_node.text)
 
         frame_start_time_node = root.find('Data_Block/frame_start_time')
         if frame_start_time_node is not None and frame_start_time_node.text is not None:
             # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-            self._frame_start_time = self._time_from_iso(frame_start_time_node.text[4:])
+            self._hdr.begin_position = self._time_from_iso(frame_start_time_node.text[4:])
 
         frame_stop_time_node = root.find('Data_Block/frame_stop_time')
         if frame_stop_time_node is not None and frame_stop_time_node.text is not None:
             # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-            self._frame_stop_time = self._time_from_iso(frame_stop_time_node.text[4:])
+            self._hdr.end_position = self._time_from_iso(frame_stop_time_node.text[4:])
 
         frame_status_node = root.find('Data_Block/frame_Status')
         if frame_status_node is not None and frame_status_node.text is not None:
             self._frame_status = frame_status_node.text
 
-        if not self._frame_id or not self._frame_start_time or not self._frame_stop_time or not self._frame_status:
+        if not self._hdr.acquisitions[0].slice_frame_nr or not self._hdr.begin_position or not self._hdr.end_position or not self._frame_status:
             self._logger.warning(f'Could not parse frame information from {file_name}.')
 
     def _generate_product(self):

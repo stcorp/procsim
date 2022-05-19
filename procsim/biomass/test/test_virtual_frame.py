@@ -80,9 +80,9 @@ class VirtualFrameParsingTest(unittest.TestCase):
 
         gen._parse_virtual_frame_file(virtual_frame_path)
 
-        self.assertEqual(gen._frame_id, 155)
-        self.assertEqual(gen._frame_start_time, datetime.datetime(2022, 4, 21, 14, 38, 31, 123456, tzinfo=datetime.timezone.utc))
-        self.assertEqual(gen._frame_stop_time, datetime.datetime(2022, 4, 21, 14, 38, 52, 654321, tzinfo=datetime.timezone.utc))
+        self.assertEqual(gen._hdr.acquisitions[0].slice_frame_nr, 155)
+        self.assertEqual(gen._hdr.begin_position, datetime.datetime(2022, 4, 21, 14, 38, 31, 123456, tzinfo=datetime.timezone.utc))
+        self.assertEqual(gen._hdr.end_position, datetime.datetime(2022, 4, 21, 14, 38, 52, 654321, tzinfo=datetime.timezone.utc))
         self.assertEqual(gen._frame_status, 'NOMINAL')
 
     def test_no_frame_info(self) -> None:

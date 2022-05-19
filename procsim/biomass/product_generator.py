@@ -84,12 +84,6 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source_file = None
         self._anx_list = []
 
-        # Parameters related to virtual frames. TODO: Move to header?
-        self._frame_id = None
-        self._frame_start_time = None
-        self._frame_stop_time = None
-        self._frame_status = None
-
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
@@ -173,7 +167,6 @@ class ProductGeneratorBase(IProductGenerator):
             self._hdr.browse_image_filename = relative_file_path
 
         if representation_path is not None:
-            print(f'GENERATING REPRESENTATION {representation_path}')
             self._generate_bin_file(representation_path, 0)
         self._generate_bin_file(file_path, size_mb)
 
