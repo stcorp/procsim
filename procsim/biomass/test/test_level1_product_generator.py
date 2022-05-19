@@ -37,7 +37,7 @@ ANX2 = ANX1 + constants.ORBITAL_PERIOD
 
 
 STANDARD_CONFIG = {
-    'output_path': TEST_DIR,
+    'output_path': TEST_DIR.name,
     'class': 'TEST',
     'type': 'CPF_L1VFRA',
     'processor_name': 'unittest',
@@ -158,11 +158,8 @@ class FrameGeneratorTest(unittest.TestCase):
         # Remove last frame. All other frames should be nominal.
         frames = self.gen._generate_frames(ANX1, ANX1,
                                            ANX1 + constants.SLICE_GRID_SPACING - constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP, 1)
-        for frame in frames:
-            print(frame.sensing_stop - frame.sensing_start)
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         for fi, frame in enumerate(frames):
-            print(fi, frame.status)
             self.assertEqual(frame.id, fi + 1)
             self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
@@ -175,7 +172,7 @@ class VirtualFrameProductTest(unittest.TestCase):
     '''Test virtual frame production.'''
     def test_product_name(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = str(TEST_DIR)
+        gen._output_path = TEST_DIR.name
 
         start = ANX1
         end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
@@ -194,11 +191,11 @@ class VirtualFrameProductTest(unittest.TestCase):
         compact_create_date = name_gen._compact_create_date
 
         expected_filename = f'BIO_TEST_CPF_L1VFRA_{start.strftime("%Y%m%dT%H%M%S")}_{end.strftime("%Y%m%dT%H%M%S")}_00_{compact_create_date}.EOF'
-        self.assertEqual(os.listdir(str(TEST_DIR))[0], expected_filename)
+        self.assertEqual(os.listdir(TEST_DIR.name)[0], expected_filename)
 
     def test_product_contents(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = str(TEST_DIR)
+        gen._output_path = TEST_DIR.name
 
         start = ANX1
         end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
@@ -220,7 +217,7 @@ class VirtualFrameProductTest(unittest.TestCase):
         compact_create_date = name_gen._compact_create_date
         expected_filename = f'BIO_TEST_CPF_L1VFRA_{start.strftime("%Y%m%dT%H%M%S")}_{end.strftime("%Y%m%dT%H%M%S")}_00_{compact_create_date}'
 
-        with open(os.path.join(str(TEST_DIR), os.listdir(str(TEST_DIR))[0]), 'rb') as f:
+        with open(os.path.join(TEST_DIR.name, os.listdir(TEST_DIR.name)[0]), 'rb') as f:
             contents = f.read()
         root = et.fromstring(contents)
 
@@ -255,7 +252,7 @@ class VirtualFrameProductTest(unittest.TestCase):
 
     def test_parse_inputs(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = str(TEST_DIR)
+        gen._output_path = TEST_DIR.name
 
         L0S_input = JobOrderInput()
         L0S_input.id = '1'
