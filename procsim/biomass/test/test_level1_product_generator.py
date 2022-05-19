@@ -2,17 +2,19 @@
 Copyright (C) 2022 S[&]T, The Netherlands.
 '''
 import datetime
-import glob
+import itertools
 import os
-import shutil
+import tempfile
 import unittest
 from xml.etree import ElementTree as et
 
-from procsim.biomass import main_product_header
 from procsim.biomass import constants
 from procsim.biomass.level1_product_generator import Level1PreProcessor
+from procsim.biomass.product_name import ProductName
+from procsim.core.exceptions import ScenarioError
+from procsim.core.job_order import JobOrderInput
 
-TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
+TEST_DIR = tempfile.TemporaryDirectory()
 
 
 class _Logger:
@@ -30,7 +32,7 @@ class _Logger:
         print(*args, **kwargs)
 
 
-ANX1 = datetime.datetime(2020, 1, 1, 0, 0, 0)
+ANX1 = datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 ANX2 = ANX1 + constants.ORBITAL_PERIOD
 
 
@@ -173,14 +175,26 @@ class VirtualFrameProductTest(unittest.TestCase):
     '''Test virtual frame production.'''
     def test_product_name(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = TEST_DIR
+        gen._output_path = str(TEST_DIR)
+
+        start = ANX1
+        end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
 
         # Set frame information manually.
         gen._hdr.acquisitions[0].slice_frame_nr = 1
-        gen._hdr.set_phenomenon_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
-        gen._hdr.set_validity_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
+        gen._hdr.set_phenomenon_times(start, end)
+        gen._hdr.set_validity_times(start, end)
         gen._frame_status = 'NOMINAL'
+        gen._creation_date = end
         gen._generate_product()
+
+        # Get the compact create date via a ProductName object.
+        name_gen = ProductName()
+        name_gen.set_creation_date(gen._creation_date)
+        compact_create_date = name_gen._compact_create_date
+
+        expected_filename = f'BIO_TEST_CPF_L1VFRA_{start.strftime("%Y%m%dT%H%M%S")}_{end.strftime("%Y%m%dT%H%M%S")}_00_{compact_create_date}.EOF'
+        self.assertEqual(os.listdir(str(TEST_DIR))[0], expected_filename)
 
     def test_parse_inputs(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
