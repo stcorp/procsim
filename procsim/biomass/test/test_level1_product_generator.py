@@ -176,7 +176,7 @@ class VirtualFrameProductTest(unittest.TestCase):
         gen._output_path = TEST_DIR
 
         # Set frame information manually.
-        gen._hdr.acquisitions[0].slice_frame_nr = gen._hdr.acquisitions[0].slice_frame_nr
+        gen._hdr.acquisitions[0].slice_frame_nr = 1
         gen._hdr.set_phenomenon_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
         gen._hdr.set_validity_times(ANX1, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
         gen._frame_status = 'NOMINAL'

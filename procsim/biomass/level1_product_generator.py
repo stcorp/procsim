@@ -12,7 +12,7 @@ from textwrap import dedent
 from xml.etree import ElementTree as et
 import xml.dom.minidom as md
 
-from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, SLICE_GRID_SPACING
+from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, ORBITAL_PERIOD, SLICE_GRID_SPACING
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
 
@@ -234,6 +234,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         # Check validity times.
         if self._hdr.validity_start is None or self._hdr.validity_stop is None:
             raise GeneratorError('Validity start/stop times must be known here.')
+        if self._hdr.acquisitions[0].slice_frame_nr is None:
+            raise GeneratorError('Frame number must be known here.')
 
         root = et.Element('Earth_Explorer_File')
         earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
@@ -266,8 +268,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(DATETIME_FORMAT)
         et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(DATETIME_FORMAT)
         et.SubElement(data_block_node, 'frame_status').text = self._frame_status
-        et.SubElement(data_block_node, 'ops_angle_start').text = ''
-        et.SubElement(data_block_node, 'ops_angle_stop').text = ''
+        et.SubElement(data_block_node, 'ops_angle_start').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr))
+        et.SubElement(data_block_node, 'ops_angle_stop').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr + 1))
 
         # Insert some indentation.
         dom = md.parseString(et.tostring(root, encoding='unicode'))
@@ -278,6 +280,11 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         with open(full_file_name, 'w') as file:
             file.write(xml_string)
             print(xml_string)
+
+    def _ops_angle_from_frame_nr(self, frame_nr: int) -> float:
+        '''Determine the ops_angle for a given frame number.'''
+        num_frames_per_orbit = round(ORBITAL_PERIOD / self._frame_grid_spacing)
+        return ((frame_nr - 1) % num_frames_per_orbit) / num_frames_per_orbit * 360.0
 
 
 class Level1Stripmap(product_generator.ProductGeneratorBase):
