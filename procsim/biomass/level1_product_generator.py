@@ -293,12 +293,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         root = et.Element('Earth_Explorer_File')
         earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
         fixed_header_node = et.SubElement(earth_explorer_header_node, 'Fixed_Header')
-        et.SubElement(fixed_header_node, 'File_Name').text = file_name[:-5]
+        et.SubElement(fixed_header_node, 'File_Name').text = file_name[:-4]
         et.SubElement(fixed_header_node, 'File_Description').text = 'L1 Virtual Frame'
         et.SubElement(fixed_header_node, 'Notes').text = ''
         et.SubElement(fixed_header_node, 'Mission').text = 'BIOMASS'
-        et.SubElement(fixed_header_node, 'File_Class').text = 'OPER'
-        et.SubElement(fixed_header_node, 'File_Type').text = 'CPF_L1VFRA'
+        et.SubElement(fixed_header_node, 'File_Class').text = self._file_class
+        et.SubElement(fixed_header_node, 'File_Type').text = self._output_type
         validity_period_node = et.SubElement(fixed_header_node, 'Validity_Period')
         et.SubElement(fixed_header_node, 'File_Version').text = '01'
         source_node = et.SubElement(fixed_header_node, 'Source')
@@ -331,8 +331,6 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         xml_string = dom.toprettyxml(indent='    ')
 
         # Write to file.
-        print()
-        print(f'Filename: {full_file_name}')
         self._logger.info(f'Create {file_name}')
         with open(full_file_name, 'w') as file:
             file.write(xml_string)
