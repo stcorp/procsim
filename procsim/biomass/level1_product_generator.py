@@ -269,7 +269,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
 
         et.SubElement(earth_explorer_header_node, 'Variable_Header')
 
-        data_block_node = et.SubElement(root, 'Data_Block')
+        data_block_node = et.SubElement(root, 'Data_Block', {'type': 'xml'})
         et.SubElement(data_block_node, 'source_L0S').text = ''
         et.SubElement(data_block_node, 'source_L0M').text = ''
         et.SubElement(data_block_node, 'source_AUX_ORB').text = ''
@@ -277,8 +277,10 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
         et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
         et.SubElement(data_block_node, 'frame_status').text = self._frame_status
-        et.SubElement(data_block_node, 'ops_angle_start').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr))
-        et.SubElement(data_block_node, 'ops_angle_stop').text = str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr + 1))
+        et.SubElement(data_block_node, 'ops_angle_start', {'unit': 'deg'}).text =\
+            str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr))
+        et.SubElement(data_block_node, 'ops_angle_stop', {'unit': 'deg'}).text =\
+            str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr + 1))
 
         # Insert some indentation.
         dom = md.parseString(et.tostring(root, encoding='unicode'))
