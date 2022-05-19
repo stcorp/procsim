@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Task_Table>
-  <Processor_Name>l1_sm</Processor_Name>
+  <Processor_Name>l1_step2_sm</Processor_Name>
   <Version>01.01</Version>
   <Test>No</Test>
   <Min_Disk_Space units="MB">1500</Min_Disk_Space>
@@ -23,9 +23,9 @@
       <Detached>false</Detached>
       <Killing_Signal>15</Killing_Signal>
       <List_of_Tasks count="1">
-        <!-- Step1, 'measurement mode' (=stripmap) -->
+        <!-- Step2, 'measurement mode' (=stripmap) -->
         <Task>
-          <Name>Step1</Name>
+          <Name>Step2</Name>
           <Version>01.01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>

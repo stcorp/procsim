@@ -828,7 +828,7 @@
     {
       "name": "Stripmap Level-1 preprocessing",
       "file_name": "level1_task1.sh",
-      "processor_name": "l1_pp",
+      "processor_name": "l1_step1_sm",
       "processor_version": "01.01",
       "task_name": "Step1",
       "task_version": "01.01",
@@ -857,9 +857,9 @@
     {
       "name": "Stripmap Level-1 generation",
       "file_name": "level1_task2.sh",
-      "processor_name": "l1_sm",
+      "processor_name": "l1_step2_sm",
       "processor_version": "01.01",
-      "task_name": "Step1",
+      "task_name": "Step2",
       "task_version": "01.01",
 
       // To test L1 Stacked product, generate 3 series of outputs with different

@@ -57,9 +57,9 @@ $PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l0_step2c_s
 # Level 1 steps
 echo
 echo '  *** L1 step 1a, slice preprocessing'
-$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_pp.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_step1_sm.xml
 echo '  *** L1 step 1b, input complete slice'
-$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_sm.xml
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_step2_sm.xml
 
 echo
 echo '  *** L1 step 2'
