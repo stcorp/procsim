@@ -138,6 +138,9 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             self._generate_frame_products()
 
     def _generate_frame_products(self):
+        '''
+        Generate a set of virtual frame products.
+        '''
         # Input is a slice. A frame overlap is added at the end of each frame.
         acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
         slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
@@ -181,9 +184,9 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     def _generate_frames(self, slice_start: datetime.datetime,
                          acq_start: datetime.datetime, acq_end: datetime.datetime,
                          first_frame_nr: int) -> List[Frame]:
-        """
+        '''
         Generate a list of Frame objects between start and end times.
-        """
+        '''
         # Get frame boundaries between the slice validity start and end.
         frame_bounds = [slice_start + d * self._frame_grid_spacing for d in range(NUM_FRAMES_PER_SLICE + 1)]
 
@@ -221,22 +224,26 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         return frames
 
     def _generate_product(self) -> None:
+        '''
+        Construct and write an output file given the variables set in this class.
+        '''
+        # Create a name generator, give it the right values and generate the product name.
         name_gen = self._create_name_generator(self._hdr)
         if self._creation_date is None:
             self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
         name_gen.set_creation_date(self._creation_date)
         name_gen._file_class = self._file_class
         file_name = name_gen.generate_path_name()
-        self._logger.info(f'Create {file_name}')
         os.makedirs(self._output_path, exist_ok=True)
         full_file_name = os.path.join(self._output_path, file_name)
 
-        # Check validity times.
+        # Ensure the presence of vital variables.
         if self._hdr.validity_start is None or self._hdr.validity_stop is None:
             raise GeneratorError('Validity start/stop times must be known here.')
         if self._hdr.acquisitions[0].slice_frame_nr is None:
             raise GeneratorError('Frame number must be known here.')
 
+        # Construct the contents of the XML file.
         root = et.Element('Earth_Explorer_File')
         earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
         fixed_header_node = et.SubElement(earth_explorer_header_node, 'Fixed_Header')
@@ -275,14 +282,20 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         dom = md.parseString(et.tostring(root, encoding='unicode'))
         xml_string = dom.toprettyxml(indent='    ')
 
+        # Write to file.
         print()
         print(f'Filename: {full_file_name}')
+        self._logger.info(f'Create {file_name}')
         with open(full_file_name, 'w') as file:
             file.write(xml_string)
             print(xml_string)
 
     def _ops_angle_from_frame_nr(self, frame_nr: int) -> float:
-        '''Determine the ops_angle for a given frame number.'''
+        '''
+        Determine the ops_angle for a given frame number. This is the angle that
+        describes the progress of the satellite along its orbit, measured from
+        the last ANX.
+        '''
         num_frames_per_orbit = round(ORBITAL_PERIOD / self._frame_grid_spacing)
         return ((frame_nr - 1) % num_frames_per_orbit) / num_frames_per_orbit * 360.0
 
