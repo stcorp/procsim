@@ -334,7 +334,6 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         self._logger.info(f'Create {file_name}')
         with open(full_file_name, 'w') as file:
             file.write(xml_string)
-            print(xml_string)
 
     def _ops_angle_from_frame_nr(self, frame_nr: int) -> float:
         '''

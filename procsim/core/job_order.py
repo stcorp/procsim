@@ -86,7 +86,7 @@ class JobOrderParser:
             return None
         if timestr[-1] == 'Z':
             timestr = timestr[:-1]  # strip 'Z', if any
-        return datetime.datetime.strptime(timestr, cls.ISO_TIME_FORMAT)
+        return datetime.datetime.strptime(timestr, cls.ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
 
     def __init__(self, logger, schema):
         self._logger = logger

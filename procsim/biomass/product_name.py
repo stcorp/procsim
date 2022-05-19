@@ -51,7 +51,7 @@ class ProductName:
 
     @classmethod
     def str_to_time(cls, s):
-        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT) if s else None
+        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT).replace(tzinfo=datetime.timezone.utc) if s else None
 
     @classmethod
     def str_to_int(cls, s):

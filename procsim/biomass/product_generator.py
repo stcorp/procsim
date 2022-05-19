@@ -155,7 +155,7 @@ class ProductGeneratorBase(IProductGenerator):
     def _time_from_iso(self, timestr):
         if timestr[-1] == 'Z':
             timestr = timestr[:-1]
-        return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
+        return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
 
     def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
@@ -385,7 +385,7 @@ class ProductGeneratorBase(IProductGenerator):
         Setup some mandatory metadata
         '''
         if self._creation_date is None:
-            self._creation_date = datetime.datetime.utcnow()
+            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
         self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],

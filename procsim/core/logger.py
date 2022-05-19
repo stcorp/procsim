@@ -55,7 +55,7 @@ class Logger:
         self.log('ERROR', *args, **kwargs)
 
     def log(self, level: str, *args, **kwargs):
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         log_prefix = '{} {} {} {} {} [{:010}]{} [{}]'.format(
             now.isoformat(),
             self._node_name,

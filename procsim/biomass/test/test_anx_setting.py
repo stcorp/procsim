@@ -112,9 +112,9 @@ class ANXTest(unittest.TestCase):
 
     def assert_orbpre_anx_times(self, anx_list: List[datetime.datetime]) -> None:
         self.assertEqual(len(anx_list), 3)
-        self.assertEqual(anx_list[0], datetime.datetime(2021, 12, 9, 13, 0, 0))
-        self.assertEqual(anx_list[1], datetime.datetime(2021, 12, 9, 15, 30, 0))
-        self.assertEqual(anx_list[2], datetime.datetime(2021, 12, 9, 18, 0, 0))
+        self.assertEqual(anx_list[0], datetime.datetime(2021, 12, 9, 13, 0, 0, tzinfo=datetime.timezone.utc))
+        self.assertEqual(anx_list[1], datetime.datetime(2021, 12, 9, 15, 30, 0, tzinfo=datetime.timezone.utc))
+        self.assertEqual(anx_list[2], datetime.datetime(2021, 12, 9, 18, 0, 0, tzinfo=datetime.timezone.utc))
 
     def create_no_anx_config(self) -> Dict:
         return {
@@ -144,8 +144,8 @@ class ANXTest(unittest.TestCase):
         job_order.dir = 'test'
         job_order.baseline = 1
         job_order.file_name_pattern = 'test'
-        job_order.toi_start = datetime.datetime.now()
-        job_order.toi_stop = datetime.datetime.now()
+        job_order.toi_start = datetime.datetime.now(tz=datetime.timezone.utc)
+        job_order.toi_stop = datetime.datetime.now(tz=datetime.timezone.utc)
         config = {
             'type': 'test',
         }
@@ -200,8 +200,8 @@ class ANXTest(unittest.TestCase):
         gen = RAWSxxx_10(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
 
         self.assertGreater(len(gen._anx_list), 0)
-        self.assertEqual(gen._anx_list[0], datetime.datetime(2017, 3, 2, 6, 5, 51, 514000))
-        self.assertEqual(gen._anx_list[1], datetime.datetime(2017, 3, 2, 7, 44, 2, 496000))
+        self.assertEqual(gen._anx_list[0], datetime.datetime(2017, 3, 2, 6, 5, 51, 514000, tzinfo=datetime.timezone.utc))
+        self.assertEqual(gen._anx_list[1], datetime.datetime(2017, 3, 2, 7, 44, 2, 496000, tzinfo=datetime.timezone.utc))
 
     def test_anx_from_scenario_and_orbpre(self):
         '''Create a generator with ANX information from a scenario and an orbit prediction file. The scenario should take precedence.'''
@@ -226,8 +226,8 @@ class ANXTest(unittest.TestCase):
         gen.parse_inputs([job_order_input])
 
         self.assertGreater(len(gen._anx_list), 0)
-        self.assertEqual(gen._anx_list[0], datetime.datetime(2017, 3, 2, 6, 5, 51, 514000))
-        self.assertEqual(gen._anx_list[1], datetime.datetime(2017, 3, 2, 7, 44, 2, 496000))
+        self.assertEqual(gen._anx_list[0], datetime.datetime(2017, 3, 2, 6, 5, 51, 514000, tzinfo=datetime.timezone.utc))
+        self.assertEqual(gen._anx_list[1], datetime.datetime(2017, 3, 2, 7, 44, 2, 496000, tzinfo=datetime.timezone.utc))
 
 
 if __name__ == '__main__':
