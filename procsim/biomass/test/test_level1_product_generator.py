@@ -196,6 +196,63 @@ class VirtualFrameProductTest(unittest.TestCase):
         expected_filename = f'BIO_TEST_CPF_L1VFRA_{start.strftime("%Y%m%dT%H%M%S")}_{end.strftime("%Y%m%dT%H%M%S")}_00_{compact_create_date}.EOF'
         self.assertEqual(os.listdir(str(TEST_DIR))[0], expected_filename)
 
+    def test_product_contents(self) -> None:
+        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
+        gen._output_path = str(TEST_DIR)
+
+        start = ANX1
+        end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
+
+        # Set frame information manually.
+        gen._hdr.acquisitions[0].slice_frame_nr = 1
+        gen._hdr.set_phenomenon_times(start, end)
+        gen._hdr.set_validity_times(start, end)
+        gen._frame_status = 'NOMINAL'
+        gen._creation_date = end
+        gen._source_L0S = 'L0S input file'
+        gen._source_L0M = 'L0M input file'
+        gen._source_AUX_ORB = 'AUX_ORB input file'
+        gen._generate_product()
+
+        # Get the compact create date via a ProductName object.
+        name_gen = ProductName()
+        name_gen.set_creation_date(gen._creation_date)
+        compact_create_date = name_gen._compact_create_date
+        expected_filename = f'BIO_TEST_CPF_L1VFRA_{start.strftime("%Y%m%dT%H%M%S")}_{end.strftime("%Y%m%dT%H%M%S")}_00_{compact_create_date}'
+
+        with open(os.path.join(str(TEST_DIR), os.listdir(str(TEST_DIR))[0]), 'rb') as f:
+            contents = f.read()
+        root = et.fromstring(contents)
+
+        checks = [
+            ('Earth_Explorer_Header/Fixed_Header/File_Name', expected_filename),
+            ('Earth_Explorer_Header/Fixed_Header/File_Description', 'L1 Virtual Frame'),
+            ('Earth_Explorer_Header/Fixed_Header/Mission', 'BIOMASS'),
+            ('Earth_Explorer_Header/Fixed_Header/File_Class', 'TEST'),
+            ('Earth_Explorer_Header/Fixed_Header/File_Type', 'CPF_L1VFRA'),
+            ('Earth_Explorer_Header/Fixed_Header/Validity_Period/Validity_Start', start.strftime('UTC=%Y-%m-%dT%H:%M:%S')),
+            ('Earth_Explorer_Header/Fixed_Header/Validity_Period/Validity_Stop', end.strftime('UTC=%Y-%m-%dT%H:%M:%S')),
+            ('Earth_Explorer_Header/Fixed_Header/File_Version', '01'),
+            ('Earth_Explorer_Header/Fixed_Header/Source/System', 'PDGS'),
+            ('Earth_Explorer_Header/Fixed_Header/Source/Creator', 'L1_F'),
+            ('Earth_Explorer_Header/Fixed_Header/Source/Creator_Version', '1'),
+            ('Earth_Explorer_Header/Fixed_Header/Source/Creation_Date', gen._creation_date.strftime('UTC=%Y-%m-%dT%H:%M:%S')),
+            ('Data_Block/source_L0S', gen._source_L0S),
+            ('Data_Block/source_L0M', gen._source_L0M),
+            ('Data_Block/source_AUX_ORB', gen._source_AUX_ORB),
+            ('Data_Block/frame_id', 1),
+            ('Data_Block/frame_start_time', start.strftime('UTC=%Y-%m-%dT%H:%M:%S.%f')),
+            ('Data_Block/frame_stop_time', end.strftime('UTC=%Y-%m-%dT%H:%M:%S.%f')),
+            ('Data_Block/frame_status', 'NOMINAL'),
+            ('Data_Block/ops_angle_start', 0.0),
+            ('Data_Block/ops_angle_stop', 1.1612903225806452),
+        ]
+
+        for element, expected_value in checks:
+            node = root.find(element)
+            self.assertIsNotNone(node)
+            self.assertEqual(node.text if node is not None else None, str(expected_value))
+
     def test_parse_inputs(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
         gen._output_path = str(TEST_DIR)
