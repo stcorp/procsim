@@ -369,6 +369,43 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         gen, hdr, acq = super().get_params()
         return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        if not super().parse_inputs(input_products):
+            return False
+
+        for input in input_products:
+            for file in input.file_names:
+                if input.file_type in product_types.VFRA_PRODUCT_TYPES:
+                    self._parse_virtual_frame_file(file)
+
+        return True
+
+    def _parse_virtual_frame_file(self, file_name: str) -> None:
+        '''Get frame information from virtual frame file.'''
+        root = et.parse(file_name).getroot()
+
+        # Find all OSV elements containing frame ID, start/stop time and status. No XML namespaces are expected.
+        frame_id_node = root.find('Data_Block/frame_id')
+        if frame_id_node is not None and frame_id_node.text is not None:
+            self._frame_id = int(frame_id_node.text)
+
+        frame_start_time_node = root.find('Data_Block/frame_start_time')
+        if frame_start_time_node is not None and frame_start_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._frame_start_time = self._time_from_iso(frame_start_time_node.text[4:])
+
+        frame_stop_time_node = root.find('Data_Block/frame_stop_time')
+        if frame_stop_time_node is not None and frame_stop_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._frame_stop_time = self._time_from_iso(frame_stop_time_node.text[4:])
+
+        frame_status_node = root.find('Data_Block/frame_Status')
+        if frame_status_node is not None and frame_status_node.text is not None:
+            self._frame_status = frame_status_node.text
+
+        if not self._frame_id or not self._frame_start_time or not self._frame_stop_time or not self._frame_status:
+            self._logger.warning(f'Could not parse frame information from {file_name}.')
+
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)
         dir_name = name_gen.generate_path_name()
@@ -517,8 +554,6 @@ class Level1Stack(product_generator.ProductGeneratorBase):
         '''
         if not super().parse_inputs(inputs):
             return False
-
-        # TODO: Parse virtual frames here.
 
         if self._meta_data_source:
             if self._hdr.product_type not in _L1_SCS_PRODUCTS:

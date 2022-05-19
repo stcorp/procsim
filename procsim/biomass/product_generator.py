@@ -10,7 +10,7 @@ import shutil
 from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
-from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES, VFRA_PRODUCT_TYPES
+from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
@@ -238,8 +238,6 @@ class ProductGeneratorBase(IProductGenerator):
                     if input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
                         # Only parse orbit prediction files if no ANX information was present in the scenario.
                         self._parse_orbit_prediction_file(file)
-                    elif input.file_type in VFRA_PRODUCT_TYPES:
-                        self._parse_virtual_frame_file(file)
                 file = root
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
@@ -280,32 +278,6 @@ class ProductGeneratorBase(IProductGenerator):
         self._anx_list.sort()
 
         return self._anx_list
-
-    def _parse_virtual_frame_file(self, file_name: str) -> None:
-        '''Get frame information from virtual frame file.'''
-        root = et.parse(file_name).getroot()
-
-        # Find all OSV elements containing frame ID, start/stop time and status. No XML namespaces are expected.
-        frame_id_node = root.find('Data_Block/frame_id')
-        if frame_id_node is not None and frame_id_node.text is not None:
-            self._frame_id = int(frame_id_node.text)
-
-        frame_start_time_node = root.find('Data_Block/frame_start_time')
-        if frame_start_time_node is not None and frame_start_time_node.text is not None:
-            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-            self._frame_start_time = self._time_from_iso(frame_start_time_node.text[4:])
-
-        frame_stop_time_node = root.find('Data_Block/frame_stop_time')
-        if frame_stop_time_node is not None and frame_stop_time_node.text is not None:
-            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
-            self._frame_stop_time = self._time_from_iso(frame_stop_time_node.text[4:])
-
-        frame_status_node = root.find('Data_Block/frame_Status')
-        if frame_status_node is not None and frame_status_node.text is not None:
-            self._frame_status = frame_status_node.text
-
-        if not self._frame_id or not self._frame_start_time or not self._frame_stop_time or not self._frame_status:
-            self._logger.warning(f'Could not parse frame information from {file_name}.')
 
     def _get_anx(self, t: datetime.datetime) -> Optional[datetime.datetime]:
         # Check whether a previous ANX can possibly be found.

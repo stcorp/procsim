@@ -4,9 +4,8 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 import datetime
 import tempfile
 import unittest
-from procsim.biomass.level1_product_generator import Level1PreProcessor
+from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1Stripmap
 
-from procsim.biomass.product_generator import ProductGeneratorBase
 from procsim.core.exceptions import ScenarioError
 
 TEST_DIR = tempfile.TemporaryDirectory()
@@ -73,7 +72,7 @@ class VirtualFrameParsingTest(unittest.TestCase):
     def test_settings_from_file(self) -> None:
         '''Check whether settings are properly read from the test data.'''
         config = {'type': 'test'}
-        gen = ProductGeneratorBase(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
+        gen = Level1Stripmap(logger=_Logger(), job_config=None, scenario_config=config, output_config=config)
 
         with tempfile.NamedTemporaryFile(delete=False) as f:
             f.write(VFRA_DATA.encode('utf-8'))
