@@ -39,7 +39,7 @@ class _Logger:
 
 def assertMPHMatchesProductRecursive(directory_path: str) -> None:
     '''Check whether product files and MPHs correspond in all Biomass product directories.'''
-    product_directories = list(Path(directory_path).glob('**/BIO_*[!.zip]'))
+    product_directories = list(Path(directory_path).glob('**/BIO_*[!.zip|.EOF]'))
     for product_directory in product_directories:
         assertMPHMatchesProduct(product_directory)
 
