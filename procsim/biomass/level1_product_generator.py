@@ -95,11 +95,18 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     _GENERATOR_PARAMS: List[tuple] = [
         ('file_class', '_file_class', 'str'),
         ('enable_framing', '_enable_framing', 'bool'),
+        ('source_L0S', '_source_L0S', 'str'),
+        ('source_L0M', '_source_L0M', 'str'),
+        ('source_AUX_ORB', '_source_AUX_ORB', 'str'),
         ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
         ('frame_overlap', '_frame_overlap', 'float'),
         ('frame_lower_bound', '_frame_lower_bound', 'float'),
         ('slice_overlap_start', '_slice_overlap_start', 'float'),
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
+    ]
+
+    _ACQ_PARAMS = [
+        ('slice_frame_nr', 'slice_frame_nr', 'int')
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict) -> None:
@@ -130,33 +137,25 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
+        prod_name = product_name.ProductName(self._compact_creation_date_epoch)
+
         # Find the L0S, L0M and AUX_ORB products in the input list.
-        source_L0S_files = []
-        source_L0M_files = []
-        source_AUX_ORB_files = []
         for input in input_products:
             for file in input.file_names:
-                gen = product_name.ProductName(self._compact_creation_date_epoch)
-                gen.parse_path(file)
+                # Get and check the file type.
+                prod_name.parse_path(file)
+                if prod_name.file_type is None:
+                    continue
 
-                if gen.file_type and L0S_PATTERN.match(gen.file_type):
-                    source_L0S_files.append(file)
-                elif gen.file_type and L0M_PATTERN.match(gen.file_type):
-                    source_L0M_files.append(file)
-                elif gen.file_type == AUX_ORB_TYPE:
-                    source_AUX_ORB_files.append(file)
-                else:
-                    raise ScenarioError(f'Unknown input file type: {gen.file_type} of file {file}')
+                # Strip any path and extension off the filename.
+                file_base = os.path.splitext(os.path.basename(file))[0]
 
-        # Expect exactly one input file for each product type.
-        if len(source_L0S_files) != 1 or len(source_L0M_files) != 1 or len(source_AUX_ORB_files) != 1:
-            raise ScenarioError(f'Expected exactly one L0S, L0M and AUX_ORB input file, got',
-                                {len(source_L0S_files), len(source_L0M_files), len(source_AUX_ORB_files)})
-
-        # Strip any path and extension off the filename.
-        self._source_L0S = os.path.splitext(os.path.basename(source_L0S_files[0]))[0]
-        self._source_L0M = os.path.splitext(os.path.basename(source_L0M_files[0]))[0]
-        self._source_AUX_ORB = os.path.splitext(os.path.basename(source_AUX_ORB_files[0]))[0]
+                if L0S_PATTERN.match(prod_name.file_type) and self._source_L0S is None:
+                    self._source_L0S = file_base
+                elif L0M_PATTERN.match(prod_name.file_type) and self._source_L0M is None:
+                    self._source_L0M = file_base
+                elif prod_name.file_type == AUX_ORB_TYPE and self._source_AUX_ORB is None:
+                    self._source_AUX_ORB = file_base
 
         return True
 
@@ -279,7 +278,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         if self._creation_date is None:
             self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
         name_gen.set_creation_date(self._creation_date)
-        name_gen._file_class = self._file_class
+        name_gen.file_class = self._file_class
+        name_gen.baseline_identifier = self._hdr.product_baseline
         file_name = name_gen.generate_path_name()
         os.makedirs(self._output_path, exist_ok=True)
         full_file_name = os.path.join(self._output_path, file_name)
@@ -295,9 +295,11 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     def _generate_xml(self, file_name: str) -> str:
         # Ensure the presence of vital variables.
         if self._hdr.validity_start is None or self._hdr.validity_stop is None:
-            raise GeneratorError('Validity start/stop times must be known here.')
+            raise ScenarioError('Validity start/stop times must be known here.')
         if self._hdr.acquisitions[0].slice_frame_nr is None:
-            raise GeneratorError('Frame number must be known here.')
+            raise ScenarioError('Frame number must be known here.')
+        if self._source_L0S is None or self._source_L0M is None or self._source_AUX_ORB is None:
+            raise ScenarioError('Input products must be known here.')
 
         root = et.Element('Earth_Explorer_File')
         earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
