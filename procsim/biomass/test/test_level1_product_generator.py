@@ -4,12 +4,14 @@ Copyright (C) 2022 S[&]T, The Netherlands.
 import datetime
 import itertools
 import os
+import shutil
 import tempfile
 import unittest
 from xml.etree import ElementTree as et
 
 from procsim.biomass import constants
-from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1Stripmap
+from procsim.biomass.level1_product_generator import (Level1PreProcessor,
+                                                      Level1Stripmap)
 from procsim.biomass.product_name import ProductName
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
@@ -32,24 +34,31 @@ class _Logger:
         print(*args, **kwargs)
 
 
+DATETIME_INPUT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+
+
 ANX1 = datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
 ANX2 = ANX1 + constants.ORBITAL_PERIOD
 
 
 STANDARD_CONFIG = {
     'output_path': TEST_DIR.name,
+    'baseline': 0,
     'class': 'TEST',
     'type': 'CPF_L1VFRA',
     'processor_name': 'unittest',
     'processor_version': '01.01',
     'zip_output': False,
-    'slice_overlap_start': constants.SLICE_OVERLAP_START,
-    'slice_overlap_end': constants.SLICE_OVERLAP_END,
-    'slice_minimum_duration': constants.SLICE_MINIMUM_DURATION,
+    'slice_overlap_start': constants.SLICE_OVERLAP_START.total_seconds(),
+    'slice_overlap_end': constants.SLICE_OVERLAP_END.total_seconds(),
+    'slice_minimum_duration': constants.SLICE_MINIMUM_DURATION.total_seconds(),
     'enable_framing': True,
-    'frame_grid_spacing': constants.FRAME_GRID_SPACING,
-    'frame_overlap': constants.FRAME_OVERLAP,
-    'frame_lower_bound': constants.FRAME_MINIMUM_DURATION,
+    'frame_grid_spacing': constants.FRAME_GRID_SPACING.total_seconds(),
+    'frame_overlap': constants.FRAME_OVERLAP.total_seconds(),
+    'frame_lower_bound': constants.FRAME_MINIMUM_DURATION.total_seconds(),
+    'begin_position': (ANX1 - constants.SLICE_OVERLAP_START).strftime(DATETIME_INPUT_FORMAT),
+    'end_position': (ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END).strftime(DATETIME_INPUT_FORMAT),
+    'slice_frame_nr': 1,
 }
 
 
@@ -93,6 +102,7 @@ VFRA_DATA = '''<?xml version="1.0" ?>
 
 class FrameGeneratorTest(unittest.TestCase):
     gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
+    gen.read_scenario_parameters()
 
     '''Try to create frames from an entire slice including overlaps on either side.'''
     def test_entire_slice(self) -> None:
@@ -208,9 +218,19 @@ class FrameGeneratorTest(unittest.TestCase):
 
 class VirtualFrameProductTest(unittest.TestCase):
     '''Test virtual frame production.'''
+    def tearDown(self) -> None:
+        # Remove all files from the test directory between tests.
+        for filename in os.listdir(TEST_DIR.name):
+            full_path = os.path.join(TEST_DIR.name, filename)
+            if os.path.isfile(full_path):
+                os.remove(full_path)
+            elif os.path.isdir(full_path):
+                shutil.rmtree(full_path)
+        return super().tearDown()
+
     def test_product_name(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = TEST_DIR.name
+        gen.read_scenario_parameters()
 
         start = ANX1
         end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
@@ -221,6 +241,9 @@ class VirtualFrameProductTest(unittest.TestCase):
         gen._hdr.set_validity_times(start, end)
         gen._frame_status = 'NOMINAL'
         gen._creation_date = end
+        gen._source_L0S = ''
+        gen._source_L0M = ''
+        gen._source_AUX_ORB = ''
         gen._generate_product()
 
         # Get the compact create date via a ProductName object.
@@ -233,7 +256,7 @@ class VirtualFrameProductTest(unittest.TestCase):
 
     def test_product_contents(self) -> None:
         gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = TEST_DIR.name
+        gen.read_scenario_parameters()
 
         start = ANX1
         end = ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP
@@ -289,9 +312,6 @@ class VirtualFrameProductTest(unittest.TestCase):
             self.assertEqual(node.text if node is not None else None, str(expected_value))
 
     def test_parse_inputs(self) -> None:
-        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
-        gen._output_path = TEST_DIR.name
-
         L0S_input = JobOrderInput()
         L0S_input.id = '1'
         L0S_input.alternative_input_id = ''
@@ -313,19 +333,57 @@ class VirtualFrameProductTest(unittest.TestCase):
         # Any combination of 0, 1, 2, 4 or more inputs should raise an exception.
         for num_inputs in [0, 1, 2, 4, 5]:
             for combination in itertools.combinations([L0S_input, L0M_input, AUX_ORB_input], num_inputs):
-                with self.assertRaises(ScenarioError):
+                with self.assertRaises(ScenarioError, msg=f'Failed to raise ScenarioError for combination {combination}'):
+                    gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
                     gen.parse_inputs(combination)
+                    gen.read_scenario_parameters()
+                    gen.generate_output()
 
         # Should not raise an exception.
+        gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
         gen.parse_inputs([L0S_input, L0M_input, AUX_ORB_input])
+        gen.read_scenario_parameters()
+        gen.generate_output()
 
         self.assertEqual(gen._source_L0S, 'BIO_S1_RAW__0S_20210201T002432_20210201T002539_T_G___M01_C___T000_F062_00_BJNPAC')
         self.assertEqual(gen._source_L0M, 'BIO_S1_RAW__0M_20210201T002432_20210201T002539_T_G___M01_C___T000_F____00_BJNPAD')
         self.assertEqual(gen._source_AUX_ORB, 'BIO_AUX_ORB____20210201T002512_20210201T002715_00_BJNPAC')
 
+    def test_generate_from_scenario(self) -> None:
+        '''
+        Make sure virtual frames can be generated without input files as long as
+        the right scenario parameters are set.
+        '''
+        gen_config = STANDARD_CONFIG.copy()
+        gen_config['source_L0S'] = 'Scenario L0S filename'
+        gen_config['source_L0M'] = 'Scenario L0M filename'
+        gen_config['source_AUX_ORB'] = 'Scenario AUX_ORB filename'
+        gen = Level1PreProcessor(_Logger(), None, gen_config, gen_config)
+
+        # Should not throw an exception since input filenames were set in scenario.
+        gen.parse_inputs([])
+        gen.read_scenario_parameters()
+        gen.generate_output()
+
+        # Check whether the output directory contains files.
+        self.assertTrue(os.listdir(TEST_DIR.name))
+
+        # Open the first file and check its source file contents.
+        checks = [
+            ('Data_Block/source_L0S', 'Scenario L0S filename'),
+            ('Data_Block/source_L0M', 'Scenario L0M filename'),
+            ('Data_Block/source_AUX_ORB', 'Scenario AUX_ORB filename'),
+        ]
+
+        root = et.parse(os.path.join(TEST_DIR.name, os.listdir(TEST_DIR.name)[0]))
+        for element, expected_value in checks:
+            node = root.find(element)
+            self.assertIsNotNone(node)
+            self.assertEqual(node.text if node is not None else None, str(expected_value))
+
 
 class VirtualFrameParsingTest(unittest.TestCase):
-
+    '''Test parsing of virtual frames.'''
     def test_settings_from_file(self) -> None:
         '''Check whether settings are properly read from the test data.'''
         config = {'type': 'test'}
