@@ -62,6 +62,7 @@ class FrameStatus(str, Enum):
 
 
 class Frame:
+    '''This class is responsible for storing basic information about a frame's range and status.'''
     def __init__(self, id: int,
                  validity_start: datetime.datetime, validity_stop: datetime.datetime,
                  sensing_start: datetime.datetime, sensing_stop: datetime.datetime,
@@ -355,8 +356,9 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     generating dummy Biomass Level-1a Single-look Complex Slant (SCS) and
     the Level-1b Detected Ground Multi-look (DGM) products.
 
-    Input are a single Sx_RAW__0S, Sx_RAW__0M, AUX_ORB___, AUX_ATT___, ...
-    product. Output is a series of frames.
+    Input are a single CPF_L1VFRA, Sx_RAW__0S, Sx_RAW__0M, AUX_ORB___,
+    AUX_ATT___, ... product. Output is a single frame, the length of which is
+    dictated by the CPF_L1VFRA input.
 
     The generator adjusts the following metadata:
     - phenomenonTime, acquisition begin/end times.
