@@ -86,26 +86,6 @@ class SliceFrameUtilitiesTest(unittest.TestCase):
         self.assertEqual(self.gen._get_slice_frame_interval(self.anx2 + 1000.5 * self.spacing, self.spacing),
                          (self.anx2 + 1000 * self.spacing, self.anx2 + 1001 * self.spacing))
 
-    def test_get_slice_frame_boundaries_in_interval(self) -> None:
-        # Attempt to get slice/frame boundaries before the first ANX.
-        self.assertListEqual(self.gen._get_slice_frame_boundaries_in_interval(self.anx1 - self.anx_diff, self.anx1 - self.anx_diff / 2, self.spacing),
-                             [])
-
-        # Get slice/frame boundaries within the first orbit.
-        self.assertListEqual(self.gen._get_slice_frame_boundaries_in_interval(self.anx1, self.anx1, self.spacing), [self.anx1])
-        self.assertListEqual(self.gen._get_slice_frame_boundaries_in_interval(self.anx1, self.anx1 + self.spacing, self.spacing),
-                             [self.anx1, self.anx1 + self.spacing])
-        self.assertListEqual(self.gen._get_slice_frame_boundaries_in_interval(self.anx1, self.anx2, self.spacing),
-                             [self.anx1 + i * self.spacing for i in range((self.anx2 - self.anx1) // self.spacing + 1)])
-
-        # Get slice/frame boundaries between orbits.
-        self.assertEqual(len(self.gen._get_slice_frame_boundaries_in_interval(self.anx1 + self.anx_diff, self.anx2 + self.anx_diff, self.spacing)),
-                         self.anx_diff // self.spacing + 1)
-
-        # Get slice/frame boundaries after the second ANX.
-        self.assertEqual(len(self.gen._get_slice_frame_boundaries_in_interval(
-            self.anx2 + 1.5 * self.spacing, self.anx2 + 1000.5 * self.spacing, self.spacing)), 999)
-
 
 if __name__ == '__main__':
     unittest.main()

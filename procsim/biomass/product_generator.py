@@ -296,22 +296,6 @@ class ProductGeneratorBase(IProductGenerator):
         slice_frame_end = previous_anx + slice_frame_nr * spacing
         return slice_frame_start, slice_frame_end
 
-    def _get_slice_frame_boundaries_in_interval(self, start: datetime.datetime,
-                                                stop: datetime.datetime,
-                                                spacing: datetime.timedelta) -> List[datetime.datetime]:
-        boundaries = []
-
-        previous_anx = self._get_anx(start)
-        if previous_anx:
-            # Get the first slice/frame boundary >= the start time.
-            start_slice_frame_idx = ceil((start - previous_anx) / spacing)
-            boundary = previous_anx + start_slice_frame_idx * spacing
-            while boundary <= stop:
-                boundaries.append(boundary)
-                boundary += spacing
-
-        return boundaries
-
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
         If param_name is in config, read and set in obj.field.
