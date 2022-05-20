@@ -283,13 +283,21 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         os.makedirs(self._output_path, exist_ok=True)
         full_file_name = os.path.join(self._output_path, file_name)
 
+        # Construct the contents of the XML file.
+        xml_string = self._generate_xml(file_name)
+
+        # Write to file.
+        self._logger.info(f'Create {file_name}')
+        with open(full_file_name, 'w') as file:
+            file.write(xml_string)
+
+    def _generate_xml(self, file_name: str) -> str:
         # Ensure the presence of vital variables.
         if self._hdr.validity_start is None or self._hdr.validity_stop is None:
             raise GeneratorError('Validity start/stop times must be known here.')
         if self._hdr.acquisitions[0].slice_frame_nr is None:
             raise GeneratorError('Frame number must be known here.')
 
-        # Construct the contents of the XML file.
         root = et.Element('Earth_Explorer_File')
         earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
         fixed_header_node = et.SubElement(earth_explorer_header_node, 'Fixed_Header')
@@ -329,11 +337,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         # Insert some indentation.
         dom = md.parseString(et.tostring(root, encoding='unicode'))
         xml_string = dom.toprettyxml(indent='    ')
-
-        # Write to file.
-        self._logger.info(f'Create {file_name}')
-        with open(full_file_name, 'w') as file:
-            file.write(xml_string)
+        return xml_string
 
     def _ops_angle_from_frame_nr(self, frame_nr: int) -> float:
         '''
