@@ -222,7 +222,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             # These are the only relevant fields for the virtual frame file.
             self._hdr.acquisitions[0].slice_frame_nr = frame.id
             self._hdr.set_phenomenon_times(frame.sensing_start, frame.sensing_stop)
-            self._hdr.set_validity_times(frame.validity_start, frame.validity_stop)
+            self._hdr.set_validity_times(frame.sensing_start, frame.sensing_stop)  # Virtual frames only contain sensing time.
             self._frame_status = frame.status
 
             self._generate_product()
