@@ -10,9 +10,8 @@ import unittest
 from xml.etree import ElementTree as et
 
 from procsim.biomass import constants
-from procsim.biomass.level1_product_generator import (Level1PreProcessor,
-                                                      Level1Stripmap)
-from procsim.biomass.product_name import ProductName
+from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1Stripmap
+from procsim.biomass.product_name import _REGEX_VFRA_FILE_NAME, ProductName
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
 
@@ -29,6 +28,9 @@ class _Logger:
 
     def info(self, *args, **kwargs):
         pass
+
+    def warning(self, *args, **kwargs):
+        print(*args, **kwargs)
 
     def error(self, *args, **kwargs):
         print(*args, **kwargs)
@@ -380,6 +382,62 @@ class VirtualFrameProductTest(unittest.TestCase):
             node = root.find(element)
             self.assertIsNotNone(node)
             self.assertEqual(node.text if node is not None else None, str(expected_value))
+
+    def test_sensing_times_in_product(self) -> None:
+        '''
+        Virtual frames only ever make use of the sensing/phenomenon time, and
+        never the validity time (via correspondence with Luca). Make sure that
+        the correct times appear in the product.
+        '''
+        gen_config = STANDARD_CONFIG.copy()
+        gen_config['source_L0S'] = 'Scenario L0S filename'
+        gen_config['source_L0M'] = 'Scenario L0M filename'
+        gen_config['source_AUX_ORB'] = 'Scenario AUX_ORB filename'
+        gen = Level1PreProcessor(_Logger(), None, gen_config, gen_config)
+        gen.parse_inputs([])
+        gen.read_scenario_parameters()
+
+        # Manually set sensing time to different times.
+        start_sensing_time = ANX1 + datetime.timedelta(seconds=1)
+        end_sensing_time = ANX1 + constants.SLICE_GRID_SPACING - datetime.timedelta(seconds=1)
+        gen._hdr.validity_start = ANX1 - constants.SLICE_OVERLAP_START
+        gen._hdr.validity_stop = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+        gen._hdr.begin_position = start_sensing_time
+        gen._hdr.end_position = end_sensing_time
+        self.assertNotEqual(gen._hdr.validity_start, gen._hdr.begin_position)
+        self.assertNotEqual(gen._hdr.validity_stop, gen._hdr.end_position)
+        gen.generate_output()
+
+        # The first and last virtual frame products should contain the sensing
+        # times in their name, validity time fields and frame time fields.
+        num_files = len(os.listdir(TEST_DIR.name))
+        self.assertNotEqual(num_files, 0)
+
+        sorted_filenames = sorted(os.listdir(TEST_DIR.name))  # String sorting works well to sort by date in this case.
+        first_filename = sorted_filenames[0]
+        last_filename = sorted_filenames[-1]
+
+        # Verify times in filenames.
+        first_match = _REGEX_VFRA_FILE_NAME.match(first_filename)
+        last_match = _REGEX_VFRA_FILE_NAME.match(last_filename)
+        first_match_dict = first_match.groupdict() if first_match else {}
+        last_match_dict = last_match.groupdict() if last_match else {}
+        self.assertEqual(first_match_dict.get('vstart'), start_sensing_time.strftime('%Y%m%dT%H%M%S'))
+        self.assertEqual(last_match_dict.get('vstop'), end_sensing_time.strftime('%Y%m%dT%H%M%S'))
+
+        # Verify times in validity time fields.
+        first_root = et.parse(os.path.join(TEST_DIR.name, first_filename))
+        first_vstart_node = first_root.find('Earth_Explorer_Header/Fixed_Header/Validity_Period/Validity_Start')
+        self.assertEqual(first_vstart_node.text if first_vstart_node is not None else None, start_sensing_time.strftime('UTC=%Y-%m-%dT%H:%M:%S'))
+        last_root = et.parse(os.path.join(TEST_DIR.name, last_filename))
+        last_vstop_node = last_root.find('Earth_Explorer_Header/Fixed_Header/Validity_Period/Validity_Stop')
+        self.assertEqual(last_vstop_node.text if last_vstop_node is not None else None, end_sensing_time.strftime('UTC=%Y-%m-%dT%H:%M:%S'))
+
+        # Verify times in frame time fields.
+        first_frame_start = first_root.find('Data_Block/frame_start_time')
+        self.assertEqual(first_frame_start.text if first_frame_start is not None else None, start_sensing_time.strftime('UTC=%Y-%m-%dT%H:%M:%S.%f'))
+        last_frame_stop = last_root.find('Data_Block/frame_stop_time')
+        self.assertEqual(last_frame_stop.text if last_frame_stop is not None else None, end_sensing_time.strftime('UTC=%Y-%m-%dT%H:%M:%S.%f'))
 
 
 class VirtualFrameParsingTest(unittest.TestCase):
