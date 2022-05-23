@@ -53,6 +53,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('EC_RAW__0M', 'l0', 'EXTCAL Mode Level 0– Monitoring product'),
     ProductType('AC_RAW__0A', 'l0', 'Platform Ancillary Level-0 product (Orbit and Attitude)'),
 
+    ProductType('CPF_L1VFRA', 'l1fvra', 'L1 Virtual Frame'),
+
     ProductType('S1_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
     ProductType('S2_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
     ProductType('S3_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
@@ -100,8 +102,6 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('MPL_ORBREF', 'mpl', 'Reference Orbit File'),
     ProductType('MPL_REFAUX', 'mpl', 'Reference Orbit Auxiliary File, times and orbit numbers'),
     ProductType('MPL_ORBPRE', 'mpl', 'Reference Orbit File, orbit state vectors'),
-
-    ProductType('CPF_L1VFRA', 'l1fvra', 'L1 Virtual Frame'),
 ]
 
 RAWS_PRODUCT_TYPES: List[str] = [
