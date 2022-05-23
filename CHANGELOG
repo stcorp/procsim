@@ -1,6 +1,10 @@
 Procsim Changelog
 -----------------
 
+[v1.7.0] - 2022/05/23
+    - Add: Add support for L1 virtual frame generation and parsing.
+    - Fix: Use MPH format in scenario for global coverage, major/repeat cycle, etc.
+
 [v1.6.2] - 2022/04/20
     - Fix: Issue 29, dataTakeID not included in the output AUX_ORB___ and AUX_ATT___ products
 
