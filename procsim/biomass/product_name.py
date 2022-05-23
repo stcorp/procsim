@@ -25,6 +25,10 @@ _REGEX_L012_PRODUCT_NAME = re.compile(
     r'(?P<mission_phase>[CIT])_G(?P<global_cov>[0-9_]{2})_M(?P<major>[0-9_]{2})_C(?P<repeat>[0-9_]{2})_'
     r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
+_REGEX_VFRA_FILE_NAME = re.compile(
+    r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))$')
+
 _REGEX_AUX_NAME = re.compile(
     r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_'
     r'(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
@@ -38,7 +42,7 @@ class ProductName:
     '''
     This class is responsible for creating and parsing directory/file names.
     '''
-    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0)
+    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
     MISSION_PHASES = [('Commissioning'), ('Interferometric'), ('Tomographic')]
     GLOBAL_COVERAGE_IDS = ['__', '01', '02', '03', '04', '05', '06']
@@ -47,7 +51,7 @@ class ProductName:
 
     @classmethod
     def str_to_time(cls, s):
-        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT) if s else None
+        return datetime.datetime.strptime(s, cls.DATETIME_FORMAT).replace(tzinfo=datetime.timezone.utc) if s else None
 
     @classmethod
     def str_to_int(cls, s):
@@ -78,7 +82,7 @@ class ProductName:
         self._track_nr = None
         self._frame_slice_nr_str = None
 
-        # MPL only
+        # MPL and VFRA only
         self._file_class = None
         self._version_nr = None
 
@@ -211,7 +215,7 @@ class ProductName:
         If set to None, use 'now'.
         '''
         if time is None:
-            time = datetime.datetime.utcnow()
+            time = datetime.datetime.now(tz=datetime.timezone.utc)
         sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''
         for i in range(6):
@@ -227,7 +231,7 @@ class ProductName:
         filename = os.path.basename(path)
 
         # Set all fields that can be extracted from the filename; set others to None.
-        for regex in [_REGEX_RAW_PRODUCT_NAME, _REGEX_AUX_NAME, _REGEX_L012_PRODUCT_NAME, _REGEX_FOS_FILE_NAME]:
+        for regex in [_REGEX_RAW_PRODUCT_NAME, _REGEX_AUX_NAME, _REGEX_L012_PRODUCT_NAME, _REGEX_VFRA_FILE_NAME, _REGEX_FOS_FILE_NAME]:
             match = regex.match(filename)
             if match:
                 match_dict = match.groupdict()
@@ -277,6 +281,10 @@ class ProductName:
             name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
                 + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
                 + f'_{self.baseline_identifier:02}{self.version_nr:02}.EOF'
+        elif self._level == 'l1fvra':
+            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
+                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
+                + f'_{self.baseline_identifier:02}_{self._compact_create_date}.EOF'
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')

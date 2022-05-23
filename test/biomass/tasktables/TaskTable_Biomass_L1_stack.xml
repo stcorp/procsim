@@ -29,7 +29,7 @@
           <Version>01.01</Version>
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
-          <File_Name>../../test/biomass/level1_task2.sh</File_Name>
+          <File_Name>../../test/biomass/level1_task3.sh</File_Name>
           <List_of_Inputs count="2">
             <Input>
               <!-- Input are multiple SCS__1S products (1..7)! 

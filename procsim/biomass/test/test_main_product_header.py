@@ -39,7 +39,7 @@ class _Logger:
 
 def assertMPHMatchesProductRecursive(directory_path: str) -> None:
     '''Check whether product files and MPHs correspond in all Biomass product directories.'''
-    product_directories = list(Path(directory_path).glob('**/BIO_*[!.zip]'))
+    product_directories = list(Path(directory_path).glob('**/BIO_*[!.zip|.EOF]'))
     for product_directory in product_directories:
         assertMPHMatchesProduct(product_directory)
 
@@ -104,15 +104,15 @@ def get_l1_test_mph():
 
     # Derived from XML by hand...
     mph.eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
-    mph.begin_position = mph.validity_start = datetime.datetime(2023, 1, 1, 12, 0)
-    mph.time_position = mph.end_position = mph.validity_stop = datetime.datetime(2023, 1, 1, 12, 0, 21)
+    mph.begin_position = mph.validity_start = datetime.datetime(2023, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
+    mph.time_position = mph.end_position = mph.validity_stop = datetime.datetime(2023, 1, 1, 12, 0, 21, tzinfo=datetime.timezone.utc)
     mph.product_type = 'S2_SCS__1S'
     mph.product_baseline = 1
     mph.product_status = 'ARCHIVED'
     mph.doi = 'DOI'
     mph.acquisition_type = 'NOMINAL'
     mph.set_processing_parameters('L1 Processor', '1.0')
-    mph.processing_date = datetime.datetime(2023, 1, 1, 12, 12, 53)
+    mph.processing_date = datetime.datetime(2023, 1, 1, 12, 12, 53, tzinfo=datetime.timezone.utc)
     mph.processing_centre_code = 'ESR'
     mph.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename', 'AUX_GMF_Filename', 'AUX_INS_Filename',
                                    'AUX_TEC_Filename', 'AUX_PP1_Filename']
@@ -197,7 +197,7 @@ def get_l1_test_mph():
     acq.mission_phase = 'INTERFEROMETRIC'
     acq.instrument_config_id = 1
     acq.data_take_id = 1234
-    acq.anx_date = datetime.datetime(2023, 1, 1, 10, 54, 37, 264000)
+    acq.anx_date = datetime.datetime(2023, 1, 1, 10, 54, 37, 264000, tzinfo=datetime.timezone.utc)
     acq.start_time = 3922736
     acq.completion_time = 3943736
     acq.instrument_config_id = 1
@@ -249,8 +249,8 @@ class MphTest(unittest.TestCase):
             raw_gen = raw_generator_class(_Logger(), None, config, config)
 
             # Normally we read this from input products, but now we set it by hand.
-            begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0)
-            end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0)
+            begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0, tzinfo=datetime.timezone.utc)
+            end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0, tzinfo=datetime.timezone.utc)
             raw_gen._hdr.validity_start = raw_gen._hdr.begin_position = begin
             raw_gen._hdr.validity_stop = raw_gen._hdr.end_position = end
 

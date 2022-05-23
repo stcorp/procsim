@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Task_Table>
-  <Processor_Name>l1_sm</Processor_Name>
+  <Processor_Name>l1_step1_sm</Processor_Name>
   <Version>01.01</Version>
   <Test>No</Test>
   <Min_Disk_Space units="MB">1500</Min_Disk_Space>
@@ -30,7 +30,7 @@
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
           <File_Name>../../test/biomass/level1_task1.sh</File_Name>
-          <List_of_Inputs count="4">
+          <List_of_Inputs count="3">
             <Input>
               <Mode>ALWAYS</Mode>
               <Mandatory>Yes</Mandatory>
@@ -79,104 +79,12 @@
                 </Alternative>
               </List_of_Alternatives>
             </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>AUX_ATT___</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>AUX_INS___</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>AUX_PP1___</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>AUX_TEC___</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
-            <Input>
-              <Mode>ALWAYS</Mode>
-              <Mandatory>Yes</Mandatory>
-              <List_of_Alternatives count="1">
-                <Alternative>
-                  <Order>1</Order>
-                  <Origin>DB</Origin>
-                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
-                  <T0 units="secs">0</T0>
-                  <T1 units="secs">0</T1>
-                  <File_Type>AUX_GMF___</File_Type>
-                  <File_Name_Type>Physical</File_Name_Type>
-                  <Input_Source_Data>true</Input_Source_Data>
-                </Alternative>
-              </List_of_Alternatives>
-            </Input>
           </List_of_Inputs>
-          <List_of_Outputs count="3">
+          <List_of_Outputs count="1">
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>Sx_SCS__1S</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>Sx_SCS__1M</File_Type>
-              <File_Name_Type>Directory</File_Name_Type>
-            </Output>
-            <Output>
-              <Destination>DB</Destination>
-              <Mandatory>Yes</Mandatory>
-              <File_Type>Sx_DGM__1S</File_Type>
+              <File_Type>CPF_L1VFRA</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>

@@ -43,6 +43,11 @@
             "acquisition_date": "2021-02-01T01:38:10.000Z",
             "acquisition_station": "SP",
 
+            // L1 virtual frame
+            "source_L0S": "L0S_Product_Name",
+            "source_L0M": "L0M_Product_Name",
+            "source_AUX_ORB": "AUX_ORB_Product_Name",
+
             "output_path": "workspace/all",
             "outputs": [
               {"type": "AUX_ATT___"},{"type": "AUX_CAL_AB"},{"type": "AUX_ERP___"},{"type": "AUX_GMF___"},{"type": "AUX_INS___"},{"type": "AUX_ORB___"},
@@ -64,6 +69,8 @@
               {"type": "EC_RAW__0S"},
 
               {"type": "AC_RAW__0A"},
+
+              {"type": "CPF_L1VFRA"},
 
               {"type": "S1_SCS__1S"},{"type": "S2_SCS__1S"},{"type": "S3_SCS__1S"},{"type": "S1_SCS__1M"},{"type": "S2_SCS__1M"},
               {"type": "S3_SCS__1M"},{"type": "S1_DGM__1S"},{"type": "S2_DGM__1S"},{"type": "S3_DGM__1S"},

@@ -58,7 +58,7 @@ def _time_from_iso(timestr: Optional[str]) -> Optional[datetime.datetime]:
     if timestr is None:
         return None
     timestr = timestr[:-1]  # strip 'Z'
-    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT)
+    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
 
 
 def _time_as_iso_short(tim: datetime.datetime) -> str:
@@ -69,7 +69,7 @@ def _time_from_iso_short(timestr: Optional[str]) -> Optional[datetime.datetime]:
     if timestr is None:
         return None
     timestr = timestr[:-1]  # strip 'Z'
-    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT_SHORT)
+    return datetime.datetime.strptime(timestr, ISO_TIME_FORMAT_SHORT).replace(tzinfo=datetime.timezone.utc)
 
 
 def _to_int(val: Optional[str]) -> Optional[int]:
@@ -96,7 +96,7 @@ class Acquisition:
         # L0, L1
         self.orbit_number: int = 0
         self.last_orbit_number: int = 0
-        self.anx_date = datetime.datetime.now()
+        self.anx_date = datetime.datetime.now(tz=datetime.timezone.utc)
         self.start_time: int = 0           # in ms since ANX
         self.completion_time: int = 0      # in ms since ANX
         self.instrument_config_id: int = 0

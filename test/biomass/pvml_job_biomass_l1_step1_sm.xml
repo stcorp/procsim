@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<pvmlJob>
+  <jobOrderId>2000</jobOrderId>
+  <processorName>l1_step1_sm</processorName>
+  <processorVersion>01.01</processorVersion>
+  <orderType>OFFL</orderType>
+  <processingParameters>
+    <parameter name="Orbit_Number">1234</parameter>
+  </processingParameters>
+  <tasks>
+    <task name="Step1">
+      <inputs>
+        <!-- Generated products -->
+        <input>
+          <file>workspace/1000/BIO_S1_RAW__0S_20210201T002528_20210201T002715_T_G___M01_C___T000_F001_00_??????</file>
+        </input>
+        <input>
+          <file>workspace/1000/BIO_S1_RAW__0M_20210201T002528_20210201T002715_T_G___M01_C___T000_F____00_??????</file>
+        </input>
+        <input>
+          <file>workspace/1000/BIO_AUX_ORB____20210201T002512_20210201T002715_00_??????</file>
+        </input>
+      </inputs>
+      <exitCode>0</exitCode>
+    </task>
+  </tasks>
+</pvmlJob>

@@ -73,8 +73,8 @@ class RAWSxxx_10Test(unittest.TestCase):
             'slice_overlap_end': 7.0,
             'slice_minimum_duration': 15.0
         }
-        self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000)
-        self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000)
+        self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000, tzinfo=datetime.timezone.utc)
+        self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000, tzinfo=datetime.timezone.utc)
 
         self.addCleanup(shutil.rmtree, TEST_DIR)
         return RAWSxxx_10(logger, job_config, config, config)
@@ -102,8 +102,8 @@ class RAWSxxx_10Test(unittest.TestCase):
         gen = self.create_class_under_test()
 
         # Normally we read this from input products, but now we set it by hand.
-        begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0)
-        end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0)
+        begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0, tzinfo=datetime.timezone.utc)
         gen._hdr.validity_start = gen._hdr.begin_position = begin
         gen._hdr.validity_stop = gen._hdr.end_position = end
 
@@ -161,8 +161,8 @@ class RAWSxxx_10Test(unittest.TestCase):
         gen = self.create_class_under_test()
 
         # Normally we read this from input products, but now we set it by hand.
-        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0)
-        end = datetime.datetime(2021, 2, 1, 0, 30, 23, 0)
+        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2021, 2, 1, 0, 30, 23, 0, tzinfo=datetime.timezone.utc)
         gen._hdr.validity_start = gen._hdr.begin_position = begin
         gen._hdr.validity_stop = gen._hdr.end_position = end
 
@@ -206,8 +206,8 @@ class RAWSxxx_10Test(unittest.TestCase):
         gen = self.create_class_under_test()
 
         # Normally we read this from input products, but now we set it by hand.
-        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0)
-        end = datetime.datetime(2021, 2, 1, 0, 27, 9, 0)
+        begin = datetime.datetime(2021, 2, 1, 0, 25, 30, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2021, 2, 1, 0, 27, 9, 0, tzinfo=datetime.timezone.utc)
         gen._hdr.validity_start = gen._hdr.begin_position = begin
         gen._hdr.validity_stop = gen._hdr.end_position = end
 

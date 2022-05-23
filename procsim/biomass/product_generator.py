@@ -3,6 +3,7 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import bisect
 import datetime
+from math import ceil
 import os
 import re
 import shutil
@@ -146,8 +147,9 @@ class ProductGeneratorBase(IProductGenerator):
         return self._time_from_iso(timestr)
 
     def _time_from_iso(self, timestr):
-        timestr = timestr[:-1]  # strip 'Z'
-        return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT)
+        if timestr[-1] == 'Z':
+            timestr = timestr[:-1]
+        return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
 
     def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
@@ -165,7 +167,6 @@ class ProductGeneratorBase(IProductGenerator):
             self._hdr.browse_image_filename = relative_file_path
 
         if representation_path is not None:
-            print(f'GENERATING REPRESENTATION {representation_path}')
             self._generate_bin_file(representation_path, 0)
         self._generate_bin_file(file_path, size_mb)
 
@@ -207,7 +208,7 @@ class ProductGeneratorBase(IProductGenerator):
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
         For all files:
-            - check if it is a (zipped) directory (all biomass products except MPL are directories)
+            - check if it is a (zipped) directory (all biomass products except MPL and VFRA are directories)
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
@@ -225,9 +226,11 @@ class ProductGeneratorBase(IProductGenerator):
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))
                     keep_zip = self._output_config.get('keep_zip') or self._scenario_config.get('keep_zip', False)
                     self.unzip(file, keep_zip, logger=self._logger)
-                if not os.path.isdir(root) and input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
-                    # Only parse orbit prediction files if no ANX information was present in the scenario.
-                    self._parse_orbit_prediction_file(file)
+                if not os.path.isdir(root):
+                    # Handle single file products.
+                    if input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
+                        # Only parse orbit prediction files if no ANX information was present in the scenario.
+                        self._parse_orbit_prediction_file(file)
                 file = root
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
@@ -275,27 +278,23 @@ class ProductGeneratorBase(IProductGenerator):
             self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')
             return None
         # Returns the latest ANX before the given time
-        # idx = bisect.bisect(self._anx_list, t) - 1
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
-        idx = bisect.bisect(self._anx_list, t + sigma) - 1
+        idx = bisect.bisect(self._anx_list, t) - 1
         return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
 
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
         previous_anx = self._get_anx(start)
-        return (start + sigma - previous_anx) // spacing + 1 if previous_anx is not None else None
+        return (start - previous_anx) // spacing + 1 if previous_anx is not None else None
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
                                   spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
         previous_anx = self._get_anx(start)
-        if previous_anx is None:
+        slice_frame_nr = self._get_slice_frame_nr(start, spacing)
+        if previous_anx is None or slice_frame_nr is None:
             return None
-        sigma = datetime.timedelta(0, 1.0)   # Just a small time delta (wrt to the slice duration)
-        slice_nr = (start + sigma - previous_anx) // spacing
-        slice_start = previous_anx + slice_nr * spacing
-        slice_end = previous_anx + (slice_nr + 1) * spacing
-        return slice_start, slice_end
+        slice_frame_start = previous_anx + (slice_frame_nr - 1) * spacing
+        slice_frame_end = previous_anx + slice_frame_nr * spacing
+        return slice_frame_start, slice_frame_end
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''
@@ -363,7 +362,7 @@ class ProductGeneratorBase(IProductGenerator):
         Setup some mandatory metadata
         '''
         if self._creation_date is None:
-            self._creation_date = datetime.datetime.utcnow()
+            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
 
         self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],

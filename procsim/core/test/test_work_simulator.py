@@ -101,9 +101,9 @@ class WorkSimulatorTest(unittest.TestCase):
         meas = threading.Thread(target=meas_task, args=(TEST_TIME, q))
         meas.start()
         q.get()
-        tstart = datetime.datetime.now()
+        tstart = datetime.datetime.now(tz=datetime.timezone.utc)
         sim.start()
-        ttest = datetime.datetime.now() - tstart
+        ttest = datetime.datetime.now(tz=datetime.timezone.utc) - tstart
         mem, cpu, disk_space = q.get()
 
         self.assertAlmostEqual(ttest.total_seconds(), TEST_TIME, delta=5)  # Creating temp file is slow on HDD

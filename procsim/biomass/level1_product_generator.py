@@ -6,17 +6,32 @@ format according to BIO-ESA-EOPG-EEGS-TN-0044
 '''
 import datetime
 import os
+import xml.dom.minidom as md
+from enum import Enum
+from textwrap import dedent
 from typing import Iterable, List, Tuple
+from xml.etree import ElementTree as et
 
+import re
+from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, ORBITAL_PERIOD, SLICE_GRID_SPACING
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.job_order import JobOrderInput
 
+from . import constants, main_product_header, product_generator, product_name, product_types
 from .product_generator import GeneratedFile
 
-from . import (constants, main_product_header, product_generator, product_name,
-               product_types)
-
 _L1_SCS_PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S']
+
+
+FILENAME_DATETIME_FORMAT = '%Y%m%dT%H%M%S'
+FIELD_DATETIME_FORMAT = 'UTC=%Y-%m-%dT%H:%M:%S'
+FIELD_DATETIME_FORMAT_MICROSECONDS = 'UTC=%Y-%m-%dT%H:%M:%S.%f'
+
+
+L0S_PATTERN = re.compile(r'^S[0-9]_RAW__0S$')
+L0M_PATTERN = re.compile(r'^S[0-9]_RAW__0M$')
+AUX_ORB_TYPE = 'AUX_ORB___'
+
 
 _HDR_PARAMS = [
     # L0 + L1
@@ -40,14 +55,312 @@ _ACQ_PARAMS = [
 ]
 
 
+class FrameStatus(str, Enum):
+    NOMINAL = 'NOMINAL'
+    PARTIAL = 'PARTIAL'
+    MERGED = 'MERGED'
+
+
+class Frame:
+    '''This class is responsible for storing basic information about a frame's range and status.'''
+    def __init__(self, id: int,
+                 validity_start: datetime.datetime, validity_stop: datetime.datetime,
+                 sensing_start: datetime.datetime, sensing_stop: datetime.datetime,
+                 status: str = ''):
+        self.id = id
+        self.validity_start = validity_start
+        self.validity_stop = validity_stop
+        self.sensing_start = sensing_start
+        self.sensing_stop = sensing_stop
+        self.status = status
+
+    def __str__(self):
+        return f'{self.id} {self.sensing_start} {self.sensing_stop} {self.status}'
+
+
+class Level1PreProcessor(product_generator.ProductGeneratorBase):
+    '''
+    This class implements the ProductGeneratorBase and is responsible for
+    generating virtual frames for the Level 1 processor.
+
+    As input, it takes an L0 Monitoring product, an L0 standard product and an
+    auxiliary orbit product (L0M, L0S, AUX_ORB).
+
+    It outputs a Virtual Frame product for each L1 Frame contained in the L0S,
+    each of them containing the framing parameters (mainly frame index and
+    start-stop times) of a single frame.
+    '''
+    PRODUCTS = ['CPF_L1VFRA']
+
+    _GENERATOR_PARAMS: List[tuple] = [
+        ('file_class', '_file_class', 'str'),
+        ('enable_framing', '_enable_framing', 'bool'),
+        ('source_L0S', '_source_L0S', 'str'),
+        ('source_L0M', '_source_L0M', 'str'),
+        ('source_AUX_ORB', '_source_AUX_ORB', 'str'),
+        ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
+        ('frame_overlap', '_frame_overlap', 'float'),
+        ('frame_lower_bound', '_frame_lower_bound', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+    ]
+
+    _ACQ_PARAMS = [
+        ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict) -> None:
+        super().__init__(logger, job_config, scenario_config, output_config)
+        self._enable_framing = True
+        self._frame_grid_spacing = constants.FRAME_GRID_SPACING
+        self._frame_overlap = constants.FRAME_OVERLAP
+        self._frame_lower_bound = constants.FRAME_MINIMUM_DURATION
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+
+        self._frame_status = None
+        self._file_class = 'TEST'
+        self._version_nr = 1
+        self._hdr.product_baseline = 0  # This is the default for VFRA
+        self._zip_output = False
+        self._hdr.product_type = 'CPF_L1VFRA'
+
+        self._source_L0S = None
+        self._source_L0M = None
+        self._source_AUX_ORB = None
+
+    def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
+        gen, hdr, acq = super().get_params()
+        return gen + self._GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        if not super().parse_inputs(input_products):
+            return False
+
+        prod_name = product_name.ProductName(self._compact_creation_date_epoch)
+
+        # Find the L0S, L0M and AUX_ORB products in the input list.
+        for input in input_products:
+            for file in input.file_names:
+                # Get and check the file type.
+                prod_name.parse_path(file)
+                if prod_name.file_type is None:
+                    continue
+
+                # Strip any path and extension off the filename.
+                file_base = os.path.splitext(os.path.basename(file))[0]
+
+                if L0S_PATTERN.match(prod_name.file_type) and self._source_L0S is None:
+                    self._source_L0S = file_base
+                elif L0M_PATTERN.match(prod_name.file_type) and self._source_L0M is None:
+                    self._source_L0M = file_base
+                elif prod_name.file_type == AUX_ORB_TYPE and self._source_AUX_ORB is None:
+                    self._source_AUX_ORB = file_base
+
+        return True
+
+    def generate_output(self) -> None:
+        super().generate_output()
+
+        # Sanity check
+        if self._hdr.begin_position is None or self._hdr.end_position is None:
+            raise ScenarioError('Begin/end position must be set')
+
+        # If not read from an input product, use begin/end position as starting point
+        if self._hdr.validity_start is None:
+            self._hdr.validity_start = self._hdr.begin_position
+            self._logger.debug('Use begin_position as input for validity start time')
+        if self._hdr.validity_stop is None:
+            self._hdr.validity_stop = self._hdr.end_position
+            self._logger.debug('Use end_position as input for validity stop time')
+
+        self._hdr.product_type = self._resolve_wildcard_product_type()
+
+        if not self._enable_framing:
+            self._hdr.acquisitions[0].slice_frame_nr = None
+            self._hdr.partial_l1_frame = False
+            self._generate_product()
+        else:
+            self._generate_frame_products()
+
+    def _generate_frame_products(self):
+        '''
+        Generate a set of virtual frame products.
+        '''
+        # Input is a slice. A frame overlap is added at the end of each frame.
+        acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
+        slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
+        slice_nr = self._hdr.acquisitions[0].slice_frame_nr
+        first_frame_nr = (slice_nr - 1) * NUM_FRAMES_PER_SLICE + 1 if slice_nr else None
+
+        # Sanity checks
+        if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
+            raise ScenarioError('Start/stop times must be known here!')
+        if slice_nr is None or first_frame_nr is None:
+            raise ScenarioError('Cannot perform framing, slice nr. is not known')
+
+        # Align slice start and end with grid.
+        slice_start += self._slice_overlap_start
+        slice_end -= self._slice_overlap_end
+
+        # Check whether slice is incomplete. If so, the slice number/range is unreliable, so try to get them from ANX info.
+        delta = (slice_end - slice_start) - self._frame_grid_spacing * NUM_FRAMES_PER_SLICE
+        if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
+            first_frame_nr = self._get_slice_frame_nr(acq_start, self._frame_grid_spacing)
+            slice_bounds = self._get_slice_frame_interval(acq_start, SLICE_GRID_SPACING)
+            if first_frame_nr is None or slice_bounds is None:
+                raise GeneratorError(dedent(f'\
+                    Cannot perform framing, slice length (without overlaps) != {NUM_FRAMES_PER_SLICE}x frame length \
+                    ({slice_end - slice_start} != {NUM_FRAMES_PER_SLICE}x{self._frame_grid_spacing}). \
+                    Additionally, the slice frame number could not be determined from the ANX information.'))
+            slice_start, slice_end = slice_bounds
+
+        frames = self._generate_frames(slice_start, acq_start, acq_end, first_frame_nr)
+
+        # Generate the virtual frame products.
+        for frame in frames:
+            # These are the only relevant fields for the virtual frame file.
+            self._hdr.acquisitions[0].slice_frame_nr = frame.id
+            self._hdr.set_phenomenon_times(frame.sensing_start, frame.sensing_stop)
+            self._hdr.set_validity_times(frame.sensing_start, frame.sensing_stop)  # Virtual frames only contain sensing time.
+            self._frame_status = frame.status
+
+            self._generate_product()
+
+    def _generate_frames(self, slice_start: datetime.datetime,
+                         acq_start: datetime.datetime, acq_end: datetime.datetime,
+                         first_frame_nr: int) -> List[Frame]:
+        '''
+        Generate a list of Frame objects between start and end times.
+        '''
+        # Get frame boundaries between the slice validity start and end.
+        frame_bounds = [slice_start + d * self._frame_grid_spacing for d in range(NUM_FRAMES_PER_SLICE + 1)]
+
+        # Map to frame instances.
+        frames = []
+        for fi in range(len(frame_bounds) - 1):
+            # Continue if the acquisition start occurs after the frame bounds, or the acquisition end before.
+            if acq_start > frame_bounds[fi + 1] or acq_end < frame_bounds[fi]:
+                continue
+            frames.append(Frame(
+                id=fi + first_frame_nr,
+                validity_start=frame_bounds[fi],
+                validity_stop=frame_bounds[fi + 1] + self._frame_overlap,
+                sensing_start=max(frame_bounds[fi], acq_start),
+                sensing_stop=min(frame_bounds[fi + 1] + self._frame_overlap, acq_end),
+                status=FrameStatus.NOMINAL
+            ))
+
+        # If the first or last frame are too short, merge them with their neghbours.
+        if len(frames) > 1:
+            if frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
+                frames[1].sensing_start = frames[0].sensing_start
+                frames.pop(0)
+            if frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
+                frames[-2].sensing_stop = frames[-1].sensing_stop
+                frames.pop()
+
+        # If any frames are partial or merged, mark them as such.
+        for frame in frames:
+            if frame.sensing_stop - frame.sensing_start < frame.validity_stop - frame.validity_start:
+                frame.status = FrameStatus.PARTIAL
+            elif frame.sensing_stop - frame.sensing_start > frame.validity_stop - frame.validity_start:
+                frame.status = FrameStatus.MERGED
+
+        return frames
+
+    def _generate_product(self) -> None:
+        '''
+        Construct and write an output file given the variables set in this class.
+        '''
+        # Create a name generator, give it the right values and generate the product name.
+        name_gen = self._create_name_generator(self._hdr)
+        if self._creation_date is None:
+            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
+        name_gen.set_creation_date(self._creation_date)
+        name_gen.file_class = self._file_class
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        file_name = name_gen.generate_path_name()
+        os.makedirs(self._output_path, exist_ok=True)
+        full_file_name = os.path.join(self._output_path, file_name)
+
+        # Construct the contents of the XML file.
+        xml_string = self._generate_xml(file_name)
+
+        # Write to file.
+        self._logger.info(f'Create {file_name}')
+        with open(full_file_name, 'w') as file:
+            file.write(xml_string)
+
+    def _generate_xml(self, file_name: str) -> str:
+        # Ensure the presence of vital variables.
+        if self._hdr.validity_start is None or self._hdr.validity_stop is None:
+            raise ScenarioError('Validity start/stop times must be known here.')
+        if self._hdr.acquisitions[0].slice_frame_nr is None:
+            raise ScenarioError('Frame number must be known here.')
+        if self._source_L0S is None or self._source_L0M is None or self._source_AUX_ORB is None:
+            raise ScenarioError('Input products must be known here.')
+
+        root = et.Element('Earth_Explorer_File')
+        earth_explorer_header_node = et.SubElement(root, 'Earth_Explorer_Header')
+        fixed_header_node = et.SubElement(earth_explorer_header_node, 'Fixed_Header')
+        et.SubElement(fixed_header_node, 'File_Name').text = file_name[:-4]
+        et.SubElement(fixed_header_node, 'File_Description').text = 'L1 Virtual Frame'
+        et.SubElement(fixed_header_node, 'Notes').text = ''
+        et.SubElement(fixed_header_node, 'Mission').text = 'BIOMASS'
+        et.SubElement(fixed_header_node, 'File_Class').text = self._file_class
+        et.SubElement(fixed_header_node, 'File_Type').text = self._output_type
+        validity_period_node = et.SubElement(fixed_header_node, 'Validity_Period')
+        et.SubElement(fixed_header_node, 'File_Version').text = '01'
+        source_node = et.SubElement(fixed_header_node, 'Source')
+
+        et.SubElement(validity_period_node, 'Validity_Start').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT)
+        et.SubElement(validity_period_node, 'Validity_Stop').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT)
+
+        et.SubElement(source_node, 'System').text = 'PDGS'
+        et.SubElement(source_node, 'Creator').text = 'L1_F'
+        et.SubElement(source_node, 'Creator_Version').text = '1'
+        et.SubElement(source_node, 'Creation_Date').text = self._creation_date.strftime(FIELD_DATETIME_FORMAT) if self._creation_date else ''
+
+        et.SubElement(earth_explorer_header_node, 'Variable_Header')
+
+        data_block_node = et.SubElement(root, 'Data_Block', {'type': 'xml'})
+        et.SubElement(data_block_node, 'source_L0S').text = self._source_L0S
+        et.SubElement(data_block_node, 'source_L0M').text = self._source_L0M
+        et.SubElement(data_block_node, 'source_AUX_ORB').text = self._source_AUX_ORB
+        et.SubElement(data_block_node, 'frame_id').text = str(self._hdr.acquisitions[0].slice_frame_nr)
+        et.SubElement(data_block_node, 'frame_start_time').text = self._hdr.validity_start.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
+        et.SubElement(data_block_node, 'frame_stop_time').text = self._hdr.validity_stop.strftime(FIELD_DATETIME_FORMAT_MICROSECONDS)
+        et.SubElement(data_block_node, 'frame_status').text = self._frame_status
+        et.SubElement(data_block_node, 'ops_angle_start', {'unit': 'deg'}).text =\
+            str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr))
+        et.SubElement(data_block_node, 'ops_angle_stop', {'unit': 'deg'}).text =\
+            str(self._ops_angle_from_frame_nr(self._hdr.acquisitions[0].slice_frame_nr + 1))
+
+        # Insert some indentation.
+        dom = md.parseString(et.tostring(root, encoding='unicode'))
+        xml_string = dom.toprettyxml(indent='    ')
+        return xml_string
+
+    def _ops_angle_from_frame_nr(self, frame_nr: int) -> float:
+        '''
+        Determine the ops_angle for a given frame number. This is the angle that
+        describes the progress of the satellite along its orbit, measured from
+        the last ANX.
+        '''
+        num_frames_per_orbit = round(ORBITAL_PERIOD / self._frame_grid_spacing)
+        return ((frame_nr - 1) % num_frames_per_orbit) / num_frames_per_orbit * 360.0
+
+
 class Level1Stripmap(product_generator.ProductGeneratorBase):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating dummy Biomass Level-1a Single-look Complex Slant (SCS) and
     the Level-1b Detected Ground Multi-look (DGM) products.
 
-    Input are a single Sx_RAW__0S, Sx_RAW__0M, AUX_ORB___, AUX_ATT___, ...
-    product. Output is a series of frames.
+    Input are a single CPF_L1VFRA, Sx_RAW__0S, Sx_RAW__0M, AUX_ORB___,
+    AUX_ATT___, ... product. Output is a single frame, the length of which is
+    dictated by the CPF_L1VFRA input.
 
     The generator adjusts the following metadata:
     - phenomenonTime, acquisition begin/end times.
@@ -59,27 +372,50 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
                 'S1_DGM__1S', 'S2_DGM__1S', 'S3_DGM__1S', 'Sx_DGM__1S',
                 'RO_SCS__1S']
 
-    _GENERATOR_PARAMS: List[tuple] = [
-        ('enable_framing', '_enable_framing', 'bool'),
-        ('frame_grid_spacing', '_frame_grid_spacing', 'float'),
-        ('frame_overlap', '_frame_overlap', 'float'),
-        ('frame_lower_bound', '_frame_lower_bound', 'float'),
-        ('slice_overlap_start', '_slice_overlap_start', 'float'),
-        ('slice_overlap_end', '_slice_overlap_end', 'float')
-    ]
-
-    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
-        super().__init__(logger, job_config, scenario_config, output_config)
-        self._enable_framing = True
-        self._frame_grid_spacing = constants.FRAME_GRID_SPACING
-        self._frame_overlap = constants.FRAME_OVERLAP
-        self._frame_lower_bound = constants.FRAME_LOWER_BOUND
-        self._slice_overlap_start = constants.SLICE_OVERLAP_START
-        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._frame_status = None
 
     def get_params(self) -> Tuple[List[tuple], List[tuple], List[tuple]]:
         gen, hdr, acq = super().get_params()
-        return gen + self._GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
+        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        if not super().parse_inputs(input_products):
+            return False
+
+        for input in input_products:
+            for file in input.file_names:
+                if input.file_type in product_types.VFRA_PRODUCT_TYPES:
+                    self._parse_virtual_frame_file(file)
+
+        return True
+
+    def _parse_virtual_frame_file(self, file_name: str) -> None:
+        '''Get frame information from virtual frame file.'''
+        root = et.parse(file_name).getroot()
+
+        # Find all OSV elements containing frame ID, start/stop time and status. No XML namespaces are expected.
+        frame_id_node = root.find('Data_Block/frame_id')
+        if frame_id_node is not None and frame_id_node.text is not None:
+            self._hdr.acquisitions[0].slice_frame_nr = int(frame_id_node.text)
+
+        frame_start_time_node = root.find('Data_Block/frame_start_time')
+        if frame_start_time_node is not None and frame_start_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._hdr.begin_position = self._time_from_iso(frame_start_time_node.text[4:])
+
+        frame_stop_time_node = root.find('Data_Block/frame_stop_time')
+        if frame_stop_time_node is not None and frame_stop_time_node.text is not None:
+            # Trim 'UTC=' off the start of the timestamp and convert to datetime.
+            self._hdr.end_position = self._time_from_iso(frame_stop_time_node.text[4:])
+
+        frame_status_node = root.find('Data_Block/frame_Status')
+        if frame_status_node is not None and frame_status_node.text is not None:
+            self._frame_status = frame_status_node.text
+
+        if not self._hdr.acquisitions[0].slice_frame_nr or not self._hdr.begin_position or not self._hdr.end_position or not self._frame_status:
+            self._logger.warning(f'Could not parse frame information from {file_name}.')
 
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)
@@ -148,55 +484,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
         self._hdr.product_type = self._resolve_wildcard_product_type()
 
-        if not self._enable_framing:
-            self._hdr.acquisitions[0].slice_frame_nr = None
-            self._hdr.partial_l1_frame = False
-            self._generate_product()
-        else:
-            self._generate_frames()
-
-    def _generate_frames(self):
-        # Input is a slice. A frame overlap is added at the end of each frame.
-        acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
-        slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
-        if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
-            raise ScenarioError('Start/stop times must be known here!')
-
-        if slice_start != acq_start:
-            pass  # First slice of a data take (partial)
-        if slice_end != acq_end:
-            pass  # Last slice of a data take (partial)
-
-        # Slice start/end are the 'grid nodes', but with slice overlap.
-        # Subtract overlaps to get the exact slice grid nodes
-        slice_start += self._slice_overlap_start
-        slice_end -= self._slice_overlap_end
-        slice_nr = self._hdr.acquisitions[0].slice_frame_nr
-
-        # Sanity checks
-        if slice_nr is None:
-            raise ScenarioError('Cannot perform framing, slice nr. is not known')
-        delta = (slice_end - slice_start) - self._frame_grid_spacing * 5
-        if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
-            raise GeneratorError('Cannot perform framing, slice length (without overlaps) != 5x frame length ({} != 5x{})'.format(
-                slice_end - slice_start, self._frame_grid_spacing))
-        for n in range(5):
-            frame_nr = 1 + n + (slice_nr - 1) * 5
-            frame_start = slice_start + n * self._frame_grid_spacing
-            frame_end = frame_start + self._frame_grid_spacing + self._frame_overlap
-            start = max(frame_start, acq_start)
-            end = min(frame_end, acq_end)
-            if end - start < self._frame_lower_bound:
-                self._logger.debug('Do not generate frame {}, not enough data'.format(frame_nr))
-            else:
-                is_partial = (acq_start > frame_start) or (acq_end < frame_end)
-                self._hdr.acquisitions[0].slice_frame_nr = frame_nr
-                self._hdr.partial_l1_frame = is_partial
-                self._hdr.set_phenomenon_times(start, end)
-                self._hdr.set_validity_times(frame_start, frame_end)
-                if is_partial:
-                    self._logger.debug('Frame {} is partial'.format(frame_nr))
-                self._generate_product()
+        self._generate_product()
 
 
 class Level1Stack(product_generator.ProductGeneratorBase):

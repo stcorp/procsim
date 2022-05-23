@@ -40,33 +40,33 @@ _TEST_DATA: List[_TestData] = [
         'BIO_RAW___HKTM_20210201T000000_20210201T013810_D20210201T013811_01_B07390',
         'bio_raw___hktm_20210201t000000_20210201t013810_d20210201t013811.dat',
         'RAW___HKTM',
-        datetime.datetime(2021, 2, 1, 0, 0, 0),
-        datetime.datetime(2021, 2, 1, 1, 38, 10),
-        datetime.datetime(2021, 2, 1, 1, 39, 0),
+        datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 38, 10, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 39, 0, tzinfo=datetime.timezone.utc),
         1,
-        datetime.datetime(2021, 2, 1, 1, 38, 11)
+        datetime.datetime(2021, 2, 1, 1, 38, 11, tzinfo=datetime.timezone.utc)
     ),
     _TestData(
         'raw',
         'BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_B07390',
         'bio_raw_022_10_20210201t000000_20210201t013810_d20210201t013811.dat',
         'RAW_022_10',
-        datetime.datetime(2021, 2, 1, 0, 0, 0),
-        datetime.datetime(2021, 2, 1, 1, 38, 10),
-        datetime.datetime(2021, 2, 1, 1, 39, 0),
+        datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 38, 10, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 39, 0, tzinfo=datetime.timezone.utc),
         1,
-        datetime.datetime(2021, 2, 1, 1, 38, 11)
+        datetime.datetime(2021, 2, 1, 1, 38, 11, tzinfo=datetime.timezone.utc)
     ),
     _TestData(
         'raw',
         'BIO_RAWS025_10_20210201T000000_20210201T013810_D20210201T013811_01_B07390',
         'bio_raws025_10_20210201t000000_20210201t013810_d20210201t013811.dat',
         'RAWS025_10',
-        datetime.datetime(2021, 2, 1, 0, 0, 0),
-        datetime.datetime(2021, 2, 1, 1, 38, 10),
-        datetime.datetime(2021, 2, 1, 1, 39, 0),
+        datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 38, 10, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2021, 2, 1, 1, 39, 0, tzinfo=datetime.timezone.utc),
         1,
-        datetime.datetime(2021, 2, 1, 1, 38, 11)
+        datetime.datetime(2021, 2, 1, 1, 38, 11, tzinfo=datetime.timezone.utc)
     ),
     _TestData(
         # L0 Standard
@@ -74,9 +74,9 @@ _TEST_DATA: List[_TestData] = [
         'BIO_S3_RAW__0S_20230101T120000_20230101T120147_I_G03_M03_C03_T022_F061_01_AFRS00',
         'bio_s3_raw__0s_20230101t120000_20230101t120147_i_g03_m03_c03_t022_f061_rxh.dat',
         'S3_RAW__0S',
-        datetime.datetime(2023, 1, 1, 12, 0, 0),
-        datetime.datetime(2023, 1, 1, 12, 1, 47),
-        datetime.datetime(2020, 1, 1, 0, 0, 0),
+        datetime.datetime(2023, 1, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2023, 1, 1, 12, 1, 47, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
         1,
         None,
         'Interferometric', '3', '3', '3', '22', 61,
@@ -88,9 +88,9 @@ _TEST_DATA: List[_TestData] = [
         'BIO_S3_RAW__0M_20230101T120000_20230101T120147_I_G03_M03_C03_T022_F____01_AFRS00',
         'bio_s3_raw__0m_20230101t120000_20230101t120147_i_g03_m03_c03_t022_f____rxh.dat',
         'S3_RAW__0M',
-        datetime.datetime(2023, 1, 1, 12, 0, 0),
-        datetime.datetime(2023, 1, 1, 12, 1, 47),
-        datetime.datetime(2020, 1, 1, 0, 0, 0),
+        datetime.datetime(2023, 1, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2023, 1, 1, 12, 1, 47, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
         1,
         None,
         'Interferometric', '3', '3', '3', '22', None,
@@ -102,9 +102,9 @@ _TEST_DATA: List[_TestData] = [
         'BIO_AC_RAW__0A_20230101T120000_20230101T120147_I_G___M03_C03_T022_F____01_AFRS00',
         'bio_ac_raw__0a_20230101t120000_20230101t120147_i_g___m03_c03_t022_f___.dat',
         'AC_RAW__0A',
-        datetime.datetime(2023, 1, 1, 12, 0, 0),
-        datetime.datetime(2023, 1, 1, 12, 1, 47),
-        datetime.datetime(2020, 1, 1, 0, 0, 0),
+        datetime.datetime(2023, 1, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2023, 1, 1, 12, 1, 47, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
         1,
         None,
         'Interferometric', 'NA', '3', '3', '22', None,
@@ -116,9 +116,9 @@ _TEST_DATA: List[_TestData] = [
         'BIO_AUX_ATT____20190123T143831_20190123T143852_01_AFRS00',
         'bio_aux_att____20190123t143831_20190123t143852.dat',
         'AUX_ATT___',
-        datetime.datetime(2019, 1, 23, 14, 38, 31),
-        datetime.datetime(2019, 1, 23, 14, 38, 52),
-        datetime.datetime(2020, 1, 1, 0, 0, 0),
+        datetime.datetime(2019, 1, 23, 14, 38, 31, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2019, 1, 23, 14, 38, 52, tzinfo=datetime.timezone.utc),
+        datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
         1,
         None,
         'Interferometric', 'NA', '3', '3', '22', None,
@@ -130,11 +130,11 @@ _TEST_DATA: List[_TestData] = [
         dir='BIO_TEST_MPL_ORBPRE_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_ORBPRE',
-        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
-        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
-        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6, tzinfo=datetime.timezone.utc),
         baseline=0,
-        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1, tzinfo=datetime.timezone.utc),
         file_class='TEST',
         version_nr=1
     ),
@@ -144,11 +144,11 @@ _TEST_DATA: List[_TestData] = [
         dir='BIO_TEST_MPL_ORBREF_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_ORBREF',
-        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
-        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
-        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6, tzinfo=datetime.timezone.utc),
         baseline=0,
-        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1, tzinfo=datetime.timezone.utc),
         file_class='TEST',
         version_nr=1
     ),
@@ -158,11 +158,11 @@ _TEST_DATA: List[_TestData] = [
         dir='BIO_TEST_MPL_REFAUX_20210201T000000_20210202T000000_0001.EOF',
         bin=None,
         type='MPL_REFAUX',
-        start=datetime.datetime(2021, 2, 1, 0, 0, 0),
-        stop=datetime.datetime(2021, 2, 2, 0, 0, 0),
-        create=datetime.datetime(2022, 2, 22, 10, 15, 6),
+        start=datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        stop=datetime.datetime(2021, 2, 2, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        create=datetime.datetime(2022, 2, 22, 10, 15, 6, tzinfo=datetime.timezone.utc),
         baseline=0,
-        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1),
+        downlink=datetime.datetime(2021, 2, 2, 0, 0, 1, tzinfo=datetime.timezone.utc),
         file_class='TEST',
         version_nr=1
     )
@@ -173,11 +173,11 @@ epoch_testdata = _TestData(
     'BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013811_01_AFQ1X0',
     'bio_raw_022_10_20210201t000000_20210201t013810_d20210201t013811.dat',
     'RAW_022_10',
-    datetime.datetime(2021, 2, 1, 0, 0, 0),
-    datetime.datetime(2021, 2, 1, 1, 38, 10),
-    datetime.datetime(2021, 2, 1, 1, 39, 0),
+    datetime.datetime(2021, 2, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+    datetime.datetime(2021, 2, 1, 1, 38, 10, tzinfo=datetime.timezone.utc),
+    datetime.datetime(2021, 2, 1, 1, 39, 0, tzinfo=datetime.timezone.utc),
     1,
-    datetime.datetime(2021, 2, 1, 1, 38, 11)
+    datetime.datetime(2021, 2, 1, 1, 38, 11, tzinfo=datetime.timezone.utc)
 )
 
 
@@ -252,8 +252,8 @@ class ProductNameTest(unittest.TestCase):
     def testMissingParams(self):
         pn = ProductName()
         self.assertRaises(Exception, pn.generate_path_name)
-        pn.start_time = datetime.datetime.now()
-        pn.stop_time = datetime.datetime.now()
+        pn.start_time = datetime.datetime.now(tz=datetime.timezone.utc)
+        pn.stop_time = datetime.datetime.now(tz=datetime.timezone.utc)
         pn.baseline_identifier = 0
         self.assertRaises(Exception, pn.generate_path_name)
         pn.mission_phase = 'Commissioning'
@@ -281,7 +281,7 @@ class ProductNameTest(unittest.TestCase):
     def testEpoch(self):
         # A single test with a different epoch date for the create-date
         d = epoch_testdata
-        epoch = datetime.datetime(2001, 2, 2, 0, 0, 0)  # Just a time
+        epoch = datetime.datetime(2001, 2, 2, 0, 0, 0, tzinfo=datetime.timezone.utc)  # Just a time
         pn = ProductName(epoch)
 
         # Setup

@@ -146,6 +146,9 @@
     </productType>
 
     <!-- Level 1 -->
+    <productType name="CPF_L1VFRA">
+      <matchExpression><![CDATA[.*CPF_L1VFRA.*]]></matchExpression>
+    </productType>
     <productType name="Sx_SCS__1S">
       <matchExpression><![CDATA[.*S[x123]_SCS__1S.*]]></matchExpression>
     </productType>

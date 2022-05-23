@@ -53,6 +53,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('EC_RAW__0M', 'l0', 'EXTCAL Mode Level 0– Monitoring product'),
     ProductType('AC_RAW__0A', 'l0', 'Platform Ancillary Level-0 product (Orbit and Attitude)'),
 
+    ProductType('CPF_L1VFRA', 'l1fvra', 'L1 Virtual Frame'),
+
     ProductType('S1_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
     ProductType('S2_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
     ProductType('S3_SCS__1S', 'l1', 'Stripmap L1 Single look Complex Slant range – Standard product'),
@@ -122,6 +124,8 @@ L1S_PRODUCTS: List[str] = [
 ]
 
 ORBPRE_PRODUCT_TYPES: List[str] = ['MPL_ORBPRE']
+
+VFRA_PRODUCT_TYPES: List[str] = ['CPF_L1VFRA']
 
 
 def find_product(product_type_code: str) -> Optional[ProductType]:
