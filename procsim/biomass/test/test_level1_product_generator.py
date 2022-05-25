@@ -14,6 +14,7 @@ from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1S
 from procsim.biomass.product_name import _REGEX_VFRA_FILE_NAME, ProductName
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
+from procsim.core.main import _create_product_generators
 
 TEST_DIR = tempfile.TemporaryDirectory()
 
@@ -61,6 +62,30 @@ STANDARD_CONFIG = {
     'begin_position': (ANX1 - constants.SLICE_OVERLAP_START).strftime(DATETIME_INPUT_FORMAT),
     'end_position': (ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END).strftime(DATETIME_INPUT_FORMAT),
     'slice_frame_nr': 1,
+}
+
+# From the GitHub repo, issue 35.
+ANX_CONFIG = {
+    'output_path': TEST_DIR.name,
+    'baseline': 0,
+    'name': 'Framer',
+    'type': 'CPF_L1VFRA',
+    'file_name': 'framer',
+    'processor_name': 'Framer',
+    'processor_version': '01.00',
+    'task_name': 'Framer',
+    'task_version': '01.00',
+    'log_level': 'debug',
+    'begin_position': (ANX1 - constants.SLICE_OVERLAP_START).strftime(DATETIME_INPUT_FORMAT),
+    'end_position': (ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END).strftime(DATETIME_INPUT_FORMAT),
+    'anx': [
+        '2017-02-25T05:00:18.883013Z',
+        '2017-02-25T06:38:29.864514Z',
+        '2017-02-25T08:16:40.846015Z',
+        '2017-02-25T09:54:51.827516Z',
+        '2017-02-25T11:33:02.809016Z',
+        '2017-02-25T13:11:13.790517Z'
+    ]
 }
 
 
@@ -357,6 +382,38 @@ class VirtualFrameProductTest(unittest.TestCase):
         the right scenario parameters are set.
         '''
         gen_config = STANDARD_CONFIG.copy()
+        gen_config['source_L0S'] = 'Scenario L0S filename'
+        gen_config['source_L0M'] = 'Scenario L0M filename'
+        gen_config['source_AUX_ORB'] = 'Scenario AUX_ORB filename'
+        gen = Level1PreProcessor(_Logger(), None, gen_config, gen_config)
+
+        # Should not throw an exception since input filenames were set in scenario.
+        gen.parse_inputs([])
+        gen.read_scenario_parameters()
+        gen.generate_output()
+
+        # Check whether the output directory contains files.
+        self.assertTrue(os.listdir(TEST_DIR.name))
+
+        # Open the first file and check its source file contents.
+        checks = [
+            ('Data_Block/source_L0S', 'Scenario L0S filename'),
+            ('Data_Block/source_L0M', 'Scenario L0M filename'),
+            ('Data_Block/source_AUX_ORB', 'Scenario AUX_ORB filename'),
+        ]
+
+        root = et.parse(os.path.join(TEST_DIR.name, os.listdir(TEST_DIR.name)[0]))
+        for element, expected_value in checks:
+            node = root.find(element)
+            self.assertIsNotNone(node)
+            self.assertEqual(node.text if node is not None else None, str(expected_value))
+
+    def test_generate_from_anx_scenario(self) -> None:
+        '''
+        Ensure that virtual frames can be generated without a frame number, just
+        from ANX information provided in the scenario.
+        '''
+        gen_config = ANX_CONFIG.copy()
         gen_config['source_L0S'] = 'Scenario L0S filename'
         gen_config['source_L0M'] = 'Scenario L0M filename'
         gen_config['source_AUX_ORB'] = 'Scenario AUX_ORB filename'

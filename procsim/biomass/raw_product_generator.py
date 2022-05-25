@@ -184,10 +184,6 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
-        # Get anx list from config. Can be located at either scenario or product level
-        scenario_anx_list = output_config.get('anx', []) or scenario_config.get('anx', [])
-        self._anx_list.extend([self._time_from_iso(anx) for anx in scenario_anx_list])
-        self._anx_list.sort()
         self._enable_slicing = True
         self._slice_grid_spacing = constants.SLICE_GRID_SPACING
         self._slice_overlap_start = constants.SLICE_OVERLAP_START

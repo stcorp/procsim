@@ -9,6 +9,7 @@ import re
 import shutil
 from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
+from procsim.biomass.constants import ORBITAL_PERIOD
 
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
@@ -82,7 +83,11 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+        # Get anx list from config. Can be located at either scenario or product level
         self._anx_list = []
+        scenario_anx_list = output_config.get('anx', []) or scenario_config.get('anx', [])
+        self._anx_list.extend([self._time_from_iso(anx) for anx in scenario_anx_list])
+        self._anx_list.sort()
 
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
@@ -283,7 +288,11 @@ class ProductGeneratorBase(IProductGenerator):
 
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
         previous_anx = self._get_anx(start)
-        return (start - previous_anx) // spacing + 1 if previous_anx is not None else None
+        if previous_anx is None:
+            return None
+        slice_frame_per_orbit = round(ORBITAL_PERIOD / spacing)
+        absolute_slice_frame_nr = (start - previous_anx) // spacing
+        return (absolute_slice_frame_nr % slice_frame_per_orbit) + 1
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,

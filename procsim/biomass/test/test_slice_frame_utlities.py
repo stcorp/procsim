@@ -64,7 +64,7 @@ class SliceFrameUtilitiesTest(unittest.TestCase):
 
         # Get slices/frame numbers within and after the second orbit.
         self.assertEqual(self.gen._get_slice_frame_nr(self.anx2, self.spacing), 1)
-        self.assertEqual(self.gen._get_slice_frame_nr(self.anx2 + self.spacing * 1000, self.spacing), 1001)
+        self.assertEqual(self.gen._get_slice_frame_nr(self.anx2 + self.spacing * 1000, self.spacing), 1)
 
     def test_get_slice_frame_interval(self) -> None:
         # Get an interval before the first ANX.
@@ -83,8 +83,7 @@ class SliceFrameUtilitiesTest(unittest.TestCase):
 
         # Get intervals within and after the second orbit.
         self.assertEqual(self.gen._get_slice_frame_interval(self.anx2, self.spacing), (self.anx2, self.anx2 + self.spacing))
-        self.assertEqual(self.gen._get_slice_frame_interval(self.anx2 + 1000.5 * self.spacing, self.spacing),
-                         (self.anx2 + 1000 * self.spacing, self.anx2 + 1001 * self.spacing))
+        self.assertEqual(self.gen._get_slice_frame_interval(self.anx2 + 1000.5 * self.spacing, self.spacing), (self.anx2, self.anx2 + self.spacing))
 
 
 if __name__ == '__main__':

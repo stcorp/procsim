@@ -9,7 +9,7 @@ import os
 import xml.dom.minidom as md
 from enum import Enum
 from textwrap import dedent
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
 import re
@@ -89,6 +89,17 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     It outputs a Virtual Frame product for each L1 Frame contained in the L0S,
     each of them containing the framing parameters (mainly frame index and
     start-stop times) of a single frame.
+
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a L0 product) is framed. The frame grid is aligned to ANX.
+    An array "anx" with one or more ANX times can be specified in the scenario,
+    or a slice number can be supplied in the slice_frame_nr parameter.
+    For example:
+
+      "anx": [
+        "2021-02-01T00:25:33.745Z",
+        "2021-02-01T02:03:43.725Z"
+      ],
     '''
     PRODUCTS = ['CPF_L1VFRA']
 
@@ -191,29 +202,13 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         acq_start, acq_end = self._hdr.begin_position, self._hdr.end_position
         slice_start, slice_end = self._hdr.validity_start, self._hdr.validity_stop
         slice_nr = self._hdr.acquisitions[0].slice_frame_nr
-        first_frame_nr = (slice_nr - 1) * NUM_FRAMES_PER_SLICE + 1 if slice_nr else None
 
         # Sanity checks
         if slice_start is None or slice_end is None or acq_start is None or acq_end is None:
-            raise ScenarioError('Start/stop times must be known here!')
-        if slice_nr is None or first_frame_nr is None:
-            raise ScenarioError('Cannot perform framing, slice nr. is not known')
+            raise ScenarioError('Start/stop times must be known here.')
 
-        # Align slice start and end with grid.
-        slice_start += self._slice_overlap_start
-        slice_end -= self._slice_overlap_end
-
-        # Check whether slice is incomplete. If so, the slice number/range is unreliable, so try to get them from ANX info.
-        delta = (slice_end - slice_start) - self._frame_grid_spacing * NUM_FRAMES_PER_SLICE
-        if delta < -datetime.timedelta(0, 0.01) or delta > datetime.timedelta(0, 0.01):
-            first_frame_nr = self._get_slice_frame_nr(acq_start, self._frame_grid_spacing)
-            slice_bounds = self._get_slice_frame_interval(acq_start, SLICE_GRID_SPACING)
-            if first_frame_nr is None or slice_bounds is None:
-                raise GeneratorError(dedent(f'\
-                    Cannot perform framing, slice length (without overlaps) != {NUM_FRAMES_PER_SLICE}x frame length \
-                    ({slice_end - slice_start} != {NUM_FRAMES_PER_SLICE}x{self._frame_grid_spacing}). \
-                    Additionally, the slice frame number could not be determined from the ANX information.'))
-            slice_start, slice_end = slice_bounds
+        slice_start, slice_end = self._align_slice_times(slice_start, slice_end)
+        first_frame_nr = self._get_first_frame_nr(slice_nr, acq_start)
 
         frames = self._generate_frames(slice_start, acq_start, acq_end, first_frame_nr)
 
@@ -226,6 +221,43 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             self._frame_status = frame.status
 
             self._generate_product()
+
+    def _align_slice_times(self, start: datetime.datetime, stop: datetime.datetime) -> Tuple[datetime.datetime, datetime.datetime]:
+        '''
+        Given an alleged start and stop time of a slice, check whether they're
+        aligned. If not, attempt to align or recalculate them.
+        '''
+        sigma = datetime.timedelta(seconds=0.01)  # Be a little lenient in checking slice bounds.
+        # Check if already aligned.
+        delta = (stop - start) - SLICE_GRID_SPACING
+        if delta > -sigma and delta < sigma:
+            return (start, stop)
+
+        # Check if aligned when overlaps subtracted.
+        delta = ((stop - self._slice_overlap_end) - (start + self._slice_overlap_start)) - SLICE_GRID_SPACING
+        if delta > -sigma and delta < sigma:
+            return (start + self._slice_overlap_start, stop - self._slice_overlap_end)
+
+        # Could not align based on overlaps. Try to align based on ANX times.
+        slice_bounds = self._get_slice_frame_interval(start + (stop - start) / 2, SLICE_GRID_SPACING)
+        if slice_bounds is None:
+            raise ScenarioError(f'Could not determine exact slice bounds from start {start} and stop {stop}.')
+        return slice_bounds
+
+    def _get_first_frame_nr(self, slice_nr: Optional[int], start_time: datetime.datetime) -> int:
+        '''
+        If a slice number is provided, use that to determine the first frame
+        number. Else determine frame number from ANX times.
+        '''
+        if slice_nr is not None:
+            first_frame_nr = (slice_nr - 1) * NUM_FRAMES_PER_SLICE + 1
+        else:
+            first_frame_nr = self._get_slice_frame_nr(start_time, self._frame_grid_spacing)
+            if first_frame_nr is None:
+                raise ScenarioError(f'Cannot determine frame number from slice number {slice_nr} or start time {start_time} ' +
+                                    f'given ANX {self._anx_list}.')
+
+        return first_frame_nr
 
     def _generate_frames(self, slice_start: datetime.datetime,
                          acq_start: datetime.datetime, acq_end: datetime.datetime,
