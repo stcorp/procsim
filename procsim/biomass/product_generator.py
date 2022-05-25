@@ -82,7 +82,11 @@ class ProductGeneratorBase(IProductGenerator):
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
+        # Get anx list from config. Can be located at either scenario or product level
         self._anx_list = []
+        scenario_anx_list = output_config.get('anx', []) or scenario_config.get('anx', [])
+        self._anx_list.extend([self._time_from_iso(anx) for anx in scenario_anx_list])
+        self._anx_list.sort()
 
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
