@@ -9,6 +9,7 @@ import re
 import shutil
 from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
+from procsim.biomass.constants import ORBITAL_PERIOD
 
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
@@ -287,7 +288,11 @@ class ProductGeneratorBase(IProductGenerator):
 
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
         previous_anx = self._get_anx(start)
-        return (start - previous_anx) // spacing + 1 if previous_anx is not None else None
+        if previous_anx is None:
+            return None
+        slice_frame_per_orbit = round(ORBITAL_PERIOD / spacing)
+        absolute_slice_frame_nr = (start - previous_anx) // spacing
+        return (absolute_slice_frame_nr % slice_frame_per_orbit) + 1
 
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
