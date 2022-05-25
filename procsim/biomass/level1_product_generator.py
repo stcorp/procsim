@@ -89,6 +89,17 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     It outputs a Virtual Frame product for each L1 Frame contained in the L0S,
     each of them containing the framing parameters (mainly frame index and
     start-stop times) of a single frame.
+
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a L0 product) is framed. The frame grid is aligned to ANX.
+    An array "anx" with one or more ANX times can be specified in the scenario,
+    or a slice number can be supplied in the slice_frame_nr parameter.
+    For example:
+
+      "anx": [
+        "2021-02-01T00:25:33.745Z",
+        "2021-02-01T02:03:43.725Z"
+      ],
     '''
     PRODUCTS = ['CPF_L1VFRA']
 
