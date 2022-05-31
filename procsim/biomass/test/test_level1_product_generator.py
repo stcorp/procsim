@@ -496,6 +496,46 @@ class VirtualFrameProductTest(unittest.TestCase):
         last_frame_stop = last_root.find('Data_Block/frame_stop_time')
         self.assertEqual(last_frame_stop.text if last_frame_stop is not None else None, end_sensing_time.strftime('UTC=%Y-%m-%dT%H:%M:%S.%f'))
 
+    def test_align_slice_times(self) -> None:
+        '''
+        Virtual frames only contain data concerning sensing time, but the frame
+        boundaries follow the theoretical slice/frame grid. The theoretical
+        bounds of the slice need to be accurate for this reason.
+        '''
+        gen_config = ANX_CONFIG.copy()
+        gen_config['source_L0S'] = 'Scenario L0S filename'
+        gen_config['source_L0M'] = 'Scenario L0M filename'
+        gen_config['source_AUX_ORB'] = 'Scenario AUX_ORB filename'
+        gen = Level1PreProcessor(_Logger(), None, gen_config, gen_config)
+
+        # Pick one ANX time from the used scenario.
+        anx = datetime.datetime(2017, 2, 25, 8, 16, 40, 846015, tzinfo=datetime.timezone.utc)
+
+        slice_sensing_start = anx
+        slice_sensing_stop = anx + constants.SLICE_GRID_SPACING
+
+        # Slice times that are consistent with the slice grid.
+        aligned_bounds = gen._align_slice_times(slice_sensing_start, slice_sensing_stop)
+        self.assertEqual(aligned_bounds, (slice_sensing_start, slice_sensing_stop))
+
+        # Slice times consistent with the slice grid including overlap.
+        slice_sensing_start_overlap = anx - constants.SLICE_OVERLAP_START
+        slice_sensing_stop_overlap = anx + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
+        overlap_bounds = gen._align_slice_times(slice_sensing_start_overlap, slice_sensing_stop_overlap)
+        self.assertEqual(overlap_bounds, (slice_sensing_start, slice_sensing_stop))
+
+        # Slice times within a single slice's bounds.
+        slice_sensing_start_internal = anx + datetime.timedelta(seconds=1)
+        slice_sensing_stop_internal = anx + constants.SLICE_GRID_SPACING - datetime.timedelta(seconds=1)
+        internal_bounds = gen._align_slice_times(slice_sensing_start_internal, slice_sensing_stop_internal)
+        self.assertEqual(internal_bounds, (slice_sensing_start, slice_sensing_stop))
+
+        # One of sensing times slightly exceeds the slice bounds.
+        slice_sensing_start_exceed = anx
+        slice_sensing_stop_exceed = anx + constants.SLICE_GRID_SPACING + datetime.timedelta(seconds=1)
+        exceed_bounds = gen._align_slice_times(slice_sensing_start_exceed, slice_sensing_stop_exceed)
+        self.assertEqual(exceed_bounds, (slice_sensing_start, slice_sensing_stop))
+
 
 class VirtualFrameParsingTest(unittest.TestCase):
     '''Test parsing of virtual frames.'''
