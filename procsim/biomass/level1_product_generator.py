@@ -265,8 +265,19 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         Generate a list of Frame objects between start and end times.
         '''
-        # Get frame boundaries between the slice validity start and end.
-        frame_bounds = [slice_start + d * self._frame_grid_spacing for d in range(NUM_FRAMES_PER_SLICE + 1)]
+        # Get frame boundaries between the slice sensing start and end.
+        frame_bounds = []
+        frame_bounds_start = slice_start  # + (acq_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
+        # Move to sensing start.
+        while frame_bounds_start <= acq_start:
+            frame_bounds_start += self._frame_grid_spacing
+        # Record frame bounds within sensing time.
+        while frame_bounds_start < acq_end:
+            frame_bounds.append(frame_bounds_start)
+            frame_bounds_start += self._frame_grid_spacing
+        # Make sure acquisition start and end are included.
+        frame_bounds.insert(0, acq_start)
+        frame_bounds.append(acq_end)
 
         # Map to frame instances.
         frames = []
