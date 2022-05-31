@@ -131,19 +131,29 @@ class FrameGeneratorTest(unittest.TestCase):
     gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
     gen.read_scenario_parameters()
 
-    '''Try to create frames from an entire slice including overlaps on either side.'''
     def test_entire_slice(self) -> None:
+        '''Try to create frames from an entire slice including overlaps on either side.'''
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
-        for fi, frame in enumerate(frames[:-1]):
-            self.assertEqual(frame.id, fi + 1)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
+        # Disregard the first and last frames here since they resulted from slice overlap data, and were merged with their neighbours.
+        for fi, frame in enumerate(frames[1:-1], start=1):
+            self.assertEqual(frame.id, fi + 2)  # Frame ID is 1-based and the first was merged with the second.
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
+        # Check first and last frames.
+        first_frame = frames[0]
+        self.assertEqual(first_frame.id, 2)  # Frame ID is 1-based and the first was merged with the second.
+        self.assertEqual(first_frame.sensing_start, ANX1 - constants.SLICE_OVERLAP_START)
+        self.assertEqual(first_frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
+        self.assertEqual(first_frame.status, 'MERGED')
+        last_frame = frames[-1]
+        self.assertEqual(last_frame.id, constants.NUM_FRAMES_PER_SLICE + 1)
+        self.assertEqual(last_frame.sensing_start, ANX1 + constants.SLICE_GRID_SPACING - constants.FRAME_GRID_SPACING)
+        self.assertEqual(last_frame.sensing_stop, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END)
+        self.assertEqual(last_frame.status, 'MERGED')
 
     def test_slice_no_overlap(self) -> None:
         '''Try to create frames from a slice that does not include overlaps on either side.'''
@@ -152,16 +162,12 @@ class FrameGeneratorTest(unittest.TestCase):
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
         for fi, frame in enumerate(frames[:-1]):
             self.assertEqual(frame.id, fi + 1)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
 
         # The last frame should have a shorter sensing time since the overlap can't be applied.
         self.assertEqual(frames[-1].id, len(frames))
-        self.assertEqual(frames[-1].validity_start, ANX1 + constants.FRAME_GRID_SPACING * (len(frames) - 1))
-        self.assertEqual(frames[-1].validity_stop, ANX1 + constants.FRAME_GRID_SPACING * len(frames) + constants.FRAME_OVERLAP)
         self.assertEqual(frames[-1].sensing_start, ANX1 + constants.FRAME_GRID_SPACING * (len(frames) - 1))
         self.assertEqual(frames[-1].sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * len(frames))
         self.assertEqual(frames[-1].status, 'PARTIAL')
@@ -170,37 +176,33 @@ class FrameGeneratorTest(unittest.TestCase):
         '''Create frames from a slice that is missing data in its first frame range.'''
         # Choose offset just on the edge of the frame getting merged.
         test_offset = constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP - constants.FRAME_MINIMUM_DURATION
-        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
-        # The first frame should have a shorter sensing time since the overlap can't be applied.
-        self.assertEqual(frames[0].id, 1)
-        self.assertEqual(frames[0].validity_start, ANX1)
-        self.assertEqual(frames[0].validity_stop, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
-        self.assertEqual(frames[0].sensing_start, ANX1 + test_offset)
-        self.assertEqual(frames[0].sensing_stop, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
-        self.assertEqual(frames[0].status, 'PARTIAL')
+        # Test all but first and last frames.
         for fi, frame in enumerate(frames):
             if fi == 0:
                 continue
             self.assertEqual(frame.id, fi + 1)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
+        # The first frame should have a shorter sensing time since the overlap can't be applied.
+        first_frame = frames[0]
+        self.assertEqual(first_frame.id, 1)
+        self.assertEqual(first_frame.sensing_start, ANX1 + test_offset)
+        self.assertEqual(first_frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
+        self.assertEqual(first_frame.status, 'PARTIAL')
 
     def test_frame_merge(self) -> None:
         '''Make the first frame so short that it's merged into its neighbour.'''
         # Choose offset just over the edge of the frame getting merged.
         test_offset = constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP - constants.FRAME_MINIMUM_DURATION + datetime.timedelta(microseconds=1)
-        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         # The first frame should have a longer sensing time since it resulted from a merge.
         self.assertEqual(frames[0].id, 2)
-        self.assertEqual(frames[0].validity_start, ANX1 + constants.FRAME_GRID_SPACING)
-        self.assertEqual(frames[0].validity_stop, ANX1 + 2 * constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
         self.assertEqual(frames[0].sensing_start, ANX1 + test_offset)
         self.assertEqual(frames[0].sensing_stop, ANX1 + 2 * constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
         self.assertEqual(frames[0].status, 'MERGED')
@@ -208,8 +210,6 @@ class FrameGeneratorTest(unittest.TestCase):
             if fi == 0:
                 continue
             self.assertEqual(frame.id, fi + 2)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1))
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 2) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1))
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 2) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
@@ -218,14 +218,10 @@ class FrameGeneratorTest(unittest.TestCase):
         '''Shorten the slice so that the first or last frame goes missing entirely.'''
         # Remove first frame.
         frames = self.gen._generate_frames(ANX1, ANX1 + constants.FRAME_GRID_SPACING,
-                                           ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         for fi, frame in enumerate(frames):
-            if fi == 0:
-                continue
-            self.assertEqual(frame.id, fi + 2)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1))
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 2) + constants.FRAME_OVERLAP)
+            self.assertEqual(frame.id, fi + 1)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1))
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 2) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
@@ -236,11 +232,21 @@ class FrameGeneratorTest(unittest.TestCase):
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         for fi, frame in enumerate(frames):
             self.assertEqual(frame.id, fi + 1)
-            self.assertEqual(frame.validity_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
-            self.assertEqual(frame.validity_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
+
+    def test_timerange_exceeds_slice_bounds(self) -> None:
+        '''
+        When the requested time range exceeds a slice boundary, frames should be
+        generated within either slice.
+        '''
+        sensing_start = ANX1
+        sensing_stop = ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_MINIMUM_DURATION + datetime.timedelta(seconds=1)
+        frames = self.gen._generate_frames(sensing_start, sensing_start, sensing_stop, 1)
+        self.assertEqual(frames[0].sensing_start, ANX1)
+        self.assertEqual(frames[-1].sensing_start, ANX1 + constants.SLICE_GRID_SPACING)
+        self.assertEqual(frames[-1].sensing_stop, sensing_stop)
 
 
 class VirtualFrameProductTest(unittest.TestCase):

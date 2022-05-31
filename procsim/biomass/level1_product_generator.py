@@ -64,12 +64,9 @@ class FrameStatus(str, Enum):
 class Frame:
     '''This class is responsible for storing basic information about a frame's range and status.'''
     def __init__(self, id: int,
-                 validity_start: datetime.datetime, validity_stop: datetime.datetime,
                  sensing_start: datetime.datetime, sensing_stop: datetime.datetime,
                  status: str = ''):
         self.id = id
-        self.validity_start = validity_start
-        self.validity_stop = validity_stop
         self.sensing_start = sensing_start
         self.sensing_stop = sensing_stop
         self.status = status
