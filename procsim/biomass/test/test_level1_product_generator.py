@@ -137,20 +137,20 @@ class FrameGeneratorTest(unittest.TestCase):
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
-        # Disregard the first and last frames here since they resulted from slice overlap data, and were merged with their neighbours.
+        # Disregard the first and last frames here since they resulted from slice overlap data and were merged with their neighbours.
         for fi, frame in enumerate(frames[1:-1], start=1):
-            self.assertEqual(frame.id, fi + 2)  # Frame ID is 1-based and the first was merged with the second.
+            self.assertEqual(frame.id, fi + 1)  # The first frame was merged, but the count begins at the slice start.
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
         # Check first and last frames.
         first_frame = frames[0]
-        self.assertEqual(first_frame.id, 2)  # Frame ID is 1-based and the first was merged with the second.
+        self.assertEqual(first_frame.id, 1)  # The first frame was merged, but the count begins at the slice start.
         self.assertEqual(first_frame.sensing_start, ANX1 - constants.SLICE_OVERLAP_START)
         self.assertEqual(first_frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP)
         self.assertEqual(first_frame.status, 'MERGED')
         last_frame = frames[-1]
-        self.assertEqual(last_frame.id, constants.NUM_FRAMES_PER_SLICE + 1)
+        self.assertEqual(last_frame.id, constants.NUM_FRAMES_PER_SLICE)
         self.assertEqual(last_frame.sensing_start, ANX1 + constants.SLICE_GRID_SPACING - constants.FRAME_GRID_SPACING)
         self.assertEqual(last_frame.sensing_stop, ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END)
         self.assertEqual(last_frame.status, 'MERGED')
@@ -179,10 +179,8 @@ class FrameGeneratorTest(unittest.TestCase):
         frames = self.gen._generate_frames(ANX1, ANX1 + test_offset, ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
 
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
-        # Test all but first and last frames.
-        for fi, frame in enumerate(frames):
-            if fi == 0:
-                continue
+        # Test all but the first frame.
+        for fi, frame in enumerate(frames[1:], start=1):
             self.assertEqual(frame.id, fi + 1)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
@@ -221,7 +219,7 @@ class FrameGeneratorTest(unittest.TestCase):
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
         self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE - 1)
         for fi, frame in enumerate(frames):
-            self.assertEqual(frame.id, fi + 1)
+            self.assertEqual(frame.id, fi + 2)
             self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1))
             self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 2) + constants.FRAME_OVERLAP)
             self.assertEqual(frame.status, 'NOMINAL')
