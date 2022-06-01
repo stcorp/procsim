@@ -8,13 +8,11 @@ import datetime
 import os
 import xml.dom.minidom as md
 from enum import Enum
-from textwrap import dedent
 from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
 import re
-from procsim.biomass.constants import NUM_FRAMES_PER_SLICE, ORBITAL_PERIOD, SLICE_GRID_SPACING
-from procsim.core.exceptions import GeneratorError, ScenarioError
+from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
 
 from . import constants, main_product_header, product_generator, product_name, product_types
@@ -64,12 +62,9 @@ class FrameStatus(str, Enum):
 class Frame:
     '''This class is responsible for storing basic information about a frame's range and status.'''
     def __init__(self, id: int,
-                 validity_start: datetime.datetime, validity_stop: datetime.datetime,
                  sensing_start: datetime.datetime, sensing_stop: datetime.datetime,
                  status: str = ''):
         self.id = id
-        self.validity_start = validity_start
-        self.validity_stop = validity_stop
         self.sensing_start = sensing_start
         self.sensing_stop = sensing_stop
         self.status = status
@@ -226,20 +221,22 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         Given an alleged start and stop time of a slice, check whether they're
         aligned. If not, attempt to align or recalculate them.
+        This method returns the start and stop times of the slice, not including
+        begin/end overlaps.
         '''
         sigma = datetime.timedelta(seconds=0.01)  # Be a little lenient in checking slice bounds.
         # Check if already aligned.
-        delta = (stop - start) - SLICE_GRID_SPACING
+        delta = (stop - start) - constants.SLICE_GRID_SPACING
         if delta > -sigma and delta < sigma:
             return (start, stop)
 
         # Check if aligned when overlaps subtracted.
-        delta = ((stop - self._slice_overlap_end) - (start + self._slice_overlap_start)) - SLICE_GRID_SPACING
+        delta = ((stop - self._slice_overlap_end) - (start + self._slice_overlap_start)) - constants.SLICE_GRID_SPACING
         if delta > -sigma and delta < sigma:
             return (start + self._slice_overlap_start, stop - self._slice_overlap_end)
 
         # Could not align based on overlaps. Try to align based on ANX times.
-        slice_bounds = self._get_slice_frame_interval(start + (stop - start) / 2, SLICE_GRID_SPACING)
+        slice_bounds = self._get_slice_frame_interval(start + (stop - start) / 2, constants.SLICE_GRID_SPACING)
         if slice_bounds is None:
             raise ScenarioError(f'Could not determine exact slice bounds from start {start} and stop {stop}.')
         return slice_bounds
@@ -250,12 +247,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         number. Else determine frame number from ANX times.
         '''
         if slice_nr is not None:
-            first_frame_nr = (slice_nr - 1) * NUM_FRAMES_PER_SLICE + 1
+            first_frame_nr = (slice_nr - 1) * constants.NUM_FRAMES_PER_SLICE + 1
         else:
             first_frame_nr = self._get_slice_frame_nr(start_time, self._frame_grid_spacing)
             if first_frame_nr is None:
-                raise ScenarioError(f'Cannot determine frame number from slice number {slice_nr} or start time {start_time} ' +
-                                    f'given ANX {self._anx_list}.')
+                raise ScenarioError(f'Cannot determine frame number from slice number {slice_nr} or start time {start_time} '
+                                    + f'given ANX {self._anx_list}.')
 
         return first_frame_nr
 
@@ -265,39 +262,36 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         Generate a list of Frame objects between start and end times.
         '''
-        # Get frame boundaries between the slice validity start and end.
-        frame_bounds = [slice_start + d * self._frame_grid_spacing for d in range(NUM_FRAMES_PER_SLICE + 1)]
+        # Create list of frames that covers the entire acquisition range.
+        frames: List[Frame] = []
+        frame_start = slice_start + (acq_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
+        while frame_start < acq_end:
+            id = first_frame_nr + (frame_start - slice_start) // self._frame_grid_spacing
+            frames.append(Frame(id=id,
+                                sensing_start=frame_start,
+                                sensing_stop=frame_start + self._frame_grid_spacing + constants.FRAME_OVERLAP,
+                                status=FrameStatus.NOMINAL))
+            frame_start += self._frame_grid_spacing
 
-        # Map to frame instances.
-        frames = []
-        for fi in range(len(frame_bounds) - 1):
-            # Continue if the acquisition start occurs after the frame bounds, or the acquisition end before.
-            if acq_start > frame_bounds[fi + 1] or acq_end < frame_bounds[fi]:
-                continue
-            frames.append(Frame(
-                id=fi + first_frame_nr,
-                validity_start=frame_bounds[fi],
-                validity_stop=frame_bounds[fi + 1] + self._frame_overlap,
-                sensing_start=max(frame_bounds[fi], acq_start),
-                sensing_stop=min(frame_bounds[fi + 1] + self._frame_overlap, acq_end),
-                status=FrameStatus.NOMINAL
-            ))
+        # Check first and last frames for partiality.
+        if frames and frames[0].sensing_start < acq_start:
+            frames[0].status = FrameStatus.PARTIAL
+            frames[0].sensing_start = acq_start
+        if frames and frames[-1].sensing_stop > acq_end:
+            frames[-1].status = FrameStatus.PARTIAL
+            frames[-1].sensing_stop = acq_end
 
-        # If the first or last frame are too short, merge them with their neghbours.
-        if len(frames) > 1:
-            if frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
+        # If the first or last frame are too short, merge them with their neighbours.
+        if len(frames) > 1 and frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
+            if frames[1].sensing_start > frames[0].sensing_start:
+                frames[1].status = FrameStatus.MERGED
                 frames[1].sensing_start = frames[0].sensing_start
-                frames.pop(0)
-            if frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
+            frames.pop(0)
+        if len(frames) > 1 and frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
+            if frames[-2].sensing_stop < frames[-1].sensing_stop:
+                frames[-2].status = FrameStatus.MERGED
                 frames[-2].sensing_stop = frames[-1].sensing_stop
-                frames.pop()
-
-        # If any frames are partial or merged, mark them as such.
-        for frame in frames:
-            if frame.sensing_stop - frame.sensing_start < frame.validity_stop - frame.validity_start:
-                frame.status = FrameStatus.PARTIAL
-            elif frame.sensing_stop - frame.sensing_start > frame.validity_stop - frame.validity_start:
-                frame.status = FrameStatus.MERGED
+            frames.pop()
 
         return frames
 
@@ -380,7 +374,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         describes the progress of the satellite along its orbit, measured from
         the last ANX.
         '''
-        num_frames_per_orbit = round(ORBITAL_PERIOD / self._frame_grid_spacing)
+        num_frames_per_orbit = round(constants.ORBITAL_PERIOD / self._frame_grid_spacing)
         return ((frame_nr - 1) % num_frames_per_orbit) / num_frames_per_orbit * 360.0
 
 
