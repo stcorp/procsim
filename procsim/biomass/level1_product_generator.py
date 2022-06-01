@@ -260,48 +260,36 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         Generate a list of Frame objects between start and end times.
         '''
-        # Get frame boundaries between the slice sensing start and end.
-        frame_bounds = []
-        frame_bounds_start = slice_start  # + (acq_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
-        # Move to sensing start.
-        while frame_bounds_start <= acq_start:
-            frame_bounds_start += self._frame_grid_spacing
-        # Record frame bounds within sensing time.
-        while frame_bounds_start < acq_end:
-            frame_bounds.append(frame_bounds_start)
-            frame_bounds_start += self._frame_grid_spacing
-        # Make sure acquisition start and end are included.
-        frame_bounds.insert(0, acq_start)
-        frame_bounds.append(acq_end)
+        # Create list of frames that covers the entire acquisition range.
+        frames: List[Frame] = []
+        frame_start = slice_start + (acq_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
+        while frame_start < acq_end:
+            id = first_frame_nr + (frame_start - slice_start) // self._frame_grid_spacing
+            frames.append(Frame(id=id,
+                                sensing_start=frame_start,
+                                sensing_stop=frame_start + self._frame_grid_spacing + constants.FRAME_OVERLAP,
+                                status=FrameStatus.NOMINAL))
+            frame_start += self._frame_grid_spacing
 
-        # Map to frame instances.
-        frames = []
-        for fi in range(len(frame_bounds) - 1):
-            # Continue if the acquisition start occurs after the frame bounds, or the acquisition end before.
-            if acq_start > frame_bounds[fi + 1] or acq_end < frame_bounds[fi]:
-                continue
-            frames.append(Frame(
-                id=fi + first_frame_nr,
-                sensing_start=max(frame_bounds[fi], acq_start),
-                sensing_stop=min(frame_bounds[fi + 1] + self._frame_overlap, acq_end),
-                status=FrameStatus.NOMINAL
-            ))
+        # Check first and last frames for partiality.
+        if frames and frames[0].sensing_start < acq_start:
+            frames[0].status = FrameStatus.PARTIAL
+            frames[0].sensing_start = acq_start
+        if frames and frames[-1].sensing_stop > acq_end:
+            frames[-1].status = FrameStatus.PARTIAL
+            frames[-1].sensing_stop = acq_end
 
         # If the first or last frame are too short, merge them with their neighbours.
-        if len(frames) > 1:
-            if frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
+        if len(frames) > 1 and frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
+            if frames[1].sensing_start > frames[0].sensing_start:
+                frames[1].status = FrameStatus.MERGED
                 frames[1].sensing_start = frames[0].sensing_start
-                frames.pop(0)
-            if frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
+            frames.pop(0)
+        if len(frames) > 1 and frames[-1].sensing_stop - frames[-1].sensing_start < self._frame_lower_bound:
+            if frames[-2].sensing_stop < frames[-1].sensing_stop:
+                frames[-2].status = FrameStatus.MERGED
                 frames[-2].sensing_stop = frames[-1].sensing_stop
-                frames.pop()
-
-        # If any frames are partial or merged, mark them as such. TODO: Set this when actually merging or creating partial frame.
-        for frame in frames:
-            if frame.sensing_stop - frame.sensing_start < constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP:
-                frame.status = FrameStatus.PARTIAL
-            elif frame.sensing_stop - frame.sensing_start > constants.FRAME_GRID_SPACING + constants.FRAME_OVERLAP:
-                frame.status = FrameStatus.MERGED
+            frames.pop()
 
         return frames
 
