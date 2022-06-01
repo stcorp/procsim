@@ -221,6 +221,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         Given an alleged start and stop time of a slice, check whether they're
         aligned. If not, attempt to align or recalculate them.
+        This method returns the start and stop times of the slice, not including
+        begin/end overlaps.
         '''
         sigma = datetime.timedelta(seconds=0.01)  # Be a little lenient in checking slice bounds.
         # Check if already aligned.
