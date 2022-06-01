@@ -131,6 +131,31 @@ class FrameGeneratorTest(unittest.TestCase):
     gen = Level1PreProcessor(_Logger(), None, STANDARD_CONFIG, STANDARD_CONFIG)
     gen.read_scenario_parameters()
 
+    def test_frame_id(self) -> None:
+        '''Check whether frame IDs are set correctly.'''
+        # Entire slice that should create only nominal frames.
+        frames = self.gen._generate_frames(ANX1, ANX1, ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP, 1)
+        for fi, frame in enumerate(frames):
+            self.assertEqual(frame.id, fi + 1)
+
+        # Partial frames at start and end.
+        frames = self.gen._generate_frames(ANX1, ANX1 + datetime.timedelta(seconds=1),
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP - datetime.timedelta(seconds=1), 1)
+        for fi, frame in enumerate(frames):
+            self.assertEqual(frame.id, fi + 1)
+
+        # Merged frames at start and end.
+        frames = self.gen._generate_frames(ANX1, ANX1 - datetime.timedelta(seconds=1),
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP + datetime.timedelta(seconds=1), 1)
+        for fi, frame in enumerate(frames):
+            self.assertEqual(frame.id, fi + 1)
+
+        # Missing frames at start and end.
+        frames = self.gen._generate_frames(ANX1, ANX1 + constants.FRAME_GRID_SPACING,
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP - constants.FRAME_GRID_SPACING, 1)
+        for fi, frame in enumerate(frames, start=1):  # First frame skipped, so start count at 1.
+            self.assertEqual(frame.id, fi + 1)
+
     def test_entire_slice(self) -> None:
         '''Try to create frames from an entire slice including overlaps on either side.'''
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
