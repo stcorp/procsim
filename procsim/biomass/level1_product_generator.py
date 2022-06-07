@@ -203,7 +203,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             raise ScenarioError('Start/stop times must be known here.')
 
         slice_start, slice_end = self._align_slice_times(slice_start, slice_end)
-        first_frame_nr = self._get_first_frame_nr(slice_nr, acq_start)
+        first_frame_nr = self._get_first_frame_nr(slice_nr, slice_start)
 
         frames = self._generate_frames(slice_start, acq_start, acq_end, first_frame_nr)
 
@@ -244,15 +244,16 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     def _get_first_frame_nr(self, slice_nr: Optional[int], start_time: datetime.datetime) -> int:
         '''
         If a slice number is provided, use that to determine the first frame
-        number. Else determine frame number from ANX times.
+        number in the slice. Else determine frame number from ANX times.
         '''
         if slice_nr is not None:
             first_frame_nr = (slice_nr - 1) * constants.NUM_FRAMES_PER_SLICE + 1
         else:
-            first_frame_nr = self._get_slice_frame_nr(start_time, self._frame_grid_spacing)
+            slice_bounds = self._get_slice_frame_interval(start_time, constants.SLICE_GRID_SPACING)
+            first_frame_nr = self._get_slice_frame_nr(slice_bounds[0], self._frame_grid_spacing) if slice_bounds is not None else None
             if first_frame_nr is None:
                 raise ScenarioError(f'Cannot determine frame number from slice number {slice_nr} or start time {start_time} '
-                                    + f'given ANX {self._anx_list}.')
+                                    + f'given ANX list {self._anx_list}.')
 
         return first_frame_nr
 
@@ -260,7 +261,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
                          acq_start: datetime.datetime, acq_end: datetime.datetime,
                          first_frame_nr: int) -> List[Frame]:
         '''
-        Generate a list of Frame objects between start and end times.
+        Generate a list of Frame objects between start and end times. The first
+        frame number is expected to be relative to the slice start.
         '''
         # Create list of frames that covers the entire acquisition range.
         frames: List[Frame] = []
