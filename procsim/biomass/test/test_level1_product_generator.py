@@ -156,6 +156,17 @@ class FrameGeneratorTest(unittest.TestCase):
         for fi, frame in enumerate(frames, start=1):  # First frame skipped, so start count at 1.
             self.assertEqual(frame.id, fi + 1)
 
+    def test_first_frame_generation(self) -> None:
+        '''Test the first frame number getter and frame generation together.'''
+        # Acquisition and slice start do not match, first frame number not 1.
+        acq_start = ANX1 + constants.SLICE_GRID_SPACING
+        acq_end = acq_start + 3 * constants.FRAME_GRID_SPACING
+        self.gen._anx_list = [ANX1]
+        first_frame_nr = self.gen._get_first_frame_nr(None, acq_start)
+        frames = self.gen._generate_frames(ANX1 + constants.SLICE_GRID_SPACING, acq_start, acq_end, first_frame_nr)
+        for fi, frame in enumerate(frames):
+            self.assertEqual(frame.id, fi + constants.NUM_FRAMES_PER_SLICE + 1)
+
     def test_entire_slice(self) -> None:
         '''Try to create frames from an entire slice including overlaps on either side.'''
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
