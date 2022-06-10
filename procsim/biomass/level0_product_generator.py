@@ -229,28 +229,11 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 self._logger.debug(f'Use slice end {slice_bounds[1]} as input for validity stop time')
                 self._hdr.validity_stop = slice_bounds[1] + constants.SLICE_OVERLAP_END
 
-        # Find data take(s) in this slice and create products for each segment.
-        data_takes = self._scenario_config.get('data_takes')
-        if not data_takes:
-            raise ScenarioError('Missing "data_takes" section in scenario')
-        if any([dt.get('start') is None or dt.get('stop') is None for dt in data_takes]):
-            raise ScenarioError('data_take in config should contain start/stop elements')
-        data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
+        data_takes_with_bounds = self._get_data_takes_with_bounds()
+        for data_take, data_take_start, data_take_stop in data_takes_with_bounds:
+            self._generate_product(data_take_start, data_take_stop, data_take)
 
-        # Select the data takes that fall within the begin and end position.
-        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= self._hdr.end_position
-                      and self._time_from_iso(dt['stop']) >= self._hdr.begin_position]
-
-        start = self._hdr.begin_position
-        stop = self._hdr.end_position
-        if data_takes and start < self._time_from_iso(data_takes[0]['start']):
-            self._logger.warning('Start time outside data takes: using first data take start time')
-        for dt in data_takes:
-            dt_start = self._time_from_iso(dt['start'])
-            dt_stop = self._time_from_iso(dt['stop'])
-            self._generate_product(max(start, dt_start), min(dt_stop, stop), dt)
-
-        if len(data_takes) == 0:
+        if len(data_takes_with_bounds) == 0:
             self._logger.info('No products generated, start/stop outside data takes?')
 
 
