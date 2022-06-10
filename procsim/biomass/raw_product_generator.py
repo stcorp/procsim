@@ -182,6 +182,10 @@ class RAWSxxx_10(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
+    ACQ_PARAMS = [
+        ('data_take_id', 'data_take_id', 'int')
+    ]
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         self._enable_slicing = True
@@ -193,15 +197,21 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
-        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq
+        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        if self._enable_slicing:
-            self._generate_sliced_output()
-        else:
-            self._create_product(self._hdr.begin_position, self._hdr.end_position)
+        try:
+            data_takes_with_bounds = self._get_data_takes_with_bounds()
+        except ScenarioError:
+            self._logger.info('No data takes found. Using sensing start/stop to generate products.')
+            data_takes_with_bounds = [({}, self._hdr.begin_position, self._hdr.end_position)]
+        for data_take, data_take_start, data_take_stop in data_takes_with_bounds:
+            if self._enable_slicing:
+                self._generate_sliced_output(data_take_start, data_take_stop)
+            else:
+                self._create_product(data_take_start, data_take_stop)
 
     def _create_product(self, acq_start, acq_stop):
         # Construct product name and set metadata fields
@@ -252,9 +262,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self) -> None:
-        segment_start = self._hdr.begin_position
-        segment_end = self._hdr.end_position
+    def _generate_sliced_output(self, segment_start, segment_end) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
