@@ -202,18 +202,18 @@ class RAWSxxx_10(RawProductGeneratorBase):
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        try:
-            data_takes_with_bounds = self._get_data_takes_with_bounds()
-        except ScenarioError:
-            self._logger.info('No data takes found. Using sensing start/stop to generate products.')
-            data_takes_with_bounds = [({}, self._hdr.begin_position, self._hdr.end_position)]
-        for data_take, data_take_start, data_take_stop in data_takes_with_bounds:
+        data_takes_with_bounds = self._get_data_takes_with_bounds()
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            # Verify existence of mandatory data take variables.
+            if not data_take_config.get('data_take_id'):
+                raise ScenarioError('Missing data_take_id in data take configuration')
+            self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_start, data_take_stop)
             else:
                 self._create_product(data_take_start, data_take_stop)
 
-    def _create_product(self, acq_start, acq_stop):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -262,7 +262,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, segment_start, segment_end) -> None:
+    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 

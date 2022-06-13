@@ -3,14 +3,13 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import bisect
 import datetime
-from math import ceil
 import os
 import re
 import shutil
 from typing import Dict, Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
-from procsim.biomass.constants import ORBITAL_PERIOD
 
+from procsim.biomass.constants import ORBITAL_PERIOD
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -155,6 +154,9 @@ class ProductGeneratorBase(IProductGenerator):
         if timestr[-1] == 'Z':
             timestr = timestr[:-1]
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
+
+    def _time_as_iso(self, time):
+        return time.strftime(self.ISO_TIME_FORMAT) + 'Z'
 
     def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
@@ -311,16 +313,26 @@ class ProductGeneratorBase(IProductGenerator):
         tuples  containing the start and end time of a data take, as well as the
         data take itself. The start/end times are clamped within the sensing
         time as set in the header (begin/end position).
+
+        If no data takes are found, return the general configuration parameters.
+        It is assumed that these contain data take parameters at the top level.
         '''
         sensing_start = self._hdr.begin_position
         sensing_stop = self._hdr.end_position
         if sensing_start is None or sensing_stop is None:
             raise ScenarioError('Sensing start and stop time are not set.')
+
         data_takes = self._scenario_config.get('data_takes')
         if not data_takes:
-            raise ScenarioError('Missing "data_takes" section in scenario')
-        if any([dt.get('start') is None or dt.get('stop') is None for dt in data_takes]):
-            raise ScenarioError('data_take in config should contain start/stop elements')
+            # No explicit data takes found, use general config.
+            self._logger.info('No data takes found, using general config.')
+            data_takes = [{**self._scenario_config, 'start': self._time_as_iso(sensing_start), 'stop': self._time_as_iso(sensing_stop)}]
+        # Overwrite general config with data take config.
+        data_takes = [{**self._scenario_config, **dt} for dt in data_takes]
+
+        # Check for mandatory parameters.
+        if any([dt.get('start') is None or dt.get('stop') is None or dt.get('data_take_id') is None for dt in data_takes]):
+            raise ScenarioError('data_take in config should contain start/stop/data_take_id elements')
         data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
 
         # Select the data takes that fall within the begin and end position.

@@ -449,9 +449,7 @@ class MainProductHeader:
                     et.SubElement(acquisition, bio + 'instrumentConfID').text = str(acq.instrument_config_id)
                 if level in ['l0', 'l1'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
                         self.product_type in product_types.RAWS_PRODUCT_TYPES:
-                    dataTakeID = et.SubElement(acquisition, bio + 'dataTakeID')
-                    if acq.data_take_id is not None:
-                        dataTakeID.text = str(acq.data_take_id)
+                    et.SubElement(acquisition, bio + 'dataTakeID').text = str(acq.data_take_id)
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, bio + 'orbitDriftFlag').text = str(acq.orbit_drift_flag).lower()
                 if level in ['l0', 'l1', 'l2a']:
