@@ -131,6 +131,7 @@
       "zip_output": true,   // Default is true, set false for diagnostics only
       "zip_extension": ".zip",
       "keep_zip": true,  // Default is false, set true for diagnostics only
+      "data_take_id": 1,  // Mandatory for RAWS products.
       "outputs": [
         {
           "type": "RAWS022_10",
@@ -417,6 +418,7 @@
       ],
       "zip_output": true,
       "zip_extension": ".zip",
+      "data_take_id": 1,  // Mandatory for RAWS products.
       "outputs": [
         {
           "type": "RAWS022_10",
@@ -666,6 +668,7 @@
       ],
       "zip_output": true,
       "zip_extension": ".zip",
+      "data_take_id": 1,  // Mandatory for RAWS products.
       "outputs": [
         {
           "type": "RAWS022_10",
