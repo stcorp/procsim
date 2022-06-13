@@ -6,11 +6,10 @@ import glob
 import os
 import shutil
 import unittest
-from xml.etree import ElementTree as et
 
-from procsim.biomass import main_product_header
-from procsim.biomass import constants
+from procsim.biomass import constants, main_product_header
 from procsim.biomass.raw_product_generator import RAWSxxx_10
+from procsim.core.exceptions import ScenarioError
 
 TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
 
@@ -77,7 +76,7 @@ class RAWSxxx_10Test(unittest.TestCase):
         self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000, tzinfo=datetime.timezone.utc)
         self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000, tzinfo=datetime.timezone.utc)
 
-        self.addCleanup(shutil.rmtree, TEST_DIR)
+        self.addCleanup(shutil.rmtree, TEST_DIR, ignore_errors=True)
         return RAWSxxx_10(logger, job_config, config, config)
 
     def parse_product(self, productpath):
@@ -224,6 +223,84 @@ class RAWSxxx_10Test(unittest.TestCase):
         start_aligned, end_aligned = self.is_aligned(hdr.begin_position, hdr.end_position, anx)
         self.assertFalse(start_aligned)
         self.assertFalse(end_aligned)
+
+    def testNoDataTakeInfo(self) -> None:
+        '''Production should fail if no data take info is found.'''
+        gen = self.create_class_under_test()
+        # Remove mandatory data take info.
+        del gen._scenario_config['data_take_id']
+        gen.read_scenario_parameters()
+
+        # Normally we read this from input products, but now we set it by hand.
+        begin = datetime.datetime(2021, 2, 1, 0, 24, 32, 0, tzinfo=datetime.timezone.utc)
+        end = datetime.datetime(2021, 2, 1, 0, 29, 32, 0, tzinfo=datetime.timezone.utc)
+        gen._hdr.validity_start = gen._hdr.begin_position = begin
+        gen._hdr.validity_stop = gen._hdr.end_position = end
+
+        with self.assertRaises(ScenarioError):
+            gen.generate_output()
+
+    def testMultipleDataTakes(self) -> None:
+        '''
+        Test that multiple data takes appear in the MPH and that the
+        correct products are generated.
+        '''
+        # Get the start/stop times of the data takes.
+        sensing_start = datetime.datetime(2021, 2, 1, 0, 24, 32, 0, tzinfo=datetime.timezone.utc)
+        sensing_stop = datetime.datetime(2021, 2, 1, 0, 29, 32, 0, tzinfo=datetime.timezone.utc)
+        num_data_takes = 4
+        data_take_length = (sensing_stop - sensing_start) / num_data_takes
+        data_take_times = [sensing_start + i * data_take_length for i in range(num_data_takes + 1)]
+        time_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+
+        gen = self.create_class_under_test()
+        gen._scenario_config['enable_slicing'] = False  # Make sure we can count data takes instead of slices in this test.
+        gen._scenario_config['data_takes'] = [
+            {
+                'data_take_id': 12,
+                'start': data_take_times[0].strftime(time_format),
+                'stop': data_take_times[1].strftime(time_format)
+            },
+            {
+                'data_take_id': 13,
+                'start': data_take_times[1].strftime(time_format),
+                'stop': data_take_times[2].strftime(time_format)
+            },
+            {
+                'data_take_id': 14,
+                'start': data_take_times[2].strftime(time_format),
+                'stop': data_take_times[3].strftime(time_format)
+            },
+            {
+                'data_take_id': 15,
+                'start': data_take_times[3].strftime(time_format),
+                'stop': data_take_times[4].strftime(time_format)
+            },
+        ]
+        gen.read_scenario_parameters()
+        gen._hdr.validity_start = gen._hdr.begin_position = sensing_start
+        gen._hdr.validity_stop = gen._hdr.end_position = sensing_stop
+
+        gen.generate_output()
+
+        # Check whether enough files were generated, and whether they have the correct data take IDs and sensing times.
+        self.assertEqual(self.calc_nr_products_in_dir(), num_data_takes)
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002432_20210201T002547_D20210101T000000_10_??????')
+        self.assertEqual(hdr.acquisitions[0].data_take_id, 12)
+        self.assertEqual(hdr.begin_position, data_take_times[0])
+        self.assertEqual(hdr.end_position, data_take_times[1])
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002547_20210201T002702_D20210101T000000_10_??????')
+        self.assertEqual(hdr.acquisitions[0].data_take_id, 13)
+        self.assertEqual(hdr.begin_position, data_take_times[1])
+        self.assertEqual(hdr.end_position, data_take_times[2])
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002702_20210201T002817_D20210101T000000_10_??????')
+        self.assertEqual(hdr.acquisitions[0].data_take_id, 14)
+        self.assertEqual(hdr.begin_position, data_take_times[2])
+        self.assertEqual(hdr.end_position, data_take_times[3])
+        hdr = self.parse_product('BIO_RAWS025_10_20210201T002817_20210201T002932_D20210101T000000_10_??????')
+        self.assertEqual(hdr.acquisitions[0].data_take_id, 15)
+        self.assertEqual(hdr.begin_position, data_take_times[3])
+        self.assertEqual(hdr.end_position, data_take_times[4])
 
 
 if __name__ == '__main__':
