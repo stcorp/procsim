@@ -245,6 +245,7 @@ class MphTest(unittest.TestCase):
                 'baseline': 10,
                 'acquisition_date': '2021-01-01T00:00:00.000Z',
                 'acquisition_station': 'unittest',
+                'data_take_id': '1234',
             }
             raw_gen = raw_generator_class(_Logger(), None, config, config)
 

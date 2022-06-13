@@ -71,7 +71,8 @@ class RAWSxxx_10Test(unittest.TestCase):
             'zip_output': False,
             'slice_overlap_start': 5.0,
             'slice_overlap_end': 7.0,
-            'slice_minimum_duration': 15.0
+            'slice_minimum_duration': 15.0,
+            'data_take_id': 1
         }
         self.anx1 = datetime.datetime(2021, 1, 31, 22, 47, 21, 765000, tzinfo=datetime.timezone.utc)
         self.anx2 = datetime.datetime(2021, 2, 1, 0, 25, 33, 745000, tzinfo=datetime.timezone.utc)
