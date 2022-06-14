@@ -204,9 +204,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            # Verify existence of mandatory data take variables.
-            if not data_take_config.get('data_take_id'):
-                raise ScenarioError('Missing data_take_id in data take configuration')
+            # If the data take ID does not exist, the data take getter should have failed.
             self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_start, data_take_stop)
