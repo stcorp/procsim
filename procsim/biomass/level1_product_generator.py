@@ -438,12 +438,16 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
             # Trim 'UTC=' off the start of the timestamp and convert to datetime.
             self._hdr.end_position = self._time_from_iso(frame_stop_time_node.text[4:])
 
-        frame_status_node = root.find('Data_Block/frame_Status')
+        frame_status_node = root.find('Data_Block/frame_status')
         if frame_status_node is not None and frame_status_node.text is not None:
             self._frame_status = frame_status_node.text
 
         if not self._hdr.acquisitions[0].slice_frame_nr or not self._hdr.begin_position or not self._hdr.end_position or not self._frame_status:
-            self._logger.warning(f'Could not parse frame information from {file_name}.')
+            self._logger.warning(f'Could not parse frame information from {file_name}. Read the following values:\n'
+                                 + f'  frame number: {self._hdr.acquisitions[0].slice_frame_nr},\n'
+                                 + f'  begin position: {self._hdr.begin_position},\n'
+                                 + f'  end position: {self._hdr.end_position},\n'
+                                 + f'  frame status: {self._frame_status}')
 
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)
