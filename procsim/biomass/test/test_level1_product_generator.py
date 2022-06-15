@@ -120,7 +120,7 @@ VFRA_DATA = '''<?xml version="1.0" ?>
         <frame_id>155</frame_id>
         <frame_start_time>UTC=2022-04-21T14:38:31.123456</frame_start_time>
         <frame_stop_time>UTC=2022-04-21T14:38:52.654321</frame_stop_time>
-        <frame_Status>NOMINAL</frame_Status>
+        <frame_status>NOMINAL</frame_status>
         <ops_angle_start unit="deg">178.838710</ops_angle_start>
         <ops_angle_stop unit="deg">180</ops_angle_stop>
     </Data_Block>

@@ -307,8 +307,9 @@ gml:id="BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_0
                 </bio:ProcessingInformation>
             </eop:processing>
             <bio:TAI-UTC>37</bio:TAI-UTC>
-            <bio:incompleteFrame>false</bio:incompleteFrame>
-            <bio:partialFrame>false</bio:partialFrame>
+            <bio:isIncomplete>false</bio:isIncomplete>
+            <bio:isPartial>false</bio:isPartial>
+            <bio:isMerged>false</bio:isMerged>
             <bio:refDoc>BIOMASS L1 PRODUCT FORMAT SPECIFICATION</bio:refDoc>
             <bio:refDoc>BIOMASS L1 PRODUCT FORMAT DEFINITION</bio:refDoc>
         </bio:EarthObservationMetaData>

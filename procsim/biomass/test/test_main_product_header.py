@@ -133,8 +133,9 @@ def get_l1_test_mph():
     mph.center_points = '-7.492090 -63.27095'
 
     mph.tai_utc_diff = 37
-    mph.incomplete_l1_frame = False
-    mph.partial_l1_frame = False
+    mph.is_incomplete = False
+    mph.is_partial = False
+    mph.is_merged = False
 
     mph.products = [
         {'file_name': 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'},
