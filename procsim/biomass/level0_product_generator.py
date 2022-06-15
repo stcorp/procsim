@@ -136,15 +136,29 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         '''
         Compare validatity and acquisition times
         '''
-        start_is_aligned = valid_start == acq_start
-        end_is_aligned = valid_end == acq_end
-        if not start_is_aligned and not end_is_aligned:
-            self._logger.debug('Incomplete slice, start and end unaligned')
-        elif not start_is_aligned:
-            self._logger.debug('Incomplete slice, start unaligned')
-        elif not end_is_aligned:
-            self._logger.debug('Incomplete slice, end unaligned')
-        return not start_is_aligned or not end_is_aligned
+        delayed_start = valid_start < acq_start
+        premature_end = valid_end > acq_end
+        if delayed_start and premature_end:
+            self._logger.debug('Partial slice, start and end unaligned')
+        elif delayed_start:
+            self._logger.debug('Partial slice, sensing start after validity start')
+        elif premature_end:
+            self._logger.debug('Partial slice, sensing end before validity end')
+        return delayed_start or premature_end
+
+    def _is_merged_slice(self, valid_start, valid_end, acq_start, acq_end):
+        '''
+        Compare validatity and acquisition times
+        '''
+        premature_start = valid_start > acq_start
+        delayed_end = valid_end < acq_end
+        if premature_start and delayed_end:
+            self._logger.debug('Merged slice on both sides')
+        elif premature_start:
+            self._logger.debug('Merged slice at start')
+        elif delayed_end:
+            self._logger.debug('Merged slice at end')
+        return premature_start or delayed_end
 
     def _generate_product(self, start, stop, data_take_config):
         if data_take_config.get('data_take_id') is None:
@@ -162,13 +176,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.incomplete_l0_slice = False  # TODO!
-        self._hdr.partial_l0_slice = self._is_partial_slice(
-            self._hdr.validity_start,
-            self._hdr.validity_stop,
-            start,
-            stop
-        )
+        self._hdr.is_incomplete = False  # TODO!
+        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
 
         # Determine and set the slice number if not set already.
         if self._hdr.acquisitions[0].slice_frame_nr is None:
@@ -339,8 +349,9 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
 
         # Setup all fields mandatory for a level0 product.
         self._hdr.product_type = self._resolve_wildcard_product_type()
-        self._hdr.incomplete_l0_slice = False
-        self._hdr.partial_l0_slice = False
+        self._hdr.is_incomplete = False
+        self._hdr.is_partial = False
+        self._hdr.is_merged = False
         self._hdr.acquisitions[0].slice_frame_nr = None
 
         name_gen = self._create_name_generator(self._hdr)
@@ -427,8 +438,9 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
 
         # Setup other MPH fields
         self._hdr.product_type = self._output_type
-        self._hdr.incomplete_l0_slice = False
-        self._hdr.partial_l0_slice = False
+        self._hdr.is_incomplete = False
+        self._hdr.is_partial = False
+        self._hdr.is_merged = False
         self._hdr.acquisitions[0].slice_frame_nr = None
 
         name_gen = self._create_name_generator(self._hdr)

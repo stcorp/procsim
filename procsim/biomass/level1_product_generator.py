@@ -184,7 +184,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
 
         if not self._enable_framing:
             self._hdr.acquisitions[0].slice_frame_nr = None
-            self._hdr.partial_l1_frame = False
+            self._hdr.is_partial = False
+            self._hdr.is_merged = False
             self._generate_product()
         else:
             self._generate_frame_products()
@@ -448,6 +449,12 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
                                  + f'  begin position: {self._hdr.begin_position},\n'
                                  + f'  end position: {self._hdr.end_position},\n'
                                  + f'  frame status: {self._frame_status}')
+
+        # Set header variables based on the frame status.
+        self._hdr.is_partial = self._frame_status == FrameStatus.PARTIAL
+        self._hdr.is_merged = self._frame_status == FrameStatus.MERGED
+        # Setting the frame status to incomplete (based on contingency) is currently not supported.
+        self._hdr.is_incomplete = False
 
     def _generate_product(self):
         name_gen = self._create_name_generator(self._hdr)

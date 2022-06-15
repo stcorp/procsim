@@ -188,17 +188,16 @@ class MainProductHeader:
         self.nr_l0_lines: Optional[str] = None           # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_missing: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.incomplete_l0_slice: Optional[bool] = None
-        self.partial_l0_slice: Optional[bool] = None
         self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
 
         # L1 only
-        self.incomplete_l1_frame: Optional[bool] = None
-        self.partial_l1_frame: Optional[bool] = None
         self.browse_ref_id: Optional[str] = 'Unknown'
         self.browse_image_filename: Optional[str] = ''
 
         # L0 and L1
+        self.is_incomplete: Optional[bool] = None
+        self.is_partial: Optional[bool] = None
+        self.is_merged: Optional[bool] = None
         acquisition = Acquisition()
         self.acquisitions = [acquisition]
         self.tai_utc_diff = 0
@@ -248,11 +247,10 @@ class MainProductHeader:
             self.nr_l0_lines == other.nr_l0_lines and \
             self.nr_l0_lines_missing == other.nr_l0_lines_missing and \
             self.nr_l0_lines_corrupt == other.nr_l0_lines_corrupt and \
-            self.incomplete_l0_slice == other.incomplete_l0_slice and \
-            self.partial_l0_slice == other.partial_l0_slice and \
             self.l1_frames_in_l0 == other.l1_frames_in_l0 and \
-            self.incomplete_l1_frame == other.incomplete_l1_frame and \
-            self.partial_l1_frame == other.partial_l1_frame and \
+            self.is_incomplete == other.is_incomplete and \
+            self.is_partial == other.is_partial and \
+            self.is_merged == other.is_merged and \
             self.browse_ref_id == other.browse_ref_id and \
             self.browse_image_filename == other.browse_image_filename and \
             self.tai_utc_diff == other.tai_utc_diff and \
@@ -572,13 +570,12 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, bio + 'numOfLines').text = self.nr_l0_lines
             et.SubElement(earth_observation_meta_data, bio + 'numOfMissingLines').text = self.nr_l0_lines_missing
             et.SubElement(earth_observation_meta_data, bio + 'numOfCorruptedLines').text = self.nr_l0_lines_corrupt
-            et.SubElement(earth_observation_meta_data, bio + 'incompleteSlice').text = str(self.incomplete_l0_slice).lower()
-            et.SubElement(earth_observation_meta_data, bio + 'partialSlice').text = str(self.partial_l0_slice).lower()
             et.SubElement(earth_observation_meta_data, bio + 'framesList').text = self.l1_frames_in_l0
 
-        if level in ['l1']:
-            et.SubElement(earth_observation_meta_data, bio + 'incompleteFrame').text = str(self.incomplete_l1_frame).lower()
-            et.SubElement(earth_observation_meta_data, bio + 'partialFrame').text = str(self.partial_l1_frame).lower()
+        if level in ['l0', 'l1']:
+            et.SubElement(earth_observation_meta_data, bio + 'isIncomplete').text = str(self.is_incomplete).lower()
+            et.SubElement(earth_observation_meta_data, bio + 'isPartial').text = str(self.is_partial).lower()
+            et.SubElement(earth_observation_meta_data, bio + 'isMerged').text = str(self.is_merged).lower()
 
         for doc in self.reference_documents:
             et.SubElement(earth_observation_meta_data, bio + 'refDoc').text = doc
@@ -869,13 +866,12 @@ class MainProductHeader:
         self.nr_l0_lines = earth_observation_meta_data.findtext(bio + 'numOfLines')
         self.nr_l0_lines_missing = earth_observation_meta_data.findtext(bio + 'numOfMissingLines')
         self.nr_l0_lines_corrupt = earth_observation_meta_data.findtext(bio + 'numOfCorruptedLines')
-        self.incomplete_l0_slice = _to_bool(earth_observation_meta_data.findtext(bio + 'incompleteSlice'))
-        self.partial_l0_slice = _to_bool(earth_observation_meta_data.findtext(bio + 'partialSlice'))
         self.l1_frames_in_l0 = earth_observation_meta_data.findtext(bio + 'framesList')
 
-        # Level 1
-        self.incomplete_l1_frame = _to_bool(earth_observation_meta_data.findtext(bio + 'incompleteFrame'))
-        self.partial_l1_frame = _to_bool(earth_observation_meta_data.findtext(bio + 'partialFrame'))
+        # Level 0/1
+        self.is_incomplete = _to_bool(earth_observation_meta_data.findtext(bio + 'isIncomplete'))
+        self.is_partial = _to_bool(earth_observation_meta_data.findtext(bio + 'isPartial'))
+        self.is_merged = _to_bool(earth_observation_meta_data.findtext(bio + 'isMerged'))
 
         self.reference_documents.clear()
         for doc in earth_observation_meta_data.findall(bio + 'refDoc'):
