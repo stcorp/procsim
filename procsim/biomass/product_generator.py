@@ -323,12 +323,13 @@ class ProductGeneratorBase(IProductGenerator):
             raise ScenarioError('Sensing start and stop time are not set.')
 
         data_takes = self._scenario_config.get('data_takes')
-        if not data_takes:
+        if data_takes:
+            # Create copies of general config and amend with data take config.
+            data_takes = [{**self._scenario_config, **dt} for dt in data_takes]
+        else:
             # No explicit data takes found, use general config.
             self._logger.info('No data takes found, using general config.')
             data_takes = [{**self._scenario_config, 'start': self._time_as_iso(sensing_start), 'stop': self._time_as_iso(sensing_stop)}]
-        # Overwrite general config with data take config.
-        data_takes = [{**self._scenario_config, **dt} for dt in data_takes]
 
         # Check for mandatory parameters.
         if any([dt.get('start') is None or dt.get('stop') is None or dt.get('data_take_id') is None for dt in data_takes]):
@@ -336,8 +337,8 @@ class ProductGeneratorBase(IProductGenerator):
         data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
 
         # Select the data takes that fall within the begin and end position.
-        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= sensing_stop and
-                      self._time_from_iso(dt['stop']) >= sensing_start]
+        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= sensing_stop
+                      and self._time_from_iso(dt['stop']) >= sensing_start]
 
         # Warn that sensing start/end times fall outside of data takes, if necessary.
         if data_takes and sensing_start < self._time_from_iso(data_takes[0]['start']):
