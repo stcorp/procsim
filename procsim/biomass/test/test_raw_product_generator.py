@@ -242,8 +242,7 @@ class RAWSxxx_10Test(unittest.TestCase):
 
     def testMultipleDataTakes(self) -> None:
         '''
-        Test that multiple data takes appear in the MPH and that the
-        correct products are generated.
+        Test that multiple data create multiple products.
         '''
         # Get the start/stop times of the data takes.
         sensing_start = datetime.datetime(2021, 2, 1, 0, 24, 32, 0, tzinfo=datetime.timezone.utc)
