@@ -3,14 +3,13 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import bisect
 import datetime
-from math import ceil
 import os
 import re
 import shutil
-from typing import Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
-from procsim.biomass.constants import ORBITAL_PERIOD
 
+from procsim.biomass.constants import ORBITAL_PERIOD
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -155,6 +154,9 @@ class ProductGeneratorBase(IProductGenerator):
         if timestr[-1] == 'Z':
             timestr = timestr[:-1]
         return datetime.datetime.strptime(timestr, self.ISO_TIME_FORMAT).replace(tzinfo=datetime.timezone.utc)
+
+    def _time_as_iso(self, time):
+        return time.strftime(self.ISO_TIME_FORMAT) + 'Z'
 
     def _add_file_to_product(self, file_path: str, size_mb: Optional[int] = None, representation_path: Optional[str] = None) -> None:
         '''Append a file to the MPH product list and generate it. Also generate a representation (i.e. schema) if indicated.'''
@@ -304,6 +306,54 @@ class ProductGeneratorBase(IProductGenerator):
         slice_frame_start = previous_anx + (slice_frame_nr - 1) * spacing
         slice_frame_end = previous_anx + slice_frame_nr * spacing
         return slice_frame_start, slice_frame_end
+
+    def _get_data_takes_with_bounds(self) -> List[Tuple[Dict, datetime.datetime, datetime.datetime]]:
+        '''
+        Find data take(s) in the current sensing time bounds. Returns a list of
+        tuples  containing the start and end time of a data take, as well as the
+        data take itself. The start/end times are clamped within the sensing
+        time as set in the header (begin/end position).
+
+        If no data takes are found, return the general configuration parameters.
+        It is assumed that these contain data take parameters at the top level.
+        '''
+        sensing_start = self._hdr.begin_position
+        sensing_stop = self._hdr.end_position
+        if sensing_start is None or sensing_stop is None:
+            raise ScenarioError('Sensing start and stop time are not set.')
+
+        data_takes = self._scenario_config.get('data_takes')
+        if data_takes:
+            # Create copies of general config and amend with data take config.
+            data_takes = [{**self._scenario_config, **dt} for dt in data_takes]
+        else:
+            # No explicit data takes found, use general config.
+            self._logger.info('No data takes found, using general config.')
+            data_takes = [{**self._scenario_config, 'start': self._time_as_iso(sensing_start), 'stop': self._time_as_iso(sensing_stop)}]
+
+        # Check for mandatory parameters.
+        if any([dt.get('start') is None or dt.get('stop') is None or dt.get('data_take_id') is None for dt in data_takes]):
+            raise ScenarioError('data_take in config should contain start/stop/data_take_id elements')
+        data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
+
+        # Select the data takes that fall within the begin and end position.
+        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= sensing_stop
+                      and self._time_from_iso(dt['stop']) >= sensing_start]
+
+        # Warn that sensing start/end times fall outside of data takes, if necessary.
+        if data_takes and sensing_start < self._time_from_iso(data_takes[0]['start']):
+            self._logger.warning(f'Sensing start {sensing_start} outside of data take. Using data take start time.')
+        if data_takes and sensing_stop > self._time_from_iso(data_takes[-1]['stop']):
+            self._logger.warning(f'Sensing stop {sensing_stop} outside of data take. Using data take stop time.')
+
+        # Create resulting list of tuples.
+        data_takes_with_bounds: List[Tuple[Dict, datetime.datetime, datetime.datetime]] = []
+        for data_take in data_takes:
+            data_take_start = max(sensing_start, self._time_from_iso(data_take['start']))
+            data_take_stop = min(sensing_stop, self._time_from_iso(data_take['stop']))
+            data_takes_with_bounds.append((data_take, data_take_start, data_take_stop))
+
+        return data_takes_with_bounds
 
     def _read_config_param(self, config: dict, param_name: str, obj: object, hdr_field: str, ptype):
         '''

@@ -182,6 +182,10 @@ class RAWSxxx_10(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
+    ACQ_PARAMS = [
+        ('data_take_id', 'data_take_id', 'int')
+    ]
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         self._enable_slicing = True
@@ -193,17 +197,21 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
-        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq
+        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def generate_output(self):
         super(RAWSxxx_10, self).generate_output()
 
-        if self._enable_slicing:
-            self._generate_sliced_output()
-        else:
-            self._create_product(self._hdr.begin_position, self._hdr.end_position)
+        data_takes_with_bounds = self._get_data_takes_with_bounds()
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            # If the data take ID does not exist, the data take getter should have failed.
+            self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']
+            if self._enable_slicing:
+                self._generate_sliced_output(data_take_start, data_take_stop)
+            else:
+                self._create_product(data_take_start, data_take_stop)
 
-    def _create_product(self, acq_start, acq_stop):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -252,9 +260,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self) -> None:
-        segment_start = self._hdr.begin_position
-        segment_end = self._hdr.end_position
+    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 

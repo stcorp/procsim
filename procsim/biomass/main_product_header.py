@@ -73,7 +73,7 @@ def _time_from_iso_short(timestr: Optional[str]) -> Optional[datetime.datetime]:
 
 
 def _to_int(val: Optional[str]) -> Optional[int]:
-    return None if val is None else int(val)
+    return int(val) if val else None
 
 
 def _to_bool(val: Optional[str]) -> Optional[bool]:
@@ -447,7 +447,8 @@ class MainProductHeader:
                     et.SubElement(acquisition, bio + 'missionPhase').text = acq.mission_phase
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, bio + 'instrumentConfID').text = str(acq.instrument_config_id)
-                if level in ['l0', 'l1'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___']:
+                if level in ['l0', 'l1'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
+                        self.product_type in product_types.RAWS_PRODUCT_TYPES:
                     et.SubElement(acquisition, bio + 'dataTakeID').text = str(acq.data_take_id)
                 if level in ['l0', 'l1']:
                     et.SubElement(acquisition, bio + 'orbitDriftFlag').text = str(acq.orbit_drift_flag).lower()
