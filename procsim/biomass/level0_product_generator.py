@@ -58,7 +58,8 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
 
     The generator adjusts the following metadata:
     - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
-    - partialSlice, set if slice is partial (slice with DT start/end)
+    - isPartial, set if slice is partial (slice with DT start/end)
+    - isMerged, set if slice is merged (slice with DT start/end)
     - dataTakeID (copied from data_takes section in scenario)
     - swathIdentifier (copied from scenario, either root, output section or
       data_takes section)
