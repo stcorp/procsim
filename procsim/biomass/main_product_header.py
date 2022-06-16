@@ -73,7 +73,10 @@ def _time_from_iso_short(timestr: Optional[str]) -> Optional[datetime.datetime]:
 
 
 def _to_int(val: Optional[str]) -> Optional[int]:
-    return int(val) if val else None
+    try:
+        return int(val) if val else None
+    except ValueError:
+        return None
 
 
 def _to_bool(val: Optional[str]) -> Optional[bool]:
