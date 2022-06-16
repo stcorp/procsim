@@ -219,7 +219,7 @@ class FrameGeneratorTest(unittest.TestCase):
 
     def test_slightly_partial_slice_at_start(self) -> None:
         '''Create frames from a slice that is missing data in its starting overlap.'''
-        test_offset = datetime.timedelta(microseconds=1)
+        test_offset = datetime.timedelta(milliseconds=1)
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START + test_offset,
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
@@ -239,7 +239,7 @@ class FrameGeneratorTest(unittest.TestCase):
 
     def test_slightly_partial_slice_at_end(self) -> None:
         '''Create frames from a slice that is missing data in its end overlap.'''
-        test_offset = datetime.timedelta(microseconds=1)
+        test_offset = datetime.timedelta(milliseconds=1)
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END - test_offset, 1)
 
@@ -259,7 +259,7 @@ class FrameGeneratorTest(unittest.TestCase):
 
     def test_slightly_merged_slice_at_start(self) -> None:
         '''Create frames from a slice that has additional data at its start.'''
-        test_offset = datetime.timedelta(microseconds=1)
+        test_offset = datetime.timedelta(milliseconds=1)
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START - test_offset,
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
 
@@ -279,7 +279,7 @@ class FrameGeneratorTest(unittest.TestCase):
 
     def test_slightly_merged_slice_at_end(self) -> None:
         '''Create frames from a slice that has additional data at its end overlap.'''
-        test_offset = datetime.timedelta(microseconds=1)
+        test_offset = datetime.timedelta(milliseconds=1)
         frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
                                            ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END + test_offset, 1)
 

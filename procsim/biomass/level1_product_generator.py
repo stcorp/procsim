@@ -225,7 +225,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         This method returns the start and stop times of the slice, not including
         begin/end overlaps.
         '''
-        sigma = datetime.timedelta(seconds=0.01)  # Be a little lenient in checking slice bounds.
+        sigma = datetime.timedelta(seconds=0.001)  # Be a little lenient in checking slice bounds.
         # Check if already aligned.
         delta = (stop - start) - constants.SLICE_GRID_SPACING
         if delta > -sigma and delta < sigma:
@@ -267,11 +267,11 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         '''
         # If the acquisition start matches the slice start - overlap, or the acquisition end matches the slice end + overlap, don't generate frames
         # into the slice overlap beyond the regular frame overlap.
-        if acq_start == slice_start - constants.SLICE_OVERLAP_START:
+        if self._datetimes_match(acq_start, slice_start - constants.SLICE_OVERLAP_START, upto_n_decimals=3):
             frame_range_start = slice_start
         else:
             frame_range_start = acq_start
-        if acq_end == slice_start + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END:
+        if self._datetimes_match(acq_end, slice_start + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, upto_n_decimals=3):
             frame_range_end = slice_start + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP
         else:
             frame_range_end = acq_end
@@ -295,6 +295,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             frames[-1].status = FrameStatus.PARTIAL
             frames[-1].sensing_stop = frame_range_end
 
+        # Remove edge frames that are completely covered by their neighbours.
+        while len(frames) > 1 and frames[0].sensing_start >= frames[1].sensing_start:
+            frames.pop(0)
+        while len(frames) > 1 and frames[-1].sensing_stop <= frames[-2].sensing_stop:
+            frames.pop()
+
         # If the first or last frame are too short, merge them with their neighbours.
         if len(frames) > 1 and frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
             if frames[1].sensing_start > frames[0].sensing_start:
@@ -308,6 +314,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             frames.pop()
 
         return frames
+
+    def _datetimes_match(self, a: datetime.datetime, b: datetime.datetime, upto_n_decimals: int = 6) -> bool:
+        '''
+        Check whether datetimes match to a given number of decimals.
+        '''
+        return int((a - b).total_seconds() * 10**upto_n_decimals) == 0
 
     def _generate_product(self) -> None:
         '''
