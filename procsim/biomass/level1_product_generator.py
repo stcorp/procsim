@@ -265,10 +265,21 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         Generate a list of Frame objects between start and end times. The first
         frame number is expected to be relative to the slice start.
         '''
+        # If the acquisition start matches the slice start - overlap, or the acquisition end matches the slice end + overlap, don't generate frames
+        # into the slice overlap beyond the regular frame overlap.
+        if acq_start == slice_start - constants.SLICE_OVERLAP_START:
+            frame_range_start = slice_start
+        else:
+            frame_range_start = acq_start
+        if acq_end == slice_start + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END:
+            frame_range_end = slice_start + constants.SLICE_GRID_SPACING + constants.FRAME_OVERLAP
+        else:
+            frame_range_end = acq_end
+
         # Create list of frames that covers the entire acquisition range.
         frames: List[Frame] = []
-        frame_start = slice_start + (acq_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
-        while frame_start < acq_end:
+        frame_start = slice_start + (frame_range_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
+        while frame_start < frame_range_end:
             id = first_frame_nr + (frame_start - slice_start) // self._frame_grid_spacing
             frames.append(Frame(id=id,
                                 sensing_start=frame_start,
@@ -277,12 +288,12 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
             frame_start += self._frame_grid_spacing
 
         # Check first and last frames for partiality.
-        if frames and frames[0].sensing_start < acq_start:
+        if frames and frames[0].sensing_start < frame_range_start:
             frames[0].status = FrameStatus.PARTIAL
-            frames[0].sensing_start = acq_start
-        if frames and frames[-1].sensing_stop > acq_end:
+            frames[0].sensing_start = frame_range_start
+        if frames and frames[-1].sensing_stop > frame_range_end:
             frames[-1].status = FrameStatus.PARTIAL
-            frames[-1].sensing_stop = acq_end
+            frames[-1].sensing_stop = frame_range_end
 
         # If the first or last frame are too short, merge them with their neighbours.
         if len(frames) > 1 and frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
