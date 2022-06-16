@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Task_Table>
-  <Processor_Name>l2a</Processor_Name>
+  <Processor_Name>l2a_in</Processor_Name>
   <Version>01.01</Version>
   <Test>No</Test>
   <Min_Disk_Space units="MB">1500</Min_Disk_Space>
@@ -30,10 +30,8 @@
           <Critical>true</Critical>
           <Criticality_Level>1</Criticality_Level>
           <File_Name>../../test/biomass/level2a_task1.sh</File_Name>
-          <List_of_Inputs count="2">
+          <List_of_Inputs count="4">
             <Input>
-              <!-- Input are multiple SCS__1S products (1..7)! 
-                   How to specify that? -->
               <Mode>ALWAYS</Mode>
               <Mandatory>Yes</Mandatory>
               <List_of_Alternatives count="1">
@@ -44,6 +42,23 @@
                   <T0 units="secs">0</T0>
                   <T1 units="secs">0</T1>
                   <File_Type>Sx_STA__1S</File_Type>
+                  <File_Name_Type>Physical</File_Name_Type>
+                  <Input_Source_Data>true</Input_Source_Data>
+                </Alternative>
+              </List_of_Alternatives>
+            </Input>
+            <Input>
+              <!-- This is also an output product. Only used from the second pass on so not mandatory. -->
+              <Mode>ALWAYS</Mode>
+              <Mandatory>No</Mandatory>
+              <List_of_Alternatives count="1">
+                <Alternative>
+                  <Order>1</Order>
+                  <Origin>DB</Origin>
+                  <Retrieval_Mode>LatestValCover</Retrieval_Mode>
+                  <T0 units="secs">0</T0>
+                  <T1 units="secs">0</T1>
+                  <File_Type>FP_FD__L2A</File_Type>
                   <File_Name_Type>Physical</File_Name_Type>
                   <Input_Source_Data>true</Input_Source_Data>
                 </Alternative>
@@ -65,10 +80,15 @@
                 </Alternative>
               </List_of_Alternatives>
             </Input>
+            <!-- Additional AUX_DEM and AUX_LCM inputs not supported. -->
           </List_of_Inputs>
-          <List_of_Outputs count="2">
-            <!-- Output are as many products as input SCS__1S products. 
-                 How to specify that? -->
+          <List_of_Outputs count="3">
+            <Output>
+              <Destination>DB</Destination>
+              <Mandatory>Yes</Mandatory>
+              <File_Type>FP_FD__L2A</File_Type>
+              <File_Name_Type>Directory</File_Name_Type>
+            </Output>
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
@@ -78,7 +98,7 @@
             <Output>
               <Destination>DB</Destination>
               <Mandatory>Yes</Mandatory>
-              <File_Type>FP_VBG_L2A</File_Type>
+              <File_Type>FP_GN__L2A</File_Type>
               <File_Name_Type>Directory</File_Name_Type>
             </Output>
           </List_of_Outputs>

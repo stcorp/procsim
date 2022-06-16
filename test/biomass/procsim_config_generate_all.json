@@ -79,8 +79,7 @@
               {"type": "S1_STA__1S"},{"type": "S2_STA__1S"},{"type": "S3_STA__1S"},{"type": "S1_STA__1M"},{"type": "S2_STA__1M"},
               {"type": "S3_STA__1M"},
 
-              {"type": "AGB_GN_L2A"},{"type": "FD_COV_L2A"},{"type": "FH_COH_L2A"},{"type": "FP_VBG_L2A"},{"type": "FP_FD__L2A"},{"type": "FP_FH__L2A"},
-              {"type": "FP_ACM_L2A"}
+              {"type": "FP_GN__L2A"},{"type": "FP_FD__L2A"},{"type": "FP_FH__L2A"}
             ]
         }
     ]

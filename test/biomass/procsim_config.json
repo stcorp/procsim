@@ -919,7 +919,7 @@
     {
       "name": "Level-2a SCS Stack product generation TOM",
       "file_name": "level2a_task1.sh",
-      "processor_name": "l2a",
+      "processor_name": "l2a_to",
       "processor_version": "01.01",
       "task_name": "Step1",
       "task_version": "01.01",
@@ -930,7 +930,32 @@
           "metadata_source": ".*S._STA__1S.*"
         },
         {
-          "type": "FP_VBG_L2A",
+          "type": "FP_GN__L2A",
+          "metadata_source": ".*S._STA__1S.*"
+        }
+      ]
+    },
+
+    // Level2a, (interferometric phase)
+    {
+      "name": "Level-2a SCS Stack product generation INT",
+      "file_name": "level2a_task1.sh",
+      "processor_name": "l2a_in",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "01.01",
+
+      "outputs": [
+        {
+          "type": "FP_FD__L2A",
+          "metadata_source": ".*S._STA__1S.*"
+        },
+        {
+          "type": "FP_FH__L2A",
+          "metadata_source": ".*S._STA__1S.*"
+        },
+        {
+          "type": "FP_GN__L2A",
           "metadata_source": ".*S._STA__1S.*"
         }
       ]
