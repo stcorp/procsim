@@ -14,7 +14,6 @@ from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1S
 from procsim.biomass.product_name import _REGEX_VFRA_FILE_NAME, ProductName
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
-from procsim.core.main import _create_product_generators
 
 TEST_DIR = tempfile.TemporaryDirectory()
 
@@ -350,6 +349,25 @@ class FrameGeneratorTest(unittest.TestCase):
         self.assertEqual(frames[0].sensing_start, ANX1)
         self.assertEqual(frames[-1].sensing_start, ANX1 + constants.SLICE_GRID_SPACING)
         self.assertEqual(frames[-1].sensing_stop, sensing_stop)
+
+    def test_no_frame_minimum(self) -> None:
+        '''
+        A nominal slice framed with no frame minimum duration should produce the
+        same number of frames.
+        '''
+        old_frame_minimum = self.gen._frame_lower_bound
+        self.gen._frame_lower_bound = datetime.timedelta(seconds=0)
+        frames = self.gen._generate_frames(ANX1, ANX1 - constants.SLICE_OVERLAP_START,
+                                           ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END, 1)
+        self.gen._frame_lower_bound = old_frame_minimum
+
+        self.assertEqual(len(frames), constants.NUM_FRAMES_PER_SLICE)
+        # The slice start/end overlap is disregarded since the slice is nominal and not expected to be at the start/end of a data take.
+        for fi, frame in enumerate(frames):
+            self.assertEqual(frame.id, fi + 1)
+            self.assertEqual(frame.sensing_start, ANX1 + constants.FRAME_GRID_SPACING * fi)
+            self.assertEqual(frame.sensing_stop, ANX1 + constants.FRAME_GRID_SPACING * (fi + 1) + constants.FRAME_OVERLAP)
+            self.assertEqual(frame.status, 'NOMINAL')
 
 
 class VirtualFrameProductTest(unittest.TestCase):
