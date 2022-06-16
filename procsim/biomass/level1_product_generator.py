@@ -279,7 +279,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         # Create list of frames that covers the entire acquisition range.
         frames: List[Frame] = []
         frame_start = slice_start + (frame_range_start - slice_start) // self._frame_grid_spacing * self._frame_grid_spacing
-        while frame_start < frame_range_end:
+        while frame_start < frame_range_end - constants.FRAME_OVERLAP:
             id = first_frame_nr + (frame_start - slice_start) // self._frame_grid_spacing
             frames.append(Frame(id=id,
                                 sensing_start=frame_start,
@@ -294,12 +294,6 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         if frames and frames[-1].sensing_stop > frame_range_end:
             frames[-1].status = FrameStatus.PARTIAL
             frames[-1].sensing_stop = frame_range_end
-
-        # Remove edge frames that are completely covered by their neighbours.
-        while len(frames) > 1 and frames[0].sensing_start >= frames[1].sensing_start:
-            frames.pop(0)
-        while len(frames) > 1 and frames[-1].sensing_stop <= frames[-2].sensing_stop:
-            frames.pop()
 
         # If the first or last frame are too short, merge them with their neighbours.
         if len(frames) > 1 and frames[0].sensing_stop - frames[0].sensing_start < self._frame_lower_bound:
