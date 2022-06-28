@@ -2,16 +2,17 @@
 Copyright (C) 2022 S[&]T, The Netherlands.
 '''
 import datetime
+import glob
 import os
 import shutil
 import tempfile
 import unittest
-from pathlib import Path
 from typing import Dict, List, Optional
 
 from procsim.biomass.aux_product_generator import Aux
 from procsim.biomass.level0_product_generator import AC_RAW__0A, Sx_RAW__0M, Sx_RAW__0x
 from procsim.biomass.level1_product_generator import Level1PreProcessor, Level1Stack, Level1Stripmap
+from procsim.biomass.main_product_header import MainProductHeader
 from procsim.biomass.product_generator import ProductGeneratorBase
 from procsim.biomass.raw_product_generator import RAWSxxx_10
 from procsim.core.exceptions import ScenarioError
@@ -115,6 +116,12 @@ class DataTakeTest(unittest.TestCase):
         # All generators generate one product, except for the L1 preprocessor, which generates three in the given sensing time.
         self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) + 2)
 
+        # Check whether data take parameters were set appropriately.
+        for filename in glob.glob(TEST_DIR.name + '/*/bio_*.xml'):
+            hdr = MainProductHeader()
+            hdr.parse(filename)
+            self.assertEqual(hdr.acquisitions[0].data_take_id, 1)
+
     def test_data_take_info_in_list(self) -> None:
         '''Test data take info parsing from data_takes list.'''
         test_scenario = {
@@ -147,7 +154,17 @@ class DataTakeTest(unittest.TestCase):
             generator.generate_output()
 
         # All generators generate one product in the given data takes.
-        self.assertEqual(len(list(Path(TEST_DIR.name).glob('*'))), len(self.GENERATORS_TO_TEST) * 3)
+        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) * 3)
+
+        # Check whether data take parameters were set appropriately. Expect a third of all MPHs to be set to 1, another third to 2 and the rest to 3.
+        data_take_counts = {1: 0, 2: 0, 3: 0}
+        for filename in glob.glob(TEST_DIR.name + '/*/bio_*.xml'):
+            hdr = MainProductHeader()
+            hdr.parse(filename)
+            if hdr.acquisitions[0].data_take_id:
+                data_take_counts[hdr.acquisitions[0].data_take_id] += 1
+        for count in data_take_counts.values():
+            self.assertEqual(count, (len(os.listdir(TEST_DIR.name)) - 3) / 3)  # Disregard virtual frames, which have no MPH.
 
     def test_general_info_in_data_takes(self) -> None:
         '''
@@ -190,6 +207,16 @@ class DataTakeTest(unittest.TestCase):
 
         # All generators generate one product in the given data takes.
         self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) * 3)
+
+        # Check whether data take parameters were set appropriately. Expect a third of all MPHs to be set to 1, another third to 2 and the rest to 3.
+        data_take_counts = {1: 0, 2: 0, 3: 0}
+        for filename in glob.glob(TEST_DIR.name + '/*/bio_*.xml'):
+            hdr = MainProductHeader()
+            hdr.parse(filename)
+            if hdr.acquisitions[0].data_take_id:
+                data_take_counts[hdr.acquisitions[0].data_take_id] += 1
+        for count in data_take_counts.values():
+            self.assertEqual(count, (len(os.listdir(TEST_DIR.name)) - 3) / 3)  # Disregard virtual frames, which have no MPH.
 
 
 if __name__ == '__main__':
