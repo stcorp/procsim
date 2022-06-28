@@ -400,12 +400,15 @@ class ProductGeneratorBase(IProductGenerator):
         self._hdr.begin_position = self._job_toi_start - datetime.timedelta(seconds=self._toi_start_offset)
         self._hdr.end_position = self._job_toi_stop + datetime.timedelta(seconds=self._toi_stop_offset)
 
-    def read_scenario_parameters(self):
+    def read_scenario_parameters(self, config: Optional[Dict] = None) -> None:
         '''
-        Parse metadata parameters from scenario_config (either 'global' or for this output).
+        Parse metadata parameters from a scenario configuration. If specified,
+        parse a specific config, otherwise parse both 'global' or and output-
+        specific configs.
         '''
+        configs_to_read = [config] if config else [self._scenario_config, self._output_config]
         gen_params, hdr_params, acq_params = self.get_params()
-        for config in self._scenario_config, self._output_config:
+        for config in configs_to_read:
             for param, hdr_field, type in hdr_params:
                 self._read_config_param(config, param, self._hdr, hdr_field, type)
             for param, acq_field, type in acq_params:
