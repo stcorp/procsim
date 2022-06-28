@@ -43,7 +43,7 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
     merged. The output is a single product, or multiple if there are data take
     transitions within the slice period.
 
-    An array "data_takes" with one or more data take objects must be specified
+    An array "data_takes" with one or more data take objects can be specified
     in the scenario. Each data take object must contain at least the ID and
     start/stop times, and can contain other metadata fields. For example:
 
@@ -264,6 +264,19 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     - incompleteSlice, set to false
     - phenomenonTime (the acquisition begin/end times)
     - validTime
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
 
     PRODUCTS = ['S1_RAW__0M', 'S2_RAW__0M', 'S3_RAW__0M', 'Sx_RAW__0M',

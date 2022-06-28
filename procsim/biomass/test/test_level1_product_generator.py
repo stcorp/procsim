@@ -61,6 +61,7 @@ STANDARD_CONFIG = {
     'begin_position': (ANX1 - constants.SLICE_OVERLAP_START).strftime(DATETIME_INPUT_FORMAT),
     'end_position': (ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END).strftime(DATETIME_INPUT_FORMAT),
     'slice_frame_nr': 1,
+    'data_take_id': 1,
 }
 
 # From the GitHub repo, issue 35.
@@ -84,7 +85,8 @@ ANX_CONFIG = {
         '2017-02-25T09:54:51.827516Z',
         '2017-02-25T11:33:02.809016Z',
         '2017-02-25T13:11:13.790517Z'
-    ]
+    ],
+    'data_take_id': 1,
 }
 
 
@@ -582,8 +584,8 @@ class VirtualFrameProductTest(unittest.TestCase):
         gen.read_scenario_parameters()
 
         # Manually set sensing time to different times.
-        start_sensing_time = ANX1 + datetime.timedelta(seconds=1)
-        end_sensing_time = ANX1 + constants.SLICE_GRID_SPACING - datetime.timedelta(seconds=1)
+        start_sensing_time = ANX1
+        end_sensing_time = ANX1 + constants.SLICE_GRID_SPACING
         gen._hdr.validity_start = ANX1 - constants.SLICE_OVERLAP_START
         gen._hdr.validity_stop = ANX1 + constants.SLICE_GRID_SPACING + constants.SLICE_OVERLAP_END
         gen._hdr.begin_position = start_sensing_time
