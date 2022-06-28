@@ -51,6 +51,20 @@ class Aux(product_generator.ProductGeneratorBase):
           ]
         },
         ...
+
+    For AUX_ATT___ and AUX_ORB___ products, an array "data_takes" with one or
+    more data take objects can be specified in the scenario. Each data take
+    object must contain at least the ID and start/stop times, and can contain
+    other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
 
     PRODUCTS = [
