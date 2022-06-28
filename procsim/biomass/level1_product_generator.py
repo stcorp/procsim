@@ -125,7 +125,8 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
     ]
 
     _ACQ_PARAMS = [
-        ('slice_frame_nr', 'slice_frame_nr', 'int')
+        ('slice_frame_nr', 'slice_frame_nr', 'int'),
+        ('data_take_id', 'data_take_id', 'int'),
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict) -> None:
@@ -185,9 +186,9 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
 
         # Produce products for all specified data takes.
         for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
-            self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']  # This does not get used since L1VFRA products have no MPH.
-            self._hdr.validity_start = self._hdr.begin_position = data_take_start
-            self._hdr.validity_stop = self._hdr.end_position = data_take_stop
+            self.read_scenario_parameters(data_take_config)
+            self._hdr.set_validity_times(data_take_start, data_take_stop)
+            self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
             if not self._enable_framing:
                 self._hdr.acquisitions[0].slice_frame_nr = None
                 self._hdr.is_partial = False
@@ -418,6 +419,19 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
     - phenomenonTime, acquisition begin/end times.
     - validTime, theoretical frame begin/end times (including overlap).
     - wrsLatitudeGrid, aka the slice_frame_nr.
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
     PRODUCTS = ['S1_SCS__1S', 'S2_SCS__1S', 'S3_SCS__1S', 'Sx_SCS__1S',
                 'S1_SCS__1M', 'S2_SCS__1M', 'S3_SCS__1M', 'Sx_SCS__1M',
@@ -479,15 +493,9 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
         # Setting the frame status to incomplete (based on contingency) is currently not supported.
         self._hdr.is_incomplete = False
 
-    def _generate_product(self, start, stop, data_take_config):
-        if data_take_config.get('data_take_id') is None:
-            raise ScenarioError('data_take_id field is mandatory in data_take section')
-
-        _, hdr_params, acq_params = self.get_params()
-        for param, hdr_field, ptype in hdr_params:
-            self._read_config_param(data_take_config, param, self._hdr, hdr_field, ptype)
-        for param, acq_field, ptype in acq_params:
-            self._read_config_param(data_take_config, param, self._hdr.acquisitions[0], acq_field, ptype)
+    def _generate_product(self, start, stop):
+        if self._hdr.acquisitions[0].data_take_id is None:
+            raise ScenarioError('data_take_id field is mandatory')
 
         self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
 
@@ -545,7 +553,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
         # Produce products for all specified data takes.
         for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
-            self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']
+            self.read_scenario_parameters(data_take_config)
             self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
             # If not read from an input product, use begin/end position as starting point
             if self._hdr.validity_start is None:
@@ -557,7 +565,7 @@ class Level1Stripmap(product_generator.ProductGeneratorBase):
 
             self._hdr.product_type = self._resolve_wildcard_product_type()
 
-            self._generate_product(data_take_start, data_take_stop, data_take_config)
+            self._generate_product(data_take_start, data_take_stop)
 
 
 class Level1Stack(product_generator.ProductGeneratorBase):
@@ -577,6 +585,19 @@ class Level1Stack(product_generator.ProductGeneratorBase):
 
     The generator adjusts the following metadata:
     - None
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
     PRODUCTS = ['S1_STA__1S', 'S2_STA__1S', 'S3_STA__1S', 'Sx_STA__1S',
                 'S1_STA__1M', 'S2_STA__1M', 'S3_STA__1M', 'Sx_STA__1M']
@@ -688,12 +709,19 @@ class Level1Stack(product_generator.ProductGeneratorBase):
             self._hdrs.append(self._hdr)
 
         # TODO: Make Product class to hold header and file list to uncouple hard link between generator and MPH.
-        for hdr in self._hdrs:
-            # Sanity check
-            if hdr.begin_position is None or hdr.end_position is None:
-                raise ScenarioError('Begin/end position must be set')
-            self._hdr = hdr
-            self._generate_level1_stacked_product()
+        # Only go through headers from various input products if no data_takes are set in scenario.
+        if 'data_takes' in self._scenario_config:
+            for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
+                self.read_scenario_parameters(data_take_config)
+                self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
+                self._generate_level1_stacked_product()
+        else:
+            for hdr in self._hdrs:
+                # Sanity check
+                if hdr.begin_position is None or hdr.end_position is None:
+                    raise ScenarioError('Begin/end position must be set')
+                self._hdr = hdr
+                self._generate_level1_stacked_product()
 
     def _generate_level1_stacked_product(self):
 

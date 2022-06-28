@@ -161,15 +161,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
             self._logger.debug('Merged slice at end')
         return premature_start or delayed_end
 
-    def _generate_product(self, start, stop, data_take_config):
-        if data_take_config.get('data_take_id') is None:
-            raise ScenarioError('data_take_id field is mandatory in data_take section')
-
-        _, hdr_params, acq_params = self.get_params()
-        for param, hdr_field, ptype in hdr_params:
-            self._read_config_param(data_take_config, param, self._hdr, hdr_field, ptype)
-        for param, acq_field, ptype in acq_params:
-            self._read_config_param(data_take_config, param, self._hdr.acquisitions[0], acq_field, ptype)
+    def _generate_product(self, start, stop):
+        if self._hdr.acquisitions[0].data_take_id is None:
+            raise ScenarioError('data_take_id field is mandatory')
 
         self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
 
@@ -241,8 +235,9 @@ class Sx_RAW__0x(product_generator.ProductGeneratorBase):
                 self._hdr.validity_stop = slice_bounds[1] + constants.SLICE_OVERLAP_END
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take, data_take_start, data_take_stop in data_takes_with_bounds:
-            self._generate_product(data_take_start, data_take_stop, data_take)
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            self.read_scenario_parameters(data_take_config)
+            self._generate_product(data_take_start, data_take_stop)
 
         if len(data_takes_with_bounds) == 0:
             self._logger.info('No products generated, start/stop outside data takes?')
@@ -332,6 +327,13 @@ class Sx_RAW__0M(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
+            self.read_scenario_parameters(data_take_config)
+            self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
+
+            self._generate_product()
+
+    def _generate_product(self) -> None:
         # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('begin/end position must be set')
@@ -393,6 +395,19 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
     - incompleteSlice, set to false
     - phenomenonTime (the acquisition begin/end times)
     - validTime
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
 
     PRODUCTS = ['AC_RAW__0A']
@@ -417,6 +432,13 @@ class AC_RAW__0A(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
+            self.read_scenario_parameters(data_take_config)
+            self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
+
+            self._generate_product()
+
+    def _generate_product(self):
         # Sanity check
         if self._hdr.begin_position is None or self._hdr.end_position is None:
             raise ScenarioError('Begin/end position must be set')

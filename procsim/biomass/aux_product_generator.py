@@ -120,6 +120,17 @@ class Aux(product_generator.ProductGeneratorBase):
         # Setup MPH
         self._hdr.product_type = self._output_type
 
+        # AUX_ATT___ and AUX_ORB___ types require data take information.
+        if self._output_type in ['AUX_ATT___', 'AUX_ORB___']:
+            for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
+                self.read_scenario_parameters(data_take_config)
+                self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
+
+                self._generate_product()
+        else:
+            self._generate_product()
+
+    def _generate_product(self) -> None:
         start, stop = self._hdr.begin_position, self._hdr.end_position
         if self._hdr.validity_start is None:
             self._hdr.validity_start = start
