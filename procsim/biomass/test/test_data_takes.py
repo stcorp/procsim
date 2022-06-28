@@ -37,13 +37,6 @@ class _Logger:
 
 class DataTakeTest(unittest.TestCase):
 
-    GENERATORS_TO_TEST = [
-        RAWSxxx_10,
-        Sx_RAW__0x, Sx_RAW__0M, AC_RAW__0A,
-        Level1PreProcessor, Level1Stripmap, Level1Stack,
-        Aux  # Only AUX_ATT and AUX_ORB.
-    ]
-
     # This config should contain all mandatory common parameters for all generators to test.
     STANDARD_CONFIG = {
         'output_path': TEST_DIR.name,
@@ -78,11 +71,21 @@ class DataTakeTest(unittest.TestCase):
         generators are returned.
         '''
         config_to_use = config if config else self.STANDARD_CONFIG
+        generator_classes = [
+            RAWSxxx_10,
+            Sx_RAW__0x, Sx_RAW__0M, AC_RAW__0A,
+            Level1PreProcessor, Level1Stripmap, Level1Stack
+        ]
         generators: List[ProductGeneratorBase] = []
-        for generator_class in self.GENERATORS_TO_TEST:
+        for generator_class in generator_classes:
             gen_type = generator_class.PRODUCTS[0]
             gen_config = {**config_to_use, 'type': gen_type}
             generators.append(generator_class(_Logger, None, gen_config, gen_config))
+        # The aux generators have to be constructed manually, since only the AUX_ATT and AUX_ORB products use the data take ID parameter.
+        aux_att_config = {**config_to_use, 'type': 'AUX_ATT___'}
+        generators.append(Aux(_Logger, None, aux_att_config, aux_att_config))
+        aux_orb_config = {**config_to_use, 'type': 'AUX_ORB___'}
+        generators.append(Aux(_Logger, None, aux_orb_config, aux_orb_config))
         return generators
 
     def test_no_data_take_info(self):
@@ -104,7 +107,8 @@ class DataTakeTest(unittest.TestCase):
                          'begin_position': '2020-01-01T00:00:00.000',
                          'end_position': '2020-01-01T00:01:00.000',
                          'data_take_id': 1}
-        for generator in self._get_generators(test_scenario):
+        generators = self._get_generators(test_scenario)
+        for generator in generators:
             generator.read_scenario_parameters()
             self.assertEqual(generator._hdr.acquisitions[0].data_take_id, 1)
             self.assertEqual(generator._hdr.begin_position, datetime.datetime(2020, 1, 1, 0, 0, 0).replace(tzinfo=datetime.timezone.utc))
@@ -114,7 +118,7 @@ class DataTakeTest(unittest.TestCase):
             print(generator, len(os.listdir(TEST_DIR.name)))
 
         # All generators generate one product, except for the L1 preprocessor, which generates three in the given sensing time.
-        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) + 2)
+        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(generators) + 2)
 
         # Check whether data take parameters were set appropriately.
         for filename in glob.glob(TEST_DIR.name + '/*/bio_*.xml'):
@@ -149,12 +153,13 @@ class DataTakeTest(unittest.TestCase):
                 },
             ]}
 
-        for generator in self._get_generators(test_scenario):
+        generators = self._get_generators(test_scenario)
+        for generator in generators:
             generator.read_scenario_parameters()
             generator.generate_output()
 
         # All generators generate one product in the given data takes.
-        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) * 3)
+        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(generators) * 3)
 
         # Check whether data take parameters were set appropriately. Expect a third of all MPHs to be set to 1, another third to 2 and the rest to 3.
         data_take_counts = {1: 0, 2: 0, 3: 0}
@@ -201,12 +206,13 @@ class DataTakeTest(unittest.TestCase):
                 },
             ]}
 
-        for generator in self._get_generators(test_scenario):
+        generators = self._get_generators(test_scenario)
+        for generator in generators:
             generator.read_scenario_parameters()
             generator.generate_output()
 
         # All generators generate one product in the given data takes.
-        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(self.GENERATORS_TO_TEST) * 3)
+        self.assertEqual(len(os.listdir(TEST_DIR.name)), len(generators) * 3)
 
         # Check whether data take parameters were set appropriately. Expect a third of all MPHs to be set to 1, another third to 2 and the rest to 3.
         data_take_counts = {1: 0, 2: 0, 3: 0}
