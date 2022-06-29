@@ -336,8 +336,12 @@ class ProductGeneratorBase(IProductGenerator):
             }]
 
         # Check for mandatory parameters.
-        if any([dt.get('begin_position') is None or dt.get('end_position') is None or dt.get('data_take_id') is None for dt in data_takes]):
-            raise ScenarioError('data_take in config should contain start/stop/data_take_id elements')
+        if self._hdr.acquisitions[0].data_take_id is None and any([dt.get('data_take_id') is None for dt in data_takes]):
+            raise ScenarioError('Data take ID must be read either from input product or in scenario.')
+        if self._hdr.begin_position is None and any([dt.get('begin_position') is None for dt in data_takes]):
+            raise ScenarioError('Sensing start must be specified either in input product or in scenario.')
+        if self._hdr.end_position is None and any([dt.get('end_position') is None for dt in data_takes]):
+            raise ScenarioError('Sensing stop must be specified either in input product or in scenario.')
         data_takes.sort(key=lambda dt: self._time_from_iso(dt['begin_position']))
 
         # Select the data takes that fall within the begin and end position.
