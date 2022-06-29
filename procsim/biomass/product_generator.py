@@ -325,32 +325,36 @@ class ProductGeneratorBase(IProductGenerator):
         data_takes = self._scenario_config.get('data_takes')
         if data_takes:
             # Create copies of general config and amend with data take config.
-            data_takes = [{**self._scenario_config, **dt} for dt in data_takes]
+            data_takes = [{**self._scenario_config, **dt, 'begin_position': dt.get('start'), 'end_position': dt.get('stop')} for dt in data_takes]
         else:
             # No explicit data takes found, use general config.
             self._logger.info('No data takes found, using general config.')
-            data_takes = [{**self._scenario_config, 'start': self._time_as_iso(sensing_start), 'stop': self._time_as_iso(sensing_stop)}]
+            data_takes = [{
+                **self._scenario_config,
+                'begin_position': self._time_as_iso(sensing_start),
+                'end_position': self._time_as_iso(sensing_stop)
+            }]
 
         # Check for mandatory parameters.
-        if any([dt.get('start') is None or dt.get('stop') is None or dt.get('data_take_id') is None for dt in data_takes]):
+        if any([dt.get('begin_position') is None or dt.get('end_position') is None or dt.get('data_take_id') is None for dt in data_takes]):
             raise ScenarioError('data_take in config should contain start/stop/data_take_id elements')
-        data_takes.sort(key=lambda dt: self._time_from_iso(dt['start']))
+        data_takes.sort(key=lambda dt: self._time_from_iso(dt['begin_position']))
 
         # Select the data takes that fall within the begin and end position.
-        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['start']) <= sensing_stop
-                      and self._time_from_iso(dt['stop']) >= sensing_start]
+        data_takes = [dt for dt in data_takes if self._time_from_iso(dt['begin_position']) <= sensing_stop
+                      and self._time_from_iso(dt['end_position']) >= sensing_start]
 
         # Warn that sensing start/end times fall outside of data takes, if necessary.
-        if data_takes and sensing_start < self._time_from_iso(data_takes[0]['start']):
+        if data_takes and sensing_start < self._time_from_iso(data_takes[0]['begin_position']):
             self._logger.warning(f'Sensing start {sensing_start} outside of data take. Using data take start time.')
-        if data_takes and sensing_stop > self._time_from_iso(data_takes[-1]['stop']):
+        if data_takes and sensing_stop > self._time_from_iso(data_takes[-1]['end_position']):
             self._logger.warning(f'Sensing stop {sensing_stop} outside of data take. Using data take stop time.')
 
         # Create resulting list of tuples.
         data_takes_with_bounds: List[Tuple[Dict, datetime.datetime, datetime.datetime]] = []
         for data_take in data_takes:
-            data_take_start = max(sensing_start, self._time_from_iso(data_take['start']))
-            data_take_stop = min(sensing_stop, self._time_from_iso(data_take['stop']))
+            data_take_start = max(sensing_start, self._time_from_iso(data_take['begin_position']))
+            data_take_stop = min(sensing_stop, self._time_from_iso(data_take['end_position']))
             data_takes_with_bounds.append((data_take, data_take_start, data_take_stop))
 
         return data_takes_with_bounds
@@ -400,12 +404,15 @@ class ProductGeneratorBase(IProductGenerator):
         self._hdr.begin_position = self._job_toi_start - datetime.timedelta(seconds=self._toi_start_offset)
         self._hdr.end_position = self._job_toi_stop + datetime.timedelta(seconds=self._toi_stop_offset)
 
-    def read_scenario_parameters(self):
+    def read_scenario_parameters(self, config: Optional[Dict] = None) -> None:
         '''
-        Parse metadata parameters from scenario_config (either 'global' or for this output).
+        Parse metadata parameters from a scenario configuration. If specified,
+        parse a specific config, otherwise parse both 'global' or and output-
+        specific configs.
         '''
+        configs_to_read = [config] if config else [self._scenario_config, self._output_config]
         gen_params, hdr_params, acq_params = self.get_params()
-        for config in self._scenario_config, self._output_config:
+        for config in configs_to_read:
             for param, hdr_field, type in hdr_params:
                 self._read_config_param(config, param, self._hdr, hdr_field, type)
             for param, acq_field, type in acq_params:

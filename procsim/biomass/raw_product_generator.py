@@ -161,6 +161,19 @@ class RAWSxxx_10(RawProductGeneratorBase):
     - phenomenonTime, acquisition begin/end times.
     - validTime, theoretical slice begin/end times (including overlap).
     - wrsLatitudeGrid, aka the slice_frame_nr.
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
 
     PRODUCTS = ['RAWS022_10', 'RAWS023_10', 'RAWS024_10', 'RAWS025_10',
@@ -204,8 +217,7 @@ class RAWSxxx_10(RawProductGeneratorBase):
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            # If the data take ID does not exist, the data take getter should have failed.
-            self._hdr.acquisitions[0].data_take_id = data_take_config['data_take_id']
+            self.read_scenario_parameters(data_take_config)
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_start, data_take_stop)
             else:

@@ -51,6 +51,20 @@ class Aux(product_generator.ProductGeneratorBase):
           ]
         },
         ...
+
+    For AUX_ATT___ and AUX_ORB___ products, an array "data_takes" with one or
+    more data take objects can be specified in the scenario. Each data take
+    object must contain at least the ID and start/stop times, and can contain
+    other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
     '''
 
     PRODUCTS = [
@@ -120,6 +134,17 @@ class Aux(product_generator.ProductGeneratorBase):
         # Setup MPH
         self._hdr.product_type = self._output_type
 
+        # AUX_ATT___ and AUX_ORB___ types require data take information.
+        if self._output_type in ['AUX_ATT___', 'AUX_ORB___']:
+            for data_take_config, data_take_start, data_take_stop in self._get_data_takes_with_bounds():
+                self.read_scenario_parameters(data_take_config)
+                self._hdr.set_phenomenon_times(data_take_start, data_take_stop)
+
+                self._generate_product()
+        else:
+            self._generate_product()
+
+    def _generate_product(self) -> None:
         start, stop = self._hdr.begin_position, self._hdr.end_position
         if self._hdr.validity_start is None:
             self._hdr.validity_start = start
