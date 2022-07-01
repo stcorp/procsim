@@ -34,10 +34,10 @@ class Level2a(product_generator.ProductGeneratorBase):
 
     The l2a processor input is an interferometric stack, with up to 3/7 L1c
     (Sx_STA__1S) products for a given frame. Additionally aux products:
-    AUX_PP2_2A (processing parameters) and AUX_DEM (Copernicus DEM).
+    AUX_PP2_2A (processing parameters), AUX_DEM (Copernicus DEM) and AUX_LCM
+    (C3S Land Cover Map). The latter two are not supported.
     '''
-    PRODUCTS = ['AGB_GN_L2A', 'FD_COV_L2A', 'FH_COH_L2A',
-                'FP_VBG_L2A', 'FP_FD__L2A', 'FP_FH__L2A', 'FP_ACM_L2A']
+    PRODUCTS = ['FP_GN__L2A', 'FP_FD__L2A', 'FP_FH__L2A']
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)

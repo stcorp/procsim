@@ -67,8 +67,11 @@ $PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l1_stack.xm
 
 # Level 2 steps
 echo
-echo '  *** L2a'
-$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l2a.xml
+echo '  *** L2a interferometric'
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l2a_in.xml
+echo
+echo '  *** L2a tomographic'
+$PVML_CMD test/biomass/pvml_config.xml test/biomass/pvml_job_biomass_l2a_to.xml
 
 
 # --------------------------------
