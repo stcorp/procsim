@@ -1,6 +1,11 @@
 Procsim Changelog
 -----------------
 
+[v1.9.0] - 2022/07/12
+    - Chg: Issue 43, support (only) the new L2a products.
+           - added support for FP_GN__L2A
+           - dropped support for AGB_GN_L2A, FD_COV_L2A, FH_COH_L2A, FP_VBG_L2A, FP_ACM_L2A
+
 [v1.8.0] - 2022/07/12
     - Fix: Use frame_status instead of frame_Status
     - Fix: Issue 34, DataTakeID parameter not included in the MPH of RAWS<PID>_<PC> products
