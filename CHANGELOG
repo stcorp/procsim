@@ -1,6 +1,14 @@
 Procsim Changelog
 -----------------
 
+[v1.8.0] - 2022/07/12
+    - Fix: Use frame_status instead of frame_Status
+    - Fix: Issue 34, DataTakeID parameter not included in the MPH of RAWS<PID>_<PC> products
+    - Fix: Issue 35, Error while generating virtual frame product CPF_L1VFRA
+    - Chg: Issue 37, support for multiple data takes
+    - Fix: Issue 41, Issue during L1 processing simulation
+    - Fix: Issue 42, Frames generated at slice edges
+
 [v1.7.0] - 2022/05/23
     - Add: Add support for L1 virtual frame generation and parsing.
     - Fix: Use MPH format in scenario for global coverage, major/repeat cycle, etc.
