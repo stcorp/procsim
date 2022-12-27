@@ -388,19 +388,7 @@ def main(argv=None):
 
         logger.info('Task done, exit with code {}'.format(exit_code))
 
-    except TerminateError:
-        exit_code = 1
-        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
-        logger.info('Terminate with code {}'.format(exit_code))
-    except ScenarioError:
-        exit_code = 1
-        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
-        logger.info('Terminate with code {}'.format(exit_code))
-    except GeneratorError:
-        exit_code = 1
-        logger.error(str(sys.exc_info()[1]).strip("\n\r"))
-        logger.info('Terminate with code {}'.format(exit_code))
-    except IOError:
+    except (TerminateError, ScenarioError, GeneratorError, IOError):
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))
