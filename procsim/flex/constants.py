@@ -6,9 +6,10 @@ Flex mission constants.
 
 import datetime
 
-SATELLITE_ID = 'BIO'
+SATELLITE_ID = 'FLX'
 ORBIT0_START = datetime.datetime(2021, 1, 1, 0, 0, 0)    # Just an arbitrary value, to calculate orbit numbers
 ORBITAL_PERIOD = datetime.timedelta(0, 5890.98007989)
+ABS_ORBIT = '12345'
 FRAME_GRID_SPACING = datetime.timedelta(0, 19.00316155)
 FRAME_OVERLAP = datetime.timedelta(0, 2.0)
 FRAME_MINIMUM_DURATION = datetime.timedelta(0, 8.0)

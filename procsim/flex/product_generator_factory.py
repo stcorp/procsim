@@ -34,6 +34,6 @@ def product_generator_factory(logger, job_config, scenario_config, output_config
     for gen in _GENERATORS:
         if product_type in gen.PRODUCTS:
             return gen(logger, job_config, scenario_config, output_config)
-    logger.error('No generator for product \'{}\' in Biomass plugin. Supported types are: {}'.format(
+    logger.error('No generator for product \'{}\' in Flex plugin. Supported types are: {}'.format(
         product_type, list_supported_products()))
     return None

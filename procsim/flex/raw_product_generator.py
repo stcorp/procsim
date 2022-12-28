@@ -1,7 +1,7 @@
 '''
 Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Biomass raw output product generators, according to BIO-ESA-EOPG-EEGS-TN-0073
+Flex raw output product generators, according to ESA-EOPG-EOEP-TN-0027
 '''
 import bisect
 import datetime
@@ -45,9 +45,10 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         full_bin_file_name = os.path.join(full_dir_name, bin_file_name)
         self._add_file_to_product(full_bin_file_name, self._size_mb)
 
-        mph_file_name = name_gen.generate_mph_file_name()
-        full_mph_file_name = os.path.join(full_dir_name, mph_file_name)
-        self._hdr.write(full_mph_file_name)
+        if self._output_type != 'RAW___HKTM':
+            mph_file_name = name_gen.generate_mph_file_name()
+            full_mph_file_name = os.path.join(full_dir_name, mph_file_name)
+            self._hdr.write(full_mph_file_name)
 
         if self._zip_output:
             self.zip_folder(full_dir_name, self._zip_extension)

@@ -1,7 +1,7 @@
 '''
 Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Biomass product name generator/parser, according to
+Flex product name generator/parser, according to
 ESA-EOPG-EEGS-TN-0015, FLEX Products Naming Convention.
 '''
 import datetime
@@ -107,7 +107,7 @@ class ProductName:
     def file_type(self, type_code):
         type = product_types.find_product(type_code)
         if type is None:
-            raise ScenarioError('Type code {} not valid for Biomass'.format(type_code))
+            raise ScenarioError('Type code {} not valid for Flex'.format(type_code))
         self._file_type = type.type
         self._level = type.level
 
@@ -266,10 +266,11 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
             # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_D{}_{:02}_{}'.format(
+            name = self._generate_prefix() + '_{}_O{}'.format(
                 self.time_to_str(self.downlink_time),
-                self.baseline_identifier,
-                self._compact_create_date
+                constants.ABS_ORBIT,
+#                self.baseline_identifier,
+#                self._compact_create_date
             )
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
@@ -323,8 +324,9 @@ class ProductName:
             extension = '.' + extension
 
         if self._level == 'raw':
-            name = self._generate_prefix() + '_D{}.dat'.format(
-                self.time_to_str(self.downlink_time)
+            name = self._generate_prefix() + '_{}_O{}.dat'.format(
+                self.time_to_str(self.downlink_time),
+                constants.ABS_ORBIT,
             )
         elif self._level == 'aux':
             name = self._generate_prefix() + '{}{}'.format(

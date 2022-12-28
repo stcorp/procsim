@@ -48,8 +48,8 @@ class GeneratedFile():
 
 class ProductGeneratorBase(IProductGenerator):
     '''
-    Biomass product generator (abstract) base class. This class is responsible
-    for creating Biomass products.
+    Flex product generator (abstract) base class. This class is responsible
+    for creating Flex products.
     This base class handles parsing input products to retrieve metadata.
     '''
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
@@ -216,7 +216,7 @@ class ProductGeneratorBase(IProductGenerator):
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         '''
         For all files:
-            - check if it is a (zipped) directory (all biomass products except MPL and VFRA are directories)
+            - check if it is a (zipped) directory (all flex products except MPL and VFRA are directories)
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
