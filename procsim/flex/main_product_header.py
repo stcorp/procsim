@@ -146,7 +146,7 @@ class MainProductHeader:
     _sensor_name = 'FLORIS'
     _sensor_type = 'OPTICAL'
     _browse_type = 'QUICKLOOK'
-    processing_mode = 'OPERATIONAL'
+    processing_mode = 'NOMINAL'
 
     def __init__(self):
         # These parameters MUST be set (no defaults)
@@ -167,10 +167,12 @@ class MainProductHeader:
         self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
         ]
-        self.doi = 'DOI'    # Digital Object Identifier
+        self.doi = '10.5270/FLX-xxxxxxx'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
-        self.product_status = 'PLANNED'     # REJECTED, etc..
+        self.product_status = 'ARCHIVED'     # REJECTED, etc..
+        self.product_status_subtype = 'ON-LINE'
         self.processing_centre_code = 'ESR'
+        self.downlink_station_code = 'KSE'
         self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
         self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
@@ -233,6 +235,7 @@ class MainProductHeader:
             self.doi == other.doi and \
             self.acquisition_type == other.acquisition_type and \
             self.product_status == other.product_status and \
+            self.product_status_subtype == other.product_status_subtype and \
             self.processing_centre_code == other.processing_centre_code and \
             self._processing_level == other._processing_level and \
             self.products == other.products and \
@@ -514,12 +517,14 @@ class MainProductHeader:
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = et.SubElement(meta_data_property, eop + 'EarthObservationMetaData')
         et.SubElement(earth_observation_meta_data, eop + 'identifier').text = self.eop_identifier
-        et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier'
+        et.SubElement(earth_observation_meta_data, eop + 'creationDate').text = _time_as_iso(datetime.datetime.now())
+        et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
         et.SubElement(earth_observation_meta_data, eop + 'productType').text = self.product_type
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
+        et.SubElement(earth_observation_meta_data, eop + 'statusSubType').text = self.product_status_subtype
 
         if level in ['raw']:
             if self.acquisition_date is None:
@@ -528,14 +533,16 @@ class MainProductHeader:
                 raise ScenarioError('Acquisition station must be set prior to generating MPH')
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
-            et.SubElement(downlink_info, eop + 'acquisitionStation').text = self.acquisition_station
+            acq_station = et.SubElement(downlink_info, eop + 'acquisitionStation')
+            acq_station.text = self.downlink_station_code
+            acq_station.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self.acquisition_date)
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
         proc_center = et.SubElement(processing_info, eop + 'processingCenter')
         proc_center.text = self.processing_centre_code
-        proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
+        proc_center.set('codeSpace', 'urn:esa:eop:FLEX:facility')
         if self.processing_date is None or self.processor_name is None or \
                 self.processor_version is None or self._processing_level is None:
             raise ScenarioError('Processing parameters must be set prior to generating MPH')
@@ -548,7 +555,7 @@ class MainProductHeader:
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
 
-        et.SubElement(processing_info, eop + 'processingMode', attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}).text = self.processing_mode
+        et.SubElement(processing_info, eop + 'processingMode').text = self.processing_mode
 
         if level in ['l0', 'l1', 'l2a']:
             for id in self.biomass_source_product_ids:
@@ -587,7 +594,7 @@ class MainProductHeader:
         utils.indent_xml(tree.getroot())
         tree.write(file_name, xml_declaration=True, encoding='utf-8')
 
-    def parse(self, file_name):
+    def parse(self, file_name):  # TODO update for changes in writer..
         '''Open MPH file and parse contents. Does not check for ID's.'''
         boemknal
         tree = et.parse(file_name)
