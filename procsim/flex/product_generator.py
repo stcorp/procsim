@@ -1,5 +1,5 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 '''
 import bisect
 import datetime
@@ -9,8 +9,9 @@ import shutil
 from typing import Dict, Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
-from procsim.biomass.constants import ORBITAL_PERIOD
-from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
+from .constants import ORBITAL_PERIOD
+from .product_types import ORBPRE_PRODUCT_TYPES
+
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput

@@ -1,14 +1,14 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Biomass Level 0 product generators,
-format according to BIO-ESA-EOPG-EEGS-TN-0073
+Flex Level 0 product generators,
+format according to ESA-EOPG-EOEP-TN-0022
 '''
 import datetime
 import os
 from typing import Iterable
 
-from procsim.biomass import constants
+from . import constants
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
 

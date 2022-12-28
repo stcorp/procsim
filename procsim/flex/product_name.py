@@ -1,8 +1,8 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
 Biomass product name generator/parser, according to
-BIO-ESA-EOPG-EEGS-TN-0050, BIOMASS Products Naming Convention.
+ESA-EOPG-EEGS-TN-0015, FLEX Products Naming Convention.
 '''
 import datetime
 import os
@@ -13,7 +13,7 @@ from procsim.core.exceptions import GeneratorError, ScenarioError
 
 from . import constants, product_types
 
-# REGEXes for Biomass product names.
+# REGEXes for Flex product names.
 # Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
 # For now, consider them all as 'validity'.
 _REGEX_RAW_PRODUCT_NAME = re.compile(

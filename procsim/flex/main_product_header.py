@@ -1,8 +1,8 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Parse and generate Biomass Main Product Headers.
-Ref: BIO-ESA-EOPG-EEGS-TN-0051
+Parse and generate Flex Main Product Headers.
+Ref: ESA-EOPG-EOEP-TN-0025
 
 TODO:
 - Product URI
@@ -24,19 +24,19 @@ from . import product_types
 mph_namespaces = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",
     'ows': "http://www.opengis.net/ows/2.0",
-    'bio': "http://earth.esa.int/biomass/1.0",
     'sar': "http://www.opengis.net/sar/2.1",
     'xlink': "http://www.w3.org/1999/xlink",
     'om': "http://www.opengis.net/om/2.0",
     'gml': "http://www.opengis.net/gml/3.2",
     'eop': "http://www.opengis.net/eop/2.1",
+    'opt': "http://www.opengis.net/opt/2.1",
 }
 
 # for ns, url in mph_namespaces.items():
 #     locals()[ns] = "{%s}" % url
 # Write in full, to avoid pylance warnings...
 xsi = "{%s}" % mph_namespaces['xsi']
-bio = "{%s}" % mph_namespaces['bio']
+bio = "{%s}" % mph_namespaces['opt']  # TODO opt, only used for root?
 gml = "{%s}" % mph_namespaces['gml']
 om = "{%s}" % mph_namespaces['om']
 eop = "{%s}" % mph_namespaces['eop']

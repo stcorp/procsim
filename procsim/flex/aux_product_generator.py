@@ -1,8 +1,8 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Biomass Aux product generators,
-format according to BIO-ESA-EOPG-EEGS-TN-0054
+Flex Aux product generators,
+format according to ESA-EOPG-EOEP-TN-0026
 '''
 import os
 from typing import List

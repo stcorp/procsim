@@ -1,7 +1,7 @@
 '''
-Copyright (C) 2021 S[&]T, The Netherlands.
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Biomass mission constants.
+Flex mission constants.
 '''
 
 import datetime
