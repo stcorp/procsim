@@ -173,17 +173,19 @@ class MainProductHeader:
         self.product_status_subtype = 'ON-LINE'
         self.processing_centre_code = 'ESR'
         self.downlink_station_code = 'KSE'
-        self.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename']
+        self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
         self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
 
         # Raw only
         self.acquisition_station: Optional[str] = None
         self.acquisition_date: Optional[datetime.datetime] = None
+
         # Raw, HKTM only
         self.nr_transfer_frames: Optional[int] = None
         self.nr_transfer_frames_erroneous: Optional[int] = None
         self.nr_transfer_frames_corrupt: Optional[int] = None
+
         # Raw, science/ancillary only
         self.nr_instrument_source_packets: Optional[int] = None
         self.nr_instrument_source_packets_erroneous: Optional[int] = None
