@@ -95,15 +95,34 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         self._create_raw_product(dir_name, name_gen)
 
 
-class RAW___HKTM(UnslicedRawGeneratorBase):
+class RAW(UnslicedRawGeneratorBase):
 
     PRODUCTS = [
         'RAW_XS_LR_',
         'RAW_XS_HR1',
         'RAW_XS_HR2',
         'RAW_XS_OBC',
+    ]
+
+class RAW_HKTM(UnslicedRawGeneratorBase):
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    HKTM product generation.
+    '''
+
+    PRODUCTS = [
         'RAW___HKTM',
     ]
+
+    HDR_PARAMS = [
+        ('num_tf', 'nr_transfer_frames', 'int'),
+        ('num_tf_erroneous', 'nr_transfer_frames_erroneous', 'int'),
+        ('num_tf_corrupt', 'nr_transfer_frames_corrupt', 'int')
+    ]
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + self.HDR_PARAMS, acq
 
 class RWS(RawProductGeneratorBase):  # TODO is this really level-0.. what about raw sliced products then?
 
