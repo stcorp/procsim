@@ -16,6 +16,10 @@ class ProductType():
 # Lists all FLEX products
 PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAW___HKTM', 'raw', 'Housekeeping Telemetry RAW product'),
+    ProductType('RAW_XS_LR_', 'raw', 'Science and Ancillary RAW products'),
+    ProductType('RAW_XS_HR1', 'raw', 'Science and Ancillary RAW products'),
+    ProductType('RAW_XS_HR2', 'raw', 'Science and Ancillary RAW products'),
+    ProductType('RAW_XS_OBC', 'raw', 'Science and Ancillary RAW products'),
 
 ]
 

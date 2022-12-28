@@ -97,13 +97,27 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
 
 
 class RAW(UnslicedRawGeneratorBase):
-
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    raw non-HKTM product generation.
+    '''
     PRODUCTS = [
         'RAW_XS_LR_',
         'RAW_XS_HR1',
         'RAW_XS_HR2',
         'RAW_XS_OBC',
     ]
+
+    HDR_PARAMS = [
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
+    ]
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen, hdr + self.HDR_PARAMS, acq
+
 
 class RAW_HKTM(UnslicedRawGeneratorBase):
     '''

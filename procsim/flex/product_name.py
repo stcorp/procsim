@@ -265,13 +265,17 @@ class ProductName:
         if self._level == 'raw':
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
-            # Add D<yyyyMMddThhMMss>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}_O{}'.format(
-                self.time_to_str(self.downlink_time),
-                constants.ABS_ORBIT,
+            if self._file_type == 'RAW__HKTM':
+                name = self._generate_prefix() + '_{}_O{}'.format(
+                    self.time_to_str(self.downlink_time),
+                    constants.ABS_ORBIT,
+                )
+            else:
+                name = self._generate_prefix() + '_{}'.format(
+                    self.time_to_str(self.downlink_time),
+                )
 #                self.baseline_identifier,
 #                self._compact_create_date
-            )
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
             name = self._generate_prefix() + '_{:02}_{}'.format(
@@ -324,10 +328,16 @@ class ProductName:
             extension = '.' + extension
 
         if self._level == 'raw':
-            name = self._generate_prefix() + '_{}_O{}.dat'.format(
-                self.time_to_str(self.downlink_time),
-                constants.ABS_ORBIT,
-            )
+            if self._file_type == 'RAW___HKTM':
+                name = self._generate_prefix() + '_{}_O{}.dat'.format(
+                    self.time_to_str(self.downlink_time),
+                    constants.ABS_ORBIT,
+                )
+            else:
+                name = self._generate_prefix() + '_{}.dat'.format(
+                    self.time_to_str(self.downlink_time),
+                    constants.ABS_ORBIT,
+                )
         elif self._level == 'aux':
             name = self._generate_prefix() + '{}{}'.format(
                 suffix,

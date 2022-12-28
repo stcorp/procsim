@@ -50,8 +50,11 @@
 
             "output_path": "workspace/all",
             "outputs": [
-              {"type": "RAW___HKTM", "size": 1}
-
+              {"type": "RAW___HKTM", "size": 1},
+              {"type": "RAW_XS_LR_", "size": 1},
+              {"type": "RAW_XS_HR1", "size": 1},
+              {"type": "RAW_XS_HR2", "size": 1},
+              {"type": "RAW_XS_OBC", "size": 1}
             ]
         }
     ]
