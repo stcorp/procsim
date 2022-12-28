@@ -3,7 +3,7 @@ Procsim is a tool to simulate satellite data processor tasks.
 
 In the Payload Data Ground Segment (PDGS) of a satellite mission, the data processing functionality is handled by at least one Processing Facility (PF) which integrates one or more processors.
 The PF is responsible of the processing orchestration, implementing the logic to: prepare the input data for the processing, trigger the processing (performed by the processors), collect the output data.
-The processor is the entity responsible of the data processing and is composed by one or more Tasks.
+The processor is the entity responsible of the data processing and is composed of one or more Tasks.
 
 Tasks (executables) are called by the PF with a single command line argument: the file name of a JobOrder file. The JobOrder contains information for the Task, such as processing parameters, location of input data and which output data is expected.
 
@@ -78,7 +78,7 @@ Procsim can act as a stub for all kind of processors. Its behavior is determined
 
 The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Time periods, such as the slice period, are in seconds with type float.
 
-A configuration file can contain one or multiple scenarios. The scenario is selected by automatically using the combination of task file name (i.e. the name of the executable called by the PF) and the JobOrder contents, or manually using an additonal command line parameter.
+A configuration file can contain one or multiple scenarios. The scenario is selected by automatically using the combination of task file name (i.e. the name of the executable called by the PF) and the JobOrder contents, or manually using an additional command line parameter.
 
 The configuration file is structured as following:
 ```
@@ -186,7 +186,7 @@ Example:
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 
 ### Generator specific parameters
-Some generators have specific parameters, such as ```enable_slicing``` for the RAWSxxx_10 geenrator. These parameters can be placed on either the scenario level or in a specific output section, as with the metadata parameters.
+Some generators have specific parameters, such as ```enable_slicing``` for the RAWSxxx_10 generator. These parameters can be placed on either the scenario level or in a specific output section, as with the metadata parameters.
 
 A list with all supported parameters for a specific output type can be retrieved using `procsim -i [product_type]`.
 
