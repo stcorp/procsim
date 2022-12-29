@@ -629,7 +629,6 @@ class MainProductHeader:
                 # TODO ={'uom': 'ms'}
                 acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
 
-                # TODO: Only CHECK these, not overwrite!
                 _polarisation_mode = acquisition.findtext(sar + 'polarisationMode') or acq._polarisation_mode
                 if _polarisation_mode != acq._polarisation_mode:
                     raise ParseError(acquisition)
