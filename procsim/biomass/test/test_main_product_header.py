@@ -116,14 +116,10 @@ def get_l1_test_mph():
     mph.processing_centre_code = 'ESR'
     mph.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename', 'AUX_GMF_Filename', 'AUX_INS_Filename',
                                    'AUX_TEC_Filename', 'AUX_PP1_Filename']
-    mph.processing_mode = 'OPERATIONAL'
     mph.biomass_source_product_ids = ['BIO_S2_RAW__0S_20230101T120000_20230101T120203_I_G03_M03_C03_T131_F026']
 
     mph.reference_documents = ['BIOMASS L1 PRODUCT FORMAT SPECIFICATION', 'BIOMASS L1 PRODUCT FORMAT DEFINITION']
 
-    mph._platform_shortname = 'Biomass'
-    mph._sensor_name = 'P-SAR'
-    mph._sensor_type = 'RADAR'
     mph.sensor_mode = 'SM'
     mph.sensor_swath = 'S2'
 
