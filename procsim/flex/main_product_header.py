@@ -598,7 +598,6 @@ class MainProductHeader:
 
     def parse(self, file_name):  # TODO update for changes in writer..
         '''Open MPH file and parse contents. Does not check for ID's.'''
-        boemknal
         tree = et.parse(file_name)
         root = tree.getroot()
         phenomenon_time = root.find(om + 'phenomenonTime')

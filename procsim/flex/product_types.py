@@ -28,6 +28,7 @@ L1S_PRODUCTS = []
 ORBPRE_PRODUCT_TYPES = []
 VFRA_PRODUCT_TYPES = []
 
+
 def find_product(product_type_code: str) -> Optional[ProductType]:
     '''Return ProductType for a given product_type_code, or None if not found'''
     for pt in PRODUCT_TYPES:

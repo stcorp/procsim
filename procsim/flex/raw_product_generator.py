@@ -139,7 +139,8 @@ class RAW_HKTM(UnslicedRawGeneratorBase):
         gen, hdr, acq = super().get_params()
         return gen, hdr + self.HDR_PARAMS, acq
 
-class RWS(RawProductGeneratorBase):  # TODO is this really level-0.. what about raw sliced products then?
+
+class RWS(RawProductGeneratorBase):  # TODO
 
     PRODUCTS = [
         'RWS_XS_OBS',

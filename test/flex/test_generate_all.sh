@@ -14,4 +14,4 @@ rm -rf workspace/all
 # Generate
 echo
 echo '  *** Generate all products'
-python3 -m procsim -s "generate_all" test/flex/procsim_config_generate_all.json
+procsim -s "generate_all" test/flex/procsim_config_generate_all.json

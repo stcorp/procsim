@@ -38,6 +38,7 @@ class EO(product_generator.ProductGeneratorBase):
         'L0_OBS___',
     ]
 
+
 class CAL(product_generator.ProductGeneratorBase):
     PRODUCTS = [
         'L0_DARKNP',
@@ -63,6 +64,7 @@ class CAL(product_generator.ProductGeneratorBase):
         'L0_SPECEO',
         'L0_CLOUD_',
     ]
+
 
 class ANC(product_generator.ProductGeneratorBase):
     PRODUCTS = [
