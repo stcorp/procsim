@@ -54,7 +54,12 @@
               {"type": "RAW_XS_LR_", "size": 1},
               {"type": "RAW_XS_HR1", "size": 1},
               {"type": "RAW_XS_HR2", "size": 1},
-              {"type": "RAW_XS_OBC", "size": 1}
+              {"type": "RAW_XS_OBC", "size": 1},
+              {"type": "AUX_OBSMSK", "size": 1},
+              {"type": "AUX_GCP_DB", "size": 1},
+              {"type": "AUX_PF_BC_", "size": 1},
+              {"type": "AUX_TSKTBL", "size": 1},
+              {"type": "AUX_L0__PF", "size": 1}
             ]
         }
     ]

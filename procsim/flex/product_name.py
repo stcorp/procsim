@@ -216,6 +216,7 @@ class ProductName:
         '''
         if time is None:
             time = datetime.datetime.now(tz=datetime.timezone.utc)
+        self._creation_date = time
         sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''
         for i in range(6):
@@ -278,9 +279,8 @@ class ProductName:
 #                self._compact_create_date
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{:02}_{}'.format(
-                self.baseline_identifier,
-                self._compact_create_date
+            name = self._generate_prefix() + '_{}'.format(
+                self.time_to_str(self._creation_date),
             )
         elif self._level == 'mpl':
             name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
@@ -339,9 +339,10 @@ class ProductName:
                     constants.ABS_ORBIT,
                 )
         elif self._level == 'aux':
-            name = self._generate_prefix() + '{}{}'.format(
+            name = self._generate_prefix() + '{}{}{}'.format(
+                self.time_to_str(self._creation_date),
                 suffix,
-                extension
+                extension,
             )
         else:
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
