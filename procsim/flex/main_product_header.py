@@ -117,7 +117,6 @@ class Acquisition:
         self.data_take_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
-
     def __eq__(self, other):
         return self.orbit_number == other.orbit_number and \
             self.last_orbit_number == other.last_orbit_number and \

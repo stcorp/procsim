@@ -187,10 +187,10 @@ class RWS(RawProductGeneratorBase):
     PRODUCTS = [
         'RWS_XS_OBS',
         'RWS_XSPOBS',
-#        'RWS_XS_CAL',  # TODO
-#        'RWS_XSPCAL',
-#        'RWS_XS_ANC',
-#        'RWS_XSPANC',
+        # 'RWS_XS_CAL',  # TODO
+        # 'RWS_XSPCAL',
+        # 'RWS_XS_ANC',
+        # 'RWS_XSPANC',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -316,7 +316,7 @@ class RWS(RawProductGeneratorBase):
 
             if segment_start <= slice_start and slice_end <= segment_end:
                 if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(slice_start, slice_end) #acq_start, acq_end) TODO
+                    self._create_products(slice_start, slice_end)  # acq_start, acq_end) TODO
             else:
                 if self._output_type == 'RWS_XSPOBS':
                     self._create_products(slice_start, slice_end)

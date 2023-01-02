@@ -22,8 +22,6 @@ _HDR_PARAMS = [
     ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
-    ('relative_orbit_number', 'relative_orbit_number', 'str'),
-    ('cycle_number', 'cycle_number', 'str'),
 ]
 
 _ACQ_PARAMS = [
@@ -124,9 +122,9 @@ class EO(product_generator.ProductGeneratorBase):
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
-        name_gen.downlink_time = datetime.datetime.now() # TODO
+        name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011' # TODO these probably should be elsewhere.. and what is it? slicing?
+        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
         name_gen.cycle_number = '045'
 
         name_gen.duration = '0128'  # TODO calculate
@@ -222,6 +220,7 @@ class EO(product_generator.ProductGeneratorBase):
 
             if segment_start <= slice_start and slice_end <= segment_end:
                 self._generate_product(slice_start, slice_end)  # acq_start, acq_end) TODO
+
 
 class CAL(product_generator.ProductGeneratorBase):
     PRODUCTS = [

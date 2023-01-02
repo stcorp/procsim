@@ -66,6 +66,11 @@ class ProductName:
         self.start_time: Optional[datetime.datetime]
         self.stop_time: Optional[datetime.datetime]
         self.baseline_identifier: Optional[int]
+        self.relative_orbit_number: Optional[str]
+        self.cycle_number: Optional[str]
+        self.duration: Optional[str]
+        self.sensor: Optional[str]
+        self.anx_elapsed: Optional[str]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
@@ -271,7 +276,7 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
-            if self._file_type  in ('RWS_XS_OBS', 'RWS_XSPOBS'):
+            if self._file_type in ('RWS_XS_OBS', 'RWS_XSPOBS'):
                 name = self._generate_prefix() + '_{}_{}'.format(
                     self.time_to_str(self.downlink_time),
                     self.sensor  # TODO unspecified RWS naming
@@ -341,7 +346,7 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
-            if self._file_type  in ('RWS_XS_OBS', 'RWS_XSPOBS'):
+            if self._file_type in ('RWS_XS_OBS', 'RWS_XSPOBS'):
                 name = self._generate_prefix() + '_{}.dat'.format(
                     self.time_to_str(self.downlink_time),
                 )
