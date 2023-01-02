@@ -271,6 +271,11 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
+            if self._file_type  in ('RWS_XS_OBS', 'RWS_XSPOBS'):
+                name = self._generate_prefix() + '_{}_{}'.format(
+                    self.time_to_str(self.downlink_time),
+                    self.sensor  # TODO unspecified RWS naming
+                )
             else:
                 name = self._generate_prefix() + '_{}'.format(
                     self.time_to_str(self.downlink_time),
@@ -332,6 +337,10 @@ class ProductName:
                 name = self._generate_prefix() + '_{}_O{}.dat'.format(
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
+                )
+            if self._file_type  in ('RWS_XS_OBS', 'RWS_XSPOBS'):
+                name = self._generate_prefix() + '_{}.dat'.format(
+                    self.time_to_str(self.downlink_time),
                 )
             else:
                 name = self._generate_prefix() + '_{}.dat'.format(

@@ -87,6 +87,7 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.sensor = 'HR1'
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
@@ -140,13 +141,182 @@ class RAW_HKTM(UnslicedRawGeneratorBase):
         return gen, hdr + self.HDR_PARAMS, acq
 
 
-class RWS(RawProductGeneratorBase):  # TODO
+class RWS(RawProductGeneratorBase):
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    the raw slice-based products generation.
+
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a RWS product) is sliced. The slice grid is aligned to ANX.
+    An array "anx" with one or more ANX times must be specified in the scenario.
+    For example:
+
+      "anx": [
+        "2021-02-01T00:25:33.745Z",
+        "2021-02-01T02:03:43.725Z"
+      ],
+
+    'Special' cases:
+    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
+        the 'old' ANX, slice 1 starts at the 'new' ANX.
+    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
+        slice n. The first slice will be slice n+1, with the acquisition
+        starting at Tstart.
+    - Acquisition ends with Tend <= slice_minimum_duration after the end of
+        slice n. Slice n ends at Tend.
+
+    The generator adjusts the following metadata:
+    - phenomenonTime, acquisition begin/end times.
+    - validTime, theoretical slice begin/end times (including overlap).
+    - wrsLatitudeGrid, aka the slice_frame_nr.
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
+    '''
 
     PRODUCTS = [
         'RWS_XS_OBS',
         'RWS_XSPOBS',
-        'RWS_XS_CAL',
-        'RWS_XSPCAL',
-        'RWS_XS_ANC',
-        'RWS_XSPANC',
+#        'RWS_XS_CAL',  # TODO
+#        'RWS_XSPCAL',
+#        'RWS_XS_ANC',
+#        'RWS_XSPANC',
     ]
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('enable_slicing', '_enable_slicing', 'bool'),
+        ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    HDR_PARAMS = [
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
+    ]
+
+    ACQ_PARAMS = [
+        ('data_take_id', 'data_take_id', 'int')
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+        self._enable_slicing = True
+        self._slice_grid_spacing = constants.SLICE_GRID_SPACING
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
+        self._orbital_period = constants.ORBITAL_PERIOD
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
+
+    def generate_output(self):
+        super(RWS, self).generate_output()
+
+        data_takes_with_bounds = self._get_data_takes_with_bounds()
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            self.read_scenario_parameters(data_take_config)
+            if self._enable_slicing:
+                self._generate_sliced_output(data_take_start, data_take_stop)
+            else:
+                self._create_products(data_take_start, data_take_stop)
+
+    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+        # Construct product name and set metadata fields
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen.file_type = self._output_type
+        name_gen.start_time = acq_start
+        name_gen.stop_time = acq_stop
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        name_gen.set_creation_date(self._creation_date)
+        name_gen.downlink_time = self._hdr.acquisition_date
+
+        for sensor in ('LRES', 'HRE1', 'HRE2'):
+            name_gen.sensor = sensor
+            dir_name = name_gen.generate_path_name()
+            self._hdr.product_type = self._output_type
+            self._hdr.initialize_product_list(dir_name)
+            self._hdr.set_phenomenon_times(acq_start, acq_stop)
+
+            self._create_raw_product(dir_name, name_gen)
+
+    def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
+        # If insufficient ANX are specified, infer the others.
+        anx_list = self._anx_list.copy()
+        while segment_start < anx_list[0]:
+            anx_list.insert(0, anx_list[0] - self._orbital_period)
+        while segment_end > anx_list[-1]:
+            anx_list.append(anx_list[-1] + self._orbital_period)
+
+        # Find ANX list that covers the segment duration.
+        anx_idx_start = bisect.bisect_right(anx_list, segment_start) - 1
+        anx_idx_end = bisect.bisect_left(anx_list, segment_end) + 1
+
+        # Determine the slices that make up the space between ANX.
+        slice_edges = []
+        slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
+        for anx in anx_list[anx_idx_start:anx_idx_end - 1]:
+            new_slice_edges = [(anx + i * self._slice_grid_spacing, anx + (i + 1) * self._slice_grid_spacing) for i in range(slices_per_orbit)]
+            slice_edges.extend(new_slice_edges)
+
+        # Only keep the slices that overlap the segment.
+        slice_edges = [slice for slice in slice_edges if slice[1] >= segment_start and slice[0] <= segment_end]
+
+        # Merge the first and last slice with their neighbour if they are going to be too short.
+        if slice_edges[0][1] - segment_start < self._slice_minimum_duration:
+            slice_edges[1] = (slice_edges[0][0], slice_edges[1][1])
+            del slice_edges[0]
+        if segment_end - slice_edges[-1][0] < self._slice_minimum_duration:
+            slice_edges[-2] = (slice_edges[-2][0], slice_edges[-1][1])
+            del slice_edges[-1]
+
+        return slice_edges
+
+    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+        if segment_start is None or segment_end is None:
+            raise ScenarioError('Phenomenon begin/end times must be known')
+
+        if not self._anx_list:
+            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
+
+        slice_edges = self._get_slice_edges(segment_start, segment_end)
+
+        for slice_start, slice_end in slice_edges:
+            # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
+            slice_middle = slice_start + (slice_end - slice_start) / 2
+            anx = self._get_anx(slice_middle)
+            slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
+            if anx is None or slice_nr is None:
+                continue
+            validity_start = slice_start - self._slice_overlap_start
+            validity_end = slice_end + self._slice_overlap_end
+            acq_start = max(validity_start, segment_start)
+            acq_end = min(validity_end, segment_end)
+            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._hdr.set_validity_times(validity_start, validity_end)
+            self._logger.debug((f'Create slice #{slice_nr}\n'
+                                f'  acq {acq_start}  -  {acq_end}\n'
+                                f'  validity {validity_start}  -  {validity_end}\n'
+                                f'  anx {anx}'))
+
+            if segment_start <= slice_start and slice_end <= segment_end:
+                if self._output_type == 'RWS_XS_OBS':
+                    self._create_products(acq_start, acq_end)
+            else:
+                if self._output_type == 'RWS_XSPOBS':
+                    self._create_products(acq_start, acq_end)

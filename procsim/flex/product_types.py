@@ -20,6 +20,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAW_XS_HR1', 'raw', 'Science and Ancillary RAW products'),
     ProductType('RAW_XS_HR2', 'raw', 'Science and Ancillary RAW products'),
     ProductType('RAW_XS_OBC', 'raw', 'Science and Ancillary RAW products'),
+    ProductType('RWS_XS_OBS', 'raw', 'Complete Sliced RAW Product'),
+    ProductType('RWS_XSPOBS', 'raw', 'Partial Sliced RAW Product'),
 
     ProductType('AUX_OBSMSK', 'aux', 'Observation Mask'),
     ProductType('AUX_GCP_DB', 'aux', 'GCP Database'),
