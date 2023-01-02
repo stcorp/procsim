@@ -287,14 +287,12 @@ class ProductName:
             name = self._generate_prefix() + '_{}'.format(
                 self.time_to_str(self._creation_date),
             )
-        elif self._level == 'mpl':
-            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
-                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
-                + f'_{self.baseline_identifier:02}{self.version_nr:02}.EOF'
-        elif self._level == 'l1fvra':
-            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
-                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
-                + f'_{self.baseline_identifier:02}_{self._compact_create_date}.EOF'
+        elif self._level == 'l0':
+            name = self._generate_prefix() + '_{}_{:02}'.format(
+                self.time_to_str(self.downlink_time),
+                self.baseline_identifier,  # TODO
+
+            )
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')
@@ -350,6 +348,13 @@ class ProductName:
         elif self._level == 'aux':
             name = self._generate_prefix() + '{}{}{}'.format(
                 self.time_to_str(self._creation_date),
+                suffix,
+                extension,
+            )
+        elif self._level == 'l0':
+            name = self._generate_prefix() + '_{}_{:02}{}{}'.format(  # TODO move stuff to generic generate_prefix?
+                self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
                 suffix,
                 extension,
             )

@@ -29,6 +29,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('AUX_TSKTBL', 'aux', 'Processors Task Tables'),
     ProductType('AUX_L0__PF', 'aux', 'PDGS L0 Operational Processors Parameters File'),
 
+    ProductType('L0__OBS___', 'l0', 'Level-0 Observation Product'),
+
 ]
 
 RAWS_PRODUCT_TYPES = []

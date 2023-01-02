@@ -61,7 +61,8 @@
               {"type": "AUX_GCP_DB", "size": 1},
               {"type": "AUX_PF_BC_", "size": 1},
               {"type": "AUX_TSKTBL", "size": 1},
-              {"type": "AUX_L0__PF", "size": 1}
+              {"type": "AUX_L0__PF", "size": 1},
+              {"type": "L0__OBS___", "size": 1}
             ]
         }
     ]
