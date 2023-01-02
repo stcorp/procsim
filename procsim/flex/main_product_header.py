@@ -117,6 +117,7 @@ class Acquisition:
         self.data_take_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
+
     def __eq__(self, other):
         return self.orbit_number == other.orbit_number and \
             self.last_orbit_number == other.last_orbit_number and \
@@ -196,6 +197,9 @@ class MainProductHeader:
         self.nr_l0_lines_missing: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
+
+        self.relative_orbit_number = None  # TODO
+        self.cycle_number = None
 
         # L1 only
         self.browse_ref_id: Optional[str] = 'Unknown'

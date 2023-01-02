@@ -21,7 +21,10 @@ _HDR_PARAMS = [
     ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
     ('swath', 'sensor_swath', 'str'),
     ('operational_mode', 'sensor_mode', 'str'),
+    ('relative_orbit_number', 'relative_orbit_number', 'str'),
+    ('cycle_number', 'cycle_number', 'str'),
 ]
+
 _ACQ_PARAMS = [
     # Level 0, 1, 2a only
     ('mission_phase', 'mission_phase', 'str'),
@@ -105,6 +108,12 @@ class EO(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now() # TODO
+
+        name_gen.relative_orbit_number = '011' # TODO these probably should be elsewhere.. and what is it? slicing?
+        name_gen.cycle_number = '045'
+
+        name_gen.duration = '0128'  # TODO calculate
+        name_gen.anx_elapsed = '2826'
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)

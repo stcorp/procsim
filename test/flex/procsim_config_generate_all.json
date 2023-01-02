@@ -32,6 +32,9 @@
             "baseline": 1,
             "swath": "S1",
 
+            "cycle_number": "011",
+            "relative_orbit_number": "045",
+
             // The validity times are only used for Level1 products.
             // These times correspond with a single slice
             // (including start/stop overlap)

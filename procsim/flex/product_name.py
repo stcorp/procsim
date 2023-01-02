@@ -288,8 +288,13 @@ class ProductName:
                 self.time_to_str(self._creation_date),
             )
         elif self._level == 'l0':
-            name = self._generate_prefix() + '_{}_{:02}'.format(
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}'.format(
                 self.time_to_str(self.downlink_time),
+                128,
+                self.cycle_number,
+                self.relative_orbit_number,
+                1234,
+                self.baseline_identifier,
                 self.baseline_identifier,  # TODO
 
             )
@@ -352,8 +357,12 @@ class ProductName:
                 extension,
             )
         elif self._level == 'l0':
-            name = self._generate_prefix() + '_{}_{:02}{}{}'.format(  # TODO move stuff to generic generate_prefix?
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}{}{}'.format(
                 self.time_to_str(self.downlink_time),
+                128,
+                self.cycle_number,
+                self.relative_orbit_number,
+                1234,
                 self.baseline_identifier,
                 suffix,
                 extension,
