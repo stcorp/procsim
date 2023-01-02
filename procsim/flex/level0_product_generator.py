@@ -4,9 +4,10 @@ Copyright (C) 2021-2023 S[&]T, The Netherlands.
 Flex Level 0 product generators,
 format according to ESA-EOPG-EOEP-TN-0022
 '''
+import bisect
 import datetime
 import os
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 from . import constants
 from procsim.core.exceptions import ScenarioError
@@ -76,12 +77,28 @@ class EO(product_generator.ProductGeneratorBase):
         ('slice_frame_nr', 'slice_frame_nr', 'int')
     ]
 
+    GENERATOR_PARAMS: List[tuple] = [
+        ('enable_slicing', '_enable_slicing', 'bool'),
+        ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
 
+        self._enable_slicing = True
+        self._slice_grid_spacing = constants.SLICE_GRID_SPACING
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
+        self._orbital_period = constants.ORBITAL_PERIOD
+
     def get_params(self):
         gen, hdr, acq = super().get_params()
-        return gen, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
+        return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
     # TODO parse inputs?? focus on delivering just products for now
 
@@ -124,7 +141,6 @@ class EO(product_generator.ProductGeneratorBase):
         os.makedirs(dir_name, exist_ok=True)
 
         for sensor in ('lres', 'hre1', 'hre2'):
-        # H/V measurement data
             file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor))
             self._add_file_to_product(file_path, self._size_mb // 2)
 
@@ -134,38 +150,78 @@ class EO(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        # Sanity check
-        if self._hdr.begin_position is None or self._hdr.end_position is None:
-            raise ScenarioError('begin/end position must be set')
-
-        # If not read from an input product, set validity time to slice bounds.
-        # Get slice bounds from middle of slice to deal with merged slices.
-        middle_position = self._hdr.begin_position + (self._hdr.end_position - self._hdr.begin_position) / 2
-        slice_bounds = self._get_slice_frame_interval(middle_position, constants.SLICE_GRID_SPACING)
-        if self._hdr.validity_start is None:
-            if slice_bounds is None:
-                self._logger.warning(
-                    f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.begin_position} as validity start.')
-                self._hdr.validity_start = self._hdr.begin_position
-            else:
-                self._logger.debug(f'Use slice start {slice_bounds[0]} as input for validity start time')
-                self._hdr.validity_start = slice_bounds[0] - constants.SLICE_OVERLAP_START
-        if self._hdr.validity_stop is None:
-            if slice_bounds is None:
-                self._logger.warning(
-                    f'Could not find slice bounds for central position {middle_position}. Using {self._hdr.end_position} as validity end.')
-                self._hdr.validity_stop = self._hdr.end_position
-            else:
-                self._logger.debug(f'Use slice end {slice_bounds[1]} as input for validity stop time')
-                self._hdr.validity_stop = slice_bounds[1] + constants.SLICE_OVERLAP_END
-
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
             self.read_scenario_parameters(data_take_config)
-            self._generate_product(data_take_start, data_take_stop)
+            if self._enable_slicing:
+                self._generate_sliced_output(data_take_start, data_take_stop)
+            else:
+                assert False  # TODO
 
-        if len(data_takes_with_bounds) == 0:
-            self._logger.info('No products generated, start/stop outside data takes?')
+    def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
+        # If insufficient ANX are specified, infer the others.
+        anx_list = self._anx_list.copy()
+        while segment_start < anx_list[0]:
+            anx_list.insert(0, anx_list[0] - self._orbital_period)
+        while segment_end > anx_list[-1]:
+            anx_list.append(anx_list[-1] + self._orbital_period)
+
+        # Find ANX list that covers the segment duration.
+        anx_idx_start = bisect.bisect_right(anx_list, segment_start) - 1
+        anx_idx_end = bisect.bisect_left(anx_list, segment_end) + 1
+
+        # Determine the slices that make up the space between ANX.
+        slice_edges = []
+        slices_per_orbit = int(round(self._orbital_period / self._slice_grid_spacing))
+        for anx in anx_list[anx_idx_start:anx_idx_end - 1]:
+            new_slice_edges = [(anx + i * self._slice_grid_spacing, anx + (i + 1) * self._slice_grid_spacing) for i in range(slices_per_orbit)]
+            slice_edges.extend(new_slice_edges)
+
+        # Only keep the slices that overlap the segment.
+        slice_edges = [slice for slice in slice_edges if slice[1] >= segment_start and slice[0] <= segment_end]
+
+        # Merge the first and last slice with their neighbour if they are going to be too short.
+        if slice_edges[0][1] - segment_start < self._slice_minimum_duration:
+            slice_edges[1] = (slice_edges[0][0], slice_edges[1][1])
+            del slice_edges[0]
+        if segment_end - slice_edges[-1][0] < self._slice_minimum_duration:
+            slice_edges[-2] = (slice_edges[-2][0], slice_edges[-1][1])
+            del slice_edges[-1]
+
+        return slice_edges
+
+    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+        if segment_start is None or segment_end is None:
+            raise ScenarioError('Phenomenon begin/end times must be known')
+
+        if not self._anx_list:
+            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
+
+        slice_edges = self._get_slice_edges(segment_start, segment_end)
+
+        for slice_start, slice_end in slice_edges:
+            print('SLICE', slice_start, slice_end)
+
+            # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
+            slice_middle = slice_start + (slice_end - slice_start) / 2
+            anx = self._get_anx(slice_middle)
+            slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
+            if anx is None or slice_nr is None:
+                continue
+            validity_start = slice_start - self._slice_overlap_start
+            validity_end = slice_end + self._slice_overlap_end
+            acq_start = max(validity_start, segment_start)
+            acq_end = min(validity_end, segment_end)
+            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._hdr.set_validity_times(validity_start, validity_end)
+
+            self._logger.debug((f'Create slice #{slice_nr}\n'
+                                f'  acq {acq_start}  -  {acq_end}\n'
+                                f'  validity {validity_start}  -  {validity_end}\n'
+                                f'  anx {anx}'))
+
+            if segment_start <= slice_start and slice_end <= segment_end:
+                self._generate_product(slice_start, slice_end)  # acq_start, acq_end) TODO
 
 class CAL(product_generator.ProductGeneratorBase):
     PRODUCTS = [

@@ -316,7 +316,7 @@ class RWS(RawProductGeneratorBase):
 
             if segment_start <= slice_start and slice_end <= segment_end:
                 if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(acq_start, acq_end)
+                    self._create_products(slice_start, slice_end) #acq_start, acq_end) TODO
             else:
                 if self._output_type == 'RWS_XSPOBS':
-                    self._create_products(acq_start, acq_end)
+                    self._create_products(slice_start, slice_end)
