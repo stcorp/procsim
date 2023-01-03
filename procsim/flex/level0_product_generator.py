@@ -308,8 +308,8 @@ class CAL(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-#        data_takes_with_bounds = self._get_data_takes_with_bounds() # TODO similar function for 'calibration_events'?
-#        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:  # TODO use calibration events!
+        #        data_takes_with_bounds = self._get_data_takes_with_bounds() # TODO similar function for 'calibration_events'?
+        #        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:  # TODO use calibration events!
 
         for calibration_config in self._scenario_config['calibration_events']:
             cal_start = self._time_from_iso(calibration_config['start'])
@@ -317,10 +317,10 @@ class CAL(product_generator.ProductGeneratorBase):
             self._generate_output(cal_start, cal_stop)
 
     def _generate_output(self, start, stop):
-#        if self._hdr.acquisitions[0].calibration_id is None:
-#            raise ScenarioError('calibration_id field is mandatory')
-#
-#        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
+        #        if self._hdr.acquisitions[0].calibration_id is None:
+        #            raise ScenarioError('calibration_id field is mandatory')
+        #
+        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.acquisitions[0].calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
@@ -328,14 +328,14 @@ class CAL(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
         self._hdr.is_incomplete = False  # TODO!
-#        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-#        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
 
         # Determine and set the slice number if not set already.
-#        if self._hdr.acquisitions[0].slice_frame_nr is None:
-#            # Get slice number from middle of slice to deal with merged slices.
-#            middle = start + (stop - start) / 2
-#            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
+        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
+        #            # Get slice number from middle of slice to deal with merged slices.
+        #            middle = start + (stop - start) / 2
+        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
 
@@ -427,7 +427,7 @@ class ANC(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        anx = self._scenario_config['anx'] # TODO slice range or is this enough?
+        anx = self._scenario_config['anx']  # TODO slice range or is this enough?
         anx_start = self._time_from_iso(anx[0])
         anx_stop = self._time_from_iso(anx[1])
 
@@ -436,10 +436,10 @@ class ANC(product_generator.ProductGeneratorBase):
         self._generate_output(anx_start, anx_stop, apid)
 
     def _generate_output(self, start, stop, apid):
-#        if self._hdr.acquisitions[0].calibration_id is None:
-#            raise ScenarioError('calibration_id field is mandatory')
-#
-#        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
+        #        if self._hdr.acquisitions[0].calibration_id is None:
+        #            raise ScenarioError('calibration_id field is mandatory')
+        #
+        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
         self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
@@ -447,14 +447,14 @@ class ANC(product_generator.ProductGeneratorBase):
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
         self._hdr.is_incomplete = False  # TODO!
-#        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-#        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
 
         # Determine and set the slice number if not set already.
-#        if self._hdr.acquisitions[0].slice_frame_nr is None:
-#            # Get slice number from middle of slice to deal with merged slices.
-#            middle = start + (stop - start) / 2
-#            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
+        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
+        #            # Get slice number from middle of slice to deal with merged slices.
+        #            middle = start + (stop - start) / 2
+        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
 
