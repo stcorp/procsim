@@ -53,6 +53,15 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0_SPECEO', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0_CLOUD_', 'l0', 'Level-0 Calibration Product'),
 
+    ProductType('L0_SAT_TM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_NAVATT', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_PDHUTM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_ICUDTM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_VAU_TM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_INSTTM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_TST___', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0_UNK___', 'l0', 'Level-0 Ancillary Product'),
+
 ]
 
 RAWS_PRODUCT_TYPES = []

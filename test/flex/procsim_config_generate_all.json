@@ -13,6 +13,7 @@
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
             ],
+            "apid": "4321",
             "data_takes": [
                 {
                     "data_take_id": "8282",
@@ -95,7 +96,15 @@
               {"type": "L0_SCNVAL", "size": 1},
               {"type": "L0_COREG_", "size": 1},
               {"type": "L0_SPECEO", "size": 1},
-              {"type": "L0_CLOUD_", "size": 1}
+              {"type": "L0_CLOUD_", "size": 1},
+              {"type": "L0_SAT_TM", "size": 1},
+              {"type": "L0_NAVATT", "size": 1},
+              {"type": "L0_PDHUTM", "size": 1},
+              {"type": "L0_ICUDTM", "size": 1},
+              {"type": "L0_VAU_TM", "size": 1},
+              {"type": "L0_INSTTM", "size": 1},
+              {"type": "L0_TST___", "size": 1},
+              {"type": "L0_UNK___", "size": 1}
             ]
         }
     ]

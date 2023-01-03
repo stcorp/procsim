@@ -366,6 +366,24 @@ class CAL(product_generator.ProductGeneratorBase):
 
 
 class ANC(product_generator.ProductGeneratorBase):
+    '''
+    This class implements the ProductGeneratorBase and is responsible for
+    generating Level-0 slice based products.
+
+    Input is a set of (incomplete) RWS slices.
+    If one or more slices are incomplete due to dump transitions, they are
+    merged. The output is a single product, or multiple if there are data take
+    transitions within the slice period.
+
+    The generator adjusts the following metadata:
+    - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
+    - isPartial, set if slice is partial (slice with DT start/end)
+    - isMerged, set if slice is merged (slice with DT start/end)
+    - dataTakeID (copied from data_takes section in scenario)
+    - swathIdentifier (copied from scenario, either root, output section or
+      data_takes section)
+    '''
+
     PRODUCTS = [
         'L0_SAT_TM',
         'L0_NAVATT',
@@ -376,3 +394,95 @@ class ANC(product_generator.ProductGeneratorBase):
         'L0_TST___',
         'L0_UNK___',
     ]
+
+    _ACQ_PARAMS = [
+        ('slice_frame_nr', 'slice_frame_nr', 'int')
+    ]
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('enable_slicing', '_enable_slicing', 'bool'),
+        ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
+        self._enable_slicing = True
+        self._slice_grid_spacing = constants.SLICE_GRID_SPACING
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
+        self._orbital_period = constants.ORBITAL_PERIOD
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
+
+    # TODO parse inputs?? focus on delivering just products for now
+
+    def generate_output(self):
+        super().generate_output()
+
+        anx = self._scenario_config['anx'] # TODO slice range or is this enough?
+        anx_start = self._time_from_iso(anx[0])
+        anx_stop = self._time_from_iso(anx[1])
+
+        apid = self._scenario_config['apid']
+
+        self._generate_output(anx_start, anx_stop, apid)
+
+    def _generate_output(self, start, stop, apid):
+#        if self._hdr.acquisitions[0].calibration_id is None:
+#            raise ScenarioError('calibration_id field is mandatory')
+#
+#        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
+        self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
+
+        # Setup MPH fields. Validity time is not changed, should still be the
+        # theoretical slice start/end.
+        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.set_phenomenon_times(start, stop)
+        self._hdr.is_incomplete = False  # TODO!
+#        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+#        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
+
+        # Determine and set the slice number if not set already.
+#        if self._hdr.acquisitions[0].slice_frame_nr is None:
+#            # Get slice number from middle of slice to deal with merged slices.
+#            middle = start + (stop - start) / 2
+#            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
+
+        self._hdr.set_validity_times(start, stop)
+
+        # Create name generator
+        name_gen = self._create_name_generator(self._hdr)
+        name_gen.downlink_time = datetime.datetime.now()  # TODO
+
+        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
+        name_gen.cycle_number = '045'
+
+        name_gen.duration = '0128'  # TODO calculate
+        name_gen.anx_elapsed = '2826'
+
+        dir_name = name_gen.generate_path_name()
+        self._hdr.initialize_product_list(dir_name)
+
+        # Create directory and files
+        self._logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self._output_path, dir_name)
+        os.makedirs(dir_name, exist_ok=True)
+
+        if self._output_type in ('L0_VAU_TM', 'L0_TST___'):
+            for sensor in ('lres', 'hre1', 'hre2'):
+                file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor))
+                self._add_file_to_product(file_path, self._size_mb // 2)
+        else:
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
+            self._add_file_to_product(file_path, self._size_mb // 2)
+
+        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_path)
