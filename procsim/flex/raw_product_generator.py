@@ -141,7 +141,7 @@ class RAW_HKTM(UnslicedRawGeneratorBase):
         return gen, hdr + self.HDR_PARAMS, acq
 
 
-class RWS(RawProductGeneratorBase):
+class RWS_EO(RawProductGeneratorBase):
     '''
     This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
@@ -187,10 +187,6 @@ class RWS(RawProductGeneratorBase):
     PRODUCTS = [
         'RWS_XS_OBS',
         'RWS_XSPOBS',
-        # 'RWS_XS_CAL',  # TODO
-        # 'RWS_XSPCAL',
-        # 'RWS_XS_ANC',
-        # 'RWS_XSPANC',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -226,7 +222,7 @@ class RWS(RawProductGeneratorBase):
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def generate_output(self):
-        super(RWS, self).generate_output()
+        super().generate_output()
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
@@ -320,3 +316,112 @@ class RWS(RawProductGeneratorBase):
             else:
                 if self._output_type == 'RWS_XSPOBS':
                     self._create_products(slice_start, slice_end)
+
+
+class RWS_CAL(RawProductGeneratorBase):
+    '''
+    This class implements the RawProductGeneratorBase and is responsible for
+    the raw slice-based products generation.
+
+    The acquisition period (phenomenon begin/end times) of the metadata_source
+    (i.e. a RWS product) is sliced. The slice grid is aligned to ANX.
+    An array "anx" with one or more ANX times must be specified in the scenario.
+    For example:
+
+      "anx": [
+        "2021-02-01T00:25:33.745Z",
+        "2021-02-01T02:03:43.725Z"
+      ],
+
+    'Special' cases:
+    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
+        the 'old' ANX, slice 1 starts at the 'new' ANX.
+    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
+        slice n. The first slice will be slice n+1, with the acquisition
+        starting at Tstart.
+    - Acquisition ends with Tend <= slice_minimum_duration after the end of
+        slice n. Slice n ends at Tend.
+
+    The generator adjusts the following metadata:
+    - phenomenonTime, acquisition begin/end times.
+    - validTime, theoretical slice begin/end times (including overlap).
+    - wrsLatitudeGrid, aka the slice_frame_nr.
+
+    An array "data_takes" with one or more data take objects can be specified
+    in the scenario. Each data take object must contain at least the ID and
+    start/stop times, and can contain other metadata fields. For example:
+
+      "data_takes": [
+        {
+          "data_take_id": 15,
+          "start": "2021-02-01T00:24:32.000Z",
+          "stop": "2021-02-01T00:29:32.000Z",
+          "swath": "S1",
+          "operational_mode": "SM"  // example of an optional field
+        },
+    '''
+
+    PRODUCTS = [
+        'RWS_XS_CAL',
+#        'RWS_XSPCAL',  TODO
+    ]
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('enable_slicing', '_enable_slicing', 'bool'),
+        ('slice_grid_spacing', '_slice_grid_spacing', 'float'),
+        ('slice_overlap_start', '_slice_overlap_start', 'float'),
+        ('slice_overlap_end', '_slice_overlap_end', 'float'),
+        ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    HDR_PARAMS = [
+        ('num_isp', 'nr_instrument_source_packets', 'int'),
+        ('num_isp_erroneous', 'nr_instrument_source_packets_erroneous', 'int'),
+        ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
+    ]
+
+    ACQ_PARAMS = [
+        ('data_take_id', 'data_take_id', 'int')
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+        self._enable_slicing = True
+        self._slice_grid_spacing = constants.SLICE_GRID_SPACING
+        self._slice_overlap_start = constants.SLICE_OVERLAP_START
+        self._slice_overlap_end = constants.SLICE_OVERLAP_END
+        self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
+        self._orbital_period = constants.ORBITAL_PERIOD
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
+
+    def generate_output(self):
+        super().generate_output()
+
+        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO separate calibration_events in config? and add separate raw data for that?
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            self.read_scenario_parameters(data_take_config)
+            self._create_products(data_take_start, data_take_stop)
+
+    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+        # Construct product name and set metadata fields
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen.file_type = self._output_type
+        name_gen.start_time = acq_start
+        name_gen.stop_time = acq_stop
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        name_gen.set_creation_date(self._creation_date)
+        name_gen.downlink_time = self._hdr.acquisition_date
+
+        for sensor in ('LRES', 'HRE1', 'HRE2'):
+            name_gen.sensor = sensor
+            dir_name = name_gen.generate_path_name()
+            self._hdr.product_type = self._output_type
+            self._hdr.initialize_product_list(dir_name)
+            self._hdr.set_phenomenon_times(acq_start, acq_stop)
+            self._hdr.set_validity_times(acq_start, acq_stop)
+
+            self._create_raw_product(dir_name, name_gen)
