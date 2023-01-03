@@ -292,7 +292,7 @@ def print_product_info(prod):
                 print('   - {} ({})'.format(param, ptype))
 
 
-def parse_command_line(argv):
+def parse_command_line():
     parser = argparse.ArgumentParser(description=procsim_description)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-i', '--info',
@@ -314,17 +314,15 @@ def parse_command_line(argv):
                         choices=['debug', 'info', 'progress', 'warning', 'error'],
                         help='force log level')
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args()
     if args.info_product is not None:
         print_product_info(args.info_product)
         sys.exit(0)
     return args.task_filename, args.job_filename, args.config_filename, args.scenario_name, args.log_level
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
-    task_filename, job_filename, config_filename, scenario_name, log_level = parse_command_line(argv)
+def main():
+    task_filename, job_filename, config_filename, scenario_name, log_level = parse_command_line()
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
     try:
         # Program terminate/interrupt, will raise an exception which in turn will

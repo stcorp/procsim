@@ -90,7 +90,7 @@ class Acquisition:
 
     # These values are fixed for Biomass
     _polarisation_mode: str = 'Q'
-    _polaristation_channels: str = 'HH, HV, VH, VV'
+    _polarisation_channels: str = 'HH, HV, VH, VV'
     _antenna_direction: str = 'LEFT'
 
     def __init__(self):
@@ -117,23 +117,8 @@ class Acquisition:
         self.data_take_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
-    def __eq__(self, other):
-        return self.orbit_number == other.orbit_number and \
-            self.last_orbit_number == other.last_orbit_number and \
-            self.anx_date == other.anx_date and \
-            self.start_time == other.start_time and \
-            self.completion_time == other.completion_time and \
-            self.instrument_config_id == other.instrument_config_id and \
-            self.orbit_drift_flag == other.orbit_drift_flag and \
-            self.major_cycle_id == other.major_cycle_id and \
-            self.repeat_cycle_id == other.repeat_cycle_id and \
-            self.slice_frame_nr == other.slice_frame_nr and \
-            self.orbit_direction == other.orbit_direction and \
-            self.track_nr == other.track_nr and \
-            self.mission_phase == other.mission_phase and \
-            self.global_coverage_id == other.global_coverage_id and \
-            self.major_cycle_id == other.major_cycle_id and \
-            self.data_take_id == other.data_take_id
+    def __eq__(self, other):  # called from tests
+        return self.__dict__ == other.__dict__
 
 
 class MainProductHeader:
@@ -215,52 +200,6 @@ class MainProductHeader:
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
-
-    def __eq__(self, other):
-        return \
-            self.eop_identifier == other.eop_identifier and \
-            self.begin_position == other.begin_position and \
-            self.end_position == other.end_position and \
-            self.time_position == other.time_position and \
-            self.validity_start == other.validity_start and \
-            self.validity_stop == other.validity_stop and \
-            self._product_type_info == other._product_type_info and \
-            self.product_baseline == other.product_baseline and \
-            self.processing_date == other.processing_date and \
-            self.processor_name == other.processor_name and \
-            self.processor_version == other.processor_version and \
-            self.acquisitions == other.acquisitions and \
-            self.doi == other.doi and \
-            self.acquisition_type == other.acquisition_type and \
-            self.product_status == other.product_status and \
-            self.processing_centre_code == other.processing_centre_code and \
-            self._processing_level == other._processing_level and \
-            self.products == other.products and \
-            self.auxiliary_ds_file_names == other.auxiliary_ds_file_names and \
-            self.biomass_source_product_ids == other.biomass_source_product_ids and \
-            self.reference_documents == other.reference_documents and \
-            self.acquisition_station == other.acquisition_station and \
-            self.acquisition_date == other.acquisition_date and \
-            self.nr_transfer_frames == other.nr_transfer_frames and \
-            self.nr_transfer_frames_erroneous == other.nr_transfer_frames_erroneous and \
-            self.nr_transfer_frames_corrupt == other.nr_transfer_frames_corrupt and \
-            self.nr_instrument_source_packets == other.nr_instrument_source_packets and \
-            self.nr_instrument_source_packets_erroneous == other.nr_instrument_source_packets_erroneous and \
-            self.nr_instrument_source_packets_corrupt == other.nr_instrument_source_packets_corrupt and \
-            self.nr_l0_lines == other.nr_l0_lines and \
-            self.nr_l0_lines_missing == other.nr_l0_lines_missing and \
-            self.nr_l0_lines_corrupt == other.nr_l0_lines_corrupt and \
-            self.l1_frames_in_l0 == other.l1_frames_in_l0 and \
-            self.is_incomplete == other.is_incomplete and \
-            self.is_partial == other.is_partial and \
-            self.is_merged == other.is_merged and \
-            self.browse_ref_id == other.browse_ref_id and \
-            self.browse_image_filename == other.browse_image_filename and \
-            self.tai_utc_diff == other.tai_utc_diff and \
-            self.sensor_swath == other.sensor_swath and \
-            self.sensor_mode == other.sensor_mode and \
-            self.footprint_polygon == other.footprint_polygon and \
-            self.center_points == other.center_points
 
     @property
     def product_type(self):
@@ -442,7 +381,7 @@ class MainProductHeader:
                     et.SubElement(acquisition, eop + 'startTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.start_time)
                     et.SubElement(acquisition, eop + 'completionTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.completion_time)
                     et.SubElement(acquisition, sar + 'polarisationMode').text = acq._polarisation_mode
-                    et.SubElement(acquisition, sar + 'polarisationChannels').text = acq._polaristation_channels
+                    et.SubElement(acquisition, sar + 'polarisationChannels').text = acq._polarisation_channels
                 if level in ['l0', 'l1', 'l2a']:
                     et.SubElement(acquisition, sar + 'antennaLookDirection').text = acq._antenna_direction
                     et.SubElement(acquisition, bio + 'missionPhase').text = acq.mission_phase
@@ -628,13 +567,16 @@ class MainProductHeader:
         # earth_observation_equipment.set(gml + 'id', self.eop_identifier + '_5')
         if earth_observation_equipment is None:
             raise ParseError(earth_observation_equipment)
+
         platform = earth_observation_equipment.find(eop + 'platform')  # Platform description
         if platform is None:
             raise ParseError(platform)
         Platform = platform.find(eop + 'Platform')  # Nested element for platform description
         if Platform is None:
             raise ParseError(Platform)
-        self._platform_shortname = Platform.findtext(eop + 'shortName')
+        _platform_shortname = Platform.findtext(eop + 'shortName')
+        if _platform_shortname != self._platform_shortname:
+            raise ParseError(Platform)
 
         instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         if instrument is None:
@@ -642,7 +584,9 @@ class MainProductHeader:
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
         if Instrument is None:
             raise ParseError(Instrument)
-        self._sensor_name = Instrument.findtext(eop + 'shortName')
+        _sensor_name = Instrument.findtext(eop + 'shortName')
+        if _sensor_name != self._sensor_name:
+            raise ParseError(Instrument)
 
         # Mandatory for L0, L1, L2A products
         sensors = []
@@ -685,10 +629,15 @@ class MainProductHeader:
                 # TODO ={'uom': 'ms'}
                 acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
 
-                # TODO: Only CHECK these, not overwrite!
-                acq._polarisation_mode = acquisition.findtext(sar + 'polarisationMode') or acq._polarisation_mode
-                acq._polaristation_channels = acquisition.findtext(sar + 'polarisationChannels') or acq._polaristation_channels
-                acq._antenna_direction = acquisition.findtext(sar + 'antennaLookDirection') or acq._antenna_direction
+                _polarisation_mode = acquisition.findtext(sar + 'polarisationMode') or acq._polarisation_mode
+                if _polarisation_mode != acq._polarisation_mode:
+                    raise ParseError(acquisition)
+                _polarisation_channels = acquisition.findtext(sar + 'polarisationChannels') or acq._polarisation_channels
+                if _polarisation_channels != acq._polarisation_channels:
+                    raise ParseError(acquisition)
+                _antenna_direction = acquisition.findtext(sar + 'antennaLookDirection') or acq._antenna_direction
+                if _antenna_direction != acq._antenna_direction:
+                    raise ParseError(acquisition)
 
                 acq.mission_phase = acquisition.findtext(bio + 'missionPhase') or acq.mission_phase
                 acq.instrument_config_id = _to_int(acquisition.findtext(bio + 'instrumentConfID')) or acq.instrument_config_id
@@ -763,7 +712,10 @@ class MainProductHeader:
             browse_info = browse.find(eop + 'BrowseInformation')
             if browse_info is None:
                 raise ParseError(browse_info)
-            self._browse_type = browse_info.findtext(eop + 'type')
+            _browse_type = browse_info.findtext(eop + 'type')
+            if _browse_type != self._browse_type:
+                raise ParseError(browse_info)
+
             self.browse_ref_id = browse_info.findtext(eop + 'referenceSystemIdentifier')  # Coordinate reference system name
             # browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
             # self._insert_file_name(browse_info, self.browse_image_filename)
@@ -844,7 +796,9 @@ class MainProductHeader:
         processing_mode = processing_info.find(eop + 'processingMode')
         if processing_mode is None:
             raise ParseError(processing_mode)
-        self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        if processing_mode != self.processing_mode:
+            raise ParseError(processing_mode)
 
         # Mandatory for level 0, 1 and 2a
         self.biomass_source_product_ids.clear()
@@ -881,3 +835,6 @@ class MainProductHeader:
         for doc in earth_observation_meta_data.findall(bio + 'refDoc'):
             if doc.text is not None:
                 self.reference_documents.append(doc.text)
+
+    def __eq__(self, other):  # called from tests
+        return self.__dict__ == other.__dict__
