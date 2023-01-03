@@ -406,10 +406,15 @@ class RWS_CAL(RawProductGeneratorBase):
             cal_start = self._time_from_iso(calibration['start'])
             cal_stop = self._time_from_iso(calibration['stop'])
 
-            complete = (cal_start >= self._hdr.begin_position and cal_stop <= self._hdr.end_position)
+            begin_pos = self._hdr.begin_position
+            end_pos = self._hdr.end_position
+            if begin_pos is None or end_pos is None:
+                raise ScenarioError('no begin_position or end_position')
+
+            complete = (cal_start >= begin_pos and cal_stop <= end_pos)
             if not complete:
-                cal_start = max(cal_start, self._hdr.begin_position)
-                cal_stop = min(cal_stop, self._hdr.end_position)
+                cal_start = max(cal_start, begin_pos)
+                cal_stop = min(cal_stop, end_pos)
 
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
                 self._create_products(cal_start, cal_stop)
