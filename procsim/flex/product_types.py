@@ -21,6 +21,12 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAW_XS_HR2', 'raw', 'Science and Ancillary RAW products'),
     ProductType('RAW_XS_OBC', 'raw', 'Science and Ancillary RAW products'),
 
+    ProductType('AUX_OBSMSK', 'aux', 'Observation Mask'),
+    ProductType('AUX_GCP_DB', 'aux', 'GCP Database'),
+    ProductType('AUX_PF_BC_', 'aux', 'Products Baseline'),
+    ProductType('AUX_TSKTBL', 'aux', 'Processors Task Tables'),
+    ProductType('AUX_L0__PF', 'aux', 'PDGS L0 Operational Processors Parameters File'),
+
 ]
 
 RAWS_PRODUCT_TYPES = []
