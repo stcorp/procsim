@@ -373,7 +373,6 @@ class ANC(product_generator.ProductGeneratorBase):
         'L0_ICUDTM',
         'L0_VAU_TM',
         'L0_INSTTM',
-
-        'L0_TST___',  # TODO ?
+        'L0_TST___',
         'L0_UNK___',
     ]
