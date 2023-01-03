@@ -29,16 +29,14 @@
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
                     "swath": "S1",
-                    "operational_mode": "SM",
-                    "complete": true
+                    "operational_mode": "SM"
                 },
                 {
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
-                    "stop": "2017-01-01T06:04:44.504000Z",
+                    "stop": "2017-01-01T06:08:44.504000Z",
                     "swath": "S1",
-                    "operational_mode": "SM",
-                    "complete": false
+                    "operational_mode": "SM"
                 }
             ],
             "mission_phase": "Tomographic",
