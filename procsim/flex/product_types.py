@@ -31,6 +31,28 @@ PRODUCT_TYPES: List[ProductType] = [
 
     ProductType('L0__OBS___', 'l0', 'Level-0 Observation Product'),
 
+    ProductType('L0_DARKNP', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DARKSR', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DARKSS', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DEFDAR', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DARKOC', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DRKMTF', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DRKSTR', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_SPECSD', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_SUN___', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_DEFSUN', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_MOON__', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_MOONSL', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_LINDES', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_LINSEA', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_LINSUN', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_LINDAR', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_CTE___', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_SCNVAL', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_COREG_', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_SPECEO', 'l0', 'Level-0 Calibration Product'),
+    ProductType('L0_CLOUD_', 'l0', 'Level-0 Calibration Product'),
+
 ]
 
 RAWS_PRODUCT_TYPES = []

@@ -115,6 +115,7 @@ class Acquisition:
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
         # AUT_ATT___, AUX_ORB___, L0, L1
         self.data_take_id: Optional[int] = None
+        self.calibration_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
     def __eq__(self, other):

@@ -65,7 +65,28 @@
               {"type": "AUX_PF_BC_", "size": 1},
               {"type": "AUX_TSKTBL", "size": 1},
               {"type": "AUX_L0__PF", "size": 1},
-              {"type": "L0__OBS___", "size": 1}
+              {"type": "L0__OBS___", "size": 1},
+              {"type": "L0_DARKNP", "size": 1},
+              {"type": "L0_DARKSR", "size": 1},
+              {"type": "L0_DARKSS", "size": 1},
+              {"type": "L0_DEFDAR", "size": 1},
+              {"type": "L0_DARKOC", "size": 1},
+              {"type": "L0_DRKMTF", "size": 1},
+              {"type": "L0_DRKSTR", "size": 1},
+              {"type": "L0_SPECSD", "size": 1},
+              {"type": "L0_SUN___", "size": 1},
+              {"type": "L0_DEFSUN", "size": 1},
+              {"type": "L0_MOON__", "size": 1},
+              {"type": "L0_MOONSL", "size": 1},
+              {"type": "L0_LINDES", "size": 1},
+              {"type": "L0_LINSEA", "size": 1},
+              {"type": "L0_LINSUN", "size": 1},
+              {"type": "L0_LINDAR", "size": 1},
+              {"type": "L0_CTE___", "size": 1},
+              {"type": "L0_SCNVAL", "size": 1},
+              {"type": "L0_COREG_", "size": 1},
+              {"type": "L0_SPECEO", "size": 1},
+              {"type": "L0_CLOUD_", "size": 1}
             ]
         }
     ]
