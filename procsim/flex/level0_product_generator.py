@@ -234,9 +234,9 @@ class CAL(product_generator.ProductGeneratorBase):
     in the scenario. Each data take object must contain at least the ID and
     start/stop times, and can contain other metadata fields. For example:
 
-      "data_takes": [
+      "calibration_events": [
         {
-          "data_take_id": 15,
+          "calibration_id": 15,
           "start": "2021-02-01T00:24:32.000Z",
           "stop": "2021-02-01T00:29:32.000Z",
           "swath": "S1",
@@ -308,9 +308,13 @@ class CAL(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:  # TODO use calibration events!
-            self._generate_output(data_take_start, data_take_stop)
+#        data_takes_with_bounds = self._get_data_takes_with_bounds() # TODO similar function for 'calibration_events'?
+#        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:  # TODO use calibration events!
+
+        for calibration_config in self._scenario_config['calibration_events']:
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
+            self._generate_output(cal_start, cal_stop)
 
     def _generate_output(self, start, stop):
 #        if self._hdr.acquisitions[0].calibration_id is None:
