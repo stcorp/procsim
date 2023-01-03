@@ -23,15 +23,6 @@
                     "operational_mode": "SM"
                 }
             ],
-            "calibration_events": [
-                {
-                    "calibration_id": "9191",
-                    "start": "2018-01-01T06:01:31.394000Z",
-                    "stop": "2018-01-01T06:03:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
-                }
-            ],
             "mission_phase": "Tomographic",
             "global_coverage_id": "01",
             "major_cycle_id": "01",
