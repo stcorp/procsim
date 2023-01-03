@@ -363,7 +363,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     PRODUCTS = [
         'RWS_XS_CAL',
-#        'RWS_XSPCAL',  TODO
+        'RWS_XSPCAL',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -401,10 +401,13 @@ class RWS_CAL(RawProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO separate calibration_events in config? and add separate raw data for that?
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            self._create_products(data_take_start, data_take_stop)
+        for calibration in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration)
+            cal_start = self._time_from_iso(calibration['start'])
+            cal_stop = self._time_from_iso(calibration['stop'])
+            complete = calibration['complete']
+            if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
+                self._create_products(cal_start, cal_stop)
 
     def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
         # Construct product name and set metadata fields
