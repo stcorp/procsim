@@ -157,7 +157,7 @@ class MainProductHeader:
         self.time_position: Optional[datetime.datetime] = None
         self.validity_start: Optional[datetime.datetime] = None
         self.validity_stop: Optional[datetime.datetime] = None
-        self.product_baseline: Optional[int] = None
+        self.product_baseline: Optional[str] = None
         self.processing_date: Optional[datetime.datetime] = None
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None

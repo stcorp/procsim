@@ -65,7 +65,7 @@ class ProductName:
         # Common
         self.start_time: Optional[datetime.datetime]
         self.stop_time: Optional[datetime.datetime]
-        self.baseline_identifier: Optional[int]
+        self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
         self.duration: Optional[str]

@@ -134,17 +134,17 @@ class ProductGeneratorBase(IProductGenerator):
         Type code can be a 'wildcard' type, such as Sx_RAW__0S.
         In that case, select the correct type using the swath (which must be known now).
         '''
-        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M',
-                                 'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S',
-                                 'Sx_STA__1S', 'Sx_STA__1M']:
-            swath = self._hdr.sensor_swath
-            if swath is None:
-                raise ScenarioError('Swath must be configured to resolve Sx_ type')
-            if swath not in ['S1', 'S2', 'S3']:
-                raise ScenarioError('Swath must be S1, S2 or S3')
-            return self._output_type.replace('Sx', swath)
-        else:
-            return self._output_type
+#        if self._output_type in ['Sx_RAW__0S', 'Sx_RAWP_0M', 'Sx_RAW__0M',
+#                                 'Sx_SCS__1S', 'Sx_SCS__1M', 'Sx_DGM__1S',
+#                                 'Sx_STA__1S', 'Sx_STA__1M']:
+#            swath = self._hdr.sensor_swath
+#            if swath is None:
+#                raise ScenarioError('Swath must be configured to resolve Sx_ type')
+#            if swath not in ['S1', 'S2', 'S3']:
+#                raise ScenarioError('Swath must be S1, S2 or S3')
+#            return self._output_type.replace('Sx', swath)
+#        else:
+        return self._output_type
 
     def _time_from_iso_or_none(self, timestr):
         if timestr is None:
@@ -252,7 +252,7 @@ class ProductGeneratorBase(IProductGenerator):
 
         # The baseline ID is not copied from any source, but read from job order
         # (if available) or set in scenario config.
-        self._hdr.product_baseline = self._job_config_baseline
+        self._hdr.product_baseline = str(self._job_config_baseline)
 
         if (pattern is not None) and (not mph_is_parsed):
             self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
