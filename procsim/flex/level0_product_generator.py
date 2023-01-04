@@ -210,6 +210,7 @@ class EO(product_generator.ProductGeneratorBase):
             acq_end = min(validity_end, segment_end)
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
+            self._hdr.sensor_mode = 'EO'
 
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
@@ -336,6 +337,7 @@ class CAL(product_generator.ProductGeneratorBase):
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'CALIBRATION'
+        self._hdr.sensor_mode = 'CAL'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -460,6 +462,7 @@ class ANC(product_generator.ProductGeneratorBase):
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'OTHER'
+        self._hdr.sensor_mode = 'ANC'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
