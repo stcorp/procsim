@@ -58,7 +58,7 @@
             "track_nr": "1",
             "begin_position": "2017-01-01T06:01:31.394Z",
             "end_position": "2017-01-01T06:04:06.410Z",
-            "baseline": 1,
+            "baseline": "1B01",
             "swath": "S1",
 
             "cycle_number": "011",

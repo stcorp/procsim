@@ -517,7 +517,7 @@ class MainProductHeader:
                 if prod.get('representation') is not None:    # Mandatory for if type is XML
                     et.SubElement(product_information, eop + 'rds').text = prod['representation']
             else:
-                et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self.product_baseline)
+                et.SubElement(product_information, eop + 'version').text = self.product_baseline
                 et.SubElement(product_information, eop + 'timeliness').text = 'NOMINAL'  # TODO CALIBRATION?
 
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
@@ -780,7 +780,7 @@ class MainProductHeader:
             file_name = self._parse_file_name(product_information)
             version = product_information.findtext(eop + 'version')
             if version is not None:
-                self.product_baseline = int(version)
+                self.product_baseline = version
                 self.products.append({'file_name': file_name})
             else:
                 size = int(product_information.findtext(eop + 'size', '0'))  # attrib={'uom': 'bytes'}

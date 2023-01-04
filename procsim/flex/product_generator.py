@@ -66,7 +66,7 @@ class ProductGeneratorBase(IProductGenerator):
     ]
 
     _COMMON_HDR_PARAMS = [
-        ('baseline', 'product_baseline', 'int'),
+        ('baseline', 'product_baseline', 'str'),
         ('begin_position', 'begin_position', 'date'),
         ('end_position', 'end_position', 'date')
     ]

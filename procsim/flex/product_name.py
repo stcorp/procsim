@@ -246,7 +246,7 @@ class ProductName:
                 self.start_time = self.str_to_time(match_dict.get('vstart'))
                 self.stop_time = self.str_to_time(match_dict.get('vstop'))
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
-                self.baseline_identifier = self.str_to_int(match_dict.get('baseline'))
+                self.baseline_identifier = match_dict.get('baseline')
                 self._compact_create_date = match_dict.get('create_date')
                 self._mission_phase_id = match_dict.get('mission_phase')
                 self._global_coverage_id_str: Optional[str] = match_dict.get('global_cov')
@@ -293,7 +293,7 @@ class ProductName:
                 self.time_to_str(self._creation_date),
             )
         elif self._level == 'l0':
-            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}'.format(
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 128,
                 self.cycle_number,
@@ -317,7 +317,7 @@ class ProductName:
             if self._frame_slice_nr_str is None:
                 raise ScenarioError('frame_slice_nr must be set')
             # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{:02}_{}'.format(
+            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{}_{}'.format(
                 self._mission_phase_id,
                 self._global_coverage_id_str,
                 self._major_cycle_id_str,
@@ -362,7 +362,7 @@ class ProductName:
                 extension,
             )
         elif self._level == 'l0':
-            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}{}{}'.format(
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
                 128,
                 self.cycle_number,
