@@ -175,6 +175,7 @@ class MainProductHeader:
         self.product_status_subtype = 'ON-LINE'
         self.processing_centre_code = 'ESR'
         self.downlink_station_code = 'KSE'
+        self.archive_station_code = 'ESR'
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
         self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
@@ -536,12 +537,20 @@ class MainProductHeader:
                 raise ScenarioError('Acquisition time must be set prior to generating MPH')
             if self.acquisition_station is None:
                 raise ScenarioError('Acquisition station must be set prior to generating MPH')
+
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             acq_station = et.SubElement(downlink_info, eop + 'acquisitionStation')
             acq_station.text = self.downlink_station_code
             acq_station.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self.acquisition_date)
+
+            archived_in = et.SubElement(earth_observation_meta_data, eop + 'archivedIn')
+            archive_info = et.SubElement(archived_in, eop + 'ArchivingInformation')
+            arch_center = et.SubElement(archive_info, eop + 'archivingCenter')
+            arch_center.text = self.archive_station_code
+            arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
+            et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
