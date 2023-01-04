@@ -424,15 +424,19 @@ class ANC(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        anx = self._scenario_config['anx']  # TODO slice range or is this enough?
-        anx_start = self._time_from_iso(anx[0])
-        anx_stop = self._time_from_iso(anx[1])
+        anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
 
-        apid = self._scenario_config['apid']
+        for event in self._scenario_config['anc_events']:
+            apid = event['apid']
+            start = self._time_from_iso(event['start'])
+            stop = self._time_from_iso(event['stop'])
 
-        self._generate_output(anx_start, anx_stop, apid)
+            for i in range(len(anx)-1):
+                # complete overlap of anx-to-anx window
+                if start <= anx[i] and stop >= anx[i+1]:
+                    self._generate_output(apid, anx[i], anx[i+1])
 
-    def _generate_output(self, start, stop, apid):
+    def _generate_output(self, apid, start, stop):
         #        if self._hdr.acquisitions[0].calibration_id is None:
         #            raise ScenarioError('calibration_id field is mandatory')
         #

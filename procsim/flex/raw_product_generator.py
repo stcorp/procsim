@@ -533,16 +533,13 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
-                    print('COMPLETE!', apid, self._output_type, anx[i], anx[i+1])
                     self._create_products(apid, anx[i], anx[i+1])
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    print('PARTIAL!', apid, self._output_type, start, anx[i+1])
                     self._create_products(apid, start, anx[i+1])
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    print('PARTIAL!', apid, self._output_type, anx[i], stop)
                     self._create_products(apid, anx[i], stop)
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime):
