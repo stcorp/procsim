@@ -66,6 +66,11 @@ class ProductName:
         self.start_time: Optional[datetime.datetime]
         self.stop_time: Optional[datetime.datetime]
         self.baseline_identifier: Optional[int]
+        self.relative_orbit_number: Optional[str]
+        self.cycle_number: Optional[str]
+        self.duration: Optional[str]
+        self.sensor: Optional[str]
+        self.anx_elapsed: Optional[str]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
@@ -271,6 +276,11 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
+            if self._file_type in ('RWS_XS_OBS', 'RWS_XSPOBS', 'RWS_XS_CAL', 'RWS_XSPCAL'):
+                name = self._generate_prefix() + '_{}_{}'.format(
+                    self.time_to_str(self.downlink_time),
+                    self.sensor  # TODO unspecified RWS naming
+                )
             else:
                 name = self._generate_prefix() + '_{}'.format(
                     self.time_to_str(self.downlink_time),
@@ -282,14 +292,17 @@ class ProductName:
             name = self._generate_prefix() + '_{}'.format(
                 self.time_to_str(self._creation_date),
             )
-        elif self._level == 'mpl':
-            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
-                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
-                + f'_{self.baseline_identifier:02}{self.version_nr:02}.EOF'
-        elif self._level == 'l1fvra':
-            name = f'{constants.SATELLITE_ID}_{self._file_class}_{self._file_type}'\
-                + f'_{self.time_to_str(self.start_time)}_{self.time_to_str(self.stop_time)}'\
-                + f'_{self.baseline_identifier:02}_{self._compact_create_date}.EOF'
+        elif self._level == 'l0':
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}'.format(
+                self.time_to_str(self.downlink_time),
+                128,
+                self.cycle_number,
+                self.relative_orbit_number,
+                1234,
+                self.baseline_identifier,
+                self.baseline_identifier,  # TODO
+
+            )
         else:
             if self._mission_phase_id is None:
                 raise ScenarioError('mission_phase must be set')
@@ -333,6 +346,10 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
+            if self._file_type in ('RWS_XS_OBS', 'RWS_XSPOBS', 'RWS_XS_CAL', 'RWS_XSPCAL'):
+                name = self._generate_prefix() + '_{}.dat'.format(
+                    self.time_to_str(self.downlink_time),
+                )
             else:
                 name = self._generate_prefix() + '_{}.dat'.format(
                     self.time_to_str(self.downlink_time),
@@ -341,6 +358,17 @@ class ProductName:
         elif self._level == 'aux':
             name = self._generate_prefix() + '{}{}{}'.format(
                 self.time_to_str(self._creation_date),
+                suffix,
+                extension,
+            )
+        elif self._level == 'l0':
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{:02}{}{}'.format(
+                self.time_to_str(self.downlink_time),
+                128,
+                self.cycle_number,
+                self.relative_orbit_number,
+                1234,
+                self.baseline_identifier,
                 suffix,
                 extension,
             )

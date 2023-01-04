@@ -15,7 +15,7 @@ from . import raw_product_generator as raw
 
 _GENERATORS = [
     aux.Aux,
-    raw.RAW, raw.RAW_HKTM, raw.RWS,
+    raw.RAW, raw.RAW_HKTM, raw.RWS_EO, raw.RWS_CAL,
     level0.EO, level0.CAL, level0.ANC,
 ]
 

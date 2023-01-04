@@ -115,6 +115,7 @@ class Acquisition:
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
         # AUT_ATT___, AUX_ORB___, L0, L1
         self.data_take_id: Optional[int] = None
+        self.calibration_id: Optional[int] = None
         # self.feature_of_interest: str = ''
 
     def __eq__(self, other):
@@ -196,6 +197,9 @@ class MainProductHeader:
         self.nr_l0_lines_missing: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
+
+        self.relative_orbit_number = None  # TODO
+        self.cycle_number = None
 
         # L1 only
         self.browse_ref_id: Optional[str] = 'Unknown'

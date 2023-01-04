@@ -13,11 +13,28 @@
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
             ],
+            "apid": "4321",
             "data_takes": [
                 {
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
+                    "swath": "S1",
+                    "operational_mode": "SM"
+                }
+            ],
+            "calibration_events": [
+                {
+                    "calibration_id": "15",
+                    "start": "2017-01-01T06:01:31.394000Z",
+                    "stop": "2017-01-01T06:03:44.504000Z",
+                    "swath": "S1",
+                    "operational_mode": "SM"
+                },
+                {
+                    "calibration_id": "16",
+                    "start": "2017-01-01T06:02:31.394000Z",
+                    "stop": "2017-01-01T06:08:44.504000Z",
                     "swath": "S1",
                     "operational_mode": "SM"
                 }
@@ -31,6 +48,9 @@
             "end_position": "2017-01-01T06:04:06.410Z",
             "baseline": 1,
             "swath": "S1",
+
+            "cycle_number": "011",
+            "relative_orbit_number": "045",
 
             // The validity times are only used for Level1 products.
             // These times correspond with a single slice
@@ -55,11 +75,45 @@
               {"type": "RAW_XS_HR1", "size": 1},
               {"type": "RAW_XS_HR2", "size": 1},
               {"type": "RAW_XS_OBC", "size": 1},
+              {"type": "RWS_XS_OBS", "size": 1},
+              {"type": "RWS_XSPOBS", "size": 1},
+              {"type": "RWS_XS_CAL", "size": 1},
+              {"type": "RWS_XSPCAL", "size": 1},
               {"type": "AUX_OBSMSK", "size": 1},
               {"type": "AUX_GCP_DB", "size": 1},
               {"type": "AUX_PF_BC_", "size": 1},
               {"type": "AUX_TSKTBL", "size": 1},
-              {"type": "AUX_L0__PF", "size": 1}
+              {"type": "AUX_L0__PF", "size": 1},
+              {"type": "L0__OBS___", "size": 1},
+              {"type": "L0_DARKNP", "size": 1},
+              {"type": "L0_DARKSR", "size": 1},
+              {"type": "L0_DARKSS", "size": 1},
+              {"type": "L0_DEFDAR", "size": 1},
+              {"type": "L0_DARKOC", "size": 1},
+              {"type": "L0_DRKMTF", "size": 1},
+              {"type": "L0_DRKSTR", "size": 1},
+              {"type": "L0_SPECSD", "size": 1},
+              {"type": "L0_SUN___", "size": 1},
+              {"type": "L0_DEFSUN", "size": 1},
+              {"type": "L0_MOON__", "size": 1},
+              {"type": "L0_MOONSL", "size": 1},
+              {"type": "L0_LINDES", "size": 1},
+              {"type": "L0_LINSEA", "size": 1},
+              {"type": "L0_LINSUN", "size": 1},
+              {"type": "L0_LINDAR", "size": 1},
+              {"type": "L0_CTE___", "size": 1},
+              {"type": "L0_SCNVAL", "size": 1},
+              {"type": "L0_COREG_", "size": 1},
+              {"type": "L0_SPECEO", "size": 1},
+              {"type": "L0_CLOUD_", "size": 1},
+              {"type": "L0_SAT_TM", "size": 1},
+              {"type": "L0_NAVATT", "size": 1},
+              {"type": "L0_PDHUTM", "size": 1},
+              {"type": "L0_ICUDTM", "size": 1},
+              {"type": "L0_VAU_TM", "size": 1},
+              {"type": "L0_INSTTM", "size": 1},
+              {"type": "L0_TST___", "size": 1},
+              {"type": "L0_UNK___", "size": 1}
             ]
         }
     ]
