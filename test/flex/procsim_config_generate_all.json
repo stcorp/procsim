@@ -13,9 +13,8 @@
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
             ],
-            "apid": "4321",
             "data_takes": [
-                {
+                { // complete and partial slices when sliced against grid
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
@@ -24,19 +23,32 @@
                 }
             ],
             "calibration_events": [
-                {
+                { // complete, as fully inside by begin/end_position
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
                     "swath": "S1",
                     "operational_mode": "SM"
                 },
-                {
+                { // partial, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
                     "stop": "2017-01-01T06:08:44.504000Z",
                     "swath": "S1",
                     "operational_mode": "SM"
+                }
+            ],
+            "apid": "1234", // TODO replace by apid below
+            "anc_events": [
+                { // complete, as filling an anx slice
+                    "apid": "4321",
+                    "start": "2017-01-01T05:51:31.394000Z",
+                    "stop": "2017-01-01T08:20:44.504000Z"
+                },
+                { // partial, as not filling an anx slice
+                    "apid": "5432",
+                    "start": "2017-01-01T06:51:31.394000Z",
+                    "stop": "2017-01-01T08:20:44.504000Z"
                 }
             ],
             "mission_phase": "Tomographic",
