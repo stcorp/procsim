@@ -25,6 +25,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RWS_XSPOBS', 'raw', 'Partial Sliced RAW Observation Product'),
     ProductType('RWS_XS_CAL', 'raw', 'Complete Sliced RAW Calibration Product'),
     ProductType('RWS_XSPCAL', 'raw', 'Partial Sliced RAW Calibration Product'),
+    ProductType('RWS_XS_ANC', 'raw', 'Complete Sliced RAW Ancillary Product'),
+    ProductType('RWS_XSPANC', 'raw', 'Partial Sliced RAW Ancillary Product'),
 
     ProductType('AUX_OBSMSK', 'aux', 'Observation Mask'),
     ProductType('AUX_GCP_DB', 'aux', 'GCP Database'),
