@@ -18,8 +18,6 @@
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
                 }
             ],
             "calibration_events": [
@@ -27,18 +25,13 @@
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
                 },
                 { // partial, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
                     "stop": "2017-01-01T06:08:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
                 }
             ],
-            "apid": "1234", // TODO replace by apid below
             "anc_events": [
                 { // complete, as filling an anx slice
                     "apid": "4321",
@@ -59,7 +52,6 @@
             "begin_position": "2017-01-01T06:01:31.394Z",
             "end_position": "2017-01-01T06:04:06.410Z",
             "baseline": "1B01",
-            "swath": "S1",
 
             "cycle_number": "011",
             "relative_orbit_number": "045",
