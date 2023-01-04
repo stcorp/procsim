@@ -552,6 +552,10 @@ class MainProductHeader:
             arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
 
+            qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
+            qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
+            qc_degradation_tag.text = 'RADIOMETRIC'
+
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
         proc_center = et.SubElement(processing_info, eop + 'processingCenter')
