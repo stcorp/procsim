@@ -268,6 +268,7 @@ class ProductName:
         # Returns directory name
         if self.baseline_identifier is None:
             raise ScenarioError('baseline_id must be set')
+
         if self._level == 'raw':
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
@@ -276,23 +277,29 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
-            if self._file_type.startswith('RWS_'):
-                name = self._generate_prefix() + '_{}_{}'.format(
-                    self.time_to_str(self.downlink_time),
-                    self.sensor  # TODO unspecified RWS naming
-                )
             else:
                 name = self._generate_prefix() + '_{}'.format(
                     self.time_to_str(self.downlink_time),
                 )
-#                self.baseline_identifier,
-#                self._compact_create_date
+
+        elif self._level == 'raws':
+            if self.downlink_time is None:
+                raise ScenarioError('acquisition_date must be set')
+
+            name = self._generate_prefix() + '_{}_{}'.format(
+                self.time_to_str(self.downlink_time),
+                self.sensor  # TODO unspecified RWS naming
+            )
+
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
             name = self._generate_prefix() + '_{}'.format(
                 self.time_to_str(self._creation_date),
             )
         elif self._level == 'l0':
+            if self.downlink_time is None:
+                raise ScenarioError('acquisition_date must be set')
+
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 128,
@@ -346,15 +353,16 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
-            if self._file_type.startswith('RWS_'):
-                name = self._generate_prefix() + '_{}.dat'.format(
-                    self.time_to_str(self.downlink_time),
-                )
             else:
                 name = self._generate_prefix() + '_{}.dat'.format(
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
+        elif self._level == 'raws':
+            name = self._generate_prefix() + '_{}.dat'.format(
+                self.time_to_str(self.downlink_time),
+            )
+
         elif self._level == 'aux':
             name = self._generate_prefix() + '{}{}{}'.format(
                 self.time_to_str(self._creation_date),
