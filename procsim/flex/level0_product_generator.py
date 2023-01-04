@@ -277,6 +277,30 @@ class CAL(product_generator.ProductGeneratorBase):
         'L0_CLOUD_',
     ]
 
+    ACQ_SUBTYPE = {
+        'L0_DARKNP': 'Dark_CU_NAPoint_NOM',
+        'L0_DARKSR': 'Dark_CU_SunPoint_Rad',
+        'L0_DARKSS': 'Dark_CU_SunPoint_SpectrSun',
+        'L0_DEFDAR': 'Dark_defpixel',
+        'L0_DARKOC': 'DarkSea_NAPoint',
+        'L0_DRKMTF': 'Dark_CU_MoonPoint_MTF',
+        'L0_DRKSTR': 'Dark_CU_MoonPoint_Stray',
+        'L0_SPECSD': 'Spectr_SunPoint',
+        'L0_SUN___': 'RadioMetric_SunPoint',
+        'L0_DEFSUN': 'RadioMetric_SunPoint_DefPixels',
+        'L0_MOON__': 'Radiometric_MTF_MoonPoint',
+        'L0_MOONSL': 'Straylight_MoonPoint',
+        'L0_LINDES': 'Linearity_NaPoint_Desert',
+        'L0_LINSEA': 'Linearity_NaPoint_Sea',
+        'L0_LINSUN': 'Linearity_SunPoint',
+        'L0_LINDAR': 'Linearity_Dark',
+        'L0_CTE___': 'CTE_Monitoring',
+        'L0_SCNVAL': 'Image_Geo',
+        'L0_COREG_': 'Image_coreg',
+        'L0_SPECEO': 'Spectral_NaPoint_Bin',
+        'L0_CLOUD_': 'Radiometric_NaPoint_Cloud',
+    }
+
     _ACQ_PARAMS = [
         ('slice_frame_nr', 'slice_frame_nr', 'int')
     ]
@@ -337,6 +361,7 @@ class CAL(product_generator.ProductGeneratorBase):
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'CALIBRATION'
+        self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
         # Create name generator

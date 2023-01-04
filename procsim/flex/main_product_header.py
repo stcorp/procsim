@@ -170,6 +170,7 @@ class MainProductHeader:
         ]
         self.doi = '10.5270/FLX-xxxxxxx'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
+        self.acquisition_subtype = None     # set for CALIBRATION
         self.product_status = 'ARCHIVED'     # REJECTED, etc..
         self.product_status_subtype = 'ON-LINE'
         self.processing_centre_code = 'ESR'
@@ -521,6 +522,9 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'creationDate').text = _time_as_iso(datetime.datetime.now())
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
+        if self.acquisition_subtype is not None:
+            et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType').text = self.acquisition_subtype
+
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
         et.SubElement(earth_observation_meta_data, eop + 'productType').text = self.product_type
@@ -794,6 +798,7 @@ class MainProductHeader:
             raise ParseError(doi)
         self.doi = doi.text  # Digital Object Identifier
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
+        self.acquisition_subtype = earth_observation_meta_data.findtext(eop + 'acquisitionSubType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
         product_type_info = product_types.find_product(type_code)
         if product_type_info is not None:
