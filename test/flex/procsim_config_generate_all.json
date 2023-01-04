@@ -91,6 +91,8 @@
               {"type": "RWS_XSPOBS", "size": 1},
               {"type": "RWS_XS_CAL", "size": 1},
               {"type": "RWS_XSPCAL", "size": 1},
+              {"type": "RWS_XS_ANC", "size": 1},
+              {"type": "RWS_XSPANC", "size": 1},
               {"type": "AUX_OBSMSK", "size": 1},
               {"type": "AUX_GCP_DB", "size": 1},
               {"type": "AUX_PF_BC_", "size": 1},
