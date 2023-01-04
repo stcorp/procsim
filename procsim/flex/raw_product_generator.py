@@ -436,6 +436,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
+            self._hdr.acquisition_type = 'CALIBRATION'
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -559,5 +560,6 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
+            self._hdr.acquisition_type = 'OTHER'
 
             self._create_raw_product(dir_name, name_gen)

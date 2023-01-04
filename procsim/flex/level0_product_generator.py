@@ -335,6 +335,7 @@ class CAL(product_generator.ProductGeneratorBase):
         #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
+        self._hdr.acquisition_type = 'CALIBRATION'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -458,6 +459,7 @@ class ANC(product_generator.ProductGeneratorBase):
         #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
+        self._hdr.acquisition_type = 'OTHER'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
