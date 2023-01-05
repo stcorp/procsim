@@ -44,7 +44,7 @@
                     "stop": "2017-01-01T08:20:44.504000Z"
                 }
             ],
-            "mission_phase": "Tomographic",
+            "mission_phase": "COMMISSIONING",
             "global_coverage_id": "01",
             "major_cycle_id": "01",
             "repeat_cycle_id": "01",

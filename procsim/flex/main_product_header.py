@@ -586,6 +586,8 @@ class MainProductHeader:
         add_vendor_specific('dataTakeID', self.data_take_id)
         add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
         add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
+        if level in ('raws', 'l0', 'l1', 'l2'):
+            add_vendor_specific('missionPhase', self.mission_phase)
 
         # Create XML
         tree = et.ElementTree(mph)

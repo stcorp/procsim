@@ -440,5 +440,7 @@ class ProductGeneratorBase(IProductGenerator):
             self._scenario_config['processor_version'])
         self._hdr.processing_date = self._creation_date
 
+        self._hdr.mission_phase = self._scenario_config['mission_phase']
+
         self._logger.debug('Output directory is {}'.format(
             os.path.abspath(self._output_path)))
