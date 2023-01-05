@@ -162,6 +162,7 @@ class MainProductHeader:
 
         self.data_take_id: Optional[int] = None  # TODO should be in acq[0]?
         self.slice_frame_nr: Optional[int] = None
+        self.along_track_coordinate: Optional[int] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -584,6 +585,7 @@ class MainProductHeader:
 
         add_vendor_specific('dataTakeID', self.data_take_id)
         add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
+        add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
 
         # Create XML
         tree = et.ElementTree(mph)
