@@ -248,6 +248,7 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -475,6 +476,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -605,5 +607,6 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
 
             self._create_raw_product(dir_name, name_gen)

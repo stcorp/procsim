@@ -164,6 +164,8 @@ class MainProductHeader:
         self.slice_start_position: Optional[str] = None
         self.slice_stop_position: Optional[str] = None
 
+        self.sensor_detector: Optional[str] = None
+
         # Raw only
         self.acquisition_station: Optional[str] = None
         self.acquisition_date: Optional[datetime.datetime] = None
@@ -492,12 +494,15 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
+        if level != 'raw':
+            add_vendor_specific('missionPhase', self.mission_phase)
+
         add_vendor_specific('dataTakeID', self.data_take_id)
+        add_vendor_specific('calibrationID', self.calibration_id)
         add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
         add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
-        if level in ('raws', 'l0', 'l1', 'l2'):
-            add_vendor_specific('missionPhase', self.mission_phase)
-        add_vendor_specific('calibrationID', self.calibration_id)
+
+        add_vendor_specific('sensorDetector', self.sensor_detector)
         add_vendor_specific('completenessAssesment', self.completeness_assesment)
         add_vendor_specific('sliceStartPosition', self.slice_start_position)
         add_vendor_specific('sliceStopPosition', self.slice_stop_position)
