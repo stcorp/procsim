@@ -408,10 +408,10 @@ class RWS_CAL(RawProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        for calibration in self._scenario_config['calibration_events']:
-            self.read_scenario_parameters(calibration)
-            cal_start = self._time_from_iso(calibration['start'])
-            cal_stop = self._time_from_iso(calibration['stop'])
+        for calibration_config in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration_config)
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
 
             begin_pos = self._hdr.begin_position
             end_pos = self._hdr.end_position
@@ -424,9 +424,9 @@ class RWS_CAL(RawProductGeneratorBase):
                 cal_stop = min(cal_stop, end_pos)
 
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(cal_start, cal_stop)
+                self._create_products(calibration_config, cal_start, cal_stop)
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -444,6 +444,8 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'CALIBRATION'
+
+            self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
 
             self._create_raw_product(dir_name, name_gen)
 

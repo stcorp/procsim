@@ -338,12 +338,21 @@ class CAL(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO separate calibration_events in config? and add separate raw data for that?
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            self._generate_output(data_take_start, data_take_stop)
+        for calibration_config in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration_config)
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
 
-    def _generate_output(self, start, stop):
+            begin_pos = self._hdr.begin_position
+            end_pos = self._hdr.end_position
+            if begin_pos is None or end_pos is None:
+                raise ScenarioError('no begin_position or end_position')
+
+            complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+            if complete:
+                self._generate_output(calibration_config, cal_start, cal_stop)
+
+    def _generate_output(self, calibration_config: dict, start, stop):
         #        if self._hdr.acquisitions[0].calibration_id is None:
         #            raise ScenarioError('calibration_id field is mandatory')
         #
@@ -369,11 +378,13 @@ class CAL(product_generator.ProductGeneratorBase):
         self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
+        self._hdr.calibration_id = calibration_config['calibration_id']
+
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
+        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere..
         name_gen.cycle_number = '045'
 
         name_gen.duration = '0128'  # TODO calculate
