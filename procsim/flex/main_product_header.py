@@ -113,10 +113,8 @@ class Acquisition:
         self.mission_phase: Optional[str] = None     # COMMISSIONING, INTERFEROMETRIC, TOMOGRAPHIC
         self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
         self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
-        # AUT_ATT___, AUX_ORB___, L0, L1
         self.data_take_id: Optional[int] = None
         self.calibration_id: Optional[int] = None
-        # self.feature_of_interest: str = ''
 
     def __eq__(self, other):
         return self.orbit_number == other.orbit_number and \
@@ -161,7 +159,9 @@ class MainProductHeader:
         self.processing_date: Optional[datetime.datetime] = None
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
-        self.data_take_id: Optional[int] = None
+
+        self.data_take_id: Optional[int] = None  # TODO should be in acq[0]?
+        self.slice_frame_nr: Optional[int] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -575,6 +575,7 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
 
         def add_vendor_specific(attr, value):
+            value = str(value)
             if value is not None:
                 vendor_specific = et.SubElement(earth_observation_meta_data, eop + 'vendorSpecific')
                 specific_information = et.SubElement(vendor_specific, eop + 'SpecificInformation')
@@ -582,6 +583,7 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
         add_vendor_specific('dataTakeID', self.data_take_id)
+        add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
 
         # Create XML
         tree = et.ElementTree(mph)

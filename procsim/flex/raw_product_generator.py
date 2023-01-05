@@ -296,7 +296,9 @@ class RWS_EO(RawProductGeneratorBase):
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
             anx = self._get_anx(slice_middle)
+
             slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
+
             if anx is None or slice_nr is None:
                 continue
             validity_start = slice_start - self._slice_overlap_start
@@ -305,7 +307,9 @@ class RWS_EO(RawProductGeneratorBase):
             acq_end = min(validity_end, segment_end)
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
-            self._hdr.data_take_id = data_take_config['data_take_id']
+
+            self._hdr.data_take_id = data_take_config['data_take_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.slice_frame_nr = slice_nr
 
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
