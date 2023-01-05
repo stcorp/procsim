@@ -85,59 +85,36 @@ def _to_bool(val: Optional[str]) -> Optional[bool]:
 
 class Acquisition:
     '''
-    Data class, hold acquisition parameters for MPH
+    Hold acquisition parameters for MPH
     '''
 
-    # These values are fixed for Biomass
-    _polarisation_mode: str = 'Q'
-    _polaristation_channels: str = 'HH, HV, VH, VV'
-    _antenna_direction: str = 'LEFT'
-
     def __init__(self):
-        # Fill with default values
+        self.orbit_number = 1
+        self.last_orbit_number = 1
+        self.orbit_direction = 'ASCENDING'
+        self.illumination_azimuth_angle = 10.2
+        self.across_track_incidence_angle = -14.0
+        self.along_track_incidentce_angle = -13.9
+        self.pitch = 0
+        self.roll = 0
+        self.yaw = 0
 
-        # L0, L1
-        self.orbit_number: int = 0
-        self.last_orbit_number: int = 0
-        self.anx_date = datetime.datetime.now(tz=datetime.timezone.utc)
-        self.start_time: int = 0           # in ms since ANX
-        self.completion_time: int = 0      # in ms since ANX
-        self.instrument_config_id: int = 0
-        self.orbit_drift_flag: bool = False
-        self.repeat_cycle_id: str = '__'    # 1..7 or DR or __, refer to PDGS Products Naming Convention document
-        # RAWS, L0, L1, L2a
-        self.slice_frame_nr: Optional[int] = None    # None or the actual slice/frame number
-        # L0, L1, L2a
-        self.orbit_direction: str = 'ASCENDING'      # Or DECENDING
-        self.track_nr: str = '0'                     # gml:CodeWithAuthorityType. Int or ___ (in drifting orbits)
-        self.mission_phase: Optional[str] = None     # COMMISSIONING, INTERFEROMETRIC, TOMOGRAPHIC
-        self.global_coverage_id: str = 'NA'          # 1..6 or NA, refer to PDGS Products Naming Convention document
-        self.major_cycle_id: str = '1'               # 1..7, refer to PDGS Products Naming Convention document
-        self.data_take_id: Optional[int] = None
+        self.data_take_id: Optional[int] = None  # TODO get rid of these attributes?
+        self.global_coverage_id: str = 'NA'
+        self.mission_phase: Optional[str] = None
+        self.major_cycle_id: str = '1'
+        self.repeat_cycle_id: str = '__'
+        self.slice_frame_nr: Optional[int] = None
+        self.track_nr: str = '0'
         self.calibration_id: Optional[int] = None
 
-    def __eq__(self, other):
-        return self.orbit_number == other.orbit_number and \
-            self.last_orbit_number == other.last_orbit_number and \
-            self.anx_date == other.anx_date and \
-            self.start_time == other.start_time and \
-            self.completion_time == other.completion_time and \
-            self.instrument_config_id == other.instrument_config_id and \
-            self.orbit_drift_flag == other.orbit_drift_flag and \
-            self.major_cycle_id == other.major_cycle_id and \
-            self.repeat_cycle_id == other.repeat_cycle_id and \
-            self.slice_frame_nr == other.slice_frame_nr and \
-            self.orbit_direction == other.orbit_direction and \
-            self.track_nr == other.track_nr and \
-            self.mission_phase == other.mission_phase and \
-            self.global_coverage_id == other.global_coverage_id and \
-            self.major_cycle_id == other.major_cycle_id and \
-            self.data_take_id == other.data_take_id
+    def __eq__(self, other):  # called from tests
+        return self.__dict__ == other.__dict__
 
 
 class MainProductHeader:
     '''
-    This class is responsible for parsing and creating the Biomass Main Product Header (MPH).
+    This class is responsible for parsing and creating the FLEX Main Product Header (MPH).
     '''
 
     # Fixed for Flex
@@ -228,51 +205,8 @@ class MainProductHeader:
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
 
-    def __eq__(self, other):
-        return \
-            self.eop_identifier == other.eop_identifier and \
-            self.begin_position == other.begin_position and \
-            self.end_position == other.end_position and \
-            self.time_position == other.time_position and \
-            self.validity_start == other.validity_start and \
-            self.validity_stop == other.validity_stop and \
-            self._product_type_info == other._product_type_info and \
-            self.product_baseline == other.product_baseline and \
-            self.processing_date == other.processing_date and \
-            self.processor_name == other.processor_name and \
-            self.processor_version == other.processor_version and \
-            self.acquisitions == other.acquisitions and \
-            self.doi == other.doi and \
-            self.acquisition_type == other.acquisition_type and \
-            self.product_status == other.product_status and \
-            self.product_status_subtype == other.product_status_subtype and \
-            self.processing_centre_code == other.processing_centre_code and \
-            self._processing_level == other._processing_level and \
-            self.products == other.products and \
-            self.auxiliary_ds_file_names == other.auxiliary_ds_file_names and \
-            self.biomass_source_product_ids == other.biomass_source_product_ids and \
-            self.reference_documents == other.reference_documents and \
-            self.acquisition_station == other.acquisition_station and \
-            self.acquisition_date == other.acquisition_date and \
-            self.nr_transfer_frames == other.nr_transfer_frames and \
-            self.nr_transfer_frames_erroneous == other.nr_transfer_frames_erroneous and \
-            self.nr_transfer_frames_corrupt == other.nr_transfer_frames_corrupt and \
-            self.nr_instrument_source_packets == other.nr_instrument_source_packets and \
-            self.nr_instrument_source_packets_erroneous == other.nr_instrument_source_packets_erroneous and \
-            self.nr_instrument_source_packets_corrupt == other.nr_instrument_source_packets_corrupt and \
-            self.nr_l0_lines == other.nr_l0_lines and \
-            self.nr_l0_lines_missing == other.nr_l0_lines_missing and \
-            self.nr_l0_lines_corrupt == other.nr_l0_lines_corrupt and \
-            self.l1_frames_in_l0 == other.l1_frames_in_l0 and \
-            self.is_incomplete == other.is_incomplete and \
-            self.is_partial == other.is_partial and \
-            self.is_merged == other.is_merged and \
-            self.browse_ref_id == other.browse_ref_id and \
-            self.browse_image_filename == other.browse_image_filename and \
-            self.tai_utc_diff == other.tai_utc_diff and \
-            self.sensor_mode == other.sensor_mode and \
-            self.footprint_polygon == other.footprint_polygon and \
-            self.center_points == other.center_points
+    def __eq__(self, other):  # called from tests
+        return self.__dict__ == other.__dict__
 
     @property
     def product_type(self):
@@ -426,44 +360,19 @@ class MainProductHeader:
                 sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
                 sensor_mode.text = s['mode']
 
-        if level in ['l0', 'l1', 'l2a'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
-                self.product_type in product_types.RAWS_PRODUCT_TYPES:
+        if level in ['raws', 'l0', 'l1', 'l2a']:
             acquisition_params = et.SubElement(earth_observation_equipment, eop + 'acquisitionParameters')
             acquisition = et.SubElement(acquisition_params, eop + 'Acquisition')
             for acq in self.acquisitions:
-                if level in ['l0', 'l1']:
-                    et.SubElement(acquisition, eop + 'orbitNumber').text = str(acq.orbit_number)  # orbit start
-                    et.SubElement(acquisition, eop + 'lastOrbitNumber').text = str(acq.last_orbit_number)   # orbit stop
-                if level in ['l0', 'l1', 'l2a']:
-                    et.SubElement(acquisition, eop + 'orbitDirection').text = acq.orbit_direction
-                    tracknr = et.SubElement(acquisition, eop + 'wrsLongitudeGrid')
-                    tracknr.text = acq.track_nr
-                    tracknr.set('codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
-                if level in ['l0', 'l1', 'l2a'] or self.product_type in product_types.RAWS_PRODUCT_TYPES:
-                    framenr = et.SubElement(acquisition, eop + 'wrsLatitudeGrid')
-                    framenr.text = str(acq.slice_frame_nr) if acq.slice_frame_nr is not None else '___'
-                    framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
-                if level in ['l0', 'l1']:
-                    et.SubElement(acquisition, eop + 'ascendingNodeDate').text = _time_as_iso(acq.anx_date)
-                    et.SubElement(acquisition, eop + 'startTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.start_time)
-                    et.SubElement(acquisition, eop + 'completionTimeFromAscendingNode', attrib={'uom': 'ms'}).text = str(acq.completion_time)
-                    et.SubElement(acquisition, sar + 'polarisationMode').text = acq._polarisation_mode
-                    et.SubElement(acquisition, sar + 'polarisationChannels').text = acq._polaristation_channels
-                if level in ['l0', 'l1', 'l2a']:
-                    et.SubElement(acquisition, sar + 'antennaLookDirection').text = acq._antenna_direction
-                    et.SubElement(acquisition, eop + 'missionPhase').text = acq.mission_phase
-                if level in ['l0', 'l1']:
-                    et.SubElement(acquisition, eop + 'instrumentConfID').text = str(acq.instrument_config_id)
-                if level in ['l0', 'l1'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
-                        self.product_type in product_types.RAWS_PRODUCT_TYPES:
-                    et.SubElement(acquisition, eop + 'dataTakeID').text = str(acq.data_take_id)
-                if level in ['l0', 'l1']:
-                    et.SubElement(acquisition, eop + 'orbitDriftFlag').text = str(acq.orbit_drift_flag).lower()
-                if level in ['l0', 'l1', 'l2a']:
-                    et.SubElement(acquisition, eop + 'globalCoverageID').text = acq.global_coverage_id
-                    et.SubElement(acquisition, eop + 'majorCycleID').text = acq.major_cycle_id
-                if level in ['l0', 'l1']:
-                    et.SubElement(acquisition, eop + 'repeatCycleID').text = acq.repeat_cycle_id
+                et.SubElement(acquisition, eop + 'orbitNumber').text = str(acq.orbit_number)
+                et.SubElement(acquisition, eop + 'lastOrbitNumber').text = str(acq.last_orbit_number)
+                et.SubElement(acquisition, eop + 'orbitDirection').text = acq.orbit_direction
+                et.SubElement(acquisition, eop + 'illuminationAzimuthAngle', attrib={'uom': 'deg'}).text = '10.2'
+                et.SubElement(acquisition, eop + 'acrossTrackIncidenceAngle', attrib={'uom': 'deg'}).text = '-14.0'
+                et.SubElement(acquisition, eop + 'alongTrackIncidenceAngle', attrib={'uom': 'deg'}).text = '-13.9'
+                et.SubElement(acquisition, eop + 'pitch', attrib={'uom': 'deg'}).text = '0'
+                et.SubElement(acquisition, eop + 'rol', attrib={'uom': 'deg'}).text = '0'
+                et.SubElement(acquisition, eop + 'yaw', attrib={'uom': 'deg'}).text = '0'
 
         observed_property = et.SubElement(mph, om + 'observedProperty')  # Observed property (Mandatory but empty)
         observed_property.set(xsi + 'nil', 'true')
@@ -680,11 +589,6 @@ class MainProductHeader:
                 acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
                 # TODO ={'uom': 'ms'}
                 acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
-
-                # TODO: Only CHECK these, not overwrite!
-                acq._polarisation_mode = acquisition.findtext(sar + 'polarisationMode') or acq._polarisation_mode
-                acq._polaristation_channels = acquisition.findtext(sar + 'polarisationChannels') or acq._polaristation_channels
-                acq._antenna_direction = acquisition.findtext(sar + 'antennaLookDirection') or acq._antenna_direction
 
                 acq.mission_phase = acquisition.findtext(eop + 'missionPhase') or acq.mission_phase
                 acq.instrument_config_id = _to_int(acquisition.findtext(eop + 'instrumentConfID')) or acq.instrument_config_id

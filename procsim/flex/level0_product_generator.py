@@ -216,7 +216,6 @@ class EO(product_generator.ProductGeneratorBase):
             self._hdr.slice_frame_nr = slice_nr
             self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
 
-
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
                                 f'  validity {validity_start}  -  {validity_end}\n'
