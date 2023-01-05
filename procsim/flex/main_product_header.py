@@ -161,6 +161,8 @@ class MainProductHeader:
         self.reference_documents = []
 
         self.completeness_assesment: Optional[str] = None
+        self.slice_start_position: Optional[str] = None
+        self.slice_stop_position: Optional[str] = None
 
         # Raw only
         self.acquisition_station: Optional[str] = None
@@ -497,6 +499,8 @@ class MainProductHeader:
             add_vendor_specific('missionPhase', self.mission_phase)
         add_vendor_specific('calibrationID', self.calibration_id)
         add_vendor_specific('completenessAssesment', self.completeness_assesment)
+        add_vendor_specific('sliceStartPosition', self.slice_start_position)
+        add_vendor_specific('sliceStopPosition', self.slice_stop_position)
 
         # Create XML
         tree = et.ElementTree(mph)

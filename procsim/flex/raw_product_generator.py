@@ -317,6 +317,9 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.slice_frame_nr = slice_nr
             self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
 
+            self._hdr.slice_start_position = 'on_grid'
+            self._hdr.slice_stop_position = 'on_grid'
+
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
                                 f'  validity {validity_start}  -  {validity_end}\n'
@@ -328,6 +331,11 @@ class RWS_EO(RawProductGeneratorBase):
                 if self._output_type == 'RWS_XS_OBS':
                     self._create_products(slice_start, slice_end, complete)  # acq_start, acq_end) TODO
             else:
+                if segment_start > slice_start:
+                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes
+                if segment_end < slice_end:
+                    self._hdr.slice_stop_position = 'end_of_SA'
+
                 if self._output_type == 'RWS_XSPOBS':
                     self._create_products(slice_start, slice_end, complete)
 
@@ -426,14 +434,23 @@ class RWS_CAL(RawProductGeneratorBase):
                 raise ScenarioError('no begin_position or end_position')
 
             complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+
+            slice_start_position = 'begin_of_SA'
+            slice_stop_position = 'end_of_SA'
+
             if not complete:
+                if cal_stop > end_pos:
+                    slice_stop_position = 'inside_SA'
+                if cal_start < begin_pos:
+                    slice_start_position = 'inside_SA'
+
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
 
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(calibration_config, cal_start, cal_stop, complete)
+                self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -455,7 +472,8 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'complete'
             else:
                 self._hdr.completeness_assesment = 'partial'
-
+            self._hdr.slice_start_position = slice_start_position
+            self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
 
             self._create_raw_product(dir_name, name_gen)
@@ -554,16 +572,16 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
-                    self._create_products(apid, anx[i], anx[i+1], True)
+                    self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, start, anx[i+1], False)
+                    self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, anx[i], stop, False)
+                    self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
-    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -585,5 +603,7 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'complete'
             else:
                 self._hdr.completeness_assesment = 'partial'
+            self._hdr.slice_start_position = slice_start_position
+            self._hdr.slice_stop_position = slice_stop_position
 
             self._create_raw_product(dir_name, name_gen)
