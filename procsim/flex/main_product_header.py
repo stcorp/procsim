@@ -468,43 +468,9 @@ class MainProductHeader:
         observed_property.set('nilReason', 'inapplicable')
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
 
-        if level in ['l1', 'l2a']:
-            footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
-            footprint.set(gml + 'id', self.eop_identifier + '_6')
-            multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
-            multi_surface = et.SubElement(multi_extent_of, gml + 'MultiSurface')
-            multi_surface.set(gml + 'id', self.eop_identifier + '_7')
-            surface_member = et.SubElement(multi_surface, gml + 'surfaceMember')
-            polygon = et.SubElement(surface_member, gml + 'Polygon')
-            polygon.set(gml + 'id', self.eop_identifier + '_8')
-            exterior = et.SubElement(polygon, gml + 'exterior')
-            linear_ring = et.SubElement(exterior, gml + 'LinearRing')
-            pos_list = et.SubElement(linear_ring, gml + 'posList')  # Footprint points
-            pos_list.text = self.footprint_polygon
-
-            #
-            # TODO! This is a discrepancy between spec and example!!
-            #
-            # center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
-            center_of = et.SubElement(footprint, eop + 'centerOf')  # Acquisition centre representation structure
-
-            point = et.SubElement(center_of, gml + 'Point')
-            point.set(gml + 'id', self.eop_identifier + '_9')
-            pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
-            pos.text = self.center_points
-
         result = et.SubElement(mph, om + 'result')  # Observation result
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
         earth_observation_result.set(gml + 'id', self.eop_identifier + '_9')
-
-        if level in ['l1'] and self.browse_image_filename != '':
-            browse = et.SubElement(earth_observation_result, eop + 'browse')
-            browse_info = et.SubElement(browse, eop + 'BrowseInformation')
-            et.SubElement(browse_info, eop + 'type').text = self._browse_type
-            browse_ref_id = et.SubElement(browse_info, eop + 'referenceSystemIdentifier')  # Coordinate reference system name
-            browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
-            browse_ref_id.text = self.browse_ref_id
-            self._insert_file_name(browse_info, self.browse_image_filename)
 
         for prod in self.products:
             product = et.SubElement(earth_observation_result, eop + 'product')
