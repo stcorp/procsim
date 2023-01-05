@@ -232,7 +232,7 @@ class RWS_EO(RawProductGeneratorBase):
             else:
                 self._create_products(data_take_start, data_take_stop)
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -248,6 +248,11 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
+
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -317,12 +322,14 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            if segment_start <= slice_start and slice_end <= segment_end:
+            complete = (segment_start <= slice_start and slice_end <= segment_end)
+
+            if complete:
                 if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(slice_start, slice_end)  # acq_start, acq_end) TODO
+                    self._create_products(slice_start, slice_end, complete)  # acq_start, acq_end) TODO
             else:
                 if self._output_type == 'RWS_XSPOBS':
-                    self._create_products(slice_start, slice_end)
+                    self._create_products(slice_start, slice_end, complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -424,9 +431,9 @@ class RWS_CAL(RawProductGeneratorBase):
                 cal_stop = min(cal_stop, end_pos)
 
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(calibration_config, cal_start, cal_stop)
+                self._create_products(calibration_config, cal_start, cal_stop, complete)
 
-    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -444,6 +451,10 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'CALIBRATION'
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
 
             self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
 
@@ -543,16 +554,16 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
-                    self._create_products(apid, anx[i], anx[i+1])
+                    self._create_products(apid, anx[i], anx[i+1], True)
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, start, anx[i+1])
+                    self._create_products(apid, start, anx[i+1], False)
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, anx[i], stop)
+                    self._create_products(apid, anx[i], stop, False)
 
-    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -570,5 +581,9 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'OTHER'
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
 
             self._create_raw_product(dir_name, name_gen)

@@ -160,6 +160,8 @@ class MainProductHeader:
         self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
 
+        self.completeness_assesment: Optional[str] = None
+
         # Raw only
         self.acquisition_station: Optional[str] = None
         self.acquisition_date: Optional[datetime.datetime] = None
@@ -477,11 +479,6 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, eop + 'numOfCorruptedLines').text = self.nr_l0_lines_corrupt
             et.SubElement(earth_observation_meta_data, eop + 'framesList').text = self.l1_frames_in_l0
 
-        if level in ['l0', 'l1']:
-            et.SubElement(earth_observation_meta_data, eop + 'isIncomplete').text = str(self.is_incomplete).lower()
-            et.SubElement(earth_observation_meta_data, eop + 'isPartial').text = str(self.is_partial).lower()
-            et.SubElement(earth_observation_meta_data, eop + 'isMerged').text = str(self.is_merged).lower()
-
         for doc in self.reference_documents:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
 
@@ -499,6 +496,7 @@ class MainProductHeader:
         if level in ('raws', 'l0', 'l1', 'l2'):
             add_vendor_specific('missionPhase', self.mission_phase)
         add_vendor_specific('calibrationID', self.calibration_id)
+        add_vendor_specific('completenessAssesment', self.completeness_assesment)
 
         # Create XML
         tree = et.ElementTree(mph)
