@@ -575,8 +575,8 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
 
         def add_vendor_specific(attr, value):
-            value = str(value)
             if value is not None:
+                value = str(value)
                 vendor_specific = et.SubElement(earth_observation_meta_data, eop + 'vendorSpecific')
                 specific_information = et.SubElement(vendor_specific, eop + 'SpecificInformation')
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
