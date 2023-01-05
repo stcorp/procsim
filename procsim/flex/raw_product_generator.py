@@ -228,7 +228,7 @@ class RWS_EO(RawProductGeneratorBase):
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
             self.read_scenario_parameters(data_take_config)
             if self._enable_slicing:
-                self._generate_sliced_output(data_take_start, data_take_stop)
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
                 self._create_products(data_take_start, data_take_stop)
 
@@ -283,7 +283,7 @@ class RWS_EO(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -305,6 +305,8 @@ class RWS_EO(RawProductGeneratorBase):
             acq_end = min(validity_end, segment_end)
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
+            self._hdr.data_take_id = data_take_config['data_take_id']
+
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
                                 f'  validity {validity_start}  -  {validity_end}\n'

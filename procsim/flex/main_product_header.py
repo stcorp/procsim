@@ -161,6 +161,7 @@ class MainProductHeader:
         self.processing_date: Optional[datetime.datetime] = None
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
+        self.data_take_id: Optional[int] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -606,6 +607,15 @@ class MainProductHeader:
 
         for doc in self.reference_documents:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
+
+        def add_vendor_specific(attr, value):
+            if value is not None:
+                vendor_specific = et.SubElement(earth_observation_meta_data, eop + 'vendorSpecific')
+                specific_information = et.SubElement(vendor_specific, eop + 'SpecificInformation')
+                et.SubElement(specific_information, eop + 'localAttribute').text = attr
+                et.SubElement(specific_information, eop + 'localValue').text = value
+
+        add_vendor_specific('dataTakeID', self.data_take_id)
 
         # Create XML
         tree = et.ElementTree(mph)
