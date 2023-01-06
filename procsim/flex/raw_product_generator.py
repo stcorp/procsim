@@ -249,6 +249,7 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
 
             anx = self._get_anx(acq_start)
             if anx is not None:
@@ -487,6 +488,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
 
             anx = self._get_anx(acq_start)
             if anx is not None:
@@ -627,6 +629,7 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = apid
 
             anx = self._get_anx(acq_start)
             if anx is not None:

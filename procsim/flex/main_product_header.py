@@ -143,6 +143,7 @@ class MainProductHeader:
         self.calibration_id: Optional[int] = None
         self.mission_phase: Optional[str] = None
         self.anx_elapsed: Optional[float] = None
+        self.apid: Optional[str] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -504,7 +505,6 @@ class MainProductHeader:
         if self.anx_elapsed is not None:
             add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
         add_vendor_specific('Baseline', self.product_baseline)
-
         if level in ('raw', 'raws'):
             add_vendor_specific('numOfISPs', self.nr_instrument_source_packets)
             add_vendor_specific('numOfISPsWithErrors', self.nr_instrument_source_packets_erroneous)
@@ -512,7 +512,7 @@ class MainProductHeader:
             add_vendor_specific('numOfTFs', self.nr_transfer_frames)
             add_vendor_specific('numOfTFsWithErrors', self.nr_transfer_frames_erroneous)
             add_vendor_specific('numOfCorruptedTFs', self.nr_transfer_frames_corrupt)
-
+        add_vendor_specific('apid', self.apid)
         add_vendor_specific('sensorDetector', self.sensor_detector)
         add_vendor_specific('completenessAssesment', self.completeness_assesment)
         add_vendor_specific('sliceStartPosition', self.slice_start_position)
