@@ -9,6 +9,15 @@
             "task_name": "N/A",
             "task_version": "N/A",
             "log_level": "debug",
+            "mission_phase": "COMMISSIONING",
+            "cycle_number": "012",
+            "relative_orbit_number": "046",
+            "baseline": "1B01",
+            "slicing_interval": "180",
+            "begin_position": "2017-01-01T06:01:31.394Z",
+            "end_position": "2017-01-01T06:07:06.410Z",
+            "acquisition_date": "2021-02-01T01:38:10.000Z", // raw
+            "acquisition_station": "SP",
             "anx": [
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
@@ -44,22 +53,6 @@
                     "stop": "2017-01-01T08:20:44.504000Z"
                 }
             ],
-            "mission_phase": "COMMISSIONING",
-            "global_coverage_id": "01",
-            "major_cycle_id": "01",
-            "repeat_cycle_id": "01",
-            "cycle_number": "011",
-            "relative_orbit_number": "045",
-            "track_nr": "1",
-            "begin_position": "2017-01-01T06:01:31.394Z",
-            "end_position": "2017-01-01T06:07:06.410Z",
-            "baseline": "1B01",
-            "slicing_interval": "180",
-
-            // Raw
-            "acquisition_date": "2021-02-01T01:38:10.000Z",
-            "acquisition_station": "SP",
-
             "output_path": "workspace/all",
             "outputs": [
               {"type": "RAW___HKTM", "size": 1},
