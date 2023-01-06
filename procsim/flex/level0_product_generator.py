@@ -127,7 +127,6 @@ class EO(product_generator.ProductGeneratorBase):
         name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
         name_gen.cycle_number = '045'
 
-        name_gen.duration = '0128'  # TODO calculate
         name_gen.anx_elapsed = '2826'
 
         dir_name = name_gen.generate_path_name()

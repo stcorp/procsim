@@ -68,7 +68,6 @@ class ProductName:
         self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
-        self.duration: Optional[str]
         self.sensor: Optional[str]
         self.anx_elapsed: Optional[str]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
@@ -300,9 +299,11 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
+            duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
-                128,
+                duration,
                 self.cycle_number,
                 self.relative_orbit_number,
                 1234,
@@ -370,9 +371,11 @@ class ProductName:
                 extension,
             )
         elif self._level == 'l0':
+            duration = int((self.stop_time - self.start_time).total_seconds())
+
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
-                128,
+                duration,
                 self.cycle_number,
                 self.relative_orbit_number,
                 1234,

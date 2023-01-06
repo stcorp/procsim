@@ -487,6 +487,8 @@ class MainProductHeader:
         for doc in self.reference_documents:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
 
+        # add vendor-specific metadata
+
         def add_vendor_specific(attr, value):
             if value is not None:
                 value = str(value)
@@ -511,6 +513,8 @@ class MainProductHeader:
         add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
         add_vendor_specific('Task_Table_Name', 'Task Table Name')
         add_vendor_specific('Task_Table_Version', 'xx.yy')
+
+        add_vendor_specific('Duration', str((self.end_position - self.begin_position).total_seconds()))
 
         # Create XML
         tree = et.ElementTree(mph)
