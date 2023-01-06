@@ -230,7 +230,7 @@ class RWS_EO(RawProductGeneratorBase):
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
-                self._create_products(data_take_start, data_take_stop)
+                self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
 
     def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         # Construct product name and set metadata fields
@@ -451,7 +451,8 @@ class RWS_CAL(RawProductGeneratorBase):
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
                 self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
+    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
+                         complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type

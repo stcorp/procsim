@@ -141,6 +141,7 @@ class MainProductHeader:
         self.slice_frame_nr: Optional[int] = None
         self.along_track_coordinate: Optional[int] = None
         self.calibration_id: Optional[int] = None
+        self.mission_phase: Optional[str] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -507,6 +508,10 @@ class MainProductHeader:
         add_vendor_specific('sliceStartPosition', self.slice_start_position)
         add_vendor_specific('sliceStopPosition', self.slice_stop_position)
 
+        add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
+        add_vendor_specific('Task_Table_Name', 'Task Table Name')
+        add_vendor_specific('Task_Table_Version', 'xx.yy')
+
         # Create XML
         tree = et.ElementTree(mph)
         utils.indent_xml(tree.getroot())
@@ -591,18 +596,18 @@ class MainProductHeader:
                 if nr is not None:
                     acq.slice_frame_nr = int(nr) if not nr == '___' else None
                 # framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
-                acq.anx_date = _time_from_iso(acquisition.findtext(eop + 'ascendingNodeDate')) or acq.anx_date
-                # TODO ={'uom': 'ms'}
-                acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
-                # TODO ={'uom': 'ms'}
-                acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
-
-                acq.mission_phase = acquisition.findtext(eop + 'missionPhase') or acq.mission_phase
-                acq.instrument_config_id = _to_int(acquisition.findtext(eop + 'instrumentConfID')) or acq.instrument_config_id
+#                acq.anx_date = _time_from_iso(acquisition.findtext(eop + 'ascendingNodeDate')) or acq.anx_date
+#                # TODO ={'uom': 'ms'}
+#                acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
+#                # TODO ={'uom': 'ms'}
+#                acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
+#
+#                acq.mission_phase = acquisition.findtext(eop + 'missionPhase') or acq.mission_phase
+#                acq.instrument_config_id = _to_int(acquisition.findtext(eop + 'instrumentConfID')) or acq.instrument_config_id
                 acq.data_take_id = _to_int(acquisition.findtext(eop + 'dataTakeID')) or acq.data_take_id
-                orbit_drift_flag = acquisition.findtext(eop + 'orbitDriftFlag')
-                if orbit_drift_flag is not None:
-                    acq.orbit_drift_flag = orbit_drift_flag.lower() == 'true'
+#                orbit_drift_flag = acquisition.findtext(eop + 'orbitDriftFlag')
+#                if orbit_drift_flag is not None:
+#                    acq.orbit_drift_flag = orbit_drift_flag.lower() == 'true'
                 acq.global_coverage_id = acquisition.findtext(eop + 'globalCoverageID') or acq.global_coverage_id
                 acq.major_cycle_id = acquisition.findtext(eop + 'majorCycleID') or acq.major_cycle_id
                 acq.repeat_cycle_id = acquisition.findtext(eop + 'repeatCycleID') or acq.repeat_cycle_id
