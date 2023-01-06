@@ -159,7 +159,6 @@ class MainProductHeader:
         self.downlink_station_code = 'KSE'
         self.archive_station_code = 'ESR'
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
-        self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
 
         self.completeness_assesment: Optional[str] = None
@@ -173,14 +172,14 @@ class MainProductHeader:
         self.acquisition_date: Optional[datetime.datetime] = None
 
         # Raw, HKTM only
-        self.nr_transfer_frames: Optional[int] = None
-        self.nr_transfer_frames_erroneous: Optional[int] = None
-        self.nr_transfer_frames_corrupt: Optional[int] = None
+        self.nr_transfer_frames: Optional[int] = 0
+        self.nr_transfer_frames_erroneous: Optional[int] = 0
+        self.nr_transfer_frames_corrupt: Optional[int] = 0
 
         # Raw, science/ancillary only
-        self.nr_instrument_source_packets: Optional[int] = None
-        self.nr_instrument_source_packets_erroneous: Optional[int] = None
-        self.nr_instrument_source_packets_corrupt: Optional[int] = None
+        self.nr_instrument_source_packets: Optional[int] = 0
+        self.nr_instrument_source_packets_erroneous: Optional[int] = 0
+        self.nr_instrument_source_packets_corrupt: Optional[int] = 0
 
         # L0 only
         self.nr_l0_lines: Optional[str] = None           # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
@@ -461,13 +460,6 @@ class MainProductHeader:
 
         et.SubElement(processing_info, eop + 'processingMode').text = self.processing_mode
 
-        if level in ['l0', 'l1', 'l2a']:
-            for id in self.biomass_source_product_ids:
-                et.SubElement(processing_info, eop + 'sourceProduct').text = id
-
-        if level in ['l0', 'l1']:
-            et.SubElement(earth_observation_meta_data, eop + 'TAI-UTC').text = str(self.tai_utc_diff)
-
         if level in ['raw']:
             # Set transfer frames or instrument source packets to 0 if not present.
             if self.product_type == 'RAW___HKTM':
@@ -512,6 +504,14 @@ class MainProductHeader:
         if self.anx_elapsed is not None:
             add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
         add_vendor_specific('Baseline', self.product_baseline)
+
+        if level in ('raw', 'raws'):
+            add_vendor_specific('numOfISPs', self.nr_instrument_source_packets)
+            add_vendor_specific('numOfISPsWithErrors', self.nr_instrument_source_packets_erroneous)
+            add_vendor_specific('numOfCorruptedISPs', self.nr_instrument_source_packets_corrupt)
+            add_vendor_specific('numOfTFs', self.nr_transfer_frames)
+            add_vendor_specific('numOfTFsWithErrors', self.nr_transfer_frames_erroneous)
+            add_vendor_specific('numOfCorruptedTFs', self.nr_transfer_frames_corrupt)
 
         add_vendor_specific('sensorDetector', self.sensor_detector)
         add_vendor_specific('completenessAssesment', self.completeness_assesment)
@@ -597,26 +597,10 @@ class MainProductHeader:
                 acq.last_orbit_number = _to_int(acquisition.findtext(eop + 'lastOrbitNumber')) or acq.last_orbit_number
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection') or acq.orbit_direction
                 acq.track_nr = acquisition.findtext(eop + 'wrsLongitudeGrid') or acq.track_nr
-                # tracknr.set('codeSpace', 'urn:esa:eop:Biomass:relativeOrbits')
                 nr = acquisition.findtext(eop + 'wrsLatitudeGrid')
                 if nr is not None:
                     acq.slice_frame_nr = int(nr) if not nr == '___' else None
-                # framenr.set('codeSpace', 'urn:esa:eop:Biomass:frames')
-#                acq.anx_date = _time_from_iso(acquisition.findtext(eop + 'ascendingNodeDate')) or acq.anx_date
-#                # TODO ={'uom': 'ms'}
-#                acq.start_time = _to_int(acquisition.findtext(eop + 'startTimeFromAscendingNode')) or acq.start_time
-#                # TODO ={'uom': 'ms'}
-#                acq.completion_time = _to_int(acquisition.findtext(eop + 'completionTimeFromAscendingNode')) or acq.completion_time
-#
-#                acq.mission_phase = acquisition.findtext(eop + 'missionPhase') or acq.mission_phase
-#                acq.instrument_config_id = _to_int(acquisition.findtext(eop + 'instrumentConfID')) or acq.instrument_config_id
                 acq.data_take_id = _to_int(acquisition.findtext(eop + 'dataTakeID')) or acq.data_take_id
-#                orbit_drift_flag = acquisition.findtext(eop + 'orbitDriftFlag')
-#                if orbit_drift_flag is not None:
-#                    acq.orbit_drift_flag = orbit_drift_flag.lower() == 'true'
-                acq.global_coverage_id = acquisition.findtext(eop + 'globalCoverageID') or acq.global_coverage_id
-                acq.major_cycle_id = acquisition.findtext(eop + 'majorCycleID') or acq.major_cycle_id
-                acq.repeat_cycle_id = acquisition.findtext(eop + 'repeatCycleID') or acq.repeat_cycle_id
                 self.acquisitions.append(acq)
 
         # observed_property = root.find(om + 'observedProperty')  # Observed property (Mandatory but empty)
@@ -765,36 +749,14 @@ class MainProductHeader:
             raise ParseError(processing_mode)
         self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
 
-        # Mandatory for level 0, 1 and 2a
-        self.biomass_source_product_ids.clear()
-        for source_product in processing_info.findall(eop + 'sourceProduct'):
-            if source_product.text is not None:
-                self.biomass_source_product_ids.append(source_product.text)
+        # Manadatory for raw/raws
+        self.nr_transfer_frames = 0  # TODO read all vendor-specific!
+        self.nr_transfer_frames_erroneous = 0
+        self.nr_transfer_frames_corrupt = 0
 
-        # Mandatory for level 0 and 1
-        tai_utc = earth_observation_meta_data.findtext(eop + 'TAI-UTC')
-        if tai_utc is not None:
-            self.tai_utc_diff = int(tai_utc)
-
-        # Manadatory for raw
-        self.nr_transfer_frames = _to_int(earth_observation_meta_data.findtext(eop + 'numOfTFs'))
-        self.nr_transfer_frames_erroneous = _to_int(earth_observation_meta_data.findtext(eop + 'numOfTFsWithErrors'))
-        self.nr_transfer_frames_corrupt = _to_int(earth_observation_meta_data.findtext(eop + 'numOfCorruptedTFs'))
-
-        self.nr_instrument_source_packets = _to_int(earth_observation_meta_data.findtext(eop + 'numOfISPs'))
-        self.nr_instrument_source_packets_erroneous = _to_int(earth_observation_meta_data.findtext(eop + 'numOfISPsWithErrors'))
-        self.nr_instrument_source_packets_corrupt = _to_int(earth_observation_meta_data.findtext(eop + 'numOfCorruptedISPs'))
-
-        # Mandatory for level 0. Note: these are all pairs of numbers
-        self.nr_l0_lines = earth_observation_meta_data.findtext(eop + 'numOfLines')
-        self.nr_l0_lines_missing = earth_observation_meta_data.findtext(eop + 'numOfMissingLines')
-        self.nr_l0_lines_corrupt = earth_observation_meta_data.findtext(eop + 'numOfCorruptedLines')
-        self.l1_frames_in_l0 = earth_observation_meta_data.findtext(eop + 'framesList')
-
-        # Level 0/1
-        self.is_incomplete = _to_bool(earth_observation_meta_data.findtext(eop + 'isIncomplete'))
-        self.is_partial = _to_bool(earth_observation_meta_data.findtext(eop + 'isPartial'))
-        self.is_merged = _to_bool(earth_observation_meta_data.findtext(eop + 'isMerged'))
+        self.nr_instrument_source_packets = 0
+        self.nr_instrument_source_packets_erroneous = 0
+        self.nr_instrument_source_packets_corrupt = 0
 
         self.reference_documents.clear()
         for doc in earth_observation_meta_data.findall(eop + 'refDoc'):
