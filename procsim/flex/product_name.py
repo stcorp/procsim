@@ -227,15 +227,17 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            name = self._generate_prefix() + '_{}_{}'.format(
+            name = self._generate_prefix() + '_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
-                self.sensor  # TODO unspecified RWS naming
+                self.baseline_identifier,
+                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}'.format(
+            name = self._generate_prefix() + '_{}_{}'.format(
                 self.time_to_str(self._creation_date),
+                self.baseline_identifier,
             )
         elif self._level == 'l0':
             if self.downlink_time is None:
@@ -246,7 +248,7 @@ class ProductName:
             else:
                 duration = 0
 
-            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}'.format(
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 duration,
                 self.cycle_number,
@@ -303,13 +305,16 @@ class ProductName:
                     constants.ABS_ORBIT,
                 )
         elif self._level == 'raws':
-            name = self._generate_prefix() + '_{}.dat'.format(
+            name = self._generate_prefix() + '_{}_{}_{}.dat'.format(
                 self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
+                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
-            name = self._generate_prefix() + '{}{}{}'.format(
+            name = self._generate_prefix() + '_{}_{}{}{}'.format(
                 self.time_to_str(self._creation_date),
+                self.baseline_identifier,
                 suffix,
                 extension,
             )

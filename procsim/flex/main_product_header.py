@@ -489,7 +489,6 @@ class MainProductHeader:
             et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
 
         # add vendor-specific metadata
-
         def add_vendor_specific(attr, value):
             if value is not None:
                 value = str(value)
@@ -500,26 +499,24 @@ class MainProductHeader:
 
         if level != 'raw':
             add_vendor_specific('missionPhase', self.mission_phase)
-
+        add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
+        add_vendor_specific('Task_Table_Name', 'Task Table Name')
+        add_vendor_specific('Task_Table_Version', 'xx.yy')
+        add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+        add_vendor_specific('Cycle_Number', self.cycle_number)
+        add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
         add_vendor_specific('dataTakeID', self.data_take_id)
         add_vendor_specific('calibrationID', self.calibration_id)
         add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
         add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
+        if self.anx_elapsed is not None:
+            add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
+        add_vendor_specific('Baseline', self.product_baseline)
 
         add_vendor_specific('sensorDetector', self.sensor_detector)
         add_vendor_specific('completenessAssesment', self.completeness_assesment)
         add_vendor_specific('sliceStartPosition', self.slice_start_position)
         add_vendor_specific('sliceStopPosition', self.slice_stop_position)
-
-        add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
-        add_vendor_specific('Task_Table_Name', 'Task Table Name')
-        add_vendor_specific('Task_Table_Version', 'xx.yy')
-
-        add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
-        add_vendor_specific('Cycle_Number', self.cycle_number)
-        add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
-        if self.anx_elapsed is not None:
-            add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
 
         # Create XML
         tree = et.ElementTree(mph)
