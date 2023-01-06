@@ -250,6 +250,9 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
 
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
+
             if complete:
                 self._hdr.completeness_assesment = 'complete'
             else:
@@ -479,6 +482,9 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
 
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
+
             self._create_raw_product(dir_name, name_gen)
 
 
@@ -609,5 +615,8 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)

@@ -243,15 +243,13 @@ class ProductName:
 
             duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
 
-            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}_{}'.format(
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 duration,
                 self.cycle_number,
                 self.relative_orbit_number,
                 1234,
                 self.baseline_identifier,
-                self.baseline_identifier,  # TODO
-
             )
         else:
             if self._mission_phase_id is None:

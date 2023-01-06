@@ -515,6 +515,8 @@ class MainProductHeader:
         add_vendor_specific('Task_Table_Version', 'xx.yy')
 
         add_vendor_specific('Duration', str((self.end_position - self.begin_position).total_seconds()))
+        add_vendor_specific('Cycle_Number', self.cycle_number)
+        add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
 
         # Create XML
         tree = et.ElementTree(mph)

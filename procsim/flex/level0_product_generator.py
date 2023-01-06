@@ -110,9 +110,6 @@ class EO(product_generator.ProductGeneratorBase):
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-#        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-#        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
 
         # Determine and set the slice number if not set already.
         if self._hdr.acquisitions[0].slice_frame_nr is None:
@@ -124,8 +121,8 @@ class EO(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
-        name_gen.cycle_number = '045'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         name_gen.anx_elapsed = '2826'
 
@@ -382,10 +379,9 @@ class CAL(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere..
-        name_gen.cycle_number = '045'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
-        name_gen.duration = '0128'  # TODO calculate
         name_gen.anx_elapsed = '2826'
 
         dir_name = name_gen.generate_path_name()
@@ -515,6 +511,9 @@ class ANC(product_generator.ProductGeneratorBase):
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
+
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))
