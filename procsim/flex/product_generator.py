@@ -122,10 +122,6 @@ class ProductGeneratorBase(IProductGenerator):
         name_gen.baseline_identifier = hdr.product_baseline
         name_gen.set_creation_date(hdr.processing_date)
         name_gen.mission_phase = acq.mission_phase
-        name_gen.global_coverage_id = acq.global_coverage_id
-        name_gen.major_cycle_id = acq.major_cycle_id
-        name_gen.repeat_cycle_id = acq.repeat_cycle_id
-        name_gen.track_nr = acq.track_nr
         name_gen.frame_slice_nr = acq.slice_frame_nr
         return name_gen
 

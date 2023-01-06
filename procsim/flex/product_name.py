@@ -63,8 +63,8 @@ class ProductName:
 
     def __init__(self, compact_create_date_epoch: Optional[datetime.datetime] = None):
         # Common
-        self.start_time: Optional[datetime.datetime]
-        self.stop_time: Optional[datetime.datetime]
+        self.start_time: Optional[datetime.datetime] = None
+        self.stop_time: Optional[datetime.datetime] = None
         self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
@@ -241,14 +241,17 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+            if self.stop_time is not None and self.start_time is not None:
+                duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+            else:
+                duration = 0
 
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                int(self.anx_elapsed),
+                int(self.anx_elapsed or 0),
                 self.baseline_identifier,
             )
         else:
@@ -311,14 +314,17 @@ class ProductName:
                 extension,
             )
         elif self._level == 'l0':
-            duration = int((self.stop_time - self.start_time).total_seconds())
+            if self.stop_time is not None and self.start_time is not None:
+                duration = int((self.stop_time - self.start_time).total_seconds())
+            else:
+                duration = 0
 
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
                 duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                int(self.anx_elapsed),
+                int(self.anx_elapsed or 0),
                 self.baseline_identifier,
                 suffix,
                 extension,
@@ -349,10 +355,6 @@ class ProductName:
             print('downlink time:     ', self.downlink_time)
         else:
             print('mission phase ID:  ', self._mission_phase_id)
-            print('global coverage ID:', self.global_coverage_id)
-            print('major cycle ID:    ', self.major_cycle_id)
-            print('repeat cycle ID:   ', self.repeat_cycle_id)
-            print('track nr:          ', self.track_nr)
             print('frame/slice nr:    ', self.frame_slice_nr)
         print('baseline ID:       ', self.baseline_identifier)
         print('compact date:      ', self._compact_create_date)
