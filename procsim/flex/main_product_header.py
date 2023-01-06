@@ -157,7 +157,7 @@ class MainProductHeader:
         self.time_position: Optional[datetime.datetime] = None
         self.validity_start: Optional[datetime.datetime] = None
         self.validity_stop: Optional[datetime.datetime] = None
-        self.product_baseline: Optional[int] = None
+        self.product_baseline: Optional[str] = None
         self.processing_date: Optional[datetime.datetime] = None
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
@@ -170,10 +170,12 @@ class MainProductHeader:
         ]
         self.doi = '10.5270/FLX-xxxxxxx'    # Digital Object Identifier
         self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
+        self.acquisition_subtype = None     # set for CALIBRATION
         self.product_status = 'ARCHIVED'     # REJECTED, etc..
         self.product_status_subtype = 'ON-LINE'
         self.processing_centre_code = 'ESR'
         self.downlink_station_code = 'KSE'
+        self.archive_station_code = 'ESR'
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
         self.biomass_source_product_ids: List[str] = []
         self.reference_documents = []
@@ -214,7 +216,6 @@ class MainProductHeader:
         self.tai_utc_diff = 0
 
         # L0, L1, L2a
-        self.sensor_swath = None    # Mode is SM, RO, EC, AC, swath is S1, S2, S3
         self.sensor_mode = None
 
         # L1, L2a
@@ -266,7 +267,6 @@ class MainProductHeader:
             self.browse_ref_id == other.browse_ref_id and \
             self.browse_image_filename == other.browse_image_filename and \
             self.tai_utc_diff == other.tai_utc_diff and \
-            self.sensor_swath == other.sensor_swath and \
             self.sensor_mode == other.sensor_mode and \
             self.footprint_polygon == other.footprint_polygon and \
             self.center_points == other.center_points
@@ -412,7 +412,7 @@ class MainProductHeader:
         short_name.text = self._sensor_name
 
         # Mandatory for L0, L1, L2A products
-        sensors = [{'type': self._sensor_type, 'mode': self.sensor_mode, 'swath_id': self.sensor_swath}]
+        sensors = [{'type': self._sensor_type, 'mode': self.sensor_mode}]
         if (level == 'l0' or level == 'l1' or level == 'l2a'):
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
@@ -422,9 +422,6 @@ class MainProductHeader:
                 sensor_mode = et.SubElement(Sensor, eop + 'operationalMode')
                 sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
                 sensor_mode.text = s['mode']
-                swath_id = et.SubElement(Sensor, eop + 'swathIdentifier')
-                swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
-                swath_id.text = s['swath_id']
 
         if level in ['l0', 'l1', 'l2a'] or self.product_type in ['AUX_ATT___', 'AUX_ORB___'] or \
                 self.product_type in product_types.RAWS_PRODUCT_TYPES:
@@ -517,7 +514,7 @@ class MainProductHeader:
                 if prod.get('representation') is not None:    # Mandatory for if type is XML
                     et.SubElement(product_information, eop + 'rds').text = prod['representation']
             else:
-                et.SubElement(product_information, eop + 'version').text = '{:02}'.format(self.product_baseline)
+                et.SubElement(product_information, eop + 'version').text = self.product_baseline
                 et.SubElement(product_information, eop + 'timeliness').text = 'NOMINAL'  # TODO CALIBRATION?
 
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
@@ -526,6 +523,9 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'creationDate').text = _time_as_iso(datetime.datetime.now())
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
+        if self.acquisition_subtype is not None:
+            et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType').text = self.acquisition_subtype
+
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
         et.SubElement(earth_observation_meta_data, eop + 'productType').text = self.product_type
@@ -537,12 +537,24 @@ class MainProductHeader:
                 raise ScenarioError('Acquisition time must be set prior to generating MPH')
             if self.acquisition_station is None:
                 raise ScenarioError('Acquisition station must be set prior to generating MPH')
+
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             acq_station = et.SubElement(downlink_info, eop + 'acquisitionStation')
             acq_station.text = self.downlink_station_code
             acq_station.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self.acquisition_date)
+
+            archived_in = et.SubElement(earth_observation_meta_data, eop + 'archivedIn')
+            archive_info = et.SubElement(archived_in, eop + 'ArchivingInformation')
+            arch_center = et.SubElement(archive_info, eop + 'archivingCenter')
+            arch_center.text = self.archive_station_code
+            arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
+            et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
+
+            qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
+            qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
+            qc_degradation_tag.text = 'RADIOMETRIC'
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
@@ -657,13 +669,10 @@ class MainProductHeader:
                 s['type'] = Sensor.findtext(eop + 'sensorType')
                 s['mode'] = Sensor.findtext(eop + 'operationalMode')
                 # sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
-                s['swath_id'] = Sensor.findtext(eop + 'swathIdentifier')
-                # swath_id.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:swathIdentifier')
                 sensors.append(s)
 
         # Assume there are 0 or 1 sensors
         if sensors:
-            self.sensor_swath = sensors[0]['swath_id']
             self.sensor_mode = sensors[0]['mode']
 
         acquisition_params = earth_observation_equipment.find(eop + 'acquisitionParameters')
@@ -780,7 +789,7 @@ class MainProductHeader:
             file_name = self._parse_file_name(product_information)
             version = product_information.findtext(eop + 'version')
             if version is not None:
-                self.product_baseline = int(version)
+                self.product_baseline = version
                 self.products.append({'file_name': file_name})
             else:
                 size = int(product_information.findtext(eop + 'size', '0'))  # attrib={'uom': 'bytes'}
@@ -802,6 +811,7 @@ class MainProductHeader:
             raise ParseError(doi)
         self.doi = doi.text  # Digital Object Identifier
         self.acquisition_type = earth_observation_meta_data.findtext(eop + 'acquisitionType')
+        self.acquisition_subtype = earth_observation_meta_data.findtext(eop + 'acquisitionSubType')
         type_code = earth_observation_meta_data.findtext(eop + 'productType', '')
         product_type_info = product_types.find_product(type_code)
         if product_type_info is not None:

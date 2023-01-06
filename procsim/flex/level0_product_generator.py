@@ -210,6 +210,7 @@ class EO(product_generator.ProductGeneratorBase):
             acq_end = min(validity_end, segment_end)
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
+            self._hdr.sensor_mode = 'EO'
 
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
@@ -276,6 +277,30 @@ class CAL(product_generator.ProductGeneratorBase):
         'L0_CLOUD_',
     ]
 
+    ACQ_SUBTYPE = {
+        'L0_DARKNP': 'Dark_CU_NAPoint_NOM',
+        'L0_DARKSR': 'Dark_CU_SunPoint_Rad',
+        'L0_DARKSS': 'Dark_CU_SunPoint_SpectrSun',
+        'L0_DEFDAR': 'Dark_defpixel',
+        'L0_DARKOC': 'DarkSea_NAPoint',
+        'L0_DRKMTF': 'Dark_CU_MoonPoint_MTF',
+        'L0_DRKSTR': 'Dark_CU_MoonPoint_Stray',
+        'L0_SPECSD': 'Spectr_SunPoint',
+        'L0_SUN___': 'RadioMetric_SunPoint',
+        'L0_DEFSUN': 'RadioMetric_SunPoint_DefPixels',
+        'L0_MOON__': 'Radiometric_MTF_MoonPoint',
+        'L0_MOONSL': 'Straylight_MoonPoint',
+        'L0_LINDES': 'Linearity_NaPoint_Desert',
+        'L0_LINSEA': 'Linearity_NaPoint_Sea',
+        'L0_LINSUN': 'Linearity_SunPoint',
+        'L0_LINDAR': 'Linearity_Dark',
+        'L0_CTE___': 'CTE_Monitoring',
+        'L0_SCNVAL': 'Image_Geo',
+        'L0_COREG_': 'Image_coreg',
+        'L0_SPECEO': 'Spectral_NaPoint_Bin',
+        'L0_CLOUD_': 'Radiometric_NaPoint_Cloud',
+    }
+
     _ACQ_PARAMS = [
         ('slice_frame_nr', 'slice_frame_nr', 'int')
     ]
@@ -335,6 +360,9 @@ class CAL(product_generator.ProductGeneratorBase):
         #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
+        self._hdr.acquisition_type = 'CALIBRATION'
+        self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
+        self._hdr.sensor_mode = 'CAL'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -424,15 +452,19 @@ class ANC(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        anx = self._scenario_config['anx']  # TODO slice range or is this enough?
-        anx_start = self._time_from_iso(anx[0])
-        anx_stop = self._time_from_iso(anx[1])
+        anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
 
-        apid = self._scenario_config['apid']
+        for event in self._scenario_config['anc_events']:
+            apid = event['apid']
+            start = self._time_from_iso(event['start'])
+            stop = self._time_from_iso(event['stop'])
 
-        self._generate_output(anx_start, anx_stop, apid)
+            for i in range(len(anx)-1):
+                # complete overlap of anx-to-anx window
+                if start <= anx[i] and stop >= anx[i+1]:
+                    self._generate_output(apid, anx[i], anx[i+1])
 
-    def _generate_output(self, start, stop, apid):
+    def _generate_output(self, apid, start, stop):
         #        if self._hdr.acquisitions[0].calibration_id is None:
         #            raise ScenarioError('calibration_id field is mandatory')
         #
@@ -454,6 +486,8 @@ class ANC(product_generator.ProductGeneratorBase):
         #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
+        self._hdr.acquisition_type = 'OTHER'
+        self._hdr.sensor_mode = 'ANC'
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)

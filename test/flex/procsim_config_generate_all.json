@@ -13,30 +13,35 @@
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
             ],
-            "apid": "4321",
             "data_takes": [
-                {
+                { // complete and partial slices when sliced against grid
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
                 }
             ],
             "calibration_events": [
-                {
+                { // complete, as fully inside by begin/end_position
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
                 },
-                {
+                { // partial, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
                     "stop": "2017-01-01T06:08:44.504000Z",
-                    "swath": "S1",
-                    "operational_mode": "SM"
+                }
+            ],
+            "anc_events": [
+                { // complete, as filling an anx slice
+                    "apid": "4321",
+                    "start": "2017-01-01T05:51:31.394000Z",
+                    "stop": "2017-01-01T08:20:44.504000Z"
+                },
+                { // partial, as not filling an anx slice
+                    "apid": "5432",
+                    "start": "2017-01-01T06:51:31.394000Z",
+                    "stop": "2017-01-01T08:20:44.504000Z"
                 }
             ],
             "mission_phase": "Tomographic",
@@ -46,8 +51,7 @@
             "track_nr": "1",
             "begin_position": "2017-01-01T06:01:31.394Z",
             "end_position": "2017-01-01T06:04:06.410Z",
-            "baseline": 1,
-            "swath": "S1",
+            "baseline": "1B01",
 
             "cycle_number": "011",
             "relative_orbit_number": "045",
@@ -79,6 +83,8 @@
               {"type": "RWS_XSPOBS", "size": 1},
               {"type": "RWS_XS_CAL", "size": 1},
               {"type": "RWS_XSPCAL", "size": 1},
+              {"type": "RWS_XS_ANC", "size": 1},
+              {"type": "RWS_XSPANC", "size": 1},
               {"type": "AUX_OBSMSK", "size": 1},
               {"type": "AUX_GCP_DB", "size": 1},
               {"type": "AUX_PF_BC_", "size": 1},
