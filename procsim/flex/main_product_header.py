@@ -137,11 +137,12 @@ class MainProductHeader:
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
 
-        self.data_take_id: Optional[int] = None  # TODO should be in acq[0]?
+        self.data_take_id: Optional[int] = None  # TODO remove attrs from class Acq
         self.slice_frame_nr: Optional[int] = None
         self.along_track_coordinate: Optional[int] = None
         self.calibration_id: Optional[int] = None
         self.mission_phase: Optional[str] = None
+        self.anx_elapsed: Optional[float] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
         self._processing_level = 'Other: L1'
@@ -514,9 +515,11 @@ class MainProductHeader:
         add_vendor_specific('Task_Table_Name', 'Task Table Name')
         add_vendor_specific('Task_Table_Version', 'xx.yy')
 
-        add_vendor_specific('Duration', str((self.end_position - self.begin_position).total_seconds()))
+        add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
         add_vendor_specific('Cycle_Number', self.cycle_number)
         add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
+        if self.anx_elapsed is not None:
+            add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
 
         # Create XML
         tree = et.ElementTree(mph)

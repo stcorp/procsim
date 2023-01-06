@@ -121,10 +121,14 @@ class EO(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
+        anx = self._get_anx(start)
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
         name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
         name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
-
-        name_gen.anx_elapsed = '2826'
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -348,25 +352,12 @@ class CAL(product_generator.ProductGeneratorBase):
                 self._generate_output(calibration_config, cal_start, cal_stop)
 
     def _generate_output(self, calibration_config: dict, start, stop):
-        #        if self._hdr.acquisitions[0].calibration_id is None:
-        #            raise ScenarioError('calibration_id field is mandatory')
-        #
-        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.acquisitions[0].calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-
-        # Determine and set the slice number if not set already.
-        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
-        #            # Get slice number from middle of slice to deal with merged slices.
-        #            middle = start + (stop - start) / 2
-        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'CALIBRATION'
@@ -379,10 +370,14 @@ class CAL(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
+        anx = self._get_anx(start)
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
         name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
         name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
-
-        name_gen.anx_elapsed = '2826'
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -475,25 +470,12 @@ class ANC(product_generator.ProductGeneratorBase):
                     self._generate_output(apid, anx[i], anx[i+1])
 
     def _generate_output(self, apid, start, stop):
-        #        if self._hdr.acquisitions[0].calibration_id is None:
-        #            raise ScenarioError('calibration_id field is mandatory')
-        #
-        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
         self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-
-        # Determine and set the slice number if not set already.
-        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
-        #            # Get slice number from middle of slice to deal with merged slices.
-        #            middle = start + (stop - start) / 2
-        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'OTHER'
@@ -503,17 +485,17 @@ class ANC(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
-        name_gen.cycle_number = '045'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
-        name_gen.duration = '0128'  # TODO calculate
-        name_gen.anx_elapsed = '2826'
+        anx = self._get_anx(start)  # TODO copy-pasting
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
-
-        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         # Create directory and files
         self._logger.info('Create {}'.format(dir_name))

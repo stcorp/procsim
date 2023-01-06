@@ -69,7 +69,7 @@ class ProductName:
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
         self.sensor: Optional[str]
-        self.anx_elapsed: Optional[str]
+        self.anx_elapsed: Optional[float]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
@@ -248,7 +248,7 @@ class ProductName:
                 duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                1234,
+                int(self.anx_elapsed),
                 self.baseline_identifier,
             )
         else:
@@ -318,7 +318,7 @@ class ProductName:
                 duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                1234,
+                int(self.anx_elapsed),
                 self.baseline_identifier,
                 suffix,
                 extension,
