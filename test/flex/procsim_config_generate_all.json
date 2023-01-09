@@ -9,6 +9,16 @@
             "task_name": "N/A",
             "task_version": "N/A",
             "log_level": "debug",
+            "mission_phase": "COMMISSIONING",
+            "cycle_number": "012",
+            "relative_orbit_number": "046",
+            "baseline": "1B01",
+            "slicing_interval": "180",
+            "begin_position": "2017-01-01T06:01:31.394Z",
+            "end_position": "2017-01-01T06:07:06.410Z",
+            "acquisition_date": "2021-02-01T01:38:10.000Z", // raw
+            "acquisition_station": "SP",
+            "apid": "1234",
             "anx": [
                 "2017-01-01T06:00:01.272000Z",
                 "2017-01-01T07:38:12.217000Z"
@@ -16,20 +26,20 @@
             "data_takes": [
                 { // complete and partial slices when sliced against grid
                     "data_take_id": "8282",
-                    "start": "2017-01-01T06:01:31.394000Z",
-                    "stop": "2017-01-01T06:03:44.504000Z",
+                    "start": "2017-01-01T06:02:31.394000Z",
+                    "stop": "2017-01-01T06:06:20.504000Z"
                 }
             ],
             "calibration_events": [
                 { // complete, as fully inside by begin/end_position
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
-                    "stop": "2017-01-01T06:03:44.504000Z",
+                    "stop": "2017-01-01T06:03:44.504000Z"
                 },
                 { // partial, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
-                    "stop": "2017-01-01T06:08:44.504000Z",
+                    "stop": "2017-01-01T06:08:44.504000Z"
                 }
             ],
             "anc_events": [
@@ -44,34 +54,6 @@
                     "stop": "2017-01-01T08:20:44.504000Z"
                 }
             ],
-            "mission_phase": "Tomographic",
-            "global_coverage_id": "01",
-            "major_cycle_id": "01",
-            "repeat_cycle_id": "01",
-            "track_nr": "1",
-            "begin_position": "2017-01-01T06:01:31.394Z",
-            "end_position": "2017-01-01T06:04:06.410Z",
-            "baseline": "1B01",
-
-            "cycle_number": "011",
-            "relative_orbit_number": "045",
-
-            // The validity times are only used for Level1 products.
-            // These times correspond with a single slice
-            // (including start/stop overlap)
-            "validity_start": "2017-01-01T06:01:31.394Z",
-            "validity_stop": "2017-01-01T06:03:18.410Z",
-            "slice_frame_nr": 3,    // for level1 products
-
-            // Raw
-            "acquisition_date": "2021-02-01T01:38:10.000Z",
-            "acquisition_station": "SP",
-
-            // L1 virtual frame
-            "source_L0S": "L0S_Product_Name",
-            "source_L0M": "L0M_Product_Name",
-            "source_AUX_ORB": "AUX_ORB_Product_Name",
-
             "output_path": "workspace/all",
             "outputs": [
               {"type": "RAW___HKTM", "size": 1},

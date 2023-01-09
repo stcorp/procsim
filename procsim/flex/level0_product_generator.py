@@ -110,9 +110,6 @@ class EO(product_generator.ProductGeneratorBase):
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-#        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-#        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
 
         # Determine and set the slice number if not set already.
         if self._hdr.acquisitions[0].slice_frame_nr is None:
@@ -124,11 +121,14 @@ class EO(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
-        name_gen.cycle_number = '045'
+        anx = self._get_anx(start)
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
-        name_gen.duration = '0128'  # TODO calculate
-        name_gen.anx_elapsed = '2826'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -152,7 +152,7 @@ class EO(product_generator.ProductGeneratorBase):
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
             self.read_scenario_parameters(data_take_config)
             if self._enable_slicing:
-                self._generate_sliced_output(data_take_start, data_take_stop)
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
                 assert False  # TODO
 
@@ -188,7 +188,7 @@ class EO(product_generator.ProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -211,6 +211,10 @@ class EO(product_generator.ProductGeneratorBase):
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
             self._hdr.sensor_mode = 'EO'
+
+            self._hdr.data_take_id = data_take_config['data_take_id']
+            self._hdr.slice_frame_nr = slice_nr
+            self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
 
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
@@ -333,46 +337,47 @@ class CAL(product_generator.ProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO separate calibration_events in config? and add separate raw data for that?
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            self._generate_output(data_take_start, data_take_stop)
+        for calibration_config in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration_config)
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
 
-    def _generate_output(self, start, stop):
-        #        if self._hdr.acquisitions[0].calibration_id is None:
-        #            raise ScenarioError('calibration_id field is mandatory')
-        #
-        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
+            begin_pos = self._hdr.begin_position
+            end_pos = self._hdr.end_position
+            if begin_pos is None or end_pos is None:
+                raise ScenarioError('no begin_position or end_position')
+
+            complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+            if complete:
+                self._generate_output(calibration_config, cal_start, cal_stop)
+
+    def _generate_output(self, calibration_config: dict, start, stop):
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.acquisitions[0].calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-
-        # Determine and set the slice number if not set already.
-        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
-        #            # Get slice number from middle of slice to deal with merged slices.
-        #            middle = start + (stop - start) / 2
-        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'CALIBRATION'
         self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
+        self._hdr.calibration_id = calibration_config['calibration_id']
+
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
-        name_gen.cycle_number = '045'
+        anx = self._get_anx(start)
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
-        name_gen.duration = '0128'  # TODO calculate
-        name_gen.anx_elapsed = '2826'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -465,25 +470,12 @@ class ANC(product_generator.ProductGeneratorBase):
                     self._generate_output(apid, anx[i], anx[i+1])
 
     def _generate_output(self, apid, start, stop):
-        #        if self._hdr.acquisitions[0].calibration_id is None:
-        #            raise ScenarioError('calibration_id field is mandatory')
-        #
-        #        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
         self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
         self._hdr.set_phenomenon_times(start, stop)
-        self._hdr.is_incomplete = False  # TODO!
-        #        self._hdr.is_partial = self._is_partial_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-        #        self._hdr.is_merged = self._is_merged_slice(self._hdr.validity_start, self._hdr.validity_stop, start, stop)
-
-        # Determine and set the slice number if not set already.
-        #        if self._hdr.acquisitions[0].slice_frame_nr is None:
-        #            # Get slice number from middle of slice to deal with merged slices.
-        #            middle = start + (stop - start) / 2
-        #            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'OTHER'
@@ -493,11 +485,14 @@ class ANC(product_generator.ProductGeneratorBase):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        name_gen.relative_orbit_number = '011'  # TODO these probably should be elsewhere.. and what is it? slicing?
-        name_gen.cycle_number = '045'
+        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
-        name_gen.duration = '0128'  # TODO calculate
-        name_gen.anx_elapsed = '2826'
+        anx = self._get_anx(start)  # TODO copy-pasting
+        if anx is not None:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+        else:
+            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)

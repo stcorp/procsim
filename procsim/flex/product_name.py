@@ -63,29 +63,24 @@ class ProductName:
 
     def __init__(self, compact_create_date_epoch: Optional[datetime.datetime] = None):
         # Common
-        self.start_time: Optional[datetime.datetime]
-        self.stop_time: Optional[datetime.datetime]
+        self.start_time: Optional[datetime.datetime] = None
+        self.stop_time: Optional[datetime.datetime] = None
         self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
-        self.duration: Optional[str]
         self.sensor: Optional[str]
-        self.anx_elapsed: Optional[str]
+        self.anx_elapsed: Optional[float]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
         self._compact_create_date = None
+        self._frame_slice_nr_str = None
 
         # Raw only
         self.downlink_time: Optional[datetime.datetime]
 
         # Level 0/1/2a only
         self._mission_phase_id = None
-        self._global_coverage_id_str = None
-        self._major_cycle_id_str = None
-        self._repeat_cycle_id_str = None
-        self._track_nr = None
-        self._frame_slice_nr_str = None
 
         # MPL and VFRA only
         self._file_class = None
@@ -119,60 +114,6 @@ class ProductName:
     @property
     def level(self):
         return self._level
-
-    @property
-    def global_coverage_id(self) -> Optional[str]:
-        '''Return global_coverage_id in 'Main product header format', so 'NA' or a number, without leading zeros.'''
-        return 'NA' if self._global_coverage_id_str is None or self._global_coverage_id_str == '__' else \
-            self._global_coverage_id_str.lstrip('0') or '0'
-
-    @global_coverage_id.setter
-    def global_coverage_id(self, id: Optional[str]) -> None:
-        '''Convert to string with correct formatting for product name'''
-        if id is None or id == 'NA':
-            id = '__'
-        else:
-            id = '{:>02}'.format(id)    # Add leading zeros if needed
-        self.GLOBAL_COVERAGE_IDS.index(id)  # Test
-        self._global_coverage_id_str = id
-
-    @property
-    def major_cycle_id(self) -> Optional[str]:
-        return self._major_cycle_id_str.lstrip('0') or '0' if self._major_cycle_id_str else None
-
-    @major_cycle_id.setter
-    def major_cycle_id(self, id: Optional[str]):
-        id = '{:>02}'.format(id)    # Add leading zeros if needed
-        self.MAJOR_CYCLE_IDS.index(id)  # Test
-        self._major_cycle_id_str = id
-
-    @property
-    def repeat_cycle_id(self):
-        '''Return repeat cycle ID in 'Main product header format', so None, 'DR', or a number without leading zeros.'''
-        return None if not self._repeat_cycle_id_str or self._repeat_cycle_id_str == '__' else \
-            self._repeat_cycle_id_str.lstrip('0') or '0'
-
-    @repeat_cycle_id.setter
-    def repeat_cycle_id(self, id):
-        if id is None or id == 'NA':
-            id = '__'
-        id = '{:>02}'.format(id)    # Add leading zeros if needed
-        self.REPEAT_CYCLE_IDS.index(id)  # Test
-        self._repeat_cycle_id_str = id
-
-    @property
-    def track_nr(self):
-        return None if self._track_nr is None or self._track_nr == '___' else \
-            self._track_nr.lstrip('0') or '0'
-
-    @track_nr.setter
-    def track_nr(self, nr):
-        if nr is None or nr == '___':
-            self._track_nr = '___'
-        else:
-            if int(nr) < 0 or int(nr) > 999:
-                raise GeneratorError('track_nr should be 0..999 or None or ___')
-            self._track_nr = '{:03}'.format(int(nr))
 
     @property
     def frame_slice_nr(self):
@@ -286,29 +227,34 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            name = self._generate_prefix() + '_{}_{}'.format(
+            name = self._generate_prefix() + '_{}_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
-                self.sensor  # TODO unspecified RWS naming
+                self.baseline_identifier,
+                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
             # Add _<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}'.format(
+            name = self._generate_prefix() + '_{}_{}'.format(
                 self.time_to_str(self._creation_date),
+                self.baseline_identifier,
             )
         elif self._level == 'l0':
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{}_{}'.format(
+            if self.stop_time is not None and self.start_time is not None:
+                duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+            else:
+                duration = 0
+
+            name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}'.format(
                 self.time_to_str(self.downlink_time),
-                128,
+                duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                1234,
+                int(self.anx_elapsed or 0),
                 self.baseline_identifier,
-                self.baseline_identifier,  # TODO
-
             )
         else:
             if self._mission_phase_id is None:
@@ -359,23 +305,31 @@ class ProductName:
                     constants.ABS_ORBIT,
                 )
         elif self._level == 'raws':
-            name = self._generate_prefix() + '_{}.dat'.format(
+            name = self._generate_prefix() + '_{}_{}_{}.dat'.format(
                 self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
+                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
-            name = self._generate_prefix() + '{}{}{}'.format(
+            name = self._generate_prefix() + '_{}_{}{}{}'.format(
                 self.time_to_str(self._creation_date),
+                self.baseline_identifier,
                 suffix,
                 extension,
             )
         elif self._level == 'l0':
+            if self.stop_time is not None and self.start_time is not None:
+                duration = int((self.stop_time - self.start_time).total_seconds())
+            else:
+                duration = 0
+
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
-                128,
+                duration,
                 self.cycle_number,
                 self.relative_orbit_number,
-                1234,
+                int(self.anx_elapsed or 0),
                 self.baseline_identifier,
                 suffix,
                 extension,
@@ -406,10 +360,6 @@ class ProductName:
             print('downlink time:     ', self.downlink_time)
         else:
             print('mission phase ID:  ', self._mission_phase_id)
-            print('global coverage ID:', self.global_coverage_id)
-            print('major cycle ID:    ', self.major_cycle_id)
-            print('repeat cycle ID:   ', self.repeat_cycle_id)
-            print('track nr:          ', self.track_nr)
             print('frame/slice nr:    ', self.frame_slice_nr)
         print('baseline ID:       ', self.baseline_identifier)
         print('compact date:      ', self._compact_create_date)

@@ -228,11 +228,11 @@ class RWS_EO(RawProductGeneratorBase):
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
             self.read_scenario_parameters(data_take_config)
             if self._enable_slicing:
-                self._generate_sliced_output(data_take_start, data_take_stop)
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
-                self._create_products(data_take_start, data_take_stop)
+                self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -248,6 +248,22 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
+
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
+
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -283,7 +299,7 @@ class RWS_EO(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -296,7 +312,9 @@ class RWS_EO(RawProductGeneratorBase):
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
             anx = self._get_anx(slice_middle)
+
             slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
+
             if anx is None or slice_nr is None:
                 continue
             validity_start = slice_start - self._slice_overlap_start
@@ -305,17 +323,32 @@ class RWS_EO(RawProductGeneratorBase):
             acq_end = min(validity_end, segment_end)
             self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
+
+            self._hdr.data_take_id = data_take_config['data_take_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.slice_frame_nr = slice_nr
+            self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
+
+            self._hdr.slice_start_position = 'on_grid'
+            self._hdr.slice_stop_position = 'on_grid'
+
             self._logger.debug((f'Create slice #{slice_nr}\n'
                                 f'  acq {acq_start}  -  {acq_end}\n'
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            if segment_start <= slice_start and slice_end <= segment_end:
+            complete = (segment_start <= slice_start and slice_end <= segment_end)
+
+            if complete:
                 if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(slice_start, slice_end)  # acq_start, acq_end) TODO
+                    self._create_products(slice_start, slice_end, complete)  # acq_start, acq_end) TODO
             else:
+                if segment_start > slice_start:
+                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes
+                if segment_end < slice_end:
+                    self._hdr.slice_stop_position = 'end_of_SA'
+
                 if self._output_type == 'RWS_XSPOBS':
-                    self._create_products(slice_start, slice_end)
+                    self._create_products(slice_start, slice_end, complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -401,10 +434,10 @@ class RWS_CAL(RawProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
-        for calibration in self._scenario_config['calibration_events']:
-            self.read_scenario_parameters(calibration)
-            cal_start = self._time_from_iso(calibration['start'])
-            cal_stop = self._time_from_iso(calibration['stop'])
+        for calibration_config in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration_config)
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
 
             begin_pos = self._hdr.begin_position
             end_pos = self._hdr.end_position
@@ -412,14 +445,24 @@ class RWS_CAL(RawProductGeneratorBase):
                 raise ScenarioError('no begin_position or end_position')
 
             complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+
+            slice_start_position = 'begin_of_SA'
+            slice_stop_position = 'end_of_SA'
+
             if not complete:
+                if cal_stop > end_pos:
+                    slice_stop_position = 'inside_SA'
+                if cal_start < begin_pos:
+                    slice_start_position = 'inside_SA'
+
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
 
             if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(cal_start, cal_stop)
+                self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
+                         complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -437,6 +480,24 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'CALIBRATION'
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
+            self._hdr.slice_start_position = slice_start_position
+            self._hdr.slice_stop_position = slice_stop_position
+            self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
+
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -534,16 +595,16 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
-                    self._create_products(apid, anx[i], anx[i+1])
+                    self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, start, anx[i+1])
+                    self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
-                    self._create_products(apid, anx[i], stop)
+                    self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
-    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime):
+    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
         name_gen.file_type = self._output_type
@@ -561,5 +622,22 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'OTHER'
+            if complete:
+                self._hdr.completeness_assesment = 'complete'
+            else:
+                self._hdr.completeness_assesment = 'partial'
+            self._hdr.slice_start_position = slice_start_position
+            self._hdr.slice_stop_position = slice_stop_position
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = apid
+
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
+            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
+            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)
