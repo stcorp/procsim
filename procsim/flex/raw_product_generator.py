@@ -18,6 +18,8 @@ _GENERATOR_PARAMS = [
 _HDR_PARAMS = [
     ('acquisition_date', 'acquisition_date', 'date'),
     ('acquisition_station', 'acquisition_station', 'str'),
+    ('cycle_number', 'cycle_number', 'str'),
+    ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
 _ACQ_PARAMS = []
 
@@ -239,6 +241,8 @@ class RWS_EO(RawProductGeneratorBase):
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.cycle_number = self._hdr.cycle_number
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -254,9 +258,6 @@ class RWS_EO(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -466,6 +467,8 @@ class RWS_CAL(RawProductGeneratorBase):
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.cycle_number = self._hdr.cycle_number
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -490,9 +493,6 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -599,13 +599,15 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)  # TODO why not use _create_name_generator?
         name_gen.file_type = self._output_type
         name_gen.start_time = acq_start
         name_gen.stop_time = acq_stop
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.cycle_number = self._hdr.cycle_number
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -629,8 +631,5 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)

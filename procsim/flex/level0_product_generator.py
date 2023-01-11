@@ -16,12 +16,8 @@ from procsim.core.job_order import JobOrderInput
 from . import main_product_header, product_generator, product_name
 
 _HDR_PARAMS = [
-    # Level 0 only
-    ('num_l0_lines', 'nr_l0_lines', 'str'),
-    ('num_l0_lines_corrupt', 'nr_l0_lines_corrupt', 'str'),
-    ('num_l0_lines_missing', 'nr_l0_lines_missing', 'str'),
-    ('swath', 'sensor_swath', 'str'),
-    ('operational_mode', 'sensor_mode', 'str'),
+    ('cycle_number', 'cycle_number', 'str'),
+    ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
 
 _ACQ_PARAMS = []
@@ -116,9 +112,6 @@ class EO(product_generator.ProductGeneratorBase):
             self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
         else:
             self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -364,9 +357,6 @@ class CAL(product_generator.ProductGeneratorBase):
         else:
             self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
-        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
-
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
 
@@ -470,9 +460,6 @@ class ANC(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
-
-        name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
         anx = self._get_anx(start)  # TODO copy-pasting
         if anx is not None:

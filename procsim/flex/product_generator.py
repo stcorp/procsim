@@ -115,6 +115,7 @@ class ProductGeneratorBase(IProductGenerator):
         '''
 
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+
         name_gen.file_type = hdr.product_type
         name_gen.start_time = hdr.begin_position
         name_gen.stop_time = hdr.end_position
@@ -122,6 +123,9 @@ class ProductGeneratorBase(IProductGenerator):
         name_gen.set_creation_date(hdr.processing_date)
         name_gen.mission_phase = hdr.mission_phase
         name_gen.frame_slice_nr = hdr.slice_frame_nr
+        name_gen.cycle_number = hdr.cycle_number
+        name_gen.relative_orbit_number = hdr.relative_orbit_number
+
         return name_gen
 
     def _resolve_wildcard_product_type(self) -> str:

@@ -477,7 +477,7 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
-        if level != 'raw':
+        if level != 'raw':  # TODO more attrs not at raw level
             add_vendor_specific('missionPhase', self.mission_phase)
         add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
         add_vendor_specific('Task_Table_Name', 'Task Table Name')
