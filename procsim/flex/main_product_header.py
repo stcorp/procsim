@@ -128,7 +128,7 @@ class MainProductHeader:
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
 
-        self.data_take_id: Optional[int] = None  # TODO remove attrs from class Acq
+        self.data_take_id: Optional[int] = None
         self.slice_frame_nr: Optional[int] = None
         self.along_track_coordinate: Optional[int] = None
         self.calibration_id: Optional[int] = None
@@ -713,7 +713,7 @@ class MainProductHeader:
         self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
 
         # Manadatory for raw/raws
-        self.nr_transfer_frames = 0  # TODO read all vendor-specific!
+        self.nr_transfer_frames = 0
         self.nr_transfer_frames_erroneous = 0
         self.nr_transfer_frames_corrupt = 0
 
