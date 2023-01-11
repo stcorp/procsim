@@ -559,11 +559,6 @@ class MainProductHeader:
                 acq.orbit_number = _to_int(acquisition.findtext(eop + 'orbitNumber')) or acq.orbit_number
                 acq.last_orbit_number = _to_int(acquisition.findtext(eop + 'lastOrbitNumber')) or acq.last_orbit_number
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection') or acq.orbit_direction
-                acq.track_nr = acquisition.findtext(eop + 'wrsLongitudeGrid') or acq.track_nr
-                nr = acquisition.findtext(eop + 'wrsLatitudeGrid')
-                if nr is not None:
-                    acq.slice_frame_nr = int(nr) if not nr == '___' else None
-                acq.data_take_id = _to_int(acquisition.findtext(eop + 'dataTakeID')) or acq.data_take_id
                 self.acquisitions.append(acq)
 
         # observed_property = root.find(om + 'observedProperty')  # Observed property (Mandatory but empty)
