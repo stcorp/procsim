@@ -24,15 +24,7 @@ _HDR_PARAMS = [
     ('operational_mode', 'sensor_mode', 'str'),
 ]
 
-_ACQ_PARAMS = [
-    # Level 0, 1, 2a only
-    ('mission_phase', 'mission_phase', 'str'),
-    ('data_take_id', 'data_take_id', 'int'),
-    ('global_coverage_id', 'global_coverage_id', 'str'),
-    ('major_cycle_id', 'major_cycle_id', 'str'),
-    ('repeat_cycle_id', 'repeat_cycle_id', 'str'),
-    ('track_nr', 'track_nr', 'str'),
-]
+_ACQ_PARAMS = []
 
 
 class EO(product_generator.ProductGeneratorBase):
@@ -71,9 +63,7 @@ class EO(product_generator.ProductGeneratorBase):
         'L0__OBS___',
     ]
 
-    _ACQ_PARAMS = [
-        ('slice_frame_nr', 'slice_frame_nr', 'int')
-    ]
+    _ACQ_PARAMS = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),
@@ -101,10 +91,10 @@ class EO(product_generator.ProductGeneratorBase):
     # TODO parse inputs?? focus on delivering just products for now
 
     def _generate_product(self, start, stop):
-        if self._hdr.acquisitions[0].data_take_id is None:
+        if self._hdr.data_take_id is None:
             raise ScenarioError('data_take_id field is mandatory')
 
-        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.acquisitions[0].data_take_id, start, stop))
+        self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.data_take_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
@@ -112,10 +102,10 @@ class EO(product_generator.ProductGeneratorBase):
         self._hdr.set_phenomenon_times(start, stop)
 
         # Determine and set the slice number if not set already.
-        if self._hdr.acquisitions[0].slice_frame_nr is None:
+        if self._hdr.slice_frame_nr is None:
             # Get slice number from middle of slice to deal with merged slices.
             middle = start + (stop - start) / 2
-            self._hdr.acquisitions[0].slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
+            self._hdr.slice_frame_nr = self._get_slice_frame_nr(middle, constants.SLICE_GRID_SPACING)
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -208,7 +198,7 @@ class EO(product_generator.ProductGeneratorBase):
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
             acq_end = min(validity_end, segment_end)
-            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
+            self._hdr.slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
             self._hdr.sensor_mode = 'EO'
 
@@ -305,9 +295,7 @@ class CAL(product_generator.ProductGeneratorBase):
         'L0_CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 
-    _ACQ_PARAMS = [
-        ('slice_frame_nr', 'slice_frame_nr', 'int')
-    ]
+    _ACQ_PARAMS = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),
@@ -352,7 +340,7 @@ class CAL(product_generator.ProductGeneratorBase):
                 self._generate_output(calibration_config, cal_start, cal_stop)
 
     def _generate_output(self, calibration_config: dict, start, stop):
-        self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.acquisitions[0].calibration_id, start, stop))
+        self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
@@ -425,9 +413,7 @@ class ANC(product_generator.ProductGeneratorBase):
         'L0_UNK___',
     ]
 
-    _ACQ_PARAMS = [
-        ('slice_frame_nr', 'slice_frame_nr', 'int')
-    ]
+    _ACQ_PARAMS = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),

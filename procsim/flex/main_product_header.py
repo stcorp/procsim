@@ -99,15 +99,6 @@ class Acquisition:
         self.roll = 0
         self.yaw = 0
 
-        self.data_take_id: Optional[int] = None  # TODO get rid of these attributes?
-        self.global_coverage_id: str = 'NA'
-        self.mission_phase: Optional[str] = None
-        self.major_cycle_id: str = '1'
-        self.repeat_cycle_id: str = '__'
-        self.slice_frame_nr: Optional[int] = None
-        self.track_nr: str = '0'
-        self.calibration_id: Optional[int] = None
-
     def __eq__(self, other):  # called from tests
         return self.__dict__ == other.__dict__
 
@@ -188,7 +179,7 @@ class MainProductHeader:
         self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
         self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
 
-        self.relative_orbit_number = None  # TODO
+        self.relative_orbit_number = None
         self.cycle_number = None
 
         # L1 only
@@ -196,12 +187,8 @@ class MainProductHeader:
         self.browse_image_filename: Optional[str] = ''
 
         # L0 and L1
-        self.is_incomplete: Optional[bool] = None
-        self.is_partial: Optional[bool] = None
-        self.is_merged: Optional[bool] = None
         acquisition = Acquisition()
         self.acquisitions = [acquisition]
-        self.tai_utc_diff = 0
 
         # L0, L1, L2a
         self.sensor_mode = None

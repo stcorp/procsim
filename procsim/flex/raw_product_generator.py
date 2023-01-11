@@ -204,9 +204,7 @@ class RWS_EO(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -321,10 +319,9 @@ class RWS_EO(RawProductGeneratorBase):
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
             acq_end = min(validity_end, segment_end)
-            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
 
-            self._hdr.data_take_id = data_take_config['data_take_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.data_take_id = data_take_config['data_take_id']
             self._hdr.slice_frame_nr = slice_nr
             self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
 
@@ -414,9 +411,7 @@ class RWS_CAL(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -486,7 +481,7 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.calibration_id = calibration_config['calibration_id']
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = self._scenario_config['apid']
 
@@ -565,9 +560,7 @@ class RWS_ANC(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
