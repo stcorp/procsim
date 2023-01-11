@@ -55,6 +55,20 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         if self._zip_output:
             self.zip_folder(full_dir_name, self._zip_extension)
 
+    def _create_name_generator(self, acq_start, acq_stop):
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+
+        name_gen.file_type = self._output_type
+        name_gen.start_time = acq_start
+        name_gen.stop_time = acq_stop
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        name_gen.set_creation_date(self._creation_date)
+        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.cycle_number = self._hdr.cycle_number
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
+
+        return name_gen
+
 
 class UnslicedRawGeneratorBase(RawProductGeneratorBase):
     '''
@@ -233,16 +247,7 @@ class RWS_EO(RawProductGeneratorBase):
                 self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
 
     def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
-        name_gen.cycle_number = self._hdr.cycle_number
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -459,16 +464,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                          complete, slice_start_position, slice_stop_position):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
-        name_gen.cycle_number = self._hdr.cycle_number
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -598,16 +594,7 @@ class RWS_ANC(RawProductGeneratorBase):
                     self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)  # TODO why not use _create_name_generator?
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
-        name_gen.cycle_number = self._hdr.cycle_number
-        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
