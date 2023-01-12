@@ -99,15 +99,6 @@ class Acquisition:
         self.roll = 0
         self.yaw = 0
 
-        self.data_take_id: Optional[int] = None  # TODO get rid of these attributes?
-        self.global_coverage_id: str = 'NA'
-        self.mission_phase: Optional[str] = None
-        self.major_cycle_id: str = '1'
-        self.repeat_cycle_id: str = '__'
-        self.slice_frame_nr: Optional[int] = None
-        self.track_nr: str = '0'
-        self.calibration_id: Optional[int] = None
-
     def __eq__(self, other):  # called from tests
         return self.__dict__ == other.__dict__
 
@@ -137,7 +128,7 @@ class MainProductHeader:
         self.processor_name: Optional[str] = None
         self.processor_version: Optional[str] = None
 
-        self.data_take_id: Optional[int] = None  # TODO remove attrs from class Acq
+        self.data_take_id: Optional[int] = None
         self.slice_frame_nr: Optional[int] = None
         self.along_track_coordinate: Optional[int] = None
         self.calibration_id: Optional[int] = None
@@ -168,6 +159,9 @@ class MainProductHeader:
 
         self.sensor_detector: Optional[str] = None
 
+        self.relative_orbit_number = None
+        self.cycle_number = None
+
         # Raw only
         self.acquisition_station: Optional[str] = None
         self.acquisition_date: Optional[datetime.datetime] = None
@@ -182,26 +176,13 @@ class MainProductHeader:
         self.nr_instrument_source_packets_erroneous: Optional[int] = 0
         self.nr_instrument_source_packets_corrupt: Optional[int] = 0
 
-        # L0 only
-        self.nr_l0_lines: Optional[str] = None           # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.nr_l0_lines_missing: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.nr_l0_lines_corrupt: Optional[str] = None   # 2 comma separated integers, being numOfLinesHPol,numOfLinesVPol
-        self.l1_frames_in_l0: Optional[str] = None      # '0,1,2,4,5'
-
-        self.relative_orbit_number = None  # TODO
-        self.cycle_number = None
-
         # L1 only
         self.browse_ref_id: Optional[str] = 'Unknown'
         self.browse_image_filename: Optional[str] = ''
 
         # L0 and L1
-        self.is_incomplete: Optional[bool] = None
-        self.is_partial: Optional[bool] = None
-        self.is_merged: Optional[bool] = None
         acquisition = Acquisition()
         self.acquisitions = [acquisition]
-        self.tai_utc_diff = 0
 
         # L0, L1, L2a
         self.sensor_mode = None
@@ -461,26 +442,6 @@ class MainProductHeader:
 
         et.SubElement(processing_info, eop + 'processingMode').text = self.processing_mode
 
-        if level in ['raw']:
-            # Set transfer frames or instrument source packets to 0 if not present.
-            if self.product_type == 'RAW___HKTM':
-                et.SubElement(earth_observation_meta_data, eop + 'numOfTFs').text = str(self.nr_transfer_frames or 0)
-                et.SubElement(earth_observation_meta_data, eop + 'numOfTFsWithErrors').text = str(self.nr_transfer_frames_erroneous or 0)
-                et.SubElement(earth_observation_meta_data, eop + 'numOfCorruptedTFs').text = str(self.nr_transfer_frames_corrupt or 0)
-            else:
-                et.SubElement(earth_observation_meta_data, eop + 'numOfISPs').text = str(self.nr_instrument_source_packets or 0)
-                et.SubElement(earth_observation_meta_data, eop + 'numOfISPsWithErrors').text = str(self.nr_instrument_source_packets_erroneous or 0)
-                et.SubElement(earth_observation_meta_data, eop + 'numOfCorruptedISPs').text = str(self.nr_instrument_source_packets_corrupt or 0)
-
-        if level in ['l0']:
-            et.SubElement(earth_observation_meta_data, eop + 'numOfLines').text = self.nr_l0_lines
-            et.SubElement(earth_observation_meta_data, eop + 'numOfMissingLines').text = self.nr_l0_lines_missing
-            et.SubElement(earth_observation_meta_data, eop + 'numOfCorruptedLines').text = self.nr_l0_lines_corrupt
-            et.SubElement(earth_observation_meta_data, eop + 'framesList').text = self.l1_frames_in_l0
-
-        for doc in self.reference_documents:
-            et.SubElement(earth_observation_meta_data, eop + 'refDoc').text = doc
-
         # add vendor-specific metadata
         def add_vendor_specific(attr, value):
             if value is not None:
@@ -492,19 +453,19 @@ class MainProductHeader:
 
         if level != 'raw':
             add_vendor_specific('missionPhase', self.mission_phase)
-        add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in
-        add_vendor_specific('Task_Table_Name', 'Task Table Name')
-        add_vendor_specific('Task_Table_Version', 'xx.yy')
-        add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
-        add_vendor_specific('Cycle_Number', self.cycle_number)
-        add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
-        add_vendor_specific('dataTakeID', self.data_take_id)
-        add_vendor_specific('calibrationID', self.calibration_id)
-        add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
-        add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
-        if self.anx_elapsed is not None:
-            add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
-        add_vendor_specific('Baseline', self.product_baseline)
+            add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
+            add_vendor_specific('Task_Table_Name', 'Task Table Name')
+            add_vendor_specific('Task_Table_Version', 'xx.yy')
+            add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+            add_vendor_specific('Cycle_Number', self.cycle_number)
+            add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
+            add_vendor_specific('dataTakeID', self.data_take_id)
+            add_vendor_specific('calibrationID', self.calibration_id)
+            add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
+            add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
+            if self.anx_elapsed is not None:
+                add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
+            add_vendor_specific('Baseline', self.product_baseline)
         if level in ('raw', 'raws'):
             add_vendor_specific('numOfISPs', self.nr_instrument_source_packets)
             add_vendor_specific('numOfISPsWithErrors', self.nr_instrument_source_packets_erroneous)
@@ -512,11 +473,13 @@ class MainProductHeader:
             add_vendor_specific('numOfTFs', self.nr_transfer_frames)
             add_vendor_specific('numOfTFsWithErrors', self.nr_transfer_frames_erroneous)
             add_vendor_specific('numOfCorruptedTFs', self.nr_transfer_frames_corrupt)
-        add_vendor_specific('apid', self.apid)
-        add_vendor_specific('sensorDetector', self.sensor_detector)
-        add_vendor_specific('completenessAssesment', self.completeness_assesment)
-        add_vendor_specific('sliceStartPosition', self.slice_start_position)
-        add_vendor_specific('sliceStopPosition', self.slice_stop_position)
+        if level == 'raws':
+            add_vendor_specific('apid', self.apid)
+            add_vendor_specific('sensorDetector', self.sensor_detector)
+            add_vendor_specific('completenessAssesment', self.completeness_assesment)
+        if level in ('raws', 'l0'):
+            add_vendor_specific('sliceStartPosition', self.slice_start_position)
+            add_vendor_specific('sliceStopPosition', self.slice_stop_position)
 
         # Create XML
         tree = et.ElementTree(mph)
@@ -596,11 +559,6 @@ class MainProductHeader:
                 acq.orbit_number = _to_int(acquisition.findtext(eop + 'orbitNumber')) or acq.orbit_number
                 acq.last_orbit_number = _to_int(acquisition.findtext(eop + 'lastOrbitNumber')) or acq.last_orbit_number
                 acq.orbit_direction = acquisition.findtext(eop + 'orbitDirection') or acq.orbit_direction
-                acq.track_nr = acquisition.findtext(eop + 'wrsLongitudeGrid') or acq.track_nr
-                nr = acquisition.findtext(eop + 'wrsLatitudeGrid')
-                if nr is not None:
-                    acq.slice_frame_nr = int(nr) if not nr == '___' else None
-                acq.data_take_id = _to_int(acquisition.findtext(eop + 'dataTakeID')) or acq.data_take_id
                 self.acquisitions.append(acq)
 
         # observed_property = root.find(om + 'observedProperty')  # Observed property (Mandatory but empty)
@@ -750,7 +708,7 @@ class MainProductHeader:
         self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
 
         # Manadatory for raw/raws
-        self.nr_transfer_frames = 0  # TODO read all vendor-specific!
+        self.nr_transfer_frames = 0
         self.nr_transfer_frames_erroneous = 0
         self.nr_transfer_frames_corrupt = 0
 

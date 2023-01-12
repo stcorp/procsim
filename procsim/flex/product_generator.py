@@ -114,15 +114,18 @@ class ProductGeneratorBase(IProductGenerator):
         the 'phenomenon' times, which seem to contain the correct times.
         '''
 
-        acq = hdr.acquisitions[0]
         name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+
         name_gen.file_type = hdr.product_type
         name_gen.start_time = hdr.begin_position
         name_gen.stop_time = hdr.end_position
         name_gen.baseline_identifier = hdr.product_baseline
         name_gen.set_creation_date(hdr.processing_date)
-        name_gen.mission_phase = acq.mission_phase
-        name_gen.frame_slice_nr = acq.slice_frame_nr
+        name_gen.mission_phase = hdr.mission_phase
+        name_gen.frame_slice_nr = hdr.slice_frame_nr
+        name_gen.cycle_number = hdr.cycle_number
+        name_gen.relative_orbit_number = hdr.relative_orbit_number
+
         return name_gen
 
     def _resolve_wildcard_product_type(self) -> str:
@@ -333,7 +336,7 @@ class ProductGeneratorBase(IProductGenerator):
             }]
 
         # Check for mandatory parameters.
-        if self._hdr.acquisitions[0].data_take_id is None and any([dt.get('data_take_id') is None for dt in data_takes]):
+        if self._hdr.data_take_id is None and any([dt.get('data_take_id') is None for dt in data_takes]):
             raise ScenarioError('Data take ID must be read either from input product or in scenario.')
         if self._hdr.begin_position is None and any([dt.get('begin_position') is None for dt in data_takes]):
             raise ScenarioError('Sensing start must be specified either in input product or in scenario.')

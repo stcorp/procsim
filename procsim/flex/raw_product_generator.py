@@ -18,6 +18,8 @@ _GENERATOR_PARAMS = [
 _HDR_PARAMS = [
     ('acquisition_date', 'acquisition_date', 'date'),
     ('acquisition_station', 'acquisition_station', 'str'),
+    ('cycle_number', 'cycle_number', 'str'),
+    ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
 _ACQ_PARAMS = []
 
@@ -52,6 +54,20 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
 
         if self._zip_output:
             self.zip_folder(full_dir_name, self._zip_extension)
+
+    def _create_name_generator(self, acq_start, acq_stop):
+        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+
+        name_gen.file_type = self._output_type
+        name_gen.start_time = acq_start
+        name_gen.stop_time = acq_stop
+        name_gen.baseline_identifier = self._hdr.product_baseline
+        name_gen.set_creation_date(self._creation_date)
+        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.cycle_number = self._hdr.cycle_number
+        name_gen.relative_orbit_number = self._hdr.relative_orbit_number
+
+        return name_gen
 
 
 class UnslicedRawGeneratorBase(RawProductGeneratorBase):
@@ -204,9 +220,7 @@ class RWS_EO(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -233,14 +247,7 @@ class RWS_EO(RawProductGeneratorBase):
                 self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
 
     def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -256,9 +263,6 @@ class RWS_EO(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -321,10 +325,9 @@ class RWS_EO(RawProductGeneratorBase):
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
             acq_end = min(validity_end, segment_end)
-            self._hdr.acquisitions[0].slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
 
-            self._hdr.data_take_id = data_take_config['data_take_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.data_take_id = data_take_config['data_take_id']
             self._hdr.slice_frame_nr = slice_nr
             self._hdr.along_track_coordinate = int(self._slice_grid_spacing.seconds * (slice_nr-1))
 
@@ -414,9 +417,7 @@ class RWS_CAL(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -463,14 +464,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                          complete, slice_start_position, slice_stop_position):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -486,7 +480,7 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.calibration_id = calibration_config['calibration_id']  # TODO should be in _hdr.acquisitions[0]?
+            self._hdr.calibration_id = calibration_config['calibration_id']
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = self._scenario_config['apid']
 
@@ -495,9 +489,6 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -565,9 +556,7 @@ class RWS_ANC(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = [
-        ('data_take_id', 'data_take_id', 'int')
-    ]
+    ACQ_PARAMS = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -605,14 +594,7 @@ class RWS_ANC(RawProductGeneratorBase):
                     self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
-        # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
-        name_gen.file_type = self._output_type
-        name_gen.start_time = acq_start
-        name_gen.stop_time = acq_stop
-        name_gen.baseline_identifier = self._hdr.product_baseline
-        name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
@@ -636,8 +618,5 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-
-            name_gen.cycle_number = self._hdr.cycle_number = self._scenario_config['cycle_number']  # TODO
-            name_gen.relative_orbit_number = self._hdr.relative_orbit_number = self._scenario_config['relative_orbit_number']
 
             self._create_raw_product(dir_name, name_gen)
