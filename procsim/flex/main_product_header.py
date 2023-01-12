@@ -391,7 +391,9 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
         if self.acquisition_subtype is not None:
-            et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType').text = self.acquisition_subtype
+            act = et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType')
+            act.text = self.acquisition_subtype
+            act.set('codeSpace', 'urn:esa:eop:FLEX:acquisitionSubTypes')
 
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
