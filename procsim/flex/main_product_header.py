@@ -401,12 +401,12 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'status').text = self.product_status
         et.SubElement(earth_observation_meta_data, eop + 'statusSubType').text = self.product_status_subtype
 
-        if level in ['raw']:
-            if self.acquisition_date is None:
-                raise ScenarioError('Acquisition time must be set prior to generating MPH')
-            if self.acquisition_station is None:
-                raise ScenarioError('Acquisition station must be set prior to generating MPH')
+        if self.acquisition_date is None:
+            raise ScenarioError('Acquisition time must be set prior to generating MPH')
+        if self.acquisition_station is None:
+            raise ScenarioError('Acquisition station must be set prior to generating MPH')
 
+        if level in ['raw']:
             downlinked_to = et.SubElement(earth_observation_meta_data, eop + 'downlinkedTo')
             downlink_info = et.SubElement(downlinked_to, eop + 'DownlinkInformation')
             acq_station = et.SubElement(downlink_info, eop + 'acquisitionStation')
@@ -414,16 +414,26 @@ class MainProductHeader:
             acq_station.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(downlink_info, eop + 'acquisitionDate').text = _time_as_iso(self.acquisition_date)
 
-            archived_in = et.SubElement(earth_observation_meta_data, eop + 'archivedIn')
-            archive_info = et.SubElement(archived_in, eop + 'ArchivingInformation')
-            arch_center = et.SubElement(archive_info, eop + 'archivingCenter')
-            arch_center.text = self.archive_station_code
-            arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
-            et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
+        archived_in = et.SubElement(earth_observation_meta_data, eop + 'archivedIn')
+        archive_info = et.SubElement(archived_in, eop + 'ArchivingInformation')
+        arch_center = et.SubElement(archive_info, eop + 'archivingCenter')
+        arch_center.text = self.archive_station_code
+        arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
+        et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
 
-            qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
-            qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
-            qc_degradation_tag.text = 'RADIOMETRIC'
+        qc_degradation = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradation')
+        qc_degradation.set('uom', '%')
+        qc_degradation.text = '25'
+
+        et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationQuotationMode').text = 'AUTOMATIC'
+        et.SubElement(earth_observation_meta_data, eop + 'productQualityStatus').text = 'DEGRADED'
+
+        # only if productQualityStatus is DEGRADED!
+        qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
+        qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
+        qc_degradation_tag.text = 'RADIOMETRIC'
+
+        et.SubElement(earth_observation_meta_data, eop + 'ProductQualityReportURL').text = 'http://xxx/xxx/xxx.pdf'
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
