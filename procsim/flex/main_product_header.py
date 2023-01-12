@@ -206,7 +206,7 @@ class MainProductHeader:
     @product_type.setter
     def product_type(self, type: str):
         '''
-        Type must be one of the predefined BIOMASS types
+        Type must be one of the predefined FLEX types
         '''
         product_type_info = product_types.find_product(type)
         if product_type_info is not None:
@@ -346,7 +346,7 @@ class MainProductHeader:
                 sensor_type = et.SubElement(Sensor, eop + 'sensorType')
                 sensor_type.text = s['type']
                 sensor_mode = et.SubElement(Sensor, eop + 'operationalMode')
-                sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
+                sensor_mode.set('codeSpace', 'urn:esa:eop:FLORIS:operationalMode')
                 sensor_mode.text = s['mode']
 
         if level in ['raws', 'l0', 'l1', 'l2a']:
@@ -542,7 +542,7 @@ class MainProductHeader:
                 s = {}
                 s['type'] = Sensor.findtext(eop + 'sensorType')
                 s['mode'] = Sensor.findtext(eop + 'operationalMode')
-                # sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
+                # sensor_mode.set('codeSpace', 'urn:esa:eop:FLORIS:operationalMode')
                 sensors.append(s)
 
         # Assume there are 0 or 1 sensors
