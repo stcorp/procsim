@@ -206,7 +206,7 @@ class MainProductHeader:
     @product_type.setter
     def product_type(self, type: str):
         '''
-        Type must be one of the predefined BIOMASS types
+        Type must be one of the predefined FLEX types
         '''
         product_type_info = product_types.find_product(type)
         if product_type_info is not None:
@@ -346,7 +346,7 @@ class MainProductHeader:
                 sensor_type = et.SubElement(Sensor, eop + 'sensorType')
                 sensor_type.text = s['type']
                 sensor_mode = et.SubElement(Sensor, eop + 'operationalMode')
-                sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
+                sensor_mode.set('codeSpace', 'urn:esa:eop:FLORIS:operationalMode')
                 sensor_mode.text = s['mode']
 
         if level in ['raws', 'l0', 'l1', 'l2a']:
@@ -391,7 +391,9 @@ class MainProductHeader:
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
         if self.acquisition_subtype is not None:
-            et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType').text = self.acquisition_subtype
+            act = et.SubElement(earth_observation_meta_data, eop + 'acquisitionSubType')
+            act.text = self.acquisition_subtype
+            act.set('codeSpace', 'urn:esa:eop:FLEX:acquisitionSubTypes')
 
         # TODO: Write product type here? Ref says: "Describes product type in case that mixed types
         # are available within a single collection, this is ground segment specific definition"
@@ -419,9 +421,19 @@ class MainProductHeader:
             arch_center.set('codeSpace', 'urn:esa:eop:FLEX:stationCode')
             et.SubElement(archive_info, eop + 'archivingDate').text = _time_as_iso(self.acquisition_date)
 
-            qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
-            qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
-            qc_degradation_tag.text = 'RADIOMETRIC'
+        qc_degradation = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradation')
+        qc_degradation.set('uom', '%')
+        qc_degradation.text = '25'
+
+        et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationQuotationMode').text = 'AUTOMATIC'
+        et.SubElement(earth_observation_meta_data, eop + 'productQualityStatus').text = 'DEGRADED'
+
+        # only if productQualityStatus is DEGRADED!
+        qc_degradation_tag = et.SubElement(earth_observation_meta_data, eop + 'productQualityDegradationTag')
+        qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
+        qc_degradation_tag.text = 'RADIOMETRIC'
+
+        et.SubElement(earth_observation_meta_data, eop + 'ProductQualityReportURL').text = 'http://xxx/xxx/xxx.pdf'
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
@@ -435,6 +447,11 @@ class MainProductHeader:
         et.SubElement(processing_info, eop + 'processorName').text = self.processor_name
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self._processing_level
+
+        if level == 'aux':
+            et.SubElement(processing_info, eop + 'nativeProductFormat').text = 'xml'
+        else:
+            et.SubElement(processing_info, eop + 'nativeProductFormat').text = 'dat'
 
         if level not in ['aux']:
             for name in self.auxiliary_ds_file_names:
@@ -542,7 +559,7 @@ class MainProductHeader:
                 s = {}
                 s['type'] = Sensor.findtext(eop + 'sensorType')
                 s['mode'] = Sensor.findtext(eop + 'operationalMode')
-                # sensor_mode.set('codeSpace', 'urn:esa:eop:Biomass:PSAR:operationalMode')
+                # sensor_mode.set('codeSpace', 'urn:esa:eop:FLORIS:operationalMode')
                 sensors.append(s)
 
         # Assume there are 0 or 1 sensors
