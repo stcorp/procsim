@@ -151,9 +151,8 @@ class MphTest(unittest.TestCase):
         self.assertEqual(mph, ref_mph)
         self.assertEqual(mph.acquisitions, ref_mph.acquisitions)
 
-    '''
     def testCreateParse(self):
-        filename, _ = get_l1_test_mph()
+        filename, _ = get_l0_test_mph()
         mph = MainProductHeader()
         mph.parse(os.path.join(THIS_DIR, filename))
         outfile_path = tempfile.mkstemp(suffix='mph.xml', dir=THIS_DIR)[1]
@@ -169,6 +168,7 @@ class MphTest(unittest.TestCase):
         self.assertEqual(mph, mph2)
         self.assertEqual(mph.acquisitions, mph2.acquisitions)
 
+    '''
     def testFilesInMPHFromRAW(self):
         raw_generator_classes: List[Type[RawProductGeneratorBase]] = [RAW_xxx_10, RAWSxxx_10]
         for raw_generator_class in raw_generator_classes:
