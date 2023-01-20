@@ -159,8 +159,8 @@ class MainProductHeader:
 
         self.sensor_detector: Optional[str] = None
 
-        self.relative_orbit_number = None
-        self.cycle_number = None
+        self.relative_orbit_number: Optional[str] = None
+        self.cycle_number: Optional[str] = None
 
         # Raw only
         self.acquisition_station: Optional[str] = None
@@ -541,7 +541,6 @@ class MainProductHeader:
         if _platform_shortname != self._platform_shortname:
             raise ParseError(Platform)
 
-
         instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         if instrument is None:
             raise ParseError(instrument)
@@ -776,14 +775,19 @@ class MainProductHeader:
 
         for vendor_specific in earth_observation_meta_data.findall(eop + 'vendorSpecific'):
             specific_info = vendor_specific.find(eop + 'SpecificInformation')
-            local_attr = specific_info.find(eop + 'localAttribute').text
-            if local_attr in vsm_map:
-                mapped = vsm_map[local_attr]
-                if isinstance(mapped, tuple):
-                    attr, conv = mapped
-                    local_value = conv(specific_info.find(eop + 'localValue').text)
-                else:
-                    attr = mapped
-                    local_value = specific_info.find(eop + 'localValue').text
-
-                setattr(self, attr, local_value)
+            if specific_info is not None:
+                local_attribute = specific_info.find(eop + 'localAttribute')
+                local_value = specific_info.find(eop + 'localValue')
+                if local_attribute is not None and local_value is not None:
+                    if local_attribute.text is not None and local_value.text is not None:
+                        local_attr = local_attribute.text
+                        local_val = local_value.text
+                        if local_attr in vsm_map:
+                            mapped = vsm_map[local_attr]
+                            if isinstance(mapped, tuple):
+                                attr, conv = mapped
+                                value = conv(local_val)
+                            else:
+                                attr = mapped
+                                value = local_val
+                            setattr(self, attr, value)
