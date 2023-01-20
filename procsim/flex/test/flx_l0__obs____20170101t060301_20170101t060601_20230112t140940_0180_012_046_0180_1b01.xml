@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='utf-8'?>
+<opt:EarthObservation xmlns:eop="http://www.opengis.net/eop/2.1" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:om="http://www.opengis.net/om/2.0" xmlns:opt="http://www.opengis.net/opt/2.1" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" gml:id="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01_1">
+  <om:phenomenonTime>
+    <gml:TimePeriod gml:id="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01_2">
+      <gml:beginPosition>2017-01-01T06:03:01.272Z</gml:beginPosition>
+      <gml:endPosition>2017-01-01T06:06:01.272Z</gml:endPosition>
+    </gml:TimePeriod>
+  </om:phenomenonTime>
+  <om:resultTime>
+    <gml:TimeInstant gml:id="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01_3">
+      <gml:timePosition>2017-01-01T06:06:01.272Z</gml:timePosition>
+    </gml:TimeInstant>
+  </om:resultTime>
+  <om:procedure>
+    <eop:EarthObservationEquipment gml:id="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01_4">
+      <eop:platform>
+        <eop:Platform>
+          <eop:shortName>FLEX</eop:shortName>
+        </eop:Platform>
+      </eop:platform>
+      <eop:instrument>
+        <eop:Instrument>
+          <eop:shortName>FLORIS</eop:shortName>
+        </eop:Instrument>
+      </eop:instrument>
+      <eop:sensor>
+        <eop:Sensor>
+          <eop:sensorType>OPTICAL</eop:sensorType>
+          <eop:operationalMode codeSpace="urn:esa:eop:FLORIS:operationalMode">EO</eop:operationalMode>
+        </eop:Sensor>
+      </eop:sensor>
+      <eop:acquisitionParameters>
+        <eop:Acquisition>
+          <eop:orbitNumber>1</eop:orbitNumber>
+          <eop:lastOrbitNumber>1</eop:lastOrbitNumber>
+          <eop:orbitDirection>ASCENDING</eop:orbitDirection>
+          <eop:illuminationAzimuthAngle uom="deg">10.2</eop:illuminationAzimuthAngle>
+          <eop:acrossTrackIncidenceAngle uom="deg">-14.0</eop:acrossTrackIncidenceAngle>
+          <eop:alongTrackIncidenceAngle uom="deg">-13.9</eop:alongTrackIncidenceAngle>
+          <eop:pitch uom="deg">0</eop:pitch>
+          <eop:rol uom="deg">0</eop:rol>
+          <eop:yaw uom="deg">0</eop:yaw>
+        </eop:Acquisition>
+      </eop:acquisitionParameters>
+    </eop:EarthObservationEquipment>
+  </om:procedure>
+  <om:observedProperty xsi:nil="true" nilReason="inapplicable" />
+  <om:featureOfInterest />
+  <om:result>
+    <eop:EarthObservationResult gml:id="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01_9">
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01">
+              <ows:RequestMessage />
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:version>1B01</eop:version>
+          <eop:timeliness>NOMINAL</eop:timeliness>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="./flx_l0__obs____20170101t060301_20170101t060601_20230112t140940_0180_012_046_0180_1b01_lres.dat">
+              <ows:RequestMessage />
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">0</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="./flx_l0__obs____20170101t060301_20170101t060601_20230112t140940_0180_012_046_0180_1b01_hre1.dat">
+              <ows:RequestMessage />
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">0</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="./flx_l0__obs____20170101t060301_20170101t060601_20230112t140940_0180_012_046_0180_1b01_hre2.dat">
+              <ows:RequestMessage />
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">0</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+    </eop:EarthObservationResult>
+  </om:result>
+  <eop:metaDataProperty>
+    <eop:EarthObservationMetaData>
+      <eop:identifier>FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01</eop:identifier>
+      <eop:creationDate>2023-01-12T14:09:40.022Z</eop:creationDate>
+      <eop:doi>10.5270/FLX-xxxxxxx</eop:doi>
+      <eop:acquisitionType>NOMINAL</eop:acquisitionType>
+      <eop:productType>L0__OBS___</eop:productType>
+      <eop:status>ARCHIVED</eop:status>
+      <eop:statusSubType>ON-LINE</eop:statusSubType>
+      <eop:productQualityDegradation uom="%">25</eop:productQualityDegradation>
+      <eop:productQualityDegradationQuotationMode>AUTOMATIC</eop:productQualityDegradationQuotationMode>
+      <eop:productQualityStatus>DEGRADED</eop:productQualityStatus>
+      <eop:productQualityDegradationTag codeSpace="urn:esa:eop:FLEX:qcDegradationTags">RADIOMETRIC</eop:productQualityDegradationTag>
+      <eop:ProductQualityReportURL>http://xxx/xxx/xxx.pdf</eop:ProductQualityReportURL>
+      <eop:processing>
+        <eop:ProcessingInformation>
+          <eop:processingCenter codeSpace="urn:esa:eop:FLEX:facility">ESR</eop:processingCenter>
+          <eop:processingDate>2023-01-12T13:09:40Z</eop:processingDate>
+          <eop:processorName>procsim</eop:processorName>
+          <eop:processorVersion>1.2.0</eop:processorVersion>
+          <eop:processingLevel>other: L0</eop:processingLevel>
+          <eop:nativeProductFormat>dat</eop:nativeProductFormat>
+          <eop:processingMode>NOMINAL</eop:processingMode>
+        </eop:ProcessingInformation>
+      </eop:processing>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>missionPhase</eop:localAttribute>
+          <eop:localValue>COMMISSIONING</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Ref_Doc</eop:localAttribute>
+          <eop:localValue>Product_Definition_Format_xx.yy</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Task_Table_Name</eop:localAttribute>
+          <eop:localValue>Task Table Name</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Task_Table_Version</eop:localAttribute>
+          <eop:localValue>xx.yy</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Duration</eop:localAttribute>
+          <eop:localValue>180.000</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Cycle_Number</eop:localAttribute>
+          <eop:localValue>012</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Relative_Orbit_Number</eop:localAttribute>
+          <eop:localValue>046</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>dataTakeID</eop:localAttribute>
+          <eop:localValue>8282</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>slicingGridFrameNumber</eop:localAttribute>
+          <eop:localValue>2</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>alongtrackCoordinate</eop:localAttribute>
+          <eop:localValue>180</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>ANX_elapsed_time</eop:localAttribute>
+          <eop:localValue>180.000</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Baseline</eop:localAttribute>
+          <eop:localValue>1B01</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+    </eop:EarthObservationMetaData>
+  </eop:metaDataProperty>
+</opt:EarthObservation>

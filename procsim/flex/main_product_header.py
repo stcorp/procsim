@@ -290,7 +290,6 @@ class MainProductHeader:
         self.products.append({
             'file_name': product_path,
             'size': None if size_mb is None else size_mb * 2**20,
-            'representation': representation_path
         })
 
     def write(self, file_name):
@@ -378,8 +377,6 @@ class MainProductHeader:
             self._insert_file_name(product_information, prod['file_name'])
             if prod.get('size') is not None:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-                if prod.get('representation') is not None:    # Mandatory for if type is XML
-                    et.SubElement(product_information, eop + 'rds').text = prod['representation']
             else:
                 et.SubElement(product_information, eop + 'version').text = self.product_baseline
                 et.SubElement(product_information, eop + 'timeliness').text = 'NOMINAL'  # TODO CALIBRATION?
@@ -658,8 +655,7 @@ class MainProductHeader:
                 self.products.append({'file_name': file_name})
             else:
                 size = int(product_information.findtext(eop + 'size', '0'))  # attrib={'uom': 'bytes'}
-                representation = product_information.findtext(eop + 'rds')
-                self.products.append({'file_name': file_name, 'size': size, 'representation': representation})
+                self.products.append({'file_name': file_name, 'size': size})
 
         meta_data_property = root.find(eop + 'metaDataProperty')  # Observation metadata
         if meta_data_property is None:
