@@ -112,6 +112,8 @@ def get_l0_test_mph():
     mph.doi = '10.5270/FLX-xxxxxxx'
     mph.product_baseline = '1B01'
     mph.acquisition_type = 'NOMINAL'
+    mph.product_status = 'ARCHIVED'
+    mph.product_status_subtype = 'ON-LINE'
     mph.set_processing_parameters('procsim', '1.2.0')
     mph.processing_date = datetime.datetime(2023, 1, 12, 13, 9, 40, tzinfo=datetime.timezone.utc)
     mph.processing_centre_code = 'ESR'
