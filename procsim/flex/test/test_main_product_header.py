@@ -104,15 +104,14 @@ def get_l0_test_mph():
     mph = MainProductHeader()
 
     # Derived from XML by hand...
-    mph.eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
-    mph.begin_position = mph.validity_start = datetime.datetime(2017, 1, 1, 6, 3, 1, 272000, tzinfo=datetime.timezone.utc)
-    mph.time_position = mph.end_position = mph.validity_stop = datetime.datetime(2017, 1, 1, 6, 6, 1, 272000, tzinfo=datetime.timezone.utc)
+    mph.eop_identifier = 'FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01'
+    mph.begin_position = datetime.datetime(2017, 1, 1, 6, 3, 1, 272000, tzinfo=datetime.timezone.utc)
+    mph.time_position = mph.end_position = datetime.datetime(2017, 1, 1, 6, 6, 1, 272000, tzinfo=datetime.timezone.utc)
     mph.product_type = 'L0__OBS___'
     mph.product_status = 'ARCHIVED'
     mph.doi = '10.5270/FLX-xxxxxxx'
     mph.product_baseline = '1B01'
     mph.acquisition_type = 'NOMINAL'
-    mph.processing_mode = 'NOMINAL'
     mph.set_processing_parameters('procsim', '1.2.0')
     mph.processing_date = datetime.datetime(2023, 1, 12, 13, 9, 40, tzinfo=datetime.timezone.utc)
     mph.processing_centre_code = 'ESR'
@@ -122,8 +121,8 @@ def get_l0_test_mph():
 
     mph.sensor_mode = 'EO'
 
-    mph.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
-    mph.center_points = '-7.492090 -63.27095'
+#    mph.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
+#    mph.center_points = '-7.492090 -63.27095'
 
     mph.products = [
         {'file_name': 'FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01'},
@@ -145,16 +144,6 @@ class MphTest(unittest.TestCase):
         filename, ref_mph = get_l0_test_mph()
         mph = MainProductHeader()
         mph.parse(os.path.join(THIS_DIR, filename))
-        da = mph.__dict__
-        db = ref_mph.__dict__
-        for k in da:
-            if k not in db:
-                print('missing', k, da[k])
-            elif db[k] != da[k]:
-                print('diff', k, da[k], db[k])
-        for k in db:
-            if k not in da:
-                print('toomuch', k, db[k])
         self.assertEqual(mph, ref_mph)
 
     '''
