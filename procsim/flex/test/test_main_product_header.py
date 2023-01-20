@@ -105,26 +105,23 @@ def get_l0_test_mph():
 
     # Derived from XML by hand...
     mph.eop_identifier = 'BIO_S2_SCS__1S_20230101T120000_20230101T120021_I_G03_M03_C03_T131_F155_01_ACZ976'
-    mph.begin_position = mph.validity_start = datetime.datetime(2023, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
-    mph.time_position = mph.end_position = mph.validity_stop = datetime.datetime(2023, 1, 1, 12, 0, 21, tzinfo=datetime.timezone.utc)
+    mph.begin_position = mph.validity_start = datetime.datetime(2017, 1, 1, 6, 3, 1, 272000, tzinfo=datetime.timezone.utc)
+    mph.time_position = mph.end_position = mph.validity_stop = datetime.datetime(2017, 1, 1, 6, 6, 1, 272000, tzinfo=datetime.timezone.utc)
     mph.product_type = 'L0__OBS___'
     mph.product_status = 'ARCHIVED'
-    mph.doi = 'DOI'
+    mph.doi = '10.5270/FLX-xxxxxxx'
     mph.product_baseline = '1B01'
     mph.acquisition_type = 'NOMINAL'
     mph.processing_mode = 'NOMINAL'
     mph.set_processing_parameters('procsim', '1.2.0')
-    mph.processing_date = datetime.datetime(2023, 1, 1, 12, 12, 53, tzinfo=datetime.timezone.utc)
+    mph.processing_date = datetime.datetime(2023, 1, 12, 13, 9, 40, tzinfo=datetime.timezone.utc)
     mph.processing_centre_code = 'ESR'
-    mph.auxiliary_ds_file_names = ['AUX_ORB_Filename', 'AUX_ATT_Filename', 'AUX_GMF_Filename', 'AUX_INS_Filename',
-                                   'AUX_TEC_Filename', 'AUX_PP1_Filename']
+    mph.auxiliary_ds_file_names = []
 
-    mph.reference_documents = ['BIOMASS L1 PRODUCT FORMAT SPECIFICATION', 'BIOMASS L1 PRODUCT FORMAT DEFINITION']
+    mph.reference_documents = []
 
-    mph.sensor_mode = 'SM'
+    mph.sensor_mode = 'EO'
 
-    mph.browse_ref_id = 'EPSG:4326'
-    mph.browse_image_filename = './preview/bio_s2_scs__1s_20230101t120000_20230101t120021_i_g03_m03_c03_t131_f155_ql.png'
     mph.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
     mph.center_points = '-7.492090 -63.27095'
 
