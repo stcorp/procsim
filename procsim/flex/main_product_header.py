@@ -306,7 +306,7 @@ class MainProductHeader:
         # Some parameters have no default and MUST be set prior to generation
         if self.begin_position is None or self.end_position is None:
             raise ScenarioError('Begin/end position must be set before creating MPH')
-#        if self.validity_start is None or self.validity_stop is None:  # TODO 
+#        if self.validity_start is None or self.validity_stop is None:  # TODO
 #            raise ScenarioError('Validity start/stop must be set before creating MPH')
         if not self.eop_identifier:
             raise ScenarioError('The eop_identifier (file name) must be set before creating MPH')
