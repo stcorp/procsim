@@ -152,7 +152,7 @@ class MphTest(unittest.TestCase):
         self.assertEqual(mph.acquisitions, ref_mph.acquisitions)
 
     def testCreateParse(self):
-        filename, _ = get_l0_test_mph()
+        filename = 'flx_l0__obs____20170101t060301_20170101t060601_20230112t140940_0180_012_046_0180_1b01.xml'
         mph = MainProductHeader()
         mph.parse(os.path.join(THIS_DIR, filename))
         outfile_path = tempfile.mkstemp(suffix='mph.xml', dir=THIS_DIR)[1]
