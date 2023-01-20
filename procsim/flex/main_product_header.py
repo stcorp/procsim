@@ -537,7 +537,10 @@ class MainProductHeader:
         Platform = platform.find(eop + 'Platform')  # Nested element for platform description
         if Platform is None:
             raise ParseError(Platform)
-        self._platform_shortname = Platform.findtext(eop + 'shortName')
+        _platform_shortname = Platform.findtext(eop + 'shortName')
+        if _platform_shortname != self._platform_shortname:
+            raise ParseError(Platform)
+
 
         instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         if instrument is None:
@@ -546,6 +549,9 @@ class MainProductHeader:
         if Instrument is None:
             raise ParseError(Instrument)
         self._sensor_name = Instrument.findtext(eop + 'shortName')
+        _sensor_name = Instrument.findtext(eop + 'shortName')
+        if _sensor_name != self._sensor_name:
+            raise ParseError(Instrument)
 
         # Mandatory for L0, L1, L2A products
         sensors = []
@@ -637,7 +643,10 @@ class MainProductHeader:
             browse_info = browse.find(eop + 'BrowseInformation')
             if browse_info is None:
                 raise ParseError(browse_info)
-            self._browse_type = browse_info.findtext(eop + 'type')
+            _browse_type = browse_info.findtext(eop + 'type')
+            if _browse_type != self._browse_type:
+                raise ParseError(browse_info)
+
             self.browse_ref_id = browse_info.findtext(eop + 'referenceSystemIdentifier')  # Coordinate reference system name
             # browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
             # self._insert_file_name(browse_info, self.browse_image_filename)
@@ -718,7 +727,9 @@ class MainProductHeader:
         processing_mode = processing_info.find(eop + 'processingMode')
         if processing_mode is None:
             raise ParseError(processing_mode)
-        self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        if processing_mode != self.processing_mode:
+            raise ParseError(processing_mode)
 
         # Manadatory for raw/raws
         self.nr_transfer_frames = 0
