@@ -548,7 +548,6 @@ class MainProductHeader:
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
         if Instrument is None:
             raise ParseError(Instrument)
-        self._sensor_name = Instrument.findtext(eop + 'shortName')
         _sensor_name = Instrument.findtext(eop + 'shortName')
         if _sensor_name != self._sensor_name:
             raise ParseError(Instrument)
@@ -744,3 +743,47 @@ class MainProductHeader:
         for doc in earth_observation_meta_data.findall(eop + 'refDoc'):
             if doc.text is not None:
                 self.reference_documents.append(doc.text)
+
+        # vendor specific metadata
+
+        vsm_map = {  # TODO use mapper for writing too, fix attrs below
+            'missionPhase': 'mission_phase',
+            'Cycle_Number': 'cycle_number',
+            'Relative_Orbit_Number': 'relative_orbit_number',
+            'dataTakeID': ('data_take_id', int),
+            'calibrationID': ('calibration_id', int),
+            'slicingGridFrameNumber': ('slice_frame_nr', int),
+            'alongTrackCoordinate': ('along_track_coordinate', int),
+            'ANX_elapsed_time': ('anx_elapsed', float),
+            'Baseline': 'product_baseline',
+            'numOfISPs': ('nr_instrument_source_packets', int),
+            'numOfISPsWithErrors': ('nr_instrument_source_packets_erroneous', int),
+            'numOfCorruptedISPs': ('nr_instrument_source_packets_corrupt', int),
+            'numOfTFs': ('nr_transfer_frames', int),
+            'numOfTFsWithErrors': ('nr_transfer_frames_erroneous', int),
+            'numOfCorruptedTFs': ('nr_transfer_frames_corrupt', int),
+            'apid': 'apid',
+            'sensorDetector': 'sensor_detector',
+            'completenessAssesment': 'completeness_assesment',
+            'sliceStartPosition': 'slice_start_position',
+            'sliceStopPosition': 'slice_stop_position',
+
+        }
+#            add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
+#            add_vendor_specific('Task_Table_Name', 'Task Table Name')
+#            add_vendor_specific('Task_Table_Version', 'xx.yy')
+#            add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+
+        for vendor_specific in earth_observation_meta_data.findall(eop + 'vendorSpecific'):
+            specific_info = vendor_specific.find(eop + 'SpecificInformation')
+            local_attr = specific_info.find(eop + 'localAttribute').text
+            if local_attr in vsm_map:
+                mapped = vsm_map[local_attr]
+                if isinstance(mapped, tuple):
+                    attr, conv = mapped
+                    local_value = conv(specific_info.find(eop + 'localValue').text)
+                else:
+                    attr = mapped
+                    local_value = specific_info.find(eop + 'localValue').text
+
+                setattr(self, attr, local_value)

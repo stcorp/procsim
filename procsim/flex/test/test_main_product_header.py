@@ -117,12 +117,16 @@ def get_l0_test_mph():
     mph.processing_centre_code = 'ESR'
     mph.auxiliary_ds_file_names = []
 
+    mph.slice_frame_nr = 2
+    mph.mission_phase = 'COMMISSIONING'
+    mph.anx_elapsed = 180.000
+    mph.relative_orbit_number = '046'
+    mph.data_take_id = 8282
+    mph.cycle_number = '012'
+
     mph.reference_documents = []
 
     mph.sensor_mode = 'EO'
-
-#    mph.footprint_polygon = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
-#    mph.center_points = '-7.492090 -63.27095'
 
     mph.products = [
         {'file_name': 'FLX_L0__OBS____20170101T060301_20170101T060601_20230112T140940_0180_012_046_0180_1B01'},
@@ -145,6 +149,7 @@ class MphTest(unittest.TestCase):
         mph = MainProductHeader()
         mph.parse(os.path.join(THIS_DIR, filename))
         self.assertEqual(mph, ref_mph)
+        self.assertEqual(mph.acquisitions, ref_mph.acquisitions)
 
     '''
     def testCreateParse(self):
