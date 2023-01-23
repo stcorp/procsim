@@ -203,6 +203,7 @@ class RWS_EO(RawProductGeneratorBase):
     PRODUCTS = [
         'RWS_XS_OBS',
         'RWS_XSPOBS',
+        'RWS_XSIOBS',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -345,12 +346,22 @@ class RWS_EO(RawProductGeneratorBase):
                 if self._output_type == 'RWS_XS_OBS':
                     self._create_products(slice_start, slice_end, complete)
             else:
-                if segment_start > slice_start:
-                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes.. 'undetermined' if difference unclear
-                if segment_end < slice_end:
-                    self._hdr.slice_stop_position = 'end_of_SA'
+                intermediate = data_take_config['intermediate']
 
-                if self._output_type == 'RWS_XSPOBS':
+                if segment_start > slice_start:
+                    if intermediate:
+                        self._hdr.slice_start_position = 'undetermined'
+                    else:
+                        self._hdr.slice_start_position = 'begin_of_SA'
+
+                if segment_end < slice_end:
+                    if intermediate:
+                        self._hdr.slice_stop_position = 'undetermined'
+                    else:
+                        self._hdr.slice_stop_position = 'end_of_SA'
+
+                if ((not intermediate and self._output_type == 'RWS_XSPOBS') or
+                    (intermediate and self._output_type == 'RWS_XSIOBS')):
                     self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
@@ -400,6 +411,7 @@ class RWS_CAL(RawProductGeneratorBase):
     PRODUCTS = [
         'RWS_XS_CAL',
         'RWS_XSPCAL',
+        'RWS_XSICAL',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [

@@ -23,8 +23,10 @@ PRODUCT_TYPES: List[ProductType] = [
 
     ProductType('RWS_XS_OBS', 'raws', 'Complete Sliced RAW Observation Product'),
     ProductType('RWS_XSPOBS', 'raws', 'Partial Sliced RAW Observation Product'),
+    ProductType('RWS_XSIOBS', 'raws', 'Intermediate Sliced RAW Observation Product'),
     ProductType('RWS_XS_CAL', 'raws', 'Complete Sliced RAW Calibration Product'),
     ProductType('RWS_XSPCAL', 'raws', 'Partial Sliced RAW Calibration Product'),
+    ProductType('RWS_XSICAL', 'raws', 'Intermediate Sliced RAW Calibration Product'),
     ProductType('RWS_XS_ANC', 'raws', 'Complete Sliced RAW Ancillary Product'),
     ProductType('RWS_XSPANC', 'raws', 'Partial Sliced RAW Ancillary Product'),
 
