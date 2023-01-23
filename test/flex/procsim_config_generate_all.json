@@ -12,7 +12,7 @@
             "mission_phase": "COMMISSIONING",
             "cycle_number": "012",
             "relative_orbit_number": "046",
-            "baseline": "1B01",
+            "baseline": "1B",
             "slicing_interval": "180",
             "begin_position": "2017-01-01T06:01:31.394Z",
             "end_position": "2017-01-01T06:07:06.410Z",
