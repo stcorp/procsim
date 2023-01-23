@@ -343,15 +343,15 @@ class RWS_EO(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(slice_start, slice_end, complete)  # acq_start, acq_end) TODO
+                    self._create_products(slice_start, slice_end, complete)
             else:
                 if segment_start > slice_start:
-                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes
+                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes.. 'undetermined' if difference unclear
                 if segment_end < slice_end:
                     self._hdr.slice_stop_position = 'end_of_SA'
 
                 if self._output_type == 'RWS_XSPOBS':
-                    self._create_products(slice_start, slice_end, complete)
+                    self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
