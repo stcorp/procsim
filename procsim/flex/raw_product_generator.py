@@ -459,20 +459,34 @@ class RWS_CAL(RawProductGeneratorBase):
 
             complete = (cal_start >= begin_pos and cal_stop <= end_pos)
 
-            slice_start_position = 'begin_of_SA'
-            slice_stop_position = 'end_of_SA'
+            slice_start_position = 'inside_SA'
+            slice_stop_position = 'inside_SA'
 
-            if not complete:
+            if complete:
+                if self._output_type == 'RWS_XS_CAL':
+                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+
+            else:
+                intermediate = calibration_config['intermediate']
+
+                if cal_start > begin_pos:
+                    if intermediate:
+                        slice_start_position = 'undetermined'
+                    else:
+                        slice_start_position = 'begin_of_SA'
+
                 if cal_stop > end_pos:
-                    slice_stop_position = 'inside_SA'
-                if cal_start < begin_pos:
-                    slice_start_position = 'inside_SA'
+                    if intermediate:
+                        slice_stop_position = 'undetermined'
+                    else:
+                        slice_start_position = 'end_of_SA'
 
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
 
-            if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                if ((not intermediate and self._output_type == 'RWS_XSPCAL') or
+                    (intermediate and self._output_type == 'RWS_XSICAL')):
+                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                          complete, slice_start_position, slice_stop_position):

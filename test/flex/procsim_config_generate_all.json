@@ -24,7 +24,7 @@
                 "2017-01-01T07:38:12.217000Z"
             ],
             "data_takes": [
-                { // complete and partial slices when sliced against grid
+                { // one complete and two partial slices when sliced against grid
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:02:31.394000Z",
                     "stop": "2017-01-01T06:06:20.504000Z",
@@ -38,17 +38,23 @@
                 }
             ],
             "calibration_events": [
-                { // complete, as fully inside by begin/end_position
+                { // complete slice, as fully inside by begin/end_position
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
                     "stop": "2017-01-01T06:03:44.504000Z",
                     "intermediate": false
                 },
-                { // partial, as not fully inside begin/end_position
+                { // partial slice, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
                     "stop": "2017-01-01T06:08:44.504000Z",
                     "intermediate": false
+                },
+                { // intermediate slice, with same period as previous
+                    "calibration_id": "17",
+                    "start": "2017-01-01T06:02:31.394000Z",
+                    "stop": "2017-01-01T06:08:44.504000Z",
+                    "intermediate": true
                 }
             ],
             "anc_events": [
@@ -74,8 +80,10 @@
               {"type": "RAW_XS_OBC", "size": 1},
               {"type": "RWS_XS_OBS", "size": 1},
               {"type": "RWS_XSPOBS", "size": 1},
+              {"type": "RWS_XSIOBS", "size": 1},
               {"type": "RWS_XS_CAL", "size": 1},
               {"type": "RWS_XSPCAL", "size": 1},
+              {"type": "RWS_XSICAL", "size": 1},
               {"type": "RWS_XS_ANC", "size": 1},
               {"type": "RWS_XSPANC", "size": 1},
               {"type": "AUX_OBSMSK", "size": 1},
