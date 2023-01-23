@@ -27,31 +27,42 @@
                 { // complete and partial slices when sliced against grid
                     "data_take_id": "8282",
                     "start": "2017-01-01T06:02:31.394000Z",
-                    "stop": "2017-01-01T06:06:20.504000Z"
+                    "stop": "2017-01-01T06:06:20.504000Z",
+                    "intermediate": false
+                },
+                { // intermediate slice (fully inside single grid frame)
+                    "data_take_id": "8283",
+                    "start": "2017-01-01T06:04:31.394000Z",
+                    "stop": "2017-01-01T06:05:20.504000Z",
+                    "intermediate": true
                 }
             ],
             "calibration_events": [
                 { // complete, as fully inside by begin/end_position
                     "calibration_id": "15",
                     "start": "2017-01-01T06:01:31.394000Z",
-                    "stop": "2017-01-01T06:03:44.504000Z"
+                    "stop": "2017-01-01T06:03:44.504000Z",
+                    "intermediate": false
                 },
                 { // partial, as not fully inside begin/end_position
                     "calibration_id": "16",
                     "start": "2017-01-01T06:02:31.394000Z",
-                    "stop": "2017-01-01T06:08:44.504000Z"
+                    "stop": "2017-01-01T06:08:44.504000Z",
+                    "intermediate": false
                 }
             ],
             "anc_events": [
                 { // complete, as filling an anx slice
                     "apid": "4321",
                     "start": "2017-01-01T05:51:31.394000Z",
-                    "stop": "2017-01-01T08:20:44.504000Z"
+                    "stop": "2017-01-01T08:20:44.504000Z",
+                    "intermediate": false
                 },
                 { // partial, as not filling an anx slice
                     "apid": "5432",
                     "start": "2017-01-01T06:51:31.394000Z",
-                    "stop": "2017-01-01T08:20:44.504000Z"
+                    "stop": "2017-01-01T08:20:44.504000Z",
+                    "intermediate": false
                 }
             ],
             "output_path": "workspace/all",
