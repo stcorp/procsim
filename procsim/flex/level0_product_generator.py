@@ -475,7 +475,7 @@ class ANC(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        if self._output_type in ('L0_VAU_TM', 'L0_TST___'):
+        if self._output_type in ('L0__VAU_TM', 'L0__TST___'):
             for sensor in ('lres', 'hre1', 'hre2'):
                 file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor))
                 self._add_file_to_product(file_path, self._size_mb // 2)
