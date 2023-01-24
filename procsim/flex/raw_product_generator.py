@@ -201,9 +201,35 @@ class RWS_EO(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_OBS',
-        'RWS_XSPOBS',
-        'RWS_XSIOBS',
+        'RWS_LR_OBS',
+        'RWS_LR_OBS',
+        'RWS_LR_OBS',
+        'RWS_H1_OBS',
+        'RWS_H1_OBS',
+        'RWS_H1_OBS',
+        'RWS_H2_OBS',
+        'RWS_H2_OBS',
+        'RWS_H2_OBS',
+
+        'RWS_LRPOBS',
+        'RWS_LRPOBS',
+        'RWS_LRPOBS',
+        'RWS_H1POBS',
+        'RWS_H1POBS',
+        'RWS_H1POBS',
+        'RWS_H2POBS',
+        'RWS_H2POBS',
+        'RWS_H2POBS',
+
+        'RWS_LRIOBS',
+        'RWS_LRIOBS',
+        'RWS_LRIOBS',
+        'RWS_H1IOBS',
+        'RWS_H1IOBS',
+        'RWS_H1IOBS',
+        'RWS_H2IOBS',
+        'RWS_H2IOBS',
+        'RWS_H2IOBS',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -343,7 +369,7 @@ class RWS_EO(RawProductGeneratorBase):
             complete = (segment_start <= slice_start and slice_end <= segment_end)
 
             if complete:
-                if self._output_type == 'RWS_XS_OBS':
+                if self._output_type.endswith('_OBS'):
                     self._create_products(slice_start, slice_end, complete)
             else:
                 intermediate = data_take_config['intermediate']
@@ -360,8 +386,8 @@ class RWS_EO(RawProductGeneratorBase):
                     else:
                         self._hdr.slice_stop_position = 'end_of_SA'
 
-                if ((not intermediate and self._output_type == 'RWS_XSPOBS') or
-                    (intermediate and self._output_type == 'RWS_XSIOBS')):
+                if ((not intermediate and self._output_type.endswith('POBS')) or
+                    (intermediate and self._output_type.endswith('IOBS'))):
                     self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 

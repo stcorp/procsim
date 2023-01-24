@@ -227,10 +227,9 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            name = self._generate_prefix() + '_{}_{}_{}'.format(
+            name = self._generate_prefix() + '_{}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 self.baseline_identifier,
-                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
@@ -305,10 +304,9 @@ class ProductName:
                     constants.ABS_ORBIT,
                 )
         elif self._level == 'raws':
-            name = self._generate_prefix() + '_{}_{}_{}.dat'.format(
+            name = self._generate_prefix() + '_{}_{}.dat'.format(
                 self.time_to_str(self.downlink_time),
                 self.baseline_identifier,
-                self.sensor,  # TODO unspecified RWS naming
             )
 
         elif self._level == 'aux':
