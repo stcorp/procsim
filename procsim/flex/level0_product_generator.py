@@ -400,6 +400,8 @@ class ANC(product_generator.ProductGeneratorBase):
         'L0__VAU_TM',
         'L0__INSTTM',
         'L0__TST___',
+        'L0__WRN___',
+        'L0__INV___',
         'L0__UNK___',
     ]
 

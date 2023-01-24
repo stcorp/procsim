@@ -107,7 +107,9 @@
               {"type": "AUX_PF_BC_", "size": 1},
               {"type": "AUX_TSKTBL", "size": 1},
               {"type": "AUX_L0__PF", "size": 1},
+
               {"type": "L0__OBS___", "size": 1},
+
               {"type": "L0__DARKNP", "size": 1},
               {"type": "L0__DARKSR", "size": 1},
               {"type": "L0__DARKSS", "size": 1},
@@ -135,7 +137,10 @@
               {"type": "L0__ICUDTM", "size": 1},
               {"type": "L0__VAU_TM", "size": 1},
               {"type": "L0__INSTTM", "size": 1},
+
               {"type": "L0__TST___", "size": 1},
+              {"type": "L0__WRN___", "size": 1},
+              {"type": "L0__INV___", "size": 1},
               {"type": "L0__UNK___", "size": 1}
             ]
         }
