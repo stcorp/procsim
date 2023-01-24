@@ -87,14 +87,18 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0__SPECEO', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__CLOUD_', 'l0', 'Level-0 Calibration Product'),
 
-    ProductType('L0__SAT_TM', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__NAVATT', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__PDHUTM', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__ICUDTM', 'l0', 'Level-0 Ancillary Product'),
+    ProductType('L0__SAT_TM', 'l0', 'Level-0 Satellite Telemetry Data Product'),
+    ProductType('L0__NAVATT', 'l0', 'Level-0 Navigation & Attitude Data Product'),
+    ProductType('L0__PDHUTM', 'l0', 'Level-0 Nom/Red PDHU TM(3,25) Product'),
+    ProductType('L0__ICUDTM', 'l0', 'Level-0 Duplicated ICU TM(3,25) Product'),
+    ProductType('L0__INSTTM', 'l0', 'Level-0 Instrument Telemetry Data Product'),
+
     ProductType('L0__VAU_TM', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__INSTTM', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__TST___', 'l0', 'Level-0 Ancillary Product'),
-    ProductType('L0__UNK___', 'l0', 'Level-0 Ancillary Product'),
+
+    ProductType('L0__TST___', 'l0', 'Level-0 Test Data Product'),
+    ProductType('L0__WRN___', 'l0', 'Level-0 Warning Data Product'),
+    ProductType('L0__INV___', 'l0', 'Level-0 Invalid Data Product'),
+    ProductType('L0__UNK___', 'l0', 'Level-0 Unknown Data Product'),
 
 ]
 
