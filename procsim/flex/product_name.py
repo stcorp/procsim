@@ -68,7 +68,6 @@ class ProductName:
         self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
-        self.sensor: Optional[str]
         self.anx_elapsed: Optional[float]
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None

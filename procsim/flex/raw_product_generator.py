@@ -202,33 +202,13 @@ class RWS_EO(RawProductGeneratorBase):
 
     PRODUCTS = [
         'RWS_LR_OBS',
-        'RWS_LR_OBS',
-        'RWS_LR_OBS',
-        'RWS_H1_OBS',
-        'RWS_H1_OBS',
-        'RWS_H1_OBS',
-        'RWS_H2_OBS',
-        'RWS_H2_OBS',
-        'RWS_H2_OBS',
-
         'RWS_LRPOBS',
-        'RWS_LRPOBS',
-        'RWS_LRPOBS',
-        'RWS_H1POBS',
-        'RWS_H1POBS',
-        'RWS_H1POBS',
-        'RWS_H2POBS',
-        'RWS_H2POBS',
-        'RWS_H2POBS',
-
         'RWS_LRIOBS',
-        'RWS_LRIOBS',
-        'RWS_LRIOBS',
+        'RWS_H1_OBS',
+        'RWS_H1POBS',
         'RWS_H1IOBS',
-        'RWS_H1IOBS',
-        'RWS_H1IOBS',
-        'RWS_H2IOBS',
-        'RWS_H2IOBS',
+        'RWS_H2_OBS',
+        'RWS_H2POBS',
         'RWS_H2IOBS',
     ]
 
@@ -435,9 +415,15 @@ class RWS_CAL(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_CAL',
-        'RWS_XSPCAL',
-        'RWS_XSICAL',
+        'RWS_LR_CAL',
+        'RWS_LRPCAL',
+        'RWS_LRICAL',
+        'RWS_H1_CAL',
+        'RWS_H1PCAL',
+        'RWS_H1ICAL',
+        'RWS_H2_CAL',
+        'RWS_H2PCAL',
+        'RWS_H2ICAL',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -489,7 +475,7 @@ class RWS_CAL(RawProductGeneratorBase):
             slice_stop_position = 'end_of_SA'
 
             if complete:
-                if self._output_type == 'RWS_XS_CAL':
+                if self._output_type.endswith('_CAL'):
                     self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
             else:
@@ -508,8 +494,8 @@ class RWS_CAL(RawProductGeneratorBase):
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
 
-                if ((not intermediate and self._output_type == 'RWS_XSPCAL') or
-                    (intermediate and self._output_type == 'RWS_XSICAL')):
+                if ((not intermediate and self._output_type.endswith('PCAL')) or
+                    (intermediate and self._output_type.endswith('ICAL'))):
                     self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
@@ -647,7 +633,6 @@ class RWS_ANC(RawProductGeneratorBase):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
-            name_gen.sensor = sensor
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
