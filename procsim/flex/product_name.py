@@ -214,8 +214,7 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
             if self._file_type == 'RAW___HKTM':
-                name = self._generate_prefix() + '_{}_O{}'.format(
-                    self.time_to_str(self.downlink_time),
+                name = self._generate_prefix() + '_O{}'.format(
                     constants.ABS_ORBIT,
                 )
             else:
@@ -294,8 +293,7 @@ class ProductName:
 
         if self._level == 'raw':
             if self._file_type == 'RAW___HKTM':
-                name = self._generate_prefix() + '_{}_O{}.dat'.format(
-                    self.time_to_str(self.downlink_time),
+                name = self._generate_prefix() + '_O{}.dat'.format(
                     constants.ABS_ORBIT,
                 )
             else:
