@@ -350,13 +350,13 @@ class RWS_EO(RawProductGeneratorBase):
 
                 if segment_start > slice_start:
                     if intermediate:
-                        self._hdr.slice_start_position = 'undetermined'
+                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
                     else:
                         self._hdr.slice_start_position = 'begin_of_SA'
 
                 if segment_end < slice_end:
                     if intermediate:
-                        self._hdr.slice_stop_position = 'undetermined'
+                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
                     else:
                         self._hdr.slice_stop_position = 'end_of_SA'
 
@@ -459,8 +459,8 @@ class RWS_CAL(RawProductGeneratorBase):
 
             complete = (cal_start >= begin_pos and cal_stop <= end_pos)
 
-            slice_start_position = 'inside_SA'
-            slice_stop_position = 'inside_SA'
+            slice_start_position = 'begin_of_SA'
+            slice_stop_position = 'end_of_SA'
 
             if complete:
                 if self._output_type == 'RWS_XS_CAL':
@@ -472,14 +472,12 @@ class RWS_CAL(RawProductGeneratorBase):
                 if cal_start > begin_pos:
                     if intermediate:
                         slice_start_position = 'undetermined'
-                    else:
-                        slice_start_position = 'begin_of_SA'
+                    slice_end_position = 'inside_SA'
 
                 if cal_stop > end_pos:
                     if intermediate:
                         slice_stop_position = 'undetermined'
-                    else:
-                        slice_start_position = 'end_of_SA'
+                    slice_start_position = 'inside_SA'
 
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
