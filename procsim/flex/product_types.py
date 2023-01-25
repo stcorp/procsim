@@ -58,11 +58,11 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RWS_XS_ITM', 'raws', 'Complete INST TM RAW slice'),
     ProductType('RWS_XSPITM', 'raws', 'Partial INST TM RAW slice'),
 
-    ProductType('AUX_OBSMSK', 'aux', 'Observation Mask'),
-    ProductType('AUX_GCP_DB', 'aux', 'GCP Database'),
-    ProductType('AUX_PF_BC_', 'aux', 'Products Baseline'),
-    ProductType('AUX_TSKTBL', 'aux', 'Processors Task Tables'),
-    ProductType('AUX_L0__PF', 'aux', 'PDGS L0 Operational Processors Parameters File'),
+    ProductType('AUX_GCP_DB', 'aux', 'Observation Mask'),
+
+    ProductType('CFG_TSKTBL', 'aux', 'Processors Task Tables'),
+    ProductType('CFG_PF_BC_', 'aux', 'Products Baseline'),
+    ProductType('CFG_L0__PF', 'aux', 'GCP Database'),
 
     ProductType('L0__OBS___', 'l0', 'Level-0 FLORIS Instrument Measurement Data Product'),
     ProductType('L0__OBSMON', 'l0', 'Level-0 FLORIS Monitoring Instrument Measurement Data Product'),

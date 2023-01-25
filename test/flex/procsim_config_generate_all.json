@@ -112,11 +112,11 @@
               {"type": "RWS_XS_OBC", "size": 1},
               {"type": "RWS_XSPOBC", "size": 1},
 
-              {"type": "AUX_OBSMSK", "size": 1},
               {"type": "AUX_GCP_DB", "size": 1},
-              {"type": "AUX_PF_BC_", "size": 1},
-              {"type": "AUX_TSKTBL", "size": 1},
-              {"type": "AUX_L0__PF", "size": 1},
+
+              {"type": "CFG_TSKTBL", "size": 1},
+              {"type": "CFG_PF_BC_", "size": 1},
+              {"type": "CFG_L0__PF", "size": 1},
 
               {"type": "L0__OBS___", "size": 1},
               {"type": "L0__OBSMON", "size": 1},
