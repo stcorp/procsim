@@ -573,8 +573,18 @@ class RWS_ANC(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_ANC',
-        'RWS_XSPANC',
+        'RWS_LR_VAU',
+        'RWS_LRPVAU',
+        'RWS_H1_VAU',
+        'RWS_H1PVAU',
+        'RWS_H2_VAU',
+        'RWS_H2PVAU',
+
+        'RWS_XS_ITM',
+        'RWS_XSPITM',
+
+        'RWS_XS_OBC',
+        'RWS_XSPOBC',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -619,14 +629,14 @@ class RWS_ANC(RawProductGeneratorBase):
 
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
-                if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
+                if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
                     self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
-                elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
+                elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
                     self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
-                elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
+                elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
                     self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):

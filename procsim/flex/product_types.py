@@ -45,7 +45,18 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RWS_XS_ANC', 'raws', 'Complete Sliced RAW Ancillary Product'),
     ProductType('RWS_XSPANC', 'raws', 'Partial Sliced RAW Ancillary Product'),
 
-    # TODO add RWS-VAU.. ANC gone?
+    ProductType('RWS_LR_VAU', 'raws', 'Complete VAU_TM RAW slice for LR Sensor'),
+    ProductType('RWS_H1_VAU', 'raws', 'Complete VAU_TM RAW slice for HR1 Sensor'),
+    ProductType('RWS_H2_VAU', 'raws', 'Complete VAU_TM RAW slice for HR2 Sensor'),
+    ProductType('RWS_LRPVAU', 'raws', 'Partial VAU_TM RAW slice for LR sensor'),
+    ProductType('RWS_H1PVAU', 'raws', 'Partial VAU_TM RAW slice for HR1 sensor'),
+    ProductType('RWS_H2PVAU', 'raws', 'Partial VAU_TM RAW slice for HR2 sensor'),
+
+    ProductType('RWS_XS_OBC', 'raws', 'Complete OBC RAW slice'),
+    ProductType('RWS_XSPOBC', 'raws', 'Partial OBC RAW slice'),
+
+    ProductType('RWS_XS_ITM', 'raws', 'Complete INST TM RAW slice'),
+    ProductType('RWS_XSPITM', 'raws', 'Partial INST TM RAW slice'),
 
     ProductType('AUX_OBSMSK', 'aux', 'Observation Mask'),
     ProductType('AUX_GCP_DB', 'aux', 'GCP Database'),

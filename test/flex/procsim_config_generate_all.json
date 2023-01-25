@@ -99,8 +99,18 @@
               {"type": "RWS_H2PCAL", "size": 1},
               {"type": "RWS_H2ICAL", "size": 1},
 
-              {"type": "RWS_XS_ANC", "size": 1},
-              {"type": "RWS_XSPANC", "size": 1},
+              {"type": "RWS_LR_VAU", "size": 1},
+              {"type": "RWS_LRPVAU", "size": 1},
+              {"type": "RWS_H1_VAU", "size": 1},
+              {"type": "RWS_H1PVAU", "size": 1},
+              {"type": "RWS_H2_VAU", "size": 1},
+              {"type": "RWS_H2PVAU", "size": 1},
+
+              {"type": "RWS_XS_ITM", "size": 1},
+              {"type": "RWS_XSPITM", "size": 1},
+
+              {"type": "RWS_XS_OBC", "size": 1},
+              {"type": "RWS_XSPOBC", "size": 1},
 
               {"type": "AUX_OBSMSK", "size": 1},
               {"type": "AUX_GCP_DB", "size": 1},
