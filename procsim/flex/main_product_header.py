@@ -159,8 +159,8 @@ class MainProductHeader:
 
         self.sensor_detector: Optional[str] = None
 
-        self.relative_orbit_number = None
-        self.cycle_number = None
+        self.relative_orbit_number: Optional[str] = None
+        self.cycle_number: Optional[str] = None
 
         # Raw only
         self.acquisition_station: Optional[str] = None
@@ -290,7 +290,6 @@ class MainProductHeader:
         self.products.append({
             'file_name': product_path,
             'size': None if size_mb is None else size_mb * 2**20,
-            'representation': representation_path
         })
 
     def write(self, file_name):
@@ -307,8 +306,8 @@ class MainProductHeader:
         # Some parameters have no default and MUST be set prior to generation
         if self.begin_position is None or self.end_position is None:
             raise ScenarioError('Begin/end position must be set before creating MPH')
-        if self.validity_start is None or self.validity_stop is None:
-            raise ScenarioError('Validity start/stop must be set before creating MPH')
+#        if self.validity_start is None or self.validity_stop is None:  # TODO
+#            raise ScenarioError('Validity start/stop must be set before creating MPH')
         if not self.eop_identifier:
             raise ScenarioError('The eop_identifier (file name) must be set before creating MPH')
 
@@ -378,8 +377,6 @@ class MainProductHeader:
             self._insert_file_name(product_information, prod['file_name'])
             if prod.get('size') is not None:
                 et.SubElement(product_information, eop + 'size', attrib={'uom': 'bytes'}).text = str(prod['size'])
-                if prod.get('representation') is not None:    # Mandatory for if type is XML
-                    et.SubElement(product_information, eop + 'rds').text = prod['representation']
             else:
                 et.SubElement(product_information, eop + 'version').text = self.product_baseline
                 et.SubElement(product_information, eop + 'timeliness').text = 'NOMINAL'  # TODO CALIBRATION?
@@ -540,7 +537,9 @@ class MainProductHeader:
         Platform = platform.find(eop + 'Platform')  # Nested element for platform description
         if Platform is None:
             raise ParseError(Platform)
-        self._platform_shortname = Platform.findtext(eop + 'shortName')
+        _platform_shortname = Platform.findtext(eop + 'shortName')
+        if _platform_shortname != self._platform_shortname:
+            raise ParseError(Platform)
 
         instrument = earth_observation_equipment.find(eop + 'instrument')  # Instrument description
         if instrument is None:
@@ -548,7 +547,9 @@ class MainProductHeader:
         Instrument = instrument.find(eop + 'Instrument')  # Nested element for instrument description
         if Instrument is None:
             raise ParseError(Instrument)
-        self._sensor_name = Instrument.findtext(eop + 'shortName')
+        _sensor_name = Instrument.findtext(eop + 'shortName')
+        if _sensor_name != self._sensor_name:
+            raise ParseError(Instrument)
 
         # Mandatory for L0, L1, L2A products
         sensors = []
@@ -640,7 +641,10 @@ class MainProductHeader:
             browse_info = browse.find(eop + 'BrowseInformation')
             if browse_info is None:
                 raise ParseError(browse_info)
-            self._browse_type = browse_info.findtext(eop + 'type')
+            _browse_type = browse_info.findtext(eop + 'type')
+            if _browse_type != self._browse_type:
+                raise ParseError(browse_info)
+
             self.browse_ref_id = browse_info.findtext(eop + 'referenceSystemIdentifier')  # Coordinate reference system name
             # browse_ref_id.set('codeSpace', 'urn:esa:eop:crs')
             # self._insert_file_name(browse_info, self.browse_image_filename)
@@ -658,8 +662,7 @@ class MainProductHeader:
                 self.products.append({'file_name': file_name})
             else:
                 size = int(product_information.findtext(eop + 'size', '0'))  # attrib={'uom': 'bytes'}
-                representation = product_information.findtext(eop + 'rds')
-                self.products.append({'file_name': file_name, 'size': size, 'representation': representation})
+                self.products.append({'file_name': file_name, 'size': size})
 
         meta_data_property = root.find(eop + 'metaDataProperty')  # Observation metadata
         if meta_data_property is None:
@@ -722,7 +725,9 @@ class MainProductHeader:
         processing_mode = processing_info.find(eop + 'processingMode')
         if processing_mode is None:
             raise ParseError(processing_mode)
-        self.processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        processing_mode = processing_mode.text    # attrib={'codeSpace': 'urn:esa:eop:Biomass:class'}
+        if processing_mode != self.processing_mode:
+            raise ParseError(processing_mode)
 
         # Manadatory for raw/raws
         self.nr_transfer_frames = 0
@@ -737,3 +742,52 @@ class MainProductHeader:
         for doc in earth_observation_meta_data.findall(eop + 'refDoc'):
             if doc.text is not None:
                 self.reference_documents.append(doc.text)
+
+        # vendor specific metadata
+
+        vsm_map = {  # TODO use mapper for writing too, fix attrs below
+            'missionPhase': 'mission_phase',
+            'Cycle_Number': 'cycle_number',
+            'Relative_Orbit_Number': 'relative_orbit_number',
+            'dataTakeID': ('data_take_id', int),
+            'calibrationID': ('calibration_id', int),
+            'slicingGridFrameNumber': ('slice_frame_nr', int),
+            'alongTrackCoordinate': ('along_track_coordinate', int),
+            'ANX_elapsed_time': ('anx_elapsed', float),
+            'Baseline': 'product_baseline',
+            'numOfISPs': ('nr_instrument_source_packets', int),
+            'numOfISPsWithErrors': ('nr_instrument_source_packets_erroneous', int),
+            'numOfCorruptedISPs': ('nr_instrument_source_packets_corrupt', int),
+            'numOfTFs': ('nr_transfer_frames', int),
+            'numOfTFsWithErrors': ('nr_transfer_frames_erroneous', int),
+            'numOfCorruptedTFs': ('nr_transfer_frames_corrupt', int),
+            'apid': 'apid',
+            'sensorDetector': 'sensor_detector',
+            'completenessAssesment': 'completeness_assesment',
+            'sliceStartPosition': 'slice_start_position',
+            'sliceStopPosition': 'slice_stop_position',
+
+        }
+#            add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
+#            add_vendor_specific('Task_Table_Name', 'Task Table Name')
+#            add_vendor_specific('Task_Table_Version', 'xx.yy')
+#            add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+
+        for vendor_specific in earth_observation_meta_data.findall(eop + 'vendorSpecific'):
+            specific_info = vendor_specific.find(eop + 'SpecificInformation')
+            if specific_info is not None:
+                local_attribute = specific_info.find(eop + 'localAttribute')
+                local_value = specific_info.find(eop + 'localValue')
+                if local_attribute is not None and local_value is not None:
+                    if local_attribute.text is not None and local_value.text is not None:
+                        local_attr = local_attribute.text
+                        local_val = local_value.text
+                        if local_attr in vsm_map:
+                            mapped = vsm_map[local_attr]
+                            if isinstance(mapped, tuple):
+                                attr, conv = mapped
+                                value = conv(local_val)
+                            else:
+                                attr = mapped
+                                value = local_val
+                            setattr(self, attr, value)
