@@ -109,6 +109,7 @@
               {"type": "AUX_L0__PF", "size": 1},
 
               {"type": "L0__OBS___", "size": 1},
+              {"type": "L0__OBSMON", "size": 1},
 
               {"type": "L0__DARKNP", "size": 1},
               {"type": "L0__DARKSR", "size": 1},

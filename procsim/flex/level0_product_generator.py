@@ -57,6 +57,7 @@ class EO(product_generator.ProductGeneratorBase):
 
     PRODUCTS = [
         'L0__OBS___',
+        'L0__OBSMON',
     ]
 
     _ACQ_PARAMS = []

@@ -16,6 +16,7 @@ class ProductType():
 # Lists all FLEX products
 PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAW___HKTM', 'raw', 'Housekeeping Telemetry RAW product'),
+
     ProductType('RAW_XS_LR_', 'raw', 'Science and Ancillary RAW products'),
     ProductType('RAW_XS_HR1', 'raw', 'Science and Ancillary RAW products'),
     ProductType('RAW_XS_HR2', 'raw', 'Science and Ancillary RAW products'),
@@ -52,7 +53,8 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('AUX_TSKTBL', 'aux', 'Processors Task Tables'),
     ProductType('AUX_L0__PF', 'aux', 'PDGS L0 Operational Processors Parameters File'),
 
-    ProductType('L0__OBS___', 'l0', 'Level-0 Observation Product'),
+    ProductType('L0__OBS___', 'l0', 'Level-0 FLORIS Instrument Measurement Data Product'),
+    ProductType('L0__OBSMON', 'l0', 'Level-0 FLORIS Monitoring Instrument Measurement Data Product'),
 
     ProductType('L0__DARKNP', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DARKSR', 'l0', 'Level-0 Calibration Product'),
