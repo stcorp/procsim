@@ -368,7 +368,7 @@ class RWS_EO(RawProductGeneratorBase):
                         self._hdr.slice_stop_position = 'end_of_SA'
 
                 if ((not intermediate and self._output_type.endswith('POBS')) or
-                    (intermediate and self._output_type.endswith('IOBS'))):
+                        (intermediate and self._output_type.endswith('IOBS'))):
                     self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
@@ -496,7 +496,7 @@ class RWS_CAL(RawProductGeneratorBase):
                 cal_stop = min(cal_stop, end_pos)
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
-                    (intermediate and self._output_type.endswith('ICAL'))):
+                        (intermediate and self._output_type.endswith('ICAL'))):
                     self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,

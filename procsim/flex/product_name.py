@@ -74,6 +74,7 @@ class ProductName:
         self._level = None
         self._compact_create_date = None
         self._frame_slice_nr_str = None
+        self.sensor: Optional[str] = None
         self.use_short_name = False
 
         # Raw only
@@ -238,7 +239,7 @@ class ProductName:
                 self.baseline_identifier,
             )
 
-        elif not self.use_short_name:
+        elif not self.use_short_name:  # raws, l0
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
@@ -311,14 +312,13 @@ class ProductName:
                 extension,
             )
 
-        elif self.use_short_name: # raws, l0
+        elif self.use_short_name:  # raws, l0
             name = self._generate_prefix() + '_{}_{}.dat'.format(
                 self.time_to_str(self.downlink_time),
                 self.baseline_identifier,
             )
 
-
-        elif not self.use_short_name: # raws, l0
+        elif not self.use_short_name:  # raws, l0
             if self.stop_time is not None and self.start_time is not None:
                 duration = int((self.stop_time - self.start_time).total_seconds())
             else:
