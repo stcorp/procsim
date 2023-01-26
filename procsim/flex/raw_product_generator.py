@@ -258,18 +258,19 @@ class RWS_EO(RawProductGeneratorBase):
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
-            dir_name = name_gen.generate_path_name()
-            self._hdr.product_type = self._output_type
-            self._hdr.initialize_product_list(dir_name)
-            self._hdr.set_phenomenon_times(acq_start, acq_stop)
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-            self._hdr.apid = self._scenario_config['apid']
-
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
+            dir_name = name_gen.generate_path_name()
+
+            self._hdr.product_type = self._output_type
+            self._hdr.initialize_product_list(dir_name)
+            self._hdr.set_phenomenon_times(acq_start, acq_stop)
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -504,6 +505,12 @@ class RWS_CAL(RawProductGeneratorBase):
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
@@ -519,12 +526,6 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.calibration_id = calibration_config['calibration_id']
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = self._scenario_config['apid']
-
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -644,7 +645,14 @@ class RWS_ANC(RawProductGeneratorBase):
         name_gen.use_short_name = True
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
             dir_name = name_gen.generate_path_name()
+
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
@@ -658,11 +666,5 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = apid
-
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             self._create_raw_product(dir_name, name_gen)
