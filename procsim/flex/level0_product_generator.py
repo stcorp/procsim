@@ -400,6 +400,7 @@ class ANC(product_generator.ProductGeneratorBase):
         'L0__ICUDTM',
         'L0__VAU_TM',
         'L0__INSTTM',
+
         'L0__TST___',
         'L0__WRN___',
         'L0__INV___',
@@ -463,6 +464,8 @@ class ANC(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
+        if not self._output_type.endswith('___'):
+            name_gen.use_short_name = True
 
         anx = self._get_anx(start)  # TODO copy-pasting
         if anx is not None:
