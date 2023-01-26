@@ -58,7 +58,7 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RWS_XS_ITM', 'raws', 'Complete INST TM RAW slice'),
     ProductType('RWS_XSPITM', 'raws', 'Partial INST TM RAW slice'),
 
-    ProductType('AUX_GCP_DB', 'aux', 'Observation Mask'),
+    ProductType('AUX_GCP_DB', 'aux', 'Ground Control Point Database'),
 
     ProductType('CFG_TSKTBL', 'aux', 'Processors Task Tables'),
     ProductType('CFG_PF_BC_', 'aux', 'Products Baseline Configuration'),
