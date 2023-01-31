@@ -57,6 +57,7 @@ class EO(product_generator.ProductGeneratorBase):
 
     PRODUCTS = [
         'L0__OBS___',
+        'L0__OBSMON',
     ]
 
     _ACQ_PARAMS = []
@@ -241,51 +242,51 @@ class CAL(product_generator.ProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'L0_DARKNP',
-        'L0_DARKSR',
-        'L0_DARKSS',
-        'L0_DEFDAR',
-        'L0_DARKOC',
-        'L0_DRKMTF',
-        'L0_DRKSTR',
-        'L0_SPECSD',
-        'L0_SUN___',
-        'L0_DEFSUN',
-        'L0_MOON__',
-        'L0_MOONSL',
-        'L0_LINDES',
-        'L0_LINSEA',
-        'L0_LINSUN',
-        'L0_LINDAR',
-        'L0_CTE___',
-        'L0_SCNVAL',
-        'L0_COREG_',
-        'L0_SPECEO',
-        'L0_CLOUD_',
+        'L0__DARKNP',
+        'L0__DARKSR',
+        'L0__DARKSS',
+        'L0__DEFDAR',
+        'L0__DARKOC',
+        'L0__DRKMTF',
+        'L0__DRKSTR',
+        'L0__SPECSD',
+        'L0__SUN___',
+        'L0__DEFSUN',
+        'L0__MOON__',
+        'L0__MOONSL',
+        'L0__LINDES',
+        'L0__LINSEA',
+        'L0__LINSUN',
+        'L0__LINDAR',
+        'L0__CTE___',
+        'L0__SCNVAL',
+        'L0__COREG_',
+        'L0__SPECEO',
+        'L0__CLOUD_',
     ]
 
     ACQ_SUBTYPE = {
-        'L0_DARKNP': 'Dark_CU_NAPoint_NOM',
-        'L0_DARKSR': 'Dark_CU_SunPoint_Rad',
-        'L0_DARKSS': 'Dark_CU_SunPoint_SpectrSun',
-        'L0_DEFDAR': 'Dark_defpixel',
-        'L0_DARKOC': 'DarkSea_NAPoint',
-        'L0_DRKMTF': 'Dark_CU_MoonPoint_MTF',
-        'L0_DRKSTR': 'Dark_CU_MoonPoint_Stray',
-        'L0_SPECSD': 'Spectr_SunPoint',
-        'L0_SUN___': 'RadioMetric_SunPoint',
-        'L0_DEFSUN': 'RadioMetric_SunPoint_DefPixels',
-        'L0_MOON__': 'Radiometric_MTF_MoonPoint',
-        'L0_MOONSL': 'Straylight_MoonPoint',
-        'L0_LINDES': 'Linearity_NaPoint_Desert',
-        'L0_LINSEA': 'Linearity_NaPoint_Sea',
-        'L0_LINSUN': 'Linearity_SunPoint',
-        'L0_LINDAR': 'Linearity_Dark',
-        'L0_CTE___': 'CTE_Monitoring',
-        'L0_SCNVAL': 'Image_Geo',
-        'L0_COREG_': 'Image_coreg',
-        'L0_SPECEO': 'Spectral_NaPoint_Bin',
-        'L0_CLOUD_': 'Radiometric_NaPoint_Cloud',
+        'L0__DARKNP': 'Dark_CU_NAPoint_NOM',
+        'L0__DARKSR': 'Dark_CU_SunPoint_Rad',
+        'L0__DARKSS': 'Dark_CU_SunPoint_SpectrSun',
+        'L0__DEFDAR': 'Dark_defpixel',
+        'L0__DARKOC': 'DarkSea_NAPoint',
+        'L0__DRKMTF': 'Dark_CU_MoonPoint_MTF',
+        'L0__DRKSTR': 'Dark_CU_MoonPoint_Stray',
+        'L0__SPECSD': 'Spectr_SunPoint',
+        'L0__SUN___': 'RadioMetric_SunPoint',
+        'L0__DEFSUN': 'RadioMetric_SunPoint_DefPixels',
+        'L0__MOON__': 'Radiometric_MTF_MoonPoint',
+        'L0__MOONSL': 'Straylight_MoonPoint',
+        'L0__LINDES': 'Linearity_NaPoint_Desert',
+        'L0__LINSEA': 'Linearity_NaPoint_Sea',
+        'L0__LINSUN': 'Linearity_SunPoint',
+        'L0__LINDAR': 'Linearity_Dark',
+        'L0__CTE___': 'CTE_Monitoring',
+        'L0__SCNVAL': 'Image_Geo',
+        'L0__COREG_': 'Image_coreg',
+        'L0__SPECEO': 'Spectral_NaPoint_Bin',
+        'L0__CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 
     _ACQ_PARAMS = []
@@ -393,14 +394,17 @@ class ANC(product_generator.ProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'L0_SAT_TM',
-        'L0_NAVATT',
-        'L0_PDHUTM',
-        'L0_ICUDTM',
-        'L0_VAU_TM',
-        'L0_INSTTM',
-        'L0_TST___',
-        'L0_UNK___',
+        'L0__SAT_TM',
+        'L0__NAVATT',
+        'L0__PDHUTM',
+        'L0__ICUDTM',
+        'L0__VAU_TM',
+        'L0__INSTTM',
+
+        'L0__TST___',
+        'L0__WRN___',
+        'L0__INV___',
+        'L0__UNK___',
     ]
 
     _ACQ_PARAMS = []
@@ -460,6 +464,8 @@ class ANC(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
+        if not self._output_type.endswith('___'):
+            name_gen.use_short_name = True
 
         anx = self._get_anx(start)  # TODO copy-pasting
         if anx is not None:
@@ -475,7 +481,7 @@ class ANC(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        if self._output_type in ('L0_VAU_TM', 'L0_TST___'):
+        if self._output_type in ('L0__VAU_TM', 'L0__TST___'):
             for sensor in ('lres', 'hre1', 'hre2'):
                 file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor))
                 self._add_file_to_product(file_path, self._size_mb // 2)

@@ -201,8 +201,15 @@ class RWS_EO(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_OBS',
-        'RWS_XSPOBS',
+        'RWS_LR_OBS',
+        'RWS_LRPOBS',
+        'RWS_LRIOBS',
+        'RWS_H1_OBS',
+        'RWS_H1POBS',
+        'RWS_H1IOBS',
+        'RWS_H2_OBS',
+        'RWS_H2POBS',
+        'RWS_H2IOBS',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -251,18 +258,19 @@ class RWS_EO(RawProductGeneratorBase):
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
-            dir_name = name_gen.generate_path_name()
-            self._hdr.product_type = self._output_type
-            self._hdr.initialize_product_list(dir_name)
-            self._hdr.set_phenomenon_times(acq_start, acq_stop)
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-            self._hdr.apid = self._scenario_config['apid']
-
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
+            dir_name = name_gen.generate_path_name()
+
+            self._hdr.product_type = self._output_type
+            self._hdr.initialize_product_list(dir_name)
+            self._hdr.set_phenomenon_times(acq_start, acq_stop)
+            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.apid = self._scenario_config['apid']
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -342,16 +350,26 @@ class RWS_EO(RawProductGeneratorBase):
             complete = (segment_start <= slice_start and slice_end <= segment_end)
 
             if complete:
-                if self._output_type == 'RWS_XS_OBS':
-                    self._create_products(slice_start, slice_end, complete)  # acq_start, acq_end) TODO
-            else:
-                if segment_start > slice_start:
-                    self._hdr.slice_start_position = 'begin_of_SA'  # TODO 'inside_SA' for actually partial datatakes
-                if segment_end < slice_end:
-                    self._hdr.slice_stop_position = 'end_of_SA'
-
-                if self._output_type == 'RWS_XSPOBS':
+                if self._output_type.endswith('_OBS'):
                     self._create_products(slice_start, slice_end, complete)
+            else:
+                intermediate = data_take_config['intermediate']
+
+                if segment_start > slice_start:
+                    if intermediate:
+                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
+                    else:
+                        self._hdr.slice_start_position = 'begin_of_SA'
+
+                if segment_end < slice_end:
+                    if intermediate:
+                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
+                    else:
+                        self._hdr.slice_stop_position = 'end_of_SA'
+
+                if ((not intermediate and self._output_type.endswith('POBS')) or
+                        (intermediate and self._output_type.endswith('IOBS'))):
+                    self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -398,8 +416,15 @@ class RWS_CAL(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_CAL',
-        'RWS_XSPCAL',
+        'RWS_LR_CAL',
+        'RWS_LRPCAL',
+        'RWS_LRICAL',
+        'RWS_H1_CAL',
+        'RWS_H1PCAL',
+        'RWS_H1ICAL',
+        'RWS_H2_CAL',
+        'RWS_H2PCAL',
+        'RWS_H2ICAL',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -450,17 +475,29 @@ class RWS_CAL(RawProductGeneratorBase):
             slice_start_position = 'begin_of_SA'
             slice_stop_position = 'end_of_SA'
 
-            if not complete:
+            if complete:
+                if self._output_type.endswith('_CAL'):
+                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+
+            else:
+                intermediate = calibration_config['intermediate']
+
+                if cal_start > begin_pos:
+                    if intermediate:
+                        slice_start_position = 'undetermined'
+                    slice_end_position = 'inside_SA'
+
                 if cal_stop > end_pos:
-                    slice_stop_position = 'inside_SA'
-                if cal_start < begin_pos:
+                    if intermediate:
+                        slice_stop_position = 'undetermined'
                     slice_start_position = 'inside_SA'
 
                 cal_start = max(cal_start, begin_pos)
                 cal_stop = min(cal_stop, end_pos)
 
-            if (complete and self._output_type == 'RWS_XS_CAL') or (not complete and self._output_type == 'RWS_XSPCAL'):
-                self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                if ((not intermediate and self._output_type.endswith('PCAL')) or
+                        (intermediate and self._output_type.endswith('ICAL'))):
+                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
     def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                          complete, slice_start_position, slice_stop_position):
@@ -468,6 +505,12 @@ class RWS_CAL(RawProductGeneratorBase):
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             name_gen.sensor = sensor
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
@@ -483,12 +526,6 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.calibration_id = calibration_config['calibration_id']
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = self._scenario_config['apid']
-
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -537,8 +574,18 @@ class RWS_ANC(RawProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'RWS_XS_ANC',
-        'RWS_XSPANC',
+        'RWS_LR_VAU',
+        'RWS_LRPVAU',
+        'RWS_H1_VAU',
+        'RWS_H1PVAU',
+        'RWS_H2_VAU',
+        'RWS_H2PVAU',
+
+        'RWS_XS_ITM',
+        'RWS_XSPITM',
+
+        'RWS_XS_OBC',
+        'RWS_XSPOBC',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -583,22 +630,29 @@ class RWS_ANC(RawProductGeneratorBase):
 
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
-                if start <= anx[i] and stop >= anx[i+1] and self._output_type == 'RWS_XS_ANC':
+                if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
                     self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
-                elif anx[i] <= start <= anx[i+1] and self._output_type == 'RWS_XSPANC':
+                elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
                     self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
-                elif anx[i] <= stop <= anx[i+1] and self._output_type == 'RWS_XSPANC':
+                elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
                     self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         name_gen = self._create_name_generator(acq_start, acq_stop)
+        name_gen.use_short_name = True
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
-            name_gen.sensor = sensor
+            anx = self._get_anx(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+
             dir_name = name_gen.generate_path_name()
+
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
@@ -612,11 +666,5 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
             self._hdr.apid = apid
-
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             self._create_raw_product(dir_name, name_gen)

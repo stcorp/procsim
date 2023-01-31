@@ -68,11 +68,11 @@ class Aux(product_generator.ProductGeneratorBase):
     '''
 
     PRODUCTS = [
-        'AUX_OBSMSK',
         'AUX_GCP_DB',
-        'AUX_PF_BC_',
-        'AUX_TSKTBL',
-        'AUX_L0__PF',
+
+        'CFG_TSKTBL',
+        'CFG_PF_BC_',
+        'CFG_L0__PF',
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -88,11 +88,11 @@ class Aux(product_generator.ProductGeneratorBase):
         more than 1 file is in the data directory.
         '''
         DEFAULT_SUFFIX_EXTENSION = {
-            'AUX_OBSMSK': ('observation_mask', 'xml'),
             'AUX_GCP_DB': ('gcp_database', 'xml'),
-            'AUX_PF_BC_': ('products_baseline', 'xml'),
-            'AUX_TSKTBL': ('tasktables', 'xml'),
-            'AUX_L0__PF': ('l0params', 'xml'),
+
+            'CFG_PF_BC_': ('products_baseline', 'xml'),
+            'CFG_TSKTBL': ('tasktables', 'xml'),
+            'CFG_L0__PF': ('l0params', 'xml'),
         }
         suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
 #

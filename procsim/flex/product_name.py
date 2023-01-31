@@ -68,13 +68,14 @@ class ProductName:
         self.baseline_identifier: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
-        self.sensor: Optional[str]
-        self.anx_elapsed: Optional[float]
+        self.anx_elapsed: Optional[float] = None
         self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
         self._compact_create_date = None
         self._frame_slice_nr_str = None
+        self.sensor: Optional[str] = None
+        self.use_short_name = False
 
         # Raw only
         self.downlink_time: Optional[datetime.datetime]
@@ -214,8 +215,7 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
             if self._file_type == 'RAW___HKTM':
-                name = self._generate_prefix() + '_{}_O{}'.format(
-                    self.time_to_str(self.downlink_time),
+                name = self._generate_prefix() + '_O{}'.format(
                     constants.ABS_ORBIT,
                 )
             else:
@@ -223,23 +223,23 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                 )
 
-        elif self._level == 'raws':
-            if self.downlink_time is None:
-                raise ScenarioError('acquisition_date must be set')
-
-            name = self._generate_prefix() + '_{}_{}_{}'.format(
-                self.time_to_str(self.downlink_time),
-                self.baseline_identifier,
-                self.sensor,  # TODO unspecified RWS naming
-            )
-
         elif self._level == 'aux':
-            # Add _<BB>_<DDDDDD>
             name = self._generate_prefix() + '_{}_{}'.format(
                 self.time_to_str(self._creation_date),
                 self.baseline_identifier,
             )
-        elif self._level == 'l0':
+
+        elif self.use_short_name:  # raws, l0
+            if self._level == 'raws':
+                if self.downlink_time is None:
+                    raise ScenarioError('acquisition_date must be set')
+
+            name = self._generate_prefix() + '_{}_{}'.format(
+                self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
+            )
+
+        elif not self.use_short_name:  # raws, l0
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
@@ -295,8 +295,7 @@ class ProductName:
 
         if self._level == 'raw':
             if self._file_type == 'RAW___HKTM':
-                name = self._generate_prefix() + '_{}_O{}.dat'.format(
-                    self.time_to_str(self.downlink_time),
+                name = self._generate_prefix() + '_O{}.dat'.format(
                     constants.ABS_ORBIT,
                 )
             else:
@@ -304,12 +303,6 @@ class ProductName:
                     self.time_to_str(self.downlink_time),
                     constants.ABS_ORBIT,
                 )
-        elif self._level == 'raws':
-            name = self._generate_prefix() + '_{}_{}_{}.dat'.format(
-                self.time_to_str(self.downlink_time),
-                self.baseline_identifier,
-                self.sensor,  # TODO unspecified RWS naming
-            )
 
         elif self._level == 'aux':
             name = self._generate_prefix() + '_{}_{}{}{}'.format(
@@ -318,7 +311,14 @@ class ProductName:
                 suffix,
                 extension,
             )
-        elif self._level == 'l0':
+
+        elif self.use_short_name:  # raws, l0
+            name = self._generate_prefix() + '_{}_{}.dat'.format(
+                self.time_to_str(self.downlink_time),
+                self.baseline_identifier,
+            )
+
+        elif not self.use_short_name:  # raws, l0
             if self.stop_time is not None and self.start_time is not None:
                 duration = int((self.stop_time - self.start_time).total_seconds())
             else:
