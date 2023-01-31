@@ -123,12 +123,10 @@
 
               {"type": "L0__DARKNP", "size": 1},
               {"type": "L0__DARKSR", "size": 1},
-              {"type": "L0__DARKSS", "size": 1},
               {"type": "L0__DEFDAR", "size": 1},
               {"type": "L0__DARKOC", "size": 1},
               {"type": "L0__DRKMTF", "size": 1},
               {"type": "L0__DRKSTR", "size": 1},
-              {"type": "L0__SPECSD", "size": 1},
               {"type": "L0__SUN___", "size": 1},
               {"type": "L0__DEFSUN", "size": 1},
               {"type": "L0__MOON__", "size": 1},
