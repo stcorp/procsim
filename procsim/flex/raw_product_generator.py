@@ -642,7 +642,7 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         name_gen = self._create_name_generator(acq_start, acq_stop)
-        name_gen.use_short_name = True
+#        name_gen.use_short_name = True
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
             anx = self._get_anx(acq_start)

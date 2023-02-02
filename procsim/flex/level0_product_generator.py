@@ -460,8 +460,8 @@ class ANC(product_generator.ProductGeneratorBase):
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
-        if not self._output_type.endswith('___'):
-            name_gen.use_short_name = True
+#        if not self._output_type.endswith('___'):
+#            name_gen.use_short_name = True
 
         anx = self._get_anx(start)  # TODO copy-pasting
         if anx is not None:
