@@ -244,12 +244,10 @@ class CAL(product_generator.ProductGeneratorBase):
     PRODUCTS = [
         'L0__DARKNP',
         'L0__DARKSR',
-        'L0__DARKSS',
         'L0__DEFDAR',
         'L0__DARKOC',
         'L0__DRKMTF',
         'L0__DRKSTR',
-        'L0__SPECSD',
         'L0__SUN___',
         'L0__DEFSUN',
         'L0__MOON__',
@@ -268,12 +266,10 @@ class CAL(product_generator.ProductGeneratorBase):
     ACQ_SUBTYPE = {
         'L0__DARKNP': 'Dark_CU_NAPoint_NOM',
         'L0__DARKSR': 'Dark_CU_SunPoint_Rad',
-        'L0__DARKSS': 'Dark_CU_SunPoint_SpectrSun',
         'L0__DEFDAR': 'Dark_defpixel',
         'L0__DARKOC': 'DarkSea_NAPoint',
         'L0__DRKMTF': 'Dark_CU_MoonPoint_MTF',
         'L0__DRKSTR': 'Dark_CU_MoonPoint_Stray',
-        'L0__SPECSD': 'Spectr_SunPoint',
         'L0__SUN___': 'RadioMetric_SunPoint',
         'L0__DEFSUN': 'RadioMetric_SunPoint_DefPixels',
         'L0__MOON__': 'Radiometric_MTF_MoonPoint',
@@ -481,7 +477,7 @@ class ANC(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        if self._output_type in ('L0__VAU_TM', 'L0__TST___'):
+        if self._output_type in ('L0__VAU_TM', 'L0__TST___', 'L0__WRN___'):
             for sensor in ('lres', 'hre1', 'hre2'):
                 file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor))
                 self._add_file_to_product(file_path, self._size_mb // 2)

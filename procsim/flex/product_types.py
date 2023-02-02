@@ -69,12 +69,10 @@ PRODUCT_TYPES: List[ProductType] = [
 
     ProductType('L0__DARKNP', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DARKSR', 'l0', 'Level-0 Calibration Product'),
-    ProductType('L0__DARKSS', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DEFDAR', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DARKOC', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DRKMTF', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DRKSTR', 'l0', 'Level-0 Calibration Product'),
-    ProductType('L0__SPECSD', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__SUN___', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__DEFSUN', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__MOON__', 'l0', 'Level-0 Calibration Product'),

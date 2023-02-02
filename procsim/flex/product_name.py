@@ -313,9 +313,10 @@ class ProductName:
             )
 
         elif self.use_short_name:  # raws, l0
-            name = self._generate_prefix() + '_{}_{}.dat'.format(
+            name = self._generate_prefix() + '_{}_{}{}.dat'.format(
                 self.time_to_str(self.downlink_time),
                 self.baseline_identifier,
+                suffix,
             )
 
         elif not self.use_short_name:  # raws, l0
