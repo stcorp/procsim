@@ -163,7 +163,7 @@ class RWS_EO(RawProductGeneratorBase):
     the raw slice-based products generation.
 
     An array "data_takes" with one or more entries can be specified
-    in the scenario. Each data take object must contain at least the ID,
+    in the scenario. Each data entry must contain at least the ID,
     start/stop times and 'intermediate' flag.
 
       "data_takes": [
@@ -368,7 +368,7 @@ class RWS_CAL(RawProductGeneratorBase):
     the raw slice-based products generation.
 
     An array "data_takes" with one or more entries can be specified
-    in the scenario. Each data take object must contain at least the ID,
+    in the scenario. Each entry must contain at least the ID,
     start/stop times and 'intermediate' flag.
 
     "calibration_events": [
@@ -515,7 +515,7 @@ class RWS_ANC(RawProductGeneratorBase):
     the raw slice-based products generation.
 
     An array "anc_events" with one or more entries can be specified
-    in the scenario. Each data take object must contain at least the ID,
+    in the scenario. Each entry must contain at least the ID,
     start/stop times and 'intermediate' flag.
 
     "anc_events": [
