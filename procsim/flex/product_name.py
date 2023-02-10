@@ -17,25 +17,10 @@ from . import constants, product_types
 # Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
 # For now, consider them all as 'validity'.
 _REGEX_RAW_PRODUCT_NAME = re.compile(
-    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'D(?P<downlink_time>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+    r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'O(?P<absorbit>[0-9]{5})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
-_REGEX_L012_PRODUCT_NAME = re.compile(
-    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'(?P<mission_phase>[CIT])_G(?P<global_cov>[0-9_]{2})_M(?P<major>[0-9_]{2})_C(?P<repeat>[0-9_]{2})_'
-    r'T(?P<track>[0-9_]{3})_F(?P<frame_slice>[0-9_]{3})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
-
-_REGEX_VFRA_FILE_NAME = re.compile(
-    r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
-    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))$')
-
-_REGEX_AUX_NAME = re.compile(
-    r'^BIO_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})_'
-    r'(?P<create_date>[0-9A-Z]{6})(?:.(?P<extension>[a-zA-Z]{3}))?$')
-
-_REGEX_FOS_FILE_NAME = re.compile(
-    r'^BIO_(?P<class>TEST|OPER)_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_'
-    r'(?P<vstop>[0-9]{8}T[0-9]{6})_(?P<baseline>[0-9]{2})(?P<version>[0-9]{2})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+# TODO all types..
 
 
 class ProductName:
@@ -179,7 +164,7 @@ class ProductName:
         filename = os.path.basename(path)
 
         # Set all fields that can be extracted from the filename; set others to None.
-        for regex in [_REGEX_RAW_PRODUCT_NAME, _REGEX_AUX_NAME, _REGEX_L012_PRODUCT_NAME, _REGEX_VFRA_FILE_NAME, _REGEX_FOS_FILE_NAME]:
+        for regex in [_REGEX_RAW_PRODUCT_NAME]:  # TODO
             match = regex.match(filename)
             if match:
                 match_dict = match.groupdict()
@@ -190,6 +175,8 @@ class ProductName:
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
                 self.baseline_identifier = match_dict.get('baseline')
                 self._compact_create_date = match_dict.get('create_date')
+
+                # TODO remove these with linter approval
                 self._mission_phase_id = match_dict.get('mission_phase')
                 self._global_coverage_id_str: Optional[str] = match_dict.get('global_cov')
                 self._major_cycle_id_str = match_dict.get('major')
@@ -208,8 +195,6 @@ class ProductName:
 
     def generate_path_name(self):
         # Returns directory name
-        if self.baseline_identifier is None:
-            raise ScenarioError('baseline_id must be set')
 
         if self._level == 'raw':
             if self.downlink_time is None:
