@@ -17,6 +17,7 @@ During execution, logging is produced, with log levels according to those specif
 Procsim consists of a common core and mission-specific plugins containing the mission-specific code.
 Currently, the following missions are supported:
 - Biomass
+- FLEX
 
 # Installation instructions
 To use procsim, you will need:
@@ -58,14 +59,14 @@ For every Task to be simulated, you need:
  - a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
 
 ## Shell script
-The PF calls the processor with only one argument, the name of the JobOrder file. The shell script, used to redirect the PF's call, should call procsim with the following arguments: 
+The PF calls the processor with only one argument, the name of the JobOrder file. The shell script, used to redirect the PF's call, should call procsim with the following arguments:
 
   - `-t`, followed by the name of the script, as called by the PF
 
   - `-j`, followed by the name of the job order file
 
   - the name of the procsim configuration file.
- 
+
 The script will look like this:
 ```
 #!/bin/sh
@@ -74,7 +75,7 @@ procsim -t $0 -j $1 <path_to_config/configfile>
 Optionally, you can specify a specific scenario using `-s`, followed by the name of the scenario.
 
 ## Scenario configuration
-Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated. 
+Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated.
 
 The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Time periods, such as the slice period, are in seconds with type float.
 
@@ -170,7 +171,7 @@ The parameters are described below.
 ### Metadata parameters
 Most metadata will be copied from an input source. Some metadata is set by the output product generator, such as the product type, the processor name and the processor version (all read from the scenario) and the baseline version (read from the JobOrder). Some output product generators set additional fields as well, such as the 'slice number'.
 
-Metadata parameter values can be specified in the scenario. If already read from the `metadata_source`, they will be overwritten. Parameter values can be placed in the scenario 'root' (common for all output products) or in a specific output section. 
+Metadata parameter values can be specified in the scenario. If already read from the `metadata_source`, they will be overwritten. Parameter values can be placed in the scenario 'root' (common for all output products) or in a specific output section.
 
 Example:
 ```
@@ -212,7 +213,7 @@ AC_RAW__0A product generator details:
     - incompleteSlice, set to false
     - phenomenonTime (the acquisition begin/end times)
     - validTime
-    
+
 Supported scenario parameters for product type AC_RAW__0A are:
    - baseline (int)
    - begin_position (date)
