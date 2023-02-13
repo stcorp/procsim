@@ -29,30 +29,24 @@ class EO(product_generator.ProductGeneratorBase):
     generating Level-0 slice based products.
 
     Input is a set of (incomplete) RWS slices.
-    If one or more slices are incomplete due to dump transitions, they are
-    merged. The output is a single product, or multiple if there are data take
-    transitions within the slice period.
 
-    An array "data_takes" with one or more data take objects can be specified
-    in the scenario. Each data take object must contain at least the ID and
-    start/stop times, and can contain other metadata fields. For example:
+    An array "data_takes" with one or more entries can also be
+    specified in the scenario. Each entry must contain at least the ID
+    and start/stop times, and can contain other metadata fields. For example:
 
       "data_takes": [
         {
           "data_take_id": 15,
           "start": "2021-02-01T00:24:32.000Z",
           "stop": "2021-02-01T00:29:32.000Z",
-          "swath": "S1",
-          "operational_mode": "SM"  // example of an optional field
+          "intermediate": false,
         },
+        ..
+      ]
 
-    The generator adjusts the following metadata:
-    - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
-    - isPartial, set if slice is partial (slice with DT start/end)
-    - isMerged, set if slice is merged (slice with DT start/end)
-    - dataTakeID (copied from data_takes section in scenario)
-    - swathIdentifier (copied from scenario, either root, output section or
-      data_takes section)
+    A L0 product is generated for each set of 'complete' slices along the
+    FLEX slicing grid (meaning one complete slice for each of three sensors).
+
     '''
 
     PRODUCTS = [
@@ -215,30 +209,24 @@ class CAL(product_generator.ProductGeneratorBase):
     generating Level-0 slice based products.
 
     Input is a set of (incomplete) RWS slices.
-    If one or more slices are incomplete due to dump transitions, they are
-    merged. The output is a single product, or multiple if there are data take
-    transitions within the slice period.
 
-    An array "data_takes" with one or more data take objects can be specified
-    in the scenario. Each data take object must contain at least the ID and
-    start/stop times, and can contain other metadata fields. For example:
+    An array "calibration_events" with one or more entries can also be
+    specified in the scenario. Each entry must contain at least the ID
+    and start/stop times, and can contain other metadata fields. For example:
 
-      "data_takes": [
-        {
-          "data_take_id": 15,
-          "start": "2021-02-01T00:24:32.000Z",
-          "stop": "2021-02-01T00:29:32.000Z",
-          "swath": "S1",
-          "operational_mode": "SM"  // example of an optional field
-        },
+    "calibration_events": [
+      {
+        "calibration_id": "15",
+        "start": "2017-01-01T06:01:31.394000Z",
+        "stop": "2017-01-01T06:03:44.504000Z",
+        "intermediate": false
+      },
+      ..
+    ]
 
-    The generator adjusts the following metadata:
-    - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
-    - isPartial, set if slice is partial (slice with DT start/end)
-    - isMerged, set if slice is merged (slice with DT start/end)
-    - dataTakeID (copied from data_takes section in scenario)
-    - swathIdentifier (copied from scenario, either root, output section or
-      data_takes section)
+    A L0 product is generated for each set of 'complete' slices (meaning
+    a complete slice for each of three sensors), in other words for a complete
+    calibration event.
     '''
 
     PRODUCTS = [
@@ -376,17 +364,26 @@ class ANC(product_generator.ProductGeneratorBase):
     generating Level-0 slice based products.
 
     Input is a set of (incomplete) RWS slices.
-    If one or more slices are incomplete due to dump transitions, they are
-    merged. The output is a single product, or multiple if there are data take
-    transitions within the slice period.
 
-    The generator adjusts the following metadata:
-    - phenomenonTime (the acquisition begin/end times), modifed in case of merge/split.
-    - isPartial, set if slice is partial (slice with DT start/end)
-    - isMerged, set if slice is merged (slice with DT start/end)
-    - dataTakeID (copied from data_takes section in scenario)
-    - swathIdentifier (copied from scenario, either root, output section or
-      data_takes section)
+    An array "anc_events" with one or more entries can also be
+    specified in the scenario. Each entry must contain at least the ID
+    and start/stop times, and can contain other metadata fields. For example:
+
+    "anc_events": [
+      {
+          "apid": "4321",
+          "start": "2017-01-01T05:51:31.394000Z",
+           "stop": "2017-01-01T08:20:44.504000Z",
+           "intermediate": false
+      },
+      ..
+    ]
+
+    A L0 product is generated for each 'complete' slice, that is for a full
+    ANX-to-ANX frame.
+
+    For L0__VAU_TM, L0__TST___ and L0__WRN___ products, a 'complete' slice
+    means a set of complete slices for each of three sensors.
     '''
 
     PRODUCTS = [

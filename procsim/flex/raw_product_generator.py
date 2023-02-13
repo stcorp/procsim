@@ -162,42 +162,32 @@ class RWS_EO(RawProductGeneratorBase):
     This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    The acquisition period (phenomenon begin/end times) of the metadata_source
-    (i.e. a RWS product) is sliced. The slice grid is aligned to ANX.
-    An array "anx" with one or more ANX times must be specified in the scenario.
-    For example:
-
-      "anx": [
-        "2021-02-01T00:25:33.745Z",
-        "2021-02-01T02:03:43.725Z"
-      ],
-
-    'Special' cases:
-    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
-        the 'old' ANX, slice 1 starts at the 'new' ANX.
-    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
-        slice n. The first slice will be slice n+1, with the acquisition
-        starting at Tstart.
-    - Acquisition ends with Tend <= slice_minimum_duration after the end of
-        slice n. Slice n ends at Tend.
-
-    The generator adjusts the following metadata:
-    - phenomenonTime, acquisition begin/end times.
-    - validTime, theoretical slice begin/end times (including overlap).
-    - wrsLatitudeGrid, aka the slice_frame_nr.
-
-    An array "data_takes" with one or more data take objects can be specified
-    in the scenario. Each data take object must contain at least the ID and
-    start/stop times, and can contain other metadata fields. For example:
+    An array "data_takes" with one or more entries can be specified
+    in the scenario. Each data entry must contain at least the ID,
+    start/stop times and 'intermediate' flag.
 
       "data_takes": [
         {
           "data_take_id": 15,
           "start": "2021-02-01T00:24:32.000Z",
           "stop": "2021-02-01T00:29:32.000Z",
-          "swath": "S1",
-          "operational_mode": "SM"  // example of an optional field
+          "intermediate": false,
         },
+        ..
+      ]
+
+    For each data take, the configured raw data is sliced into three types of
+    slices, along the FLEX slicing grid:
+
+    -complete slice: one for each completery overlapped grid frame
+    -partial slice: one for each partially overlapped grid frame
+    -intermediate slice: similar to partial slice, but it is unclear if
+        data take actually started/ended here (as data take may be
+        distributed over multiple raw data products)
+
+    There are separate slice products for the three different sensors, so this
+    gives 9 product types in total.
+
     '''
 
     PRODUCTS = [
@@ -377,42 +367,31 @@ class RWS_CAL(RawProductGeneratorBase):
     This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    The acquisition period (phenomenon begin/end times) of the metadata_source
-    (i.e. a RWS product) is sliced. The slice grid is aligned to ANX.
-    An array "anx" with one or more ANX times must be specified in the scenario.
-    For example:
+    An array "data_takes" with one or more entries can be specified
+    in the scenario. Each entry must contain at least the ID,
+    start/stop times and 'intermediate' flag.
 
-      "anx": [
-        "2021-02-01T00:25:33.745Z",
-        "2021-02-01T02:03:43.725Z"
-      ],
+    "calibration_events": [
+      {
+        "calibration_id": "15",
+        "start": "2017-01-01T06:01:31.394000Z",
+        "stop": "2017-01-01T06:03:44.504000Z",
+        "intermediate": false
+      },
+      ..
+    ]
 
-    'Special' cases:
-    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
-        the 'old' ANX, slice 1 starts at the 'new' ANX.
-    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
-        slice n. The first slice will be slice n+1, with the acquisition
-        starting at Tstart.
-    - Acquisition ends with Tend <= slice_minimum_duration after the end of
-        slice n. Slice n ends at Tend.
+    For each event, the configured raw data is sliced into three types of
+    slices:
 
-    The generator adjusts the following metadata:
-    - phenomenonTime, acquisition begin/end times.
-    - validTime, theoretical slice begin/end times (including overlap).
-    - wrsLatitudeGrid, aka the slice_frame_nr.
+    -complete slice: one for each completery overlapped event
+    -partial slice: one for each partially overlapped event
+    -intermediate slice: similar to partial slice, but it is unclear if
+        event actually started/ended here (as event take may be
+        distributed over multiple raw data products)
 
-    An array "data_takes" with one or more data take objects can be specified
-    in the scenario. Each data take object must contain at least the ID and
-    start/stop times, and can contain other metadata fields. For example:
-
-      "data_takes": [
-        {
-          "data_take_id": 15,
-          "start": "2021-02-01T00:24:32.000Z",
-          "stop": "2021-02-01T00:29:32.000Z",
-          "swath": "S1",
-          "operational_mode": "SM"  // example of an optional field
-        },
+    There are separate slice products for the three different sensors, so this
+    gives 9 product types in total.
     '''
 
     PRODUCTS = [
@@ -535,42 +514,31 @@ class RWS_ANC(RawProductGeneratorBase):
     This class implements the RawProductGeneratorBase and is responsible for
     the raw slice-based products generation.
 
-    The acquisition period (phenomenon begin/end times) of the metadata_source
-    (i.e. a RWS product) is sliced. The slice grid is aligned to ANX.
-    An array "anx" with one or more ANX times must be specified in the scenario.
-    For example:
+    An array "anc_events" with one or more entries can be specified
+    in the scenario. Each entry must contain at least the ID,
+    start/stop times and 'intermediate' flag.
 
-      "anx": [
-        "2021-02-01T00:25:33.745Z",
-        "2021-02-01T02:03:43.725Z"
-      ],
-
-    'Special' cases:
-    - ANX falls within an acquisition. Slice 62 ends at the grid defined by
-        the 'old' ANX, slice 1 starts at the 'new' ANX.
-    - Acquisition starts with Tstart <= slice_minimum_duration before the end of
-        slice n. The first slice will be slice n+1, with the acquisition
-        starting at Tstart.
-    - Acquisition ends with Tend <= slice_minimum_duration after the end of
-        slice n. Slice n ends at Tend.
-
-    The generator adjusts the following metadata:
-    - phenomenonTime, acquisition begin/end times.
-    - validTime, theoretical slice begin/end times (including overlap).
-    - wrsLatitudeGrid, aka the slice_frame_nr.
-
-    An array "data_takes" with one or more data take objects can be specified
-    in the scenario. Each data take object must contain at least the ID and
-    start/stop times, and can contain other metadata fields. For example:
-
-      "data_takes": [
+    "anc_events": [
         {
-          "data_take_id": 15,
-          "start": "2021-02-01T00:24:32.000Z",
-          "stop": "2021-02-01T00:29:32.000Z",
-          "swath": "S1",
-          "operational_mode": "SM"  // example of an optional field
+            "apid": "4321",
+            "start": "2017-01-01T05:51:31.394000Z",
+            "stop": "2017-01-01T08:20:44.504000Z",
+            "intermediate": false
         },
+        ..
+      ]
+
+    For each event, the configured raw data is sliced into three types of
+    slices, along an ANX-to-ANX grid:
+
+    -complete slice: one for each completery overlapped grid frame
+    -partial slice: one for each partially overlapped event
+    -intermediate slice: similar to partial slice, but it is unclear if
+        event actually started/ended here (as event take may be
+        distributed over multiple raw data products)
+
+    There are separate slice products for the three different sensors, so this
+    gives 9 product types in total.
     '''
 
     PRODUCTS = [
