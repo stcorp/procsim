@@ -16,11 +16,18 @@ from . import constants, product_types
 # REGEXes for Flex product names.
 # Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
 # For now, consider them all as 'validity'.
-_REGEX_RAW_PRODUCT_NAME = re.compile(
+
+#FLX_RAW___HKTM_20170101T060131_20170101T060706_O12345
+_REGEX_RAW_HKTM_PRODUCT_NAME = re.compile(
     r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
     r'O(?P<absorbit>[0-9]{5})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
-# TODO all types..
+#FLX_L0__DEFDAR_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1B
+_REGEX_LONG_PRODUCT_NAME = re.compile(
+    r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<create_date>[0-9]{8}T[0-9]{6})_(?P<duration>[0-9]{4})_(?P<cyclenr>[0-9]{3})_'
+    r'(?P<relorbit>[0-9]{3})_(?P<anx_elapsed>[0-9]{4})_(?P<baseline>[0-9a-zA-Z]{2})'
+    r'(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 
 class ProductName:
@@ -59,31 +66,14 @@ class ProductName:
         self._level = None
         self._compact_create_date = None
         self._frame_slice_nr_str = None
-        self.sensor: Optional[str] = None
         self.use_short_name = False
 
         # Raw only
         self.downlink_time: Optional[datetime.datetime]
 
-        # Level 0/1/2a only
-        self._mission_phase_id = None
-
         # MPL and VFRA only
         self._file_class = None
         self._version_nr = None
-
-    @property
-    def mission_phase(self):
-        for phase in self.MISSION_PHASES:
-            if phase[0].upper() == self._mission_phase_id:
-                return phase
-        return None
-
-    @mission_phase.setter
-    def mission_phase(self, phase):
-        if phase is not None:
-            idx = self.MISSION_PHASES.index(phase.capitalize())
-            self._mission_phase_id = self.MISSION_PHASES[idx][0]
 
     @property
     def file_type(self):
@@ -164,7 +154,7 @@ class ProductName:
         filename = os.path.basename(path)
 
         # Set all fields that can be extracted from the filename; set others to None.
-        for regex in [_REGEX_RAW_PRODUCT_NAME]:  # TODO
+        for regex in [_REGEX_RAW_HKTM_PRODUCT_NAME, _REGEX_LONG_PRODUCT_NAME]:  # TODO
             match = regex.match(filename)
             if match:
                 match_dict = match.groupdict()
@@ -175,15 +165,8 @@ class ProductName:
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
                 self.baseline_identifier = match_dict.get('baseline')
                 self._compact_create_date = match_dict.get('create_date')
+                self.cycle_number = match_dict.get('cyclenr')
 
-                # TODO remove these with linter approval
-                self._mission_phase_id = match_dict.get('mission_phase')
-                self._global_coverage_id_str: Optional[str] = match_dict.get('global_cov')
-                self._major_cycle_id_str = match_dict.get('major')
-                self._repeat_cycle_id_str = match_dict.get('repeat')
-                self._track_nr = match_dict.get('track')
-                self._frame_slice_nr_str = match_dict.get('frame_slice')
-                self.version_nr = self.str_to_int(match_dict.get('version'))
                 return True
 
         raise GeneratorError(f'Cannot recognize file {filename}')
@@ -224,7 +207,7 @@ class ProductName:
                 self.baseline_identifier,
             )
 
-        elif not self.use_short_name:  # raws, l0
+        else:  # raws, l0
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
@@ -241,30 +224,7 @@ class ProductName:
                 int(self.anx_elapsed or 0),
                 self.baseline_identifier,
             )
-        else:
-            if self._mission_phase_id is None:
-                raise ScenarioError('mission_phase must be set')
-            if self._global_coverage_id_str is None:
-                raise ScenarioError('global_coverage_id must be set')
-            if self._major_cycle_id_str is None:
-                raise ScenarioError('major_cycle_id must be set')
-            if self._repeat_cycle_id_str is None:
-                raise ScenarioError('repeat_cycle_id_str must be set')
-            if self._track_nr is None:
-                raise ScenarioError('track_nr must be set')
-            if self._frame_slice_nr_str is None:
-                raise ScenarioError('frame_slice_nr must be set')
-            # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>_<BB>_<DDDDDD>
-            name = self._generate_prefix() + '_{}_G{:>02}_M{}_C{}_T{}_F{}_{}_{}'.format(
-                self._mission_phase_id,
-                self._global_coverage_id_str,
-                self._major_cycle_id_str,
-                self._repeat_cycle_id_str,
-                self._track_nr,
-                self._frame_slice_nr_str,
-                self.baseline_identifier,
-                self._compact_create_date
-            )
+
         return name
 
     def generate_mph_file_name(self):
@@ -304,7 +264,7 @@ class ProductName:
                 suffix,
             )
 
-        elif not self.use_short_name:  # raws, l0
+        else:  # raws, l0
             if self.stop_time is not None and self.start_time is not None:
                 duration = int((self.stop_time - self.start_time).total_seconds())
             else:
@@ -320,18 +280,7 @@ class ProductName:
                 suffix,
                 extension,
             )
-        else:
-            # Add <P>_G<CC>_M<NN>_C<nn>_T<TTT>_F<FFF>
-            name = self._generate_prefix() + '_{}_G{}_M{}_C{}_T{}_F{}{}{}'.format(
-                self._mission_phase_id,
-                self._global_coverage_id_str,
-                self._major_cycle_id_str,
-                self._repeat_cycle_id_str,
-                self._track_nr,
-                self._frame_slice_nr_str,
-                suffix,
-                extension
-            )
+
         return name.lower()
 
     def dump_info(self, path=None):
@@ -344,8 +293,6 @@ class ProductName:
         print('stop:              ', self.stop_time)
         if self._level == 'raw':
             print('downlink time:     ', self.downlink_time)
-        else:
-            print('mission phase ID:  ', self._mission_phase_id)
-            print('frame/slice nr:    ', self.frame_slice_nr)
+
         print('baseline ID:       ', self.baseline_identifier)
         print('compact date:      ', self._compact_create_date)
