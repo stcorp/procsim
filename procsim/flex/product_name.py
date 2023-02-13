@@ -17,12 +17,12 @@ from . import constants, product_types
 # Note: the meaning of fields 'vstart' and 'vend' depends on the exact product type.
 # For now, consider them all as 'validity'.
 
-#FLX_RAW___HKTM_20170101T060131_20170101T060706_O12345
+# FLX_RAW___HKTM_20170101T060131_20170101T060706_O12345
 _REGEX_RAW_HKTM_PRODUCT_NAME = re.compile(
     r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
     r'O(?P<absorbit>[0-9]{5})(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
-#FLX_L0__DEFDAR_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1B
+# FLX_L0__DEFDAR_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1B
 _REGEX_LONG_PRODUCT_NAME = re.compile(
     r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
     r'(?P<create_date>[0-9]{8}T[0-9]{6})_(?P<duration>[0-9]{4})_(?P<cyclenr>[0-9]{3})_'
@@ -58,6 +58,7 @@ class ProductName:
         self.start_time: Optional[datetime.datetime] = None
         self.stop_time: Optional[datetime.datetime] = None
         self.baseline_identifier: Optional[str]
+        self.suffix: Optional[str]
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
         self.anx_elapsed: Optional[float] = None

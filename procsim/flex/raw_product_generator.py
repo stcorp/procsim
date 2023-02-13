@@ -103,7 +103,6 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
         name_gen.downlink_time = self._hdr.acquisition_date
-        name_gen.sensor = 'HR1'  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
@@ -247,7 +246,6 @@ class RWS_EO(RawProductGeneratorBase):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
-            name_gen.sensor = sensor
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -483,7 +481,6 @@ class RWS_CAL(RawProductGeneratorBase):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
-            name_gen.sensor = sensor
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()

@@ -109,8 +109,6 @@ class ProductNameTest(unittest.TestCase):
         pn.stop_time = datetime.datetime.now(tz=datetime.timezone.utc)
         pn.baseline_identifier = 'BB'
         self.assertRaises(Exception, pn.generate_path_name)
-        pn.mission_phase = 'Commissioning'
-        self.assertRaises(Exception, pn.generate_path_name)
         pn.file_type = 'RAW___HKTM'
         self.assertRaises(Exception, pn.generate_path_name)
 
