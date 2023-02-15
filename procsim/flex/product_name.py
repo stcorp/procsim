@@ -203,7 +203,10 @@ class ProductName:
                 self.baseline_identifier = match_dict.get('baseline')
                 self.cycle_number = match_dict.get('cyclenr')
                 self.relative_orbit_number = match_dict.get('relorbit')
-                self.anx_elapsed = match_dict.get('anx_elapsed')
+
+                anx_elapsed = match_dict.get('anx_elapsed')
+                if anx_elapsed is not None:
+                    self.anx_elapsed = float(anx_elapsed)
 
                 return True
 
