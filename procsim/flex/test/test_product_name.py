@@ -53,6 +53,18 @@ _TEST_DATA: List[_TestData] = [
         baseline='1B',
         suffix='_hre1',
     ),
+    _TestData(
+        level='aux',
+        dir='FLX_AUX_GCP_DB_20170101T060131_20170101T060706_20230215T081342_1B',
+        bin='flx_aux_gcp_db_20170101t060131_20170101t060706_20230215t081342_1b_gcp_database.xml',
+        type='AUX_GCP_DB',
+        start=datetime.datetime(2017, 1, 1, 6, 1, 31, tzinfo=datetime.timezone.utc),
+        stop=datetime.datetime(2017, 1, 1, 6, 7, 6, tzinfo=datetime.timezone.utc),
+#        downlink=datetime.datetime(2023, 2, 15, 8, 13, 42, tzinfo=datetime.timezone.utc),  # TODO remove
+        create=datetime.datetime(2023, 2, 15, 8, 13, 42, tzinfo=datetime.timezone.utc),
+        baseline='1B',
+        suffix='_gcp_database',
+    ),
 
 ]
 
@@ -82,7 +94,7 @@ class ProductNameTest(unittest.TestCase):
 
             path = pn.generate_path_name()
             mph = pn.generate_mph_file_name()
-            bin = pn.generate_binary_file_name(d.suffix)
+            bin = pn.generate_binary_file_name(d.suffix, '.xml' if d.level == 'aux' else '.dat')
             self.assertEqual(path, d.dir)
             self.assertEqual(mph, d.mph)
             if d.bin:
