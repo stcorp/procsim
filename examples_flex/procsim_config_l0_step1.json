@@ -1,0 +1,50 @@
+{
+  "mission": "flex",
+  "log_level": "debug",
+  "scenarios": [
+    {
+      // L0 slicer scenario.
+      "name": "L0 step 1, Raw slice-based products",
+      "mission_phase": "Commissioning",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task1.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_sm",
+      "processor_version": "01.01",
+      "task_name": "Step1",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
+
+      "cycle_number": "012",
+      "relative_orbit_number": "046",
+      "baseline": "1B",
+      "apid": 1234,
+      "data_take_id": 1,  // Mandatory for RAWS products.
+
+      "zip_output": true,   // Default true, set false for diagnostics only
+      "keep_zip": true,  // Set true for diagnostics only
+
+      "outputs": [
+        {
+          "type": "RWS_LR_OBS",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    }
+  ]
+}
