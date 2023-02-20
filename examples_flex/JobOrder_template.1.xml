@@ -67,7 +67,7 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
-          <File_Type>RWS_LR_ITM</File_Type>
+          <File_Type>RWS_XS_ITM</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>

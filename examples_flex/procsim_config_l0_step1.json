@@ -26,6 +26,25 @@
       "nr_progress_log_messages": 4,
 
       "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "anx": [
+          "2017-01-01T06:00:01.272000Z",
+          "2017-01-01T07:38:12.217000Z"
+      ],
+
+      "anc_events": [ // TODO remove
+        { // complete, as filling an anx slice TODO
+            "apid": "4321",
+            "start": "2017-01-01T05:51:31.394000Z",
+            "stop": "2017-01-01T08:20:44.504000Z",
+            "intermediate": false
+        },
+        { // partial, as not filling an anx slice
+            "apid": "5432",
+            "start": "2017-01-01T06:51:31.394000Z",
+            "stop": "2017-01-01T08:20:44.504000Z",
+        "intermediate": false
+        }
+      ],
 
       "cycle_number": "012",
       "relative_orbit_number": "046",
@@ -42,7 +61,14 @@
           "metadata_source": ".*RAW_XS_LR_.*", // Input to use
           "enable_slicing": false,
           "size": 0
+        },
+        {
+          "type": "RWS_XS_ITM",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
         }
+
       ],
       "exit_code": 0
     }
