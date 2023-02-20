@@ -32,7 +32,7 @@ _REGEX_RAW_PRODUCT_NAME = re.compile(
     r'^FLX_(?P<type>.{10})_'
     r'(?P<vstart>[0-9]{8}T[0-9]{6})_'
     r'(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'(?P<create_date>[0-9]{8}T[0-9]{6})'
+    r'(?P<downlink_time>[0-9]{8}T[0-9]{6})'
     r'(?:.(?P<extension>[a-zA-Z]{3}))?'
     r'$'
 )
