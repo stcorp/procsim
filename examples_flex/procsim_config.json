@@ -1,0 +1,57 @@
+{
+    "mission": "flex",
+    "log_level": "debug",
+
+    "scenarios": [
+        {
+            "name": "Raw data generator, measurement mode",
+            "mission_phase": "Commissioning",
+
+            "file_name": "N/A",
+            "processor_name": "procsim",
+            "processor_version": "1.2.0",
+            "task_name": "N/A",
+            "task_version": "N/A",
+            "log_level": "debug",
+
+            "output_path": "workspace/all",
+            "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
+            "acquisition_date": "2021-02-01T01:38:10.000Z",
+            "acquisition_station": "SP",
+            "zip_output": true,
+
+            "outputs": [
+              {
+                  "type": "RAW___HKTM",
+                  "begin_position": "2017-01-01T06:01:31.000Z",
+                  "end_position": "2017-01-01T06:07:06.000Z",
+                  "size": 10
+              },
+              {
+                  "type": "RAW_XS_LR_",
+                  "begin_position": "2017-01-01T06:01:31.000Z",
+                  "end_position": "2017-01-01T06:07:06.000Z",
+                  "size": 10
+              },
+              {
+                  "type": "RAW_XS_HR1",
+                  "begin_position": "2017-01-01T06:01:31.000Z",
+                  "end_position": "2017-01-01T06:07:06.000Z",
+                  "size": 10
+              },
+              {
+                  "type": "RAW_XS_HR2",
+                  "begin_position": "2017-01-01T06:01:31.000Z",
+                  "end_position": "2017-01-01T06:07:06.000Z",
+                  "size": 10
+              },
+              {
+                  "type": "RAW_XS_OBC",
+                  "begin_position": "2017-01-01T06:01:31.000Z",
+                  "end_position": "2017-01-01T06:07:06.000Z",
+                  "size": 10
+              }
+            ]
+        }
+    ]
+}
