@@ -19,14 +19,45 @@ from . import constants, product_types
 
 # FLX_RAW___HKTM_20170101T060131_20170101T060706_O12345
 _REGEX_RAW_HKTM_PRODUCT_NAME = re.compile(
-    r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'O(?P<absorbit>[0-9]{5})(?:.(?P<extension>[a-zA-Z]{3}))?$')
+    r'^FLX_(?P<type>.{10})_'
+    r'(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'O(?P<absorbit>[0-9]{5})'
+    r'(?:.(?P<extension>[a-zA-Z]{3}))?'
+    r'$'
+)
+
+# FLX_RAW_XS_HR2_20170101T060131_20170101T060706_20210201T013810
+_REGEX_RAW_PRODUCT_NAME = re.compile(
+    r'^FLX_(?P<type>.{10})_'
+    r'(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<create_date>[0-9]{8}T[0-9]{6})'
+    r'(?:.(?P<extension>[a-zA-Z]{3}))?'
+    r'$'
+)
 
 # FLX_L0__DEFDAR_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1B
 _REGEX_LONG_PRODUCT_NAME = re.compile(
-    r'^FLX_(?P<type>.{10})_(?P<vstart>[0-9]{8}T[0-9]{6})_(?P<vstop>[0-9]{8}T[0-9]{6})_'
-    r'(?P<create_date>[0-9]{8}T[0-9]{6})_(?P<duration>[0-9]{4})_(?P<cyclenr>[0-9]{3})_'
-    r'(?P<relorbit>[0-9]{3})_(?P<anx_elapsed>[0-9]{4})_(?P<baseline>[0-9a-zA-Z]{2})'
+    r'^FLX_(?P<type>.{10})_'
+    r'(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<create_date>[0-9]{8}T[0-9]{6})_'
+    r'(?P<duration>[0-9]{4})_'
+    r'(?P<cyclenr>[0-9]{3})_'
+    r'(?P<relorbit>[0-9]{3})_'
+    r'(?P<anx_elapsed>[0-9]{4})_'
+    r'(?P<baseline>[0-9a-zA-Z]{2})'
+    r'(?:.(?P<extension>[a-zA-Z]{3}))?'
+    r'$')
+
+# FLX_AUX_GCP_DB_20170101T060131_20170101T060706_20230215T081342_1B
+_REGEX_AUX_PRODUCT_NAME = re.compile(
+    r'^FLX_(?P<type>.{10})_'
+    r'(?P<vstart>[0-9]{8}T[0-9]{6})_'
+    r'(?P<vstop>[0-9]{8}T[0-9]{6})_'
+    r'(?P<create_date>[0-9]{8}T[0-9]{6})_'
+    r'(?P<baseline>[0-9a-zA-Z]{2})'
     r'(?:.(?P<extension>[a-zA-Z]{3}))?$')
 
 
@@ -155,18 +186,27 @@ class ProductName:
         filename = os.path.basename(path)
 
         # Set all fields that can be extracted from the filename; set others to None.
-        for regex in [_REGEX_RAW_HKTM_PRODUCT_NAME, _REGEX_LONG_PRODUCT_NAME]:  # TODO
+        for regex in [
+            _REGEX_RAW_HKTM_PRODUCT_NAME,
+            _REGEX_RAW_PRODUCT_NAME,
+            _REGEX_LONG_PRODUCT_NAME,
+            _REGEX_AUX_PRODUCT_NAME,
+        ]:
             match = regex.match(filename)
             if match:
                 match_dict = match.groupdict()
-                self.file_class = match_dict.get('class')
                 self.file_type = match_dict.get('type')
                 self.start_time = self.str_to_time(match_dict.get('vstart'))
                 self.stop_time = self.str_to_time(match_dict.get('vstop'))
+                self._compact_create_date = match_dict.get('create_date')
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
                 self.baseline_identifier = match_dict.get('baseline')
-                self._compact_create_date = match_dict.get('create_date')
                 self.cycle_number = match_dict.get('cyclenr')
+                self.relative_orbit_number = match_dict.get('relorbit')
+
+                anx_elapsed = match_dict.get('anx_elapsed')
+                if anx_elapsed is not None:
+                    self.anx_elapsed = float(anx_elapsed)
 
                 return True
 
