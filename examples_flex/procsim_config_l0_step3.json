@@ -4,16 +4,16 @@
   "scenarios": [
     {
       // L0 slicer scenario.
-      "name": "L0 step 1, Raw slice-based products",
+      "name": "L0 step 3, merge complete complete slices",
       "mission_phase": "Commissioning",
 
       // File_name must match with the first argument of procsim
-      "file_name": "level0_task1.sh",
+      "file_name": "level0_task3.sh",
 
       // Processor/task are used to find the right task in the job order
       "processor_name": "l0preproc_sm",
       "processor_version": "01.01",
-      "task_name": "Step1",
+      "task_name": "Step3",
       "task_version": "05.03L01",
 
       // Resources
@@ -57,27 +57,8 @@
 
       "outputs": [
         {
-          "type": "RWS_LR_OBS",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "enable_slicing": false,
-          "size": 0
-        },
-        {
-          "type": "RWS_H1_OBS",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "enable_slicing": false,
-          "size": 0
-        },
-        {
-          "type": "RWS_H2_OBS",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "enable_slicing": false,
-          "size": 0
-        },
-        {
-          "type": "RWS_XS_ITM",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "enable_slicing": false,
+          "type": "L0__OBS___",
+          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
           "size": 0
         }
 
