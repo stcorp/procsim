@@ -168,6 +168,114 @@
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>
         </Output>
+        <Output>
+          <File_Type>L0__DARKSR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DEFDAR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DARKOC</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DRKMTF</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DRKSTR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SUN___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DEFSUN</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__MOON__</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__MOONSL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINDES</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINSEA</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINSUN</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINDAR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__CTE___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SCNVAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__COREG_</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SPECEO</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__CLOUD_</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
       </List_of_Outputs>
       <List_of_Intermediate_Outputs>
       </List_of_Intermediate_Outputs>
