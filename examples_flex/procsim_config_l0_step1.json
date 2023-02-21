@@ -138,7 +138,19 @@
           "size": 0
         },
         {
+          "type": "RWS_XSPOBC",
+          "metadata_source": ".*RAW_XS_OBC.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
           "type": "RWS_XS_ITM",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_XSPITM",
           "metadata_source": ".*RAW_XS_LR_.*", // Input to use
           "enable_slicing": false,
           "size": 0
