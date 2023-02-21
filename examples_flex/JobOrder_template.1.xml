@@ -68,6 +68,12 @@
                 <File_Name>./workspace/FLX_RAW_XS_HR2_20170101T060131_20170101T060706_20210201T013810.zip</File_Name>
               </List_of_File_Names>
             </Selected_Input>
+            <Selected_Input>
+              <File_Type>RAW_XS_OBC</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RAW_XS_OBC_20170101T060131_20170101T060706_20210201T013810.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
           </List_of_Selected_Inputs>
         </Input>
       </List_of_Inputs>
@@ -86,6 +92,12 @@
         </Output>
         <Output>
           <File_Type>RWS_H2_OBS</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_XS_OBC</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>
