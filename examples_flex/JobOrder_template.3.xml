@@ -71,7 +71,7 @@
             <Selected_Input>
               <File_Type>RWS_H1_CAL</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RWS_H1_CAL_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
+                <File_Name>./workspace/FLX_RWS_H1_CAL_20170101T060131_20170101T060344_20210201T013810_0133_012_046_0090_1B.zip</File_Name>
               </List_of_File_Names>
             </Selected_Input>
             <Selected_Input>
@@ -158,6 +158,12 @@
         </Output>
         <Output>
           <File_Type>L0__ICUDTM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DARKNP</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>
