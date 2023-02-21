@@ -63,6 +63,18 @@
           "size": 0
         },
         {
+          "type": "RWS_H1_OBS",
+          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H2_OBS",
+          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
           "type": "RWS_XS_ITM",
           "metadata_source": ".*RAW_XS_LR_.*", // Input to use
           "enable_slicing": false,
