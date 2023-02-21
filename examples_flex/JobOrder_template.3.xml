@@ -68,12 +68,72 @@
                 <File_Name>./workspace/FLX_RWS_LR_OBS_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
               </List_of_File_Names>
             </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_H1_CAL</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_H1_CAL_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_H2_CAL</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_H2_CAL_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_LR_CAL</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_LR_CAL_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_H1_VAU</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_H1_VAU_20170101T060001_20170101T073812_20210201T013810_5891_012_046_0000_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_H2_VAU</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_H2_VAU_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_LR_VAU</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_LR_VAU_20170101T060001_20170101T073812_20210201T013810_5891_012_046_0000_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_XS_ITM</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_XS_ITM_20170101T060001_20170101T073812_20210201T013810_5891_012_046_0000_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+            <Selected_Input>
+              <File_Type>RWS_XS_OBC</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RWS_XS_OBC_20170101T060001_20170101T073812_20210201T013810_5890_012_046_0000_1B.zip</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
           </List_of_Selected_Inputs>
         </Input>
       </List_of_Inputs>
       <List_of_Outputs>
         <Output>
           <File_Type>L0__OBS___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__INSTTM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__VAU_TM</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>

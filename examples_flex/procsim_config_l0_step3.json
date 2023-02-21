@@ -60,6 +60,16 @@
           "type": "L0__OBS___",
           "metadata_source": ".*RWS_H1_OBS.*", // Input to use
           "size": 0
+        },
+        {
+          "type": "L0__INSTTM",
+          "metadata_source": ".*RWS_XS_ITM.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__VAU_TM",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
         }
 
       ],

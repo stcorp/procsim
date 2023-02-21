@@ -255,7 +255,8 @@ class ProductName:
                 raise ScenarioError('acquisition_date must be set')
 
             if self.stop_time is not None and self.start_time is not None:
-                duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+                td = self.stop_time.replace(microsecond=0) - self.start_time.replace(microsecond=0)
+                duration = int(td.total_seconds())  # TODO now both here and in mph.. move to product_generator?
             else:
                 duration = 0
 
