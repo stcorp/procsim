@@ -67,11 +67,30 @@
           "size": 0
         },
         {
+          "type": "L0__SAT_TM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__NAVATT",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__PDHUTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__ICUDTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "L0__VAU_TM",
           "metadata_source": ".*RWS_H1_VAU.*", // Input to use
           "size": 0
         }
-
       ],
       "exit_code": 0
     }
