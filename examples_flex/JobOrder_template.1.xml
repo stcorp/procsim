@@ -133,6 +133,60 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
+          <File_Type>RWS_LRPOBS</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H1POBS</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H2POBS</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_LRPCAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H1PCAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H2PCAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_LRPVAU</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H1PVAU</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_H2PVAU</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
           <File_Type>RWS_XS_OBC</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>

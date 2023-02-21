@@ -132,6 +132,60 @@
           "size": 0
         },
         {
+          "type": "RWS_LRPOBS",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H1POBS",
+          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H2POBS",
+          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_LRPCAL",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H1PCAL",
+          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H2PCAL",
+          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_LRPVAU",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H1PVAU",
+          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
+          "type": "RWS_H2PVAU",
+          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
+          "enable_slicing": false,
+          "size": 0
+        },
+        {
           "type": "RWS_XS_OBC",
           "metadata_source": ".*RAW_XS_OBC.*", // Input to use
           "enable_slicing": false,
