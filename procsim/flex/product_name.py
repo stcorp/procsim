@@ -200,6 +200,8 @@ class ProductName:
                 self.stop_time = self.str_to_time(match_dict.get('vstop'))
                 self._compact_create_date = match_dict.get('create_date')
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
+                if self.downlink_time is None:
+                    self.downlink_time = self.str_to_time(match_dict.get('create_date'))  # TODO acqdate/createdate/downlink?
                 self.baseline_identifier = match_dict.get('baseline')
                 self.cycle_number = match_dict.get('cyclenr')
                 self.relative_orbit_number = match_dict.get('relorbit')
@@ -253,7 +255,8 @@ class ProductName:
                 raise ScenarioError('acquisition_date must be set')
 
             if self.stop_time is not None and self.start_time is not None:
-                duration = int((self.stop_time - self.start_time).total_seconds())  # TODO now both here and in mph.. move to product_generator?
+                td = self.stop_time.replace(microsecond=0) - self.start_time.replace(microsecond=0)
+                duration = int(td.total_seconds())  # TODO now both here and in mph.. move to product_generator?
             else:
                 duration = 0
 

@@ -1,0 +1,37 @@
+{
+    "mission": "flex",
+    "scenarios": [
+        {
+            // Scenario to produce the AUX products, needed for the Level1 processor.
+            "name": "Aux generator",
+            "mission_phase": "Commissioning",
+            "file_name": "N/A",
+            "processor_name": "auxgenerator",
+            "processor_version": "01.00",
+            "task_name": "generate",
+            "task_version": "01.00",
+
+            "baseline": "1B",
+            "begin_position": "2021-02-01T00:00:00.000Z",
+            "end_position": "2021-02-01T01:38:10.000Z",
+
+            "output_path": "workspace",
+            "zip_output": true,
+
+            "outputs": [
+                {
+                    "type": "AUX_GCP_DB"
+                },
+                {
+                    "type": "CFG_L0__PF"
+                },
+                {
+                    "type": "CFG_PF_BC_"
+                },
+                {
+                    "type": "CFG_TSKTBL"
+                }
+            ]
+        }
+    ]
+}

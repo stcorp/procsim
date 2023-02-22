@@ -13,8 +13,10 @@ from .product_generator import GeneratedFile
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
     ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
-    ('files', '_files', 'array of str')
+    ('files', '_files', 'array of str'),
+    ('zip_output', '_zip_output', 'bool'),
 ]
+
 _HDR_PARAMS = [
     ('baseline', 'product_baseline', 'str'),
     ('begin_position', 'begin_position', 'date'),
@@ -78,6 +80,7 @@ class Aux(product_generator.ProductGeneratorBase):
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
         self._generated_files: List[GeneratedFile] = []  # GeneratedFile objects to facilitate linking representations
+        self._zip_output = False
 
     def _generate_default_file_list(self):
         '''
@@ -154,3 +157,6 @@ class Aux(product_generator.ProductGeneratorBase):
 
         file_name = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_name)
+
+        if self._zip_output:
+            self.zip_folder(dir_name, self._zip_extension)

@@ -63,6 +63,7 @@ class EO(product_generator.ProductGeneratorBase):
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
         ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
         ('orbital_period', '_orbital_period', 'float'),
+        ('zip_output', '_zip_output', 'bool'),
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -74,6 +75,7 @@ class EO(product_generator.ProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._zip_output = False
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -122,6 +124,9 @@ class EO(product_generator.ProductGeneratorBase):
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
+
+        if self._zip_output:
+            self.zip_folder(dir_name, self._zip_extension)
 
     def generate_output(self):
         super().generate_output()
@@ -282,6 +287,7 @@ class CAL(product_generator.ProductGeneratorBase):
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
         ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
         ('orbital_period', '_orbital_period', 'float'),
+        ('zip_output', '_zip_output', 'bool'),
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -293,6 +299,7 @@ class CAL(product_generator.ProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._zip_output = False
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -357,6 +364,9 @@ class CAL(product_generator.ProductGeneratorBase):
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
 
+        if self._zip_output:
+            self.zip_folder(dir_name, self._zip_extension)
+
 
 class ANC(product_generator.ProductGeneratorBase):
     '''
@@ -409,6 +419,7 @@ class ANC(product_generator.ProductGeneratorBase):
         ('slice_overlap_end', '_slice_overlap_end', 'float'),
         ('slice_minimum_duration', '_slice_minimum_duration', 'float'),
         ('orbital_period', '_orbital_period', 'float'),
+        ('zip_output', '_zip_output', 'bool'),
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -420,6 +431,7 @@ class ANC(product_generator.ProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._zip_output = False
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -484,3 +496,6 @@ class ANC(product_generator.ProductGeneratorBase):
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
+
+        if self._zip_output:
+            self.zip_folder(dir_name, self._zip_extension)

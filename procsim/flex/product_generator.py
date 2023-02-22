@@ -253,7 +253,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._hdr.product_baseline = str(self._job_config_baseline)
 
         if (pattern is not None) and (not mph_is_parsed):
-            self._logger.error('Cannot find matching product for [{}] to extract metdata from'.format(pattern))
+            self._logger.error('Cannot find matching product for [{}] to extract metadata from'.format(pattern))
             return False
         return True
 

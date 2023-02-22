@@ -387,6 +387,8 @@ def main():
         logger.info('Task done, exit with code {}'.format(exit_code))
 
     except (TerminateError, ScenarioError, GeneratorError, IOError):
+#        import traceback
+#        traceback.print_exc()
         exit_code = 1
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))

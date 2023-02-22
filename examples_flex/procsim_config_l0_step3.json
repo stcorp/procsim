@@ -1,0 +1,214 @@
+{
+  "mission": "flex",
+  "log_level": "debug",
+  "scenarios": [
+    {
+      // L0 slicer scenario.
+      "name": "L0 step 3, merge complete complete slices",
+      "mission_phase": "Commissioning",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task3.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_sm",
+      "processor_version": "01.01",
+      "task_name": "Step3",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "anx": [
+          "2017-01-01T06:00:01.272000Z",
+          "2017-01-01T07:38:12.217000Z"
+      ],
+
+      "anc_events": [ // TODO remove
+        { // complete, as filling an anx slice TODO
+            "apid": "4321",
+            "start": "2017-01-01T05:51:31.394000Z",
+            "stop": "2017-01-01T08:20:44.504000Z",
+            "intermediate": false
+        },
+        { // partial, as not filling an anx slice
+            "apid": "5432",
+            "start": "2017-01-01T06:51:31.394000Z",
+            "stop": "2017-01-01T08:20:44.504000Z",
+        "intermediate": false
+        }
+      ],
+
+      "calibration_events": [ // TODO remove
+            { // complete slice, as fully inside by begin/end_position
+                "calibration_id": "15",
+                "start": "2017-01-01T06:01:31.394000Z",
+                "stop": "2017-01-01T06:03:44.504000Z",
+                "intermediate": false
+            },
+            { // partial slice, as not fully inside begin/end_position
+                "calibration_id": "16",
+                "start": "2017-01-01T06:02:31.394000Z",
+                "stop": "2017-01-01T06:08:44.504000Z",
+                "intermediate": false
+            },
+            { // intermediate slice, with same period as previous
+                "calibration_id": "17",
+                "start": "2017-01-01T06:02:31.394000Z",
+                "stop": "2017-01-01T06:08:44.504000Z",
+                "intermediate": true
+            }
+      ],
+
+      "cycle_number": "012",
+      "relative_orbit_number": "046",
+      "baseline": "1B",
+      "apid": 1234,
+      "data_take_id": 1,  // Mandatory for RAWS products.
+
+      "zip_output": true,   // Default true, set false for diagnostics only
+      "keep_zip": true,
+
+      "outputs": [
+        {
+          "type": "L0__OBS___",
+          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__INSTTM",
+          "metadata_source": ".*RWS_XS_ITM.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__SAT_TM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__NAVATT",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__PDHUTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__ICUDTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__VAU_TM",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DARKNP",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DARKSR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DEFDAR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DARKOC",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DRKMTF",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DRKSTR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__SUN___",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__DEFSUN",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__MOON__",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__MOONSL",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__LINDES",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__LINSEA",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__LINSUN",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__LINDAR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__CTE___",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__SCNVAL",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__COREG_",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__SPECEO",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__CLOUD_",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    }
+  ]
+}
