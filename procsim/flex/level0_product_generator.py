@@ -83,6 +83,17 @@ class EO(product_generator.ProductGeneratorBase):
 
     # TODO parse inputs?? focus on delivering just products for now
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        for input in input_products:
+            for file in input.file_names:
+                print('INPUT', self._output_type, input.file_type, file)
+
+        return True
+
     def _generate_product(self, start, stop):
         if self._hdr.data_take_id is None:
             raise ScenarioError('data_take_id field is mandatory')
