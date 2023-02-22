@@ -24,7 +24,41 @@ _HDR_PARAMS = [
 _ACQ_PARAMS = []
 
 
-class EO(product_generator.ProductGeneratorBase):
+class ProductGeneratorL0(product_generator.ProductGeneratorBase):
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        input_types = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
+
+        period_types = collections.defaultdict(set)
+        for input in input_products:
+            if input.file_type in input_types:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    period_types[start, stop].add(input.file_type)
+        self._output_periods = []
+        for period, filetypes in period_types.items():
+            if len(filetypes) == 3:  # all three sensors
+               self._output_periods.append(period)
+        return True
+
+
+class EO(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
@@ -82,37 +116,6 @@ class EO(product_generator.ProductGeneratorBase):
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
-
-    # TODO parse inputs?? focus on delivering just products for now
-
-    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
-        # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
-            return False
-        input_types = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
-        period_types = collections.defaultdict(set)
-        for input in input_products:
-            if input.file_type in input_types:
-                for file in input.file_names:
-                    # Skip non-directory products. These have already been parsed in the superclass.
-                    if not os.path.isdir(file):
-                        continue
-                    file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
-                    gen.parse_path(file)
-                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
-                    hdr = main_product_header.MainProductHeader()
-                    hdr.parse(mph_file_name)
-                    if hdr.begin_position is None or hdr.end_position is None:
-                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    start = hdr.begin_position
-                    stop = hdr.end_position
-                    period_types[start, stop].add(input.file_type)
-        self._output_periods = []
-        for period, filetypes in period_types.items():
-            if len(filetypes) == 3:  # all three sensors
-               self._output_periods.append(period)
-        return True
 
     def generate_output(self):
         super().generate_output()
@@ -247,7 +250,7 @@ class EO(product_generator.ProductGeneratorBase):
                 self._generate_product(slice_start, slice_end)  # acq_start, acq_end) TODO
 
 
-class CAL(product_generator.ProductGeneratorBase):
+class CAL(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
@@ -405,7 +408,7 @@ class CAL(product_generator.ProductGeneratorBase):
             self.zip_folder(dir_name, self._zip_extension)
 
 
-class ANC(product_generator.ProductGeneratorBase):
+class ANC(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
