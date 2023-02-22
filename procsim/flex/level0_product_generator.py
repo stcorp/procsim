@@ -8,7 +8,7 @@ import bisect
 import collections
 import datetime
 import os
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Optional
 
 from . import constants
 from procsim.core.exceptions import ScenarioError
@@ -28,6 +28,8 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
     '''
     Locate combinations of three complete slices (one for each sensor) for the same period.
     '''  # TODO unique datatake_id, cal_id, event_id?
+
+    INPUTS = []
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -55,7 +57,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
         self._output_periods = []
         for period, filetypes in period_types.items():
             if len(filetypes) == 3:  # all three sensors
-               self._output_periods.append(period)
+                self._output_periods.append(period)
         return True
 
 
@@ -118,7 +120,7 @@ class EO(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods = None
+        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -355,7 +357,7 @@ class CAL(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods = None
+        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -366,8 +368,8 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            cal_id = 1  # TODO get from inputs?
-            self._hdr.calibration_id = cal_id
+            cal_id = '1'  # TODO get from inputs?
+#            self._hdr.calibration_id = cal_id
             for start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
 
@@ -400,7 +402,7 @@ class CAL(ProductGeneratorL0):
         self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
-        self._hdr.calibration_id = calibration_id
+        # self._hdr.calibration_id = calibration_id
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
