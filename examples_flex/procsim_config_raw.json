@@ -19,6 +19,7 @@
             "acquisition_date": "2021-02-01T01:38:10.000Z",
             "acquisition_station": "SP",
             "zip_output": true,
+            "keep_zip": true,
 
             "outputs": [
               {

@@ -5,6 +5,7 @@ Flex Level 0 product generators,
 format according to ESA-EOPG-EOEP-TN-0022
 '''
 import bisect
+import collections
 import datetime
 import os
 from typing import Iterable, List, Tuple
@@ -76,6 +77,7 @@ class EO(product_generator.ProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
+        self._input_products = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -88,11 +90,58 @@ class EO(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
-        for input in input_products:
-            for file in input.file_names:
-                print('INPUT', self._output_type, input.file_type, file)
+        if self._output_type == 'L0__OBS___':
+            hv_products = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
+        else:
+            blupt
 
+        key_count = collections.defaultdict(int)
+
+        for input in input_products:
+            if input.file_type in hv_products:
+                print('GOT INPUT', self._output_type, input.file_type, input.file_names)
+
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    print('MPH FILE NAME', mph_file_name)
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    print('STARTSTOP', start, stop)
+
+                    key_count[input.file_type, start, stop] += 1
+
+        for k, count in key_count.items():
+            print('--->', k, count)
+
+        self._input_products = input_products
         return True
+
+    def generate_output(self):
+        super().generate_output()
+
+        if self._input_products is not None:
+            print('GEN FROM INPUTS', self._output_type, self._input_products)
+
+#            for input_ in self._input_products:
+#                print(input_.file_type, input_.file_names)
+
+        data_takes_with_bounds = self._get_data_takes_with_bounds()
+        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+            self.read_scenario_parameters(data_take_config)
+            if self._enable_slicing:
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
+            else:
+                assert False  # TODO
 
     def _generate_product(self, start, stop):
         if self._hdr.data_take_id is None:
@@ -138,17 +187,6 @@ class EO(product_generator.ProductGeneratorBase):
 
         if self._zip_output:
             self.zip_folder(dir_name, self._zip_extension)
-
-    def generate_output(self):
-        super().generate_output()
-
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
-            else:
-                assert False  # TODO
 
     def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
         # If insufficient ANX are specified, infer the others.
