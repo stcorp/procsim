@@ -25,17 +25,18 @@ _ACQ_PARAMS = []
 
 
 class ProductGeneratorL0(product_generator.ProductGeneratorBase):
+    '''
+    Locate combinations of three complete slices (one for each sensor) for the same period.
+    '''  # TODO unique datatake_id, cal_id, event_id?
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
 
-        input_types = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
-
         period_types = collections.defaultdict(set)
         for input in input_products:
-            if input.file_type in input_types:
+            if input.file_type in self.INPUTS:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -83,6 +84,12 @@ class EO(ProductGeneratorL0):
     FLEX slicing grid (meaning one complete slice for each of three sensors).
 
     '''
+
+    INPUTS = [
+        'RWS_H1_OBS',
+        'RWS_H2_OBS',
+        'RWS_LR_OBS'
+    ]
 
     PRODUCTS = [
         'L0__OBS___',
@@ -276,6 +283,12 @@ class CAL(ProductGeneratorL0):
     calibration event.
     '''
 
+    INPUTS = [
+        'RWS_H1_CAL',
+        'RWS_H2_CAL',
+        'RWS_LR_CAL'
+    ]
+
     PRODUCTS = [
         'L0__DARKNP',
         'L0__DARKSR',
@@ -342,6 +355,7 @@ class CAL(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
+        self._output_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -350,21 +364,30 @@ class CAL(ProductGeneratorL0):
     def generate_output(self):
         super().generate_output()
 
-        for calibration_config in self._scenario_config['calibration_events']:
-            self.read_scenario_parameters(calibration_config)
-            cal_start = self._time_from_iso(calibration_config['start'])
-            cal_stop = self._time_from_iso(calibration_config['stop'])
+        # generate output from inputs
+        if self._output_periods is not None:
+            cal_id = 1  # TODO get from inputs?
+            self._hdr.calibration_id = cal_id
+            for start, stop in self._output_periods:
+                self._generate_output(cal_id, start, stop)
 
-            begin_pos = self._hdr.begin_position
-            end_pos = self._hdr.end_position
-            if begin_pos is None or end_pos is None:
-                raise ScenarioError('no begin_position or end_position')
+        # generate output from scenario config
+        else:
+            for calibration_config in self._scenario_config['calibration_events']:
+                self.read_scenario_parameters(calibration_config)
+                cal_start = self._time_from_iso(calibration_config['start'])
+                cal_stop = self._time_from_iso(calibration_config['stop'])
 
-            complete = (cal_start >= begin_pos and cal_stop <= end_pos)
-            if complete:
-                self._generate_output(calibration_config, cal_start, cal_stop)
+                begin_pos = self._hdr.begin_position
+                end_pos = self._hdr.end_position
+                if begin_pos is None or end_pos is None:
+                    raise ScenarioError('no begin_position or end_position')
 
-    def _generate_output(self, calibration_config: dict, start, stop):
+                complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+                if complete:
+                    self._generate_output(calibration_config['calibration_id'], cal_start, cal_stop)
+
+    def _generate_output(self, calibration_id: str, start, stop):
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
@@ -377,7 +400,7 @@ class CAL(ProductGeneratorL0):
         self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
-        self._hdr.calibration_id = calibration_config['calibration_id']
+        self._hdr.calibration_id = calibration_id
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -435,6 +458,9 @@ class ANC(ProductGeneratorL0):
     For L0__VAU_TM, L0__TST___ and L0__WRN___ products, a 'complete' slice
     means a set of complete slices for each of three sensors.
     '''
+
+    INPUTS = [
+    ]
 
     PRODUCTS = [
         'L0__SAT_TM',
