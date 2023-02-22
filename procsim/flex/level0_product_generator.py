@@ -77,7 +77,7 @@ class EO(product_generator.ProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._input_products = None
+        self._output_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -89,18 +89,10 @@ class EO(product_generator.ProductGeneratorBase):
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
             return False
-
-        if self._output_type == 'L0__OBS___':
-            hv_products = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
-        else:
-            blupt
-
-        key_count = collections.defaultdict(int)
-
+        input_types = ['RWS_H1_OBS', 'RWS_H2_OBS', 'RWS_LR_OBS']
+        period_types = collections.defaultdict(set)
         for input in input_products:
-            if input.file_type in hv_products:
-                print('GOT INPUT', self._output_type, input.file_type, input.file_names)
-
+            if input.file_type in input_types:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -109,39 +101,37 @@ class EO(product_generator.ProductGeneratorBase):
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
-                    print('MPH FILE NAME', mph_file_name)
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    print('STARTSTOP', start, stop)
-
-                    key_count[input.file_type, start, stop] += 1
-
-        for k, count in key_count.items():
-            print('--->', k, count)
-
-        self._input_products = input_products
+                    period_types[start, stop].add(input.file_type)
+        self._output_periods = []
+        for period, filetypes in period_types.items():
+            if len(filetypes) == 3:  # all three sensors
+               self._output_periods.append(period)
         return True
 
     def generate_output(self):
         super().generate_output()
 
-        if self._input_products is not None:
-            print('GEN FROM INPUTS', self._output_type, self._input_products)
+        # generate output from inputs
+        if self._output_periods is not None:
+            self._hdr.data_take_id = self._scenario_config['data_take_id']  # TODO get from inputs?
+            for start, stop in self._output_periods:
+                self._generate_product(start, stop)
 
-#            for input_ in self._input_products:
-#                print(input_.file_type, input_.file_names)
-
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
-            else:
-                assert False  # TODO
+        # generate output from scenario config
+        else:
+            data_takes_with_bounds = self._get_data_takes_with_bounds()
+            for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+                self.read_scenario_parameters(data_take_config)
+                if self._enable_slicing:
+                    self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
+                else:
+                    assert False  # TODO
 
     def _generate_product(self, start, stop):
         if self._hdr.data_take_id is None:
@@ -354,8 +344,6 @@ class CAL(product_generator.ProductGeneratorBase):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
-    # TODO parse inputs?? focus on delivering just products for now
-
     def generate_output(self):
         super().generate_output()
 
@@ -485,8 +473,6 @@ class ANC(product_generator.ProductGeneratorBase):
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
-
-    # TODO parse inputs?? focus on delivering just products for now
 
     def generate_output(self):
         super().generate_output()
