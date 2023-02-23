@@ -56,7 +56,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     period_types[start, stop].add(input.file_type)
         self._output_periods = []
         for period, filetypes in period_types.items():
-            if len(filetypes) == 3:  # all three sensors
+            if len(filetypes) == len(self.INPUTS):  # all inputs available (eg three sensors)
                 self._output_periods.append(period)
         return True
 
@@ -368,7 +368,7 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            cal_id = '1'  # TODO get from inputs?
+            cal_id = self._scenario_config['calibration_id']  # TODO get from inputs?
 #            self._hdr.calibration_id = cal_id
             for start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
@@ -465,6 +465,8 @@ class ANC(ProductGeneratorL0):
         'RWS_LR_VAU',
         'RWS_H1_VAU',
         'RWS_H2_VAU',
+#        'RWS_XS_ITM',
+#        'RWS_XS_OBC',
     ]
 
     PRODUCTS = [
@@ -513,8 +515,8 @@ class ANC(ProductGeneratorL0):
         super().generate_output()
 
         # generate output from inputs
-        if self._output_type in ('L0__VAU_TM', 'L0__TST___', 'L0__WRN___') and self._output_periods is not None:
-            apid = '1234'  # TODO get from inputs?
+        if self._output_periods is not None:
+            apid = self._scenario_config['apid']  # TODO get from inputs?
             for start, stop in self._output_periods:
                 self._generate_output(apid, start, stop)
 
