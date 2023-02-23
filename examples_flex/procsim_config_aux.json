@@ -16,7 +16,8 @@
             "end_position": "2021-02-01T01:38:10.000Z",
 
             "output_path": "workspace",
-            "zip_output": true,
+            "zip_output": false,
+            "keep_zip": true,
 
             "outputs": [
                 {

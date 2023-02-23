@@ -73,7 +73,7 @@
       "apid": 1234,
       "data_take_id": 1,  // Mandatory for RAWS products.
 
-      "zip_output": true,   // Default true, set false for diagnostics only
+      "zip_output": false,   // Default true, set false for diagnostics only
       "keep_zip": true,
 
       "outputs": [

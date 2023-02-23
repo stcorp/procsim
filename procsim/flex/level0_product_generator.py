@@ -5,9 +5,10 @@ Flex Level 0 product generators,
 format according to ESA-EOPG-EOEP-TN-0022
 '''
 import bisect
+import collections
 import datetime
 import os
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Optional
 
 from . import constants
 from procsim.core.exceptions import ScenarioError
@@ -23,7 +24,44 @@ _HDR_PARAMS = [
 _ACQ_PARAMS = []
 
 
-class EO(product_generator.ProductGeneratorBase):
+class ProductGeneratorL0(product_generator.ProductGeneratorBase):
+    '''
+    Locate combinations of three complete slices (one for each sensor) for the same period.
+    '''  # TODO unique datatake_id, cal_id, event_id?
+
+    INPUTS = []
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        period_types = collections.defaultdict(set)
+        for input in input_products:
+            if input.file_type in self.INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    period_types[start, stop].add(input.file_type)
+        self._output_periods = []
+        for period, filetypes in period_types.items():
+            if len(filetypes) == 3:  # all three sensors
+                self._output_periods.append(period)
+        return True
+
+
+class EO(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
@@ -48,6 +86,12 @@ class EO(product_generator.ProductGeneratorBase):
     FLEX slicing grid (meaning one complete slice for each of three sensors).
 
     '''
+
+    INPUTS = [
+        'RWS_H1_OBS',
+        'RWS_H2_OBS',
+        'RWS_LR_OBS'
+    ]
 
     PRODUCTS = [
         'L0__OBS___',
@@ -76,12 +120,30 @@ class EO(product_generator.ProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
+        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
-    # TODO parse inputs?? focus on delivering just products for now
+    def generate_output(self):
+        super().generate_output()
+
+        # generate output from inputs
+        if self._output_periods is not None:
+            self._hdr.data_take_id = self._scenario_config['data_take_id']  # TODO get from inputs?
+            for start, stop in self._output_periods:
+                self._generate_product(start, stop)
+
+        # generate output from scenario config
+        else:
+            data_takes_with_bounds = self._get_data_takes_with_bounds()
+            for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+                self.read_scenario_parameters(data_take_config)
+                if self._enable_slicing:
+                    self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
+                else:
+                    assert False  # TODO
 
     def _generate_product(self, start, stop):
         if self._hdr.data_take_id is None:
@@ -127,17 +189,6 @@ class EO(product_generator.ProductGeneratorBase):
 
         if self._zip_output:
             self.zip_folder(dir_name, self._zip_extension)
-
-    def generate_output(self):
-        super().generate_output()
-
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-            self.read_scenario_parameters(data_take_config)
-            if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
-            else:
-                assert False  # TODO
 
     def _get_slice_edges(self, segment_start: datetime.datetime, segment_end: datetime.datetime) -> List[Tuple[datetime.datetime, datetime.datetime]]:
         # If insufficient ANX are specified, infer the others.
@@ -208,7 +259,7 @@ class EO(product_generator.ProductGeneratorBase):
                 self._generate_product(slice_start, slice_end)  # acq_start, acq_end) TODO
 
 
-class CAL(product_generator.ProductGeneratorBase):
+class CAL(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
@@ -233,6 +284,12 @@ class CAL(product_generator.ProductGeneratorBase):
     a complete slice for each of three sensors), in other words for a complete
     calibration event.
     '''
+
+    INPUTS = [
+        'RWS_H1_CAL',
+        'RWS_H2_CAL',
+        'RWS_LR_CAL'
+    ]
 
     PRODUCTS = [
         'L0__DARKNP',
@@ -300,31 +357,39 @@ class CAL(product_generator.ProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
+        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
-    # TODO parse inputs?? focus on delivering just products for now
-
     def generate_output(self):
         super().generate_output()
 
-        for calibration_config in self._scenario_config['calibration_events']:
-            self.read_scenario_parameters(calibration_config)
-            cal_start = self._time_from_iso(calibration_config['start'])
-            cal_stop = self._time_from_iso(calibration_config['stop'])
+        # generate output from inputs
+        if self._output_periods is not None:
+            cal_id = '1'  # TODO get from inputs?
+#            self._hdr.calibration_id = cal_id
+            for start, stop in self._output_periods:
+                self._generate_output(cal_id, start, stop)
 
-            begin_pos = self._hdr.begin_position
-            end_pos = self._hdr.end_position
-            if begin_pos is None or end_pos is None:
-                raise ScenarioError('no begin_position or end_position')
+        # generate output from scenario config
+        else:
+            for calibration_config in self._scenario_config['calibration_events']:
+                self.read_scenario_parameters(calibration_config)
+                cal_start = self._time_from_iso(calibration_config['start'])
+                cal_stop = self._time_from_iso(calibration_config['stop'])
 
-            complete = (cal_start >= begin_pos and cal_stop <= end_pos)
-            if complete:
-                self._generate_output(calibration_config, cal_start, cal_stop)
+                begin_pos = self._hdr.begin_position
+                end_pos = self._hdr.end_position
+                if begin_pos is None or end_pos is None:
+                    raise ScenarioError('no begin_position or end_position')
 
-    def _generate_output(self, calibration_config: dict, start, stop):
+                complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+                if complete:
+                    self._generate_output(calibration_config['calibration_id'], cal_start, cal_stop)
+
+    def _generate_output(self, calibration_id: str, start, stop):
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
@@ -337,7 +402,7 @@ class CAL(product_generator.ProductGeneratorBase):
         self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
-        self._hdr.calibration_id = calibration_config['calibration_id']
+        # self._hdr.calibration_id = calibration_id
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -368,7 +433,7 @@ class CAL(product_generator.ProductGeneratorBase):
             self.zip_folder(dir_name, self._zip_extension)
 
 
-class ANC(product_generator.ProductGeneratorBase):
+class ANC(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
     generating Level-0 slice based products.
@@ -395,6 +460,9 @@ class ANC(product_generator.ProductGeneratorBase):
     For L0__VAU_TM, L0__TST___ and L0__WRN___ products, a 'complete' slice
     means a set of complete slices for each of three sensors.
     '''
+
+    INPUTS = [
+    ]
 
     PRODUCTS = [
         'L0__SAT_TM',
@@ -436,8 +504,6 @@ class ANC(product_generator.ProductGeneratorBase):
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
-
-    # TODO parse inputs?? focus on delivering just products for now
 
     def generate_output(self):
         super().generate_output()
