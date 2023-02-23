@@ -187,6 +187,12 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
+          <File_Type>L0__OBSMON</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
           <File_Type>L0__INSTTM</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
