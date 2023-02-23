@@ -465,8 +465,8 @@ class ANC(ProductGeneratorL0):
         'RWS_LR_VAU',
         'RWS_H1_VAU',
         'RWS_H2_VAU',
-#        'RWS_XS_ITM',
-#        'RWS_XS_OBC',
+        # 'RWS_XS_ITM',
+        # 'RWS_XS_OBC',
     ]
 
     PRODUCTS = [
