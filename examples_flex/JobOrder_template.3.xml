@@ -199,6 +199,18 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
+          <File_Type>L0__TST___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__WRN___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
           <File_Type>L0__SAT_TM</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>

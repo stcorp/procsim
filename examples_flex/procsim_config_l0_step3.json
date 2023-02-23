@@ -66,6 +66,16 @@
           "size": 0
         },
         {
+          "type": "L0__TST___",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__WRN___",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "L0__DARKNP",
           "metadata_source": ".*RWS_H1_CAL.*", // Input to use
           "size": 0
