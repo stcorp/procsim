@@ -31,19 +31,19 @@
           "2017-01-01T07:38:12.217000Z"
       ],
 
-      "anc_events": [ // TODO remove
-        { // complete, as filling an anx slice TODO
-            "apid": "4321",
-            "start": "2017-01-01T05:51:31.394000Z",
-            "stop": "2017-01-01T08:20:44.504000Z",
-            "intermediate": false
-        },
-        { // partial, as not filling an anx slice
-            "apid": "5432",
-            "start": "2017-01-01T06:51:31.394000Z",
-            "stop": "2017-01-01T08:20:44.504000Z",
-        "intermediate": false
-        }
+      "data_takes": [
+          { // one complete and two partial slices when sliced against grid
+                "data_take_id": "8282",
+                "start": "2017-01-01T06:02:31.394000Z",
+                "stop": "2017-01-01T06:06:20.504000Z",
+                "intermediate": false
+          },
+          { // intermediate slice (fully inside single grid frame)
+                "data_take_id": "8283",
+                "start": "2017-01-01T06:04:31.394000Z",
+                "stop": "2017-01-01T06:05:20.504000Z",
+                "intermediate": true
+          }
       ],
 
       "calibration_events": [ // TODO remove
@@ -67,11 +67,25 @@
             }
       ],
 
+      "anc_events": [ // TODO remove
+          { // complete, as filling an anx slice TODO
+              "apid": "4321",
+              "start": "2017-01-01T05:51:31.394000Z",
+              "stop": "2017-01-01T08:20:44.504000Z",
+              "intermediate": false
+          },
+          { // partial, as not filling an anx slice
+              "apid": "5432",
+              "start": "2017-01-01T06:51:31.394000Z",
+              "stop": "2017-01-01T08:20:44.504000Z",
+          "intermediate": false
+          }
+      ],
+
       "cycle_number": "012",
       "relative_orbit_number": "046",
       "baseline": "1B",
       "apid": 1234,
-      "data_take_id": 1,  // Mandatory for RAWS products.
 
       "zip_output": false,   // Default true, set false for diagnostics only
       "keep_zip": true,

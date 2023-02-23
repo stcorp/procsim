@@ -53,7 +53,7 @@
             <Selected_Input>
               <File_Type>RWS_H1_OBS</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RWS_H1_OBS_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B</File_Name>
+                <File_Name>./workspace/FLX_RWS_H1_OBS_20170101T060231_20170101T060620_20210201T013810_0229_012_046_0150_1B</File_Name>
               </List_of_File_Names>
             </Selected_Input>
           </List_of_Selected_Inputs>
@@ -65,7 +65,7 @@
             <Selected_Input>
               <File_Type>RWS_H2_OBS</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RWS_H2_OBS_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B</File_Name>
+                <File_Name>./workspace/FLX_RWS_H2_OBS_20170101T060231_20170101T060620_20210201T013810_0229_012_046_0150_1B</File_Name>
               </List_of_File_Names>
             </Selected_Input>
           </List_of_Selected_Inputs>
@@ -77,7 +77,7 @@
             <Selected_Input>
               <File_Type>RWS_LR_OBS</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RWS_LR_OBS_20170101T060131_20170101T060706_20210201T013810_0335_012_046_0089_1B</File_Name>
+                <File_Name>./workspace/FLX_RWS_LR_OBS_20170101T060231_20170101T060620_20210201T013810_0229_012_046_0150_1B</File_Name>
               </List_of_File_Names>
             </Selected_Input>
           </List_of_Selected_Inputs>
