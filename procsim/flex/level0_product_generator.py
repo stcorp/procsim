@@ -31,6 +31,8 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
 
     INPUTS = []
 
+    ID_FIELD = ''
+
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
@@ -51,7 +53,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    data_take_id = hdr.data_take_id
+                    data_take_id = getattr(hdr, self.ID_FIELD)
                     start = hdr.begin_position
                     stop = hdr.end_position
                     period_types[data_take_id, start, stop].add(input.file_type)
@@ -93,6 +95,8 @@ class EO(ProductGeneratorL0):
         'RWS_H2_OBS',
         'RWS_LR_OBS'
     ]
+
+    ID_FIELD = 'data_take_id'
 
     PRODUCTS = [
         'L0__OBS___',
@@ -294,6 +298,8 @@ class CAL(ProductGeneratorL0):
         'RWS_LR_CAL'
     ]
 
+    ID_FIELD = 'calibration_id'
+
     PRODUCTS = [
         'L0__DARKNP',
         'L0__DARKSR',
@@ -371,10 +377,8 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            cal_id = self._scenario_config['calibration_id']  # TODO get from inputs?
-#            self._hdr.calibration_id = cal_id
             self._hdr.product_baseline = self._scenario_config['baseline']
-            for _, start, stop in self._output_periods:
+            for cal_id, start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
 
         # generate output from scenario config
@@ -488,6 +492,8 @@ class ANC(ProductGeneratorL0):
         'L0__UNK___',
     ]
 
+    ID_FIELD = 'apid'
+
     _ACQ_PARAMS = []
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -521,9 +527,8 @@ class ANC(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            apid = self._scenario_config['apid']  # TODO get from inputs?
             self._hdr.product_baseline = self._scenario_config['baseline']
-            for _, start, stop in self._output_periods:
+            for apid, start, stop in self._output_periods:
                 self._generate_output(apid, start, stop)
 
         # generate output from scenario config

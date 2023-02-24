@@ -27,9 +27,6 @@
 
       "baseline": "1B",
 
-      "apid": 1234,
-      "calibration_id": 7,
-
       "outputs": [
         {
           "type": "L0__OBS___",
