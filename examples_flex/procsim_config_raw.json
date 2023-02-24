@@ -15,7 +15,7 @@
             "log_level": "debug",
 
             "output_path": "workspace",
-            "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
+//            "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
             "acquisition_date": "2021-02-01T01:38:10.000Z",
             "acquisition_station": "SP",
             "zip_output": true,
