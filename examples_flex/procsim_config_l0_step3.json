@@ -25,39 +25,18 @@
       // Logging
       "nr_progress_log_messages": 4,
 
-      "acquisition_date": "2021-02-01T01:38:10.000Z",
-      "anx": [
-          "2017-01-01T06:00:01.272000Z",
-          "2017-01-01T07:38:12.217000Z"
-      ],
-
-      "anc_events": [ // TODO remove
-        { // complete, as filling an anx slice TODO
-            "apid": "4321",
-            "start": "2017-01-01T05:51:31.394000Z",
-            "stop": "2017-01-01T08:20:44.504000Z",
-            "intermediate": false
-        },
-        { // partial, as not filling an anx slice
-            "apid": "5432",
-            "start": "2017-01-01T06:51:31.394000Z",
-            "stop": "2017-01-01T08:20:44.504000Z",
-        "intermediate": false
-        }
-      ],
-
-      "cycle_number": "012",
-      "relative_orbit_number": "046",
-      "baseline": "1B",
       "apid": 1234,
       "data_take_id": 1,  // Mandatory for RAWS products.
-
-      "zip_output": false,   // Default true, set false for diagnostics only
-      "keep_zip": true,
+      "calibration_id": 7,
 
       "outputs": [
         {
           "type": "L0__OBS___",
+          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__OBSMON",
           "metadata_source": ".*RWS_H1_OBS.*", // Input to use
           "size": 0
         },
@@ -88,6 +67,16 @@
         },
         {
           "type": "L0__VAU_TM",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__TST___",
+          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L0__WRN___",
           "metadata_source": ".*RWS_H1_VAU.*", // Input to use
           "size": 0
         },

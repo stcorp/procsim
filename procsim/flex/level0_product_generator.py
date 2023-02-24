@@ -56,7 +56,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     period_types[start, stop].add(input.file_type)
         self._output_periods = []
         for period, filetypes in period_types.items():
-            if len(filetypes) == 3:  # all three sensors
+            if len(filetypes) == len(self.INPUTS):  # all inputs available (eg three sensors)
                 self._output_periods.append(period)
         return True
 
@@ -368,7 +368,7 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            cal_id = '1'  # TODO get from inputs?
+            cal_id = self._scenario_config['calibration_id']  # TODO get from inputs?
 #            self._hdr.calibration_id = cal_id
             for start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
@@ -462,6 +462,11 @@ class ANC(ProductGeneratorL0):
     '''
 
     INPUTS = [
+        'RWS_LR_VAU',
+        'RWS_H1_VAU',
+        'RWS_H2_VAU',
+        # 'RWS_XS_ITM',
+        # 'RWS_XS_OBC',
     ]
 
     PRODUCTS = [
@@ -500,6 +505,7 @@ class ANC(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
+        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -508,17 +514,25 @@ class ANC(ProductGeneratorL0):
     def generate_output(self):
         super().generate_output()
 
-        anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
+        # generate output from inputs
+        if self._output_periods is not None:
+            apid = self._scenario_config['apid']  # TODO get from inputs?
+            for start, stop in self._output_periods:
+                self._generate_output(apid, start, stop)
 
-        for event in self._scenario_config['anc_events']:
-            apid = event['apid']
-            start = self._time_from_iso(event['start'])
-            stop = self._time_from_iso(event['stop'])
+        # generate output from scenario config
+        else:
+            anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
 
-            for i in range(len(anx)-1):
-                # complete overlap of anx-to-anx window
-                if start <= anx[i] and stop >= anx[i+1]:
-                    self._generate_output(apid, anx[i], anx[i+1])
+            for event in self._scenario_config['anc_events']:
+                apid = event['apid']
+                start = self._time_from_iso(event['start'])
+                stop = self._time_from_iso(event['stop'])
+
+                for i in range(len(anx)-1):
+                    # complete overlap of anx-to-anx window
+                    if start <= anx[i] and stop >= anx[i+1]:
+                        self._generate_output(apid, anx[i], anx[i+1])
 
     def _generate_output(self, apid, start, stop):
         self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
