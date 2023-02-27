@@ -10,7 +10,7 @@ set -e
 VERSION=`grep -Po "__version__[^']*'\K[^']*" procsim/core/version.py`
 
 # create fresh package dir
-PACKAGE=BIO_PROCSIM_$VERSION
+PACKAGE=PROCSIM_$VERSION
 rm -rf $PACKAGE
 mkdir $PACKAGE
 
