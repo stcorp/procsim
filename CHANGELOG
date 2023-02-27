@@ -1,6 +1,13 @@
 Procsim Changelog
 -----------------
 
+[v2.0.0] - 2023/02/27
+    - Add: support for FLEX mission (up to L0)
+
+    Known bugs:
+    - merging of partial slices only works for CAL and VAU product types
+    - merging of partial slices does not yet use configurable overlap
+
 [v1.9.0] - 2022/07/12
     - Chg: Issue 43, support (only) the new L2a products.
            - added support for FP_GN__L2A
