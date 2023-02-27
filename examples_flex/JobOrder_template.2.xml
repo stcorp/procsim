@@ -57,6 +57,12 @@
                 <File_Name>./temp/FLX_RWS_H1PCAL_20170101T060231_20170101T060706_20210201T013810_0275_012_046_0150_1B</File_Name>
               </List_of_File_Names>
             </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
             <Selected_Input>
               <File_Type>RWS_H1PVAU</File_Type>
               <List_of_File_Names>
