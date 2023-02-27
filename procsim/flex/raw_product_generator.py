@@ -473,7 +473,7 @@ class RWS_CAL(RawProductGeneratorBase):
         # check completeness for periods per (cal_id, sensor) TODO check start/end markers
         for key, periods in key_periods.items():
             periods = sorted(periods)
-            if len(periods) > 1 and periods[0][2] == 'start_of_SA' and periods[-1][3] == 'end_of_SA':
+            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
                 overlap = True
                 for i in range(len(periods)-1):
                     period_end = periods[i][1]
@@ -493,8 +493,9 @@ class RWS_CAL(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            for key, period in self._key_periods:
-                print('COMPLETE!', key, period)
+            for key, period in self._key_periods.items():
+                cal_id, sensor = key
+                self._create_product(cal_id, period[0], period[1], True, period[0], period[1], sensor)
             return
 
         if 'calibration_events' not in self._scenario_config:
@@ -515,9 +516,11 @@ class RWS_CAL(RawProductGeneratorBase):
             slice_start_position = 'begin_of_SA'
             slice_stop_position = 'end_of_SA'
 
+            cal_id = calibration_config['calibration_id']
+
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
             else:
                 intermediate = calibration_config['intermediate']
@@ -537,13 +540,16 @@ class RWS_CAL(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
-                    self._create_product(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_product(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
-                        complete, slice_start_position, slice_stop_position):
+    def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
+                        complete, slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -562,9 +568,8 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.calibration_id = calibration_config['calibration_id']
+            self._hdr.calibration_id = cal_id
             self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-#            self._hdr.apid = self._scenario_config['apid']
 
             self._create_raw_product(dir_name, name_gen)
 
