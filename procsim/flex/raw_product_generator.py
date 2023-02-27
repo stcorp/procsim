@@ -468,13 +468,30 @@ class RWS_CAL(RawProductGeneratorBase):
                     stop = hdr.end_position
                     key_periods[key].append((start, stop))
 
+        # check completeness for periods per (cal_id, sensor) TODO check start/end markers
+        for key, periods in key_periods.items():
+            if len(periods) > 1:
+                overlap = True
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
+
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+
         return True
 
     def generate_output(self):
         super().generate_output()
 
         if self._key_periods is not None:
-            print('MERGE!')
+            for key, period in self._key_periods:
+                print('COMPLETE!', key, period)
             return
 
         for calibration_config in self._scenario_config['calibration_events']:
