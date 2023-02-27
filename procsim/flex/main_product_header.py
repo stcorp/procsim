@@ -359,7 +359,7 @@ class MainProductHeader:
                 et.SubElement(acquisition, eop + 'acrossTrackIncidenceAngle', attrib={'uom': 'deg'}).text = '-14.0'
                 et.SubElement(acquisition, eop + 'alongTrackIncidenceAngle', attrib={'uom': 'deg'}).text = '-13.9'
                 et.SubElement(acquisition, eop + 'pitch', attrib={'uom': 'deg'}).text = '0'
-                et.SubElement(acquisition, eop + 'rol', attrib={'uom': 'deg'}).text = '0'
+                et.SubElement(acquisition, eop + 'roll', attrib={'uom': 'deg'}).text = '0'
                 et.SubElement(acquisition, eop + 'yaw', attrib={'uom': 'deg'}).text = '0'
 
         observed_property = et.SubElement(mph, om + 'observedProperty')  # Observed property (Mandatory but empty)
@@ -430,7 +430,7 @@ class MainProductHeader:
         qc_degradation_tag.set('codeSpace', 'urn:esa:eop:FLEX:qcDegradationTags')
         qc_degradation_tag.text = 'RADIOMETRIC'
 
-        et.SubElement(earth_observation_meta_data, eop + 'ProductQualityReportURL').text = 'http://xxx/xxx/xxx.pdf'
+        et.SubElement(earth_observation_meta_data, eop + 'productQualityReportURL').text = 'http://xxx/xxx/xxx.pdf'
 
         processing = et.SubElement(earth_observation_meta_data, eop + 'processing')  # Data processing information
         processing_info = et.SubElement(processing, eop + 'ProcessingInformation')
