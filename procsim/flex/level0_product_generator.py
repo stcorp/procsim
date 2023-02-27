@@ -366,7 +366,7 @@ class CAL(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -516,7 +516,7 @@ class ANC(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()

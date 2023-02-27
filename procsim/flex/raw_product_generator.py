@@ -540,7 +540,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     self._create_product(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
     def _create_product(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
-                         complete, slice_start_position, slice_stop_position):
+                        complete, slice_start_position, slice_stop_position):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
