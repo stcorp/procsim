@@ -4,6 +4,7 @@ Copyright (C) 2021-2023 S[&]T, The Netherlands.
 Flex raw output product generators, according to ESA-EOPG-EOEP-TN-0027
 '''
 import bisect
+import collections
 import datetime
 import os
 from typing import List, Tuple, Iterable
@@ -430,6 +431,7 @@ class RWS_CAL(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -442,6 +444,8 @@ class RWS_CAL(RawProductGeneratorBase):
 
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
         ID_FIELD = 'calibration_id'
+
+        key_periods = collections.defaultdict(list)
 
         for input in input_products:
             if input.file_type in INPUTS:
@@ -459,14 +463,19 @@ class RWS_CAL(RawProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    calibration_id = getattr(hdr, ID_FIELD)
+                    key = (hdr.calibration_id, hdr.sensor_detector)
                     start = hdr.begin_position
                     stop = hdr.end_position
+                    key_periods[key].append((start, stop))
 
         return True
 
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            print('MERGE!')
+            return
 
         for calibration_config in self._scenario_config['calibration_events']:
             self.read_scenario_parameters(calibration_config)
