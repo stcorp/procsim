@@ -657,7 +657,7 @@ class RWS_ANC(RawProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
-        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']
+        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
         ID_FIELD = 'apid'
 
         key_periods = collections.defaultdict(list)
@@ -686,7 +686,7 @@ class RWS_ANC(RawProductGeneratorBase):
         # check completeness for periods per (apid, sensor) TODO where to get absorbit?
         for key, periods in key_periods.items():
             periods = sorted(periods)
-            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
+            if len(periods) > 1 and periods[0][2] == 'anx' and periods[-1][3] == 'anx':
                 overlap = True
                 for i in range(len(periods)-1):
                     period_end = periods[i][1]
@@ -706,12 +706,10 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            print('KEYPER!', self._key_periods)
-            BOSEMA
-
-#            for key, period in self._key_periods.items():
-#                cal_id, sensor = key
-#                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
+            for key, period in self._key_periods.items():
+                apid, sensor = key
+                print('CREATE', apid, period[0], period[1])
+                self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
         if 'anc_events' not in self._scenario_config:
@@ -736,16 +734,22 @@ class RWS_ANC(RawProductGeneratorBase):
                 elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
                     self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
-    def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
+    def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete,
+                        slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
-#        name_gen.use_short_name = True
+        if for_sensor is not None:
+            name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
         for sensor in ('LR', 'HR1', 'HR2'):
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
+            if self._hdr.anx_elapsed is None:
+                anx = self._get_anx(acq_start)
+                if anx is not None:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+                else:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             dir_name = name_gen.generate_path_name()
 
