@@ -4,16 +4,16 @@
   "scenarios": [
     {
       // L0 slicer scenario.
-      "name": "L0 step 3, merge complete complete slices",
+      "name": "L0 step 2, merge partial slices",
       "mission_phase": "Commissioning",
 
       // File_name must match with the first argument of procsim
-      "file_name": "level0_task3.sh",
+      "file_name": "level0_task2.sh",
 
       // Processor/task are used to find the right task in the job order
       "processor_name": "l0preproc_sm",
       "processor_version": "01.01",
-      "task_name": "Step3",
+      "task_name": "Step2",
       "task_version": "05.03L01",
 
       // Resources
@@ -29,148 +29,8 @@
 
       "outputs": [
         {
-          "type": "L0__OBS___",
-          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__OBSMON",
-          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__INSTTM",
-          "metadata_source": ".*RWS_XS_ITM.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SAT_TM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__NAVATT",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__PDHUTM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__ICUDTM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__VAU_TM",
-          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__TST___",
-          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__WRN___",
-          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DARKNP",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DARKSR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DEFDAR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DARKOC",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DRKMTF",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DRKSTR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SUN___",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DEFSUN",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__MOON__",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__MOONSL",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINDES",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINSEA",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINSUN",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINDAR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__CTE___",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SCNVAL",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__COREG_",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SPECEO",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__CLOUD_",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "type": "RWS_H1_CAL",
+          "metadata_source": ".*RWS_H1PCAL.*", // Input to use
           "size": 0
         }
       ],
