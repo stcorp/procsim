@@ -5,6 +5,7 @@
   - Create release branch, named `release_<major>.<minor>.x`
   - Create Jenkins release job
 - Update the version number in version.py.
+- For new plugin, add procsim/plugin dir to packages in setup.py.
 - Update CHANGELOG.
 - Make a release build in Jenkins.
 - Do a 'smoke test' on the package as build by Jenkins.
