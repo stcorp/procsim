@@ -241,9 +241,9 @@ class RWS_EO(RawProductGeneratorBase):
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
-                self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
+                self._create_product(data_take_start, data_take_stop, True)  # TODO complete?
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
         for sensor in ('LRES', 'HRE1', 'HRE2'):
@@ -340,7 +340,7 @@ class RWS_EO(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_OBS'):
-                    self._create_products(slice_start, slice_end, complete)
+                    self._create_product(slice_start, slice_end, complete)
             else:
                 intermediate = data_take_config['intermediate']
 
@@ -358,7 +358,7 @@ class RWS_EO(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('POBS')) or
                         (intermediate and self._output_type.endswith('IOBS'))):
-                    self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
+                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -485,7 +485,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
             else:
                 intermediate = calibration_config['intermediate']
@@ -505,9 +505,9 @@ class RWS_CAL(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
-                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
+    def _create_product(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                          complete, slice_start_position, slice_stop_position):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
@@ -627,16 +627,16 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                    self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+                    self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+                    self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
+                    self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
-    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
+    def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 #        name_gen.use_short_name = True
 
