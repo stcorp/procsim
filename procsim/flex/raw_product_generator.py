@@ -6,11 +6,12 @@ Flex raw output product generators, according to ESA-EOPG-EOEP-TN-0027
 import bisect
 import datetime
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 from procsim.core.exceptions import ScenarioError
+from procsim.core.job_order import JobOrderInput
 
-from . import constants, product_generator, product_name
+from . import main_product_header, constants, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('zip_output', '_zip_output', 'bool')
@@ -433,6 +434,36 @@ class RWS_CAL(RawProductGeneratorBase):
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
+        ID_FIELD = 'calibration_id'
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    print('CHECK INPUT', self._output_type, input.file_type, file)
+
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    calibration_id = getattr(hdr, ID_FIELD)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+
+        return True
 
     def generate_output(self):
         super().generate_output()

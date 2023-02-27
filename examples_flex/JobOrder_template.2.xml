@@ -17,7 +17,7 @@
   </Processor_Configuration>
   <List_of_Tasks>
     <Task>
-      <Task_Name>Step3</Task_Name>
+      <Task_Name>Step2</Task_Name>
       <Task_Version>05.03L01</Task_Version>
       <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
       <Amount_of_RAM>1073741824</Amount_of_RAM>
