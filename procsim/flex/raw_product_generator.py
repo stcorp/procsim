@@ -492,7 +492,7 @@ class RWS_CAL(RawProductGeneratorBase):
         if self._key_periods is not None:
             for key, period in self._key_periods.items():
                 cal_id, sensor = key
-                self._create_product(cal_id, period[0], period[1], True, period[0], period[1], sensor)
+                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
             return
 
         if 'calibration_events' not in self._scenario_config:
