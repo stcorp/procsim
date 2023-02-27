@@ -247,7 +247,7 @@ class RWS_EO(RawProductGeneratorBase):
     def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
+        for sensor in ('LR', 'HR1', 'HR2'):
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -259,8 +259,7 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-#            self._hdr.apid = self._scenario_config['apid']
+            self._hdr.sensor_detector = sensor
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -450,8 +449,6 @@ class RWS_CAL(RawProductGeneratorBase):
         for input in input_products:
             if input.file_type in INPUTS:
                 for file in input.file_names:
-                    print('CHECK INPUT', self._output_type, input.file_type, file)
-
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
                         continue
@@ -546,15 +543,16 @@ class RWS_CAL(RawProductGeneratorBase):
                         complete, slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
+        for sensor in ('LR', 'HR1', 'HR2'):
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+            if self._hdr.anx_elapsed is None:
+                anx = self._get_anx(acq_start)
+                if anx is not None:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+                else:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
@@ -569,7 +567,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = cal_id
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.sensor_detector = sensor
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -677,7 +675,7 @@ class RWS_ANC(RawProductGeneratorBase):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 #        name_gen.use_short_name = True
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
+        for sensor in ('LR', 'HR1', 'HR2'):
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -697,7 +695,7 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.sensor_detector = sensor
             self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)
