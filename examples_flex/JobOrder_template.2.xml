@@ -53,8 +53,8 @@
             <Selected_Input>
               <File_Type>RWS_H1PCAL</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RWS_H1PCAL_20170101T060131_20170101T060344_20210201T013810_0133_012_046_0090_1B</File_Name>
-                <File_Name>./workspace/FLX_RWS_H1PCAL_20170101T060231_20170101T060706_20210201T013810_0275_012_046_0150_1B</File_Name>
+                <File_Name>./temp/FLX_RWS_H1PCAL_20170101T060131_20170101T060344_20210201T013810_0133_012_046_0090_1B</File_Name>
+                <File_Name>./temp/FLX_RWS_H1PCAL_20170101T060231_20170101T060706_20210201T013810_0275_012_046_0150_1B</File_Name>
               </List_of_File_Names>
             </Selected_Input>
           </List_of_Selected_Inputs>
