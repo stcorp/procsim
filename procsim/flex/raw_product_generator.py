@@ -542,6 +542,7 @@ class RWS_CAL(RawProductGeneratorBase):
     def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                         complete, slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
+        name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
         for sensor in ('LR', 'HR1', 'HR2'):
             if for_sensor is not None and sensor != for_sensor:
