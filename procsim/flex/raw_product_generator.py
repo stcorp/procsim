@@ -467,7 +467,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     stop_pos = hdr.slice_stop_position
                     key_periods[key].append((start, stop, start_pos, stop_pos))
 
-        # check completeness for periods per (cal_id, sensor) TODO check start/end markers
+        # check completeness for periods per (cal_id, sensor)
         for key, periods in key_periods.items():
             periods = sorted(periods)
             if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
@@ -646,6 +646,7 @@ class RWS_ANC(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -675,38 +676,46 @@ class RWS_ANC(RawProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    key = (hdr.calibration_id, hdr.sensor_detector)
+                    key = (hdr.apid, hdr.sensor_detector)
                     start = hdr.begin_position
                     stop = hdr.end_position
                     start_pos = hdr.slice_start_position
                     stop_pos = hdr.slice_stop_position
                     key_periods[key].append((start, stop, start_pos, stop_pos))
 
-        print('HEBWAT', key_periods)
+        # check completeness for periods per (apid, sensor) TODO where to get absorbit?
+        for key, periods in key_periods.items():
+            periods = sorted(periods)
+            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
+                overlap = True
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
 
-#        STOPT
-
-        # check completeness for periods per (cal_id, sensor) TODO check start/end markers
-#        for key, periods in key_periods.items():
-#            periods = sorted(periods)
-#            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
-#                overlap = True
-#                for i in range(len(periods)-1):
-#                    period_end = periods[i][1]
-#                    next_period_start = periods[i+1][0]
-#                    if next_period_start > period_end:
-#                        overlap = False
-#                        break
-#
-#                if overlap:
-#                    if self._key_periods is None:
-#                        self._key_periods = {}
-#                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
 
         return True
 
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            print('KEYPER!', self._key_periods)
+            BOSEMA
+
+#            for key, period in self._key_periods.items():
+#                cal_id, sensor = key
+#                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
+            return
+
+        if 'anc_events' not in self._scenario_config:
+            return
 
         anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
 
