@@ -26,7 +26,7 @@ setup(
     description="Tool to simulate a processor in a PDGS.",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=["procsim", "procsim.core", "procsim.biomass"],
+    packages=["procsim", "procsim.core", "procsim.biomass", "procsim.flex"],
     package_data={'procsim.core': ['*.xsd']},
     include_package_data=True,
     python_requires='>=3',
