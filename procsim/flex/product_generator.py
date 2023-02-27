@@ -123,6 +123,7 @@ class ProductGeneratorBase(IProductGenerator):
         name_gen.set_creation_date(hdr.processing_date)
         name_gen.frame_slice_nr = hdr.slice_frame_nr
         name_gen.cycle_number = hdr.cycle_number
+        name_gen.anx_elapsed = hdr.anx_elapsed
         name_gen.relative_orbit_number = hdr.relative_orbit_number
 
         return name_gen

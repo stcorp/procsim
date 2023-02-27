@@ -25,9 +25,7 @@
       // Logging
       "nr_progress_log_messages": 4,
 
-      "apid": 1234,
-      "data_take_id": 1,  // Mandatory for RAWS products.
-      "calibration_id": 7,
+      "baseline": "1B",
 
       "outputs": [
         {

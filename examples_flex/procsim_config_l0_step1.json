@@ -25,7 +25,8 @@
       // Logging
       "nr_progress_log_messages": 4,
 
-      "acquisition_date": "2021-02-01T01:38:10.000Z",
+      "keep_zip": true,
+
       "anx": [
           "2017-01-01T06:00:01.272000Z",
           "2017-01-01T07:38:12.217000Z"
@@ -85,10 +86,6 @@
       "cycle_number": "012",
       "relative_orbit_number": "046",
       "baseline": "1B",
-      "apid": 1234,
-
-      "zip_output": false,   // Default true, set false for diagnostics only
-      "keep_zip": true,
 
       "outputs": [
         {

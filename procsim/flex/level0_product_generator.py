@@ -31,6 +31,8 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
 
     INPUTS = []
 
+    ID_FIELD = ''
+
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products):
@@ -51,9 +53,10 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    data_take_id = getattr(hdr, self.ID_FIELD)
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    period_types[start, stop].add(input.file_type)
+                    period_types[data_take_id, start, stop].add(input.file_type)
         self._output_periods = []
         for period, filetypes in period_types.items():
             if len(filetypes) == len(self.INPUTS):  # all inputs available (eg three sensors)
@@ -93,6 +96,8 @@ class EO(ProductGeneratorL0):
         'RWS_LR_OBS'
     ]
 
+    ID_FIELD = 'data_take_id'
+
     PRODUCTS = [
         'L0__OBS___',
         'L0__OBSMON',
@@ -120,7 +125,7 @@ class EO(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -131,8 +136,9 @@ class EO(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            self._hdr.data_take_id = self._scenario_config['data_take_id']  # TODO get from inputs?
-            for start, stop in self._output_periods:
+            for data_take_id, start, stop in self._output_periods:
+                self._hdr.data_take_id = data_take_id
+                self._hdr.product_baseline = self._scenario_config['baseline']
                 self._generate_product(start, stop)
 
         # generate output from scenario config
@@ -166,11 +172,12 @@ class EO(ProductGeneratorL0):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        anx = self._get_anx(start)
-        if anx is not None:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
-        else:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+        if self._hdr.anx_elapsed is None:
+            anx = self._get_anx(start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -291,6 +298,8 @@ class CAL(ProductGeneratorL0):
         'RWS_LR_CAL'
     ]
 
+    ID_FIELD = 'calibration_id'
+
     PRODUCTS = [
         'L0__DARKNP',
         'L0__DARKSR',
@@ -357,7 +366,7 @@ class CAL(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -368,9 +377,8 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            cal_id = self._scenario_config['calibration_id']  # TODO get from inputs?
-#            self._hdr.calibration_id = cal_id
-            for start, stop in self._output_periods:
+            self._hdr.product_baseline = self._scenario_config['baseline']
+            for cal_id, start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
 
         # generate output from scenario config
@@ -408,11 +416,12 @@ class CAL(ProductGeneratorL0):
         name_gen = self._create_name_generator(self._hdr)
         name_gen.downlink_time = datetime.datetime.now()  # TODO
 
-        anx = self._get_anx(start)
-        if anx is not None:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
-        else:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+        if self._hdr.anx_elapsed is None:
+            anx = self._get_anx(start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
@@ -483,6 +492,8 @@ class ANC(ProductGeneratorL0):
         'L0__UNK___',
     ]
 
+    ID_FIELD = 'apid'
+
     _ACQ_PARAMS = []
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -505,7 +516,7 @@ class ANC(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -516,8 +527,8 @@ class ANC(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
-            apid = self._scenario_config['apid']  # TODO get from inputs?
-            for start, stop in self._output_periods:
+            self._hdr.product_baseline = self._scenario_config['baseline']
+            for apid, start, stop in self._output_periods:
                 self._generate_output(apid, start, stop)
 
         # generate output from scenario config
@@ -552,11 +563,12 @@ class ANC(ProductGeneratorL0):
 #        if not self._output_type.endswith('___'):
 #            name_gen.use_short_name = True
 
-        anx = self._get_anx(start)  # TODO copy-pasting
-        if anx is not None:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
-        else:
-            self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+        if self._hdr.anx_elapsed is None:
+            anx = self._get_anx(start)  # TODO copy-pasting
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
         dir_name = name_gen.generate_path_name()
         self._hdr.initialize_product_list(dir_name)
