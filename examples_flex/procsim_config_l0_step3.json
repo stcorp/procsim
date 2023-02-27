@@ -4,7 +4,7 @@
   "scenarios": [
     {
       // L0 slicer scenario.
-      "name": "L0 step 3, merge complete complete slices",
+      "name": "L0 step 3, merge complete slices for all sensors",
       "mission_phase": "Commissioning",
 
       // File_name must match with the first argument of procsim

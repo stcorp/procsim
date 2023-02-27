@@ -1,0 +1,45 @@
+{
+  "mission": "flex",
+  "log_level": "debug",
+  "scenarios": [
+    {
+      // L0 slicer scenario.
+      "name": "L0 step 2, merge partial slices",
+      "mission_phase": "Commissioning",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task2.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_sm",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03L01",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
+        {
+          "type": "RWS_H1_CAL",
+          "metadata_source": ".*RWS_H1PCAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RWS_H1_VAU",
+          "metadata_source": ".*RWS_H1PVAU.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    }
+  ]
+}

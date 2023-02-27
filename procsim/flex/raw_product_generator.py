@@ -4,13 +4,15 @@ Copyright (C) 2021-2023 S[&]T, The Netherlands.
 Flex raw output product generators, according to ESA-EOPG-EOEP-TN-0027
 '''
 import bisect
+import collections
 import datetime
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 from procsim.core.exceptions import ScenarioError
+from procsim.core.job_order import JobOrderInput
 
-from . import constants, product_generator, product_name
+from . import main_product_header, constants, product_generator, product_name
 
 _GENERATOR_PARAMS = [
     ('zip_output', '_zip_output', 'bool')
@@ -240,12 +242,12 @@ class RWS_EO(RawProductGeneratorBase):
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
             else:
-                self._create_products(data_take_start, data_take_stop, True)  # TODO complete?
+                self._create_product(data_take_start, data_take_stop, True)  # TODO complete?
 
-    def _create_products(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
         name_gen = self._create_name_generator(acq_start, acq_stop)
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
+        for sensor in ('LR', 'HR1', 'HR2'):
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -257,8 +259,7 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.product_type = self._output_type
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-#            self._hdr.apid = self._scenario_config['apid']
+            self._hdr.sensor_detector = sensor
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -339,7 +340,7 @@ class RWS_EO(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_OBS'):
-                    self._create_products(slice_start, slice_end, complete)
+                    self._create_product(slice_start, slice_end, complete)
             else:
                 intermediate = data_take_config['intermediate']
 
@@ -357,7 +358,7 @@ class RWS_EO(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('POBS')) or
                         (intermediate and self._output_type.endswith('IOBS'))):
-                    self._create_products(max(slice_start, segment_start), min(slice_end, segment_end), complete)
+                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -429,13 +430,73 @@ class RWS_CAL(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
+        ID_FIELD = 'calibration_id'
+
+        key_periods = collections.defaultdict(list)
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    key = (hdr.calibration_id, hdr.sensor_detector)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    start_pos = hdr.slice_start_position
+                    stop_pos = hdr.slice_stop_position
+                    key_periods[key].append((start, stop, start_pos, stop_pos))
+
+        # check completeness for periods per (cal_id, sensor)
+        for key, periods in key_periods.items():
+            periods = sorted(periods)
+            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
+                overlap = True
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
+
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+
+        return True
+
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            for key, period in self._key_periods.items():
+                cal_id, sensor = key
+                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
+            return
+
+        if 'calibration_events' not in self._scenario_config:
+            return
 
         for calibration_config in self._scenario_config['calibration_events']:
             self.read_scenario_parameters(calibration_config)
@@ -452,9 +513,11 @@ class RWS_CAL(RawProductGeneratorBase):
             slice_start_position = 'begin_of_SA'
             slice_stop_position = 'end_of_SA'
 
+            cal_id = calibration_config['calibration_id']
+
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
             else:
                 intermediate = calibration_config['intermediate']
@@ -474,18 +537,24 @@ class RWS_CAL(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
-                    self._create_products(calibration_config, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
 
-    def _create_products(self, calibration_config: dict, acq_start: datetime.datetime, acq_stop: datetime.datetime,
-                         complete, slice_start_position, slice_stop_position):
+    def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
+                        complete, slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
+        if for_sensor is not None:
+            name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+        for sensor in ('LR', 'HR1', 'HR2'):
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
+            if self._hdr.anx_elapsed is None:
+                anx = self._get_anx(acq_start)
+                if anx is not None:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+                else:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
@@ -499,9 +568,8 @@ class RWS_CAL(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.calibration_id = calibration_config['calibration_id']
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
-#            self._hdr.apid = self._scenario_config['apid']
+            self._hdr.calibration_id = cal_id
+            self._hdr.sensor_detector = sensor
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -578,13 +646,74 @@ class RWS_ANC(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge with CAL, OE parse_inputs when done
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products):
+            return False
+
+        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
+        ID_FIELD = 'apid'
+
+        key_periods = collections.defaultdict(list)
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    key = (hdr.apid, hdr.sensor_detector)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    start_pos = hdr.slice_start_position
+                    stop_pos = hdr.slice_stop_position
+                    key_periods[key].append((start, stop, start_pos, stop_pos))
+
+        # check completeness for periods per (apid, sensor) TODO where to get absorbit?
+        for key, periods in key_periods.items():
+            periods = sorted(periods)
+            if len(periods) > 1 and periods[0][2] == 'anx' and periods[-1][3] == 'anx':
+                overlap = True
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
+
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+
+        return True
+
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            for key, period in self._key_periods.items():
+                apid, sensor = key
+                print('CREATE', apid, period[0], period[1])
+                self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
+            return
+
+        if 'anc_events' not in self._scenario_config:
+            return
 
         anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
 
@@ -596,25 +725,31 @@ class RWS_ANC(RawProductGeneratorBase):
             for i in range(len(anx)-1):
                 # complete overlap of anx-to-anx window
                 if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                    self._create_products(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+                    self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
 
                 # partial overlap of anx-to-anx window
                 elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_products(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+                    self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
 
                 elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_products(apid, anx[i], stop, False, 'anx', 'inside_orb')
+                    self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
-    def _create_products(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, slice_start_position, slice_stop_position):
+    def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete,
+                        slice_start_position, slice_stop_position, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
-#        name_gen.use_short_name = True
+        if for_sensor is not None:
+            name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
-        for sensor in ('LRES', 'HRE1', 'HRE2'):
-            anx = self._get_anx(acq_start)
-            if anx is not None:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-            else:
-                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+        for sensor in ('LR', 'HR1', 'HR2'):
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
+            if self._hdr.anx_elapsed is None:
+                anx = self._get_anx(acq_start)
+                if anx is not None:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+                else:
+                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
             dir_name = name_gen.generate_path_name()
 
@@ -629,7 +764,7 @@ class RWS_ANC(RawProductGeneratorBase):
                 self._hdr.completeness_assesment = 'partial'
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
-            self._hdr.sensor_detector = {'LRES': 'LR', 'HRE1': 'HR1', 'HRE2': 'HR2'}[sensor]
+            self._hdr.sensor_detector = sensor
             self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)
