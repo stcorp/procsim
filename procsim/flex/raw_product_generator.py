@@ -228,13 +228,75 @@ class RWS_EO(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge/superclassify with CAL/ANC
+        if not super().parse_inputs(input_products):
+            return False
+
+        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
+
+        key_periods = collections.defaultdict(list)
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    key = (hdr.data_take_id, hdr.sensor_detector, hdr.slice_frame_nr)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    start_pos = hdr.slice_start_position
+                    stop_pos = hdr.slice_stop_position
+                    key_periods[key].append((start, stop, start_pos, stop_pos))
+
+        # check completeness for periods per (cal_id, sensor)
+        for key, periods in key_periods.items():
+            periods = sorted(periods)
+
+            if len(periods) > 1 and periods[0][2] == 'on_grid' and periods[-1][3] == 'on_grid':
+                overlap = True
+
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
+
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+
+        return True
+
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            for key, period in self._key_periods.items():
+                self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
+                self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
+
+                self._create_product(period[0], period[1], True, sensor)
+            return
+
+        if 'data_takes' not in self._scenario_config:
+            return
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
@@ -244,10 +306,15 @@ class RWS_EO(RawProductGeneratorBase):
             else:
                 self._create_product(data_take_start, data_take_stop, True)  # TODO complete?
 
-    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
+        if for_sensor is not None:
+            name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
         for sensor in ('LR', 'HR1', 'HR2'):
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
@@ -442,7 +509,6 @@ class RWS_CAL(RawProductGeneratorBase):
             return False
 
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
-        ID_FIELD = 'calibration_id'
 
         key_periods = collections.defaultdict(list)
 
@@ -658,7 +724,6 @@ class RWS_ANC(RawProductGeneratorBase):
             return False
 
         INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
-        ID_FIELD = 'apid'
 
         key_periods = collections.defaultdict(list)
 
@@ -708,7 +773,6 @@ class RWS_ANC(RawProductGeneratorBase):
         if self._key_periods is not None:
             for key, period in self._key_periods.items():
                 apid, sensor = key
-                print('CREATE', apid, period[0], period[1])
                 self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
