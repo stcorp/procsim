@@ -288,7 +288,11 @@ class RWS_EO(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            print('NOTHING YET:', self._key_periods)
+            for key, period in self._key_periods.items():
+                self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
+                self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
+
+                self._create_product(period[0], period[1], True, sensor)
             return
 
         if 'data_takes' not in self._scenario_config:
@@ -302,10 +306,15 @@ class RWS_EO(RawProductGeneratorBase):
             else:
                 self._create_product(data_take_start, data_take_stop, True)  # TODO complete?
 
-    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
+        if for_sensor is not None:
+            name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
         for sensor in ('LR', 'HR1', 'HR2'):
+            if for_sensor is not None and sensor != for_sensor:
+                continue
+
             anx = self._get_anx(acq_start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
