@@ -23,6 +23,7 @@ cp setup.py $PACKAGE
 cp Dockerfile $PACKAGE
 cp -R procsim $PACKAGE/procsim
 cp -R examples $PACKAGE/examples
+cp -R examples_flex $PACKAGE/examples_flex
 
 # remove development stuff
 cd $PACKAGE
