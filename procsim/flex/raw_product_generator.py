@@ -240,9 +240,49 @@ class RWS_EO(RawProductGeneratorBase):
 
         INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
 
+        key_periods = collections.defaultdict(list)
+
         for input in input_products:
             if input.file_type in INPUTS:
-                self._key_periods = 4
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    key = (hdr.data_take_id, hdr.sensor_detector, hdr.slice_frame_nr)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    start_pos = hdr.slice_start_position
+                    stop_pos = hdr.slice_stop_position
+                    key_periods[key].append((start, stop, start_pos, stop_pos))
+
+        if key_periods:
+            print('FOUND PERIODS:', key_periods)
+            self._key_periods = 4
+
+        # check completeness for periods per (cal_id, sensor)
+#        for key, periods in key_periods.items():
+#            periods = sorted(periods)
+#            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
+#                overlap = True
+#                for i in range(len(periods)-1):
+#                    period_end = periods[i][1]
+#                    next_period_start = periods[i+1][0]
+#                    if next_period_start > period_end:
+#                        overlap = False
+#                        break
+#
+#                if overlap:
+#                    if self._key_periods is None:
+#                        self._key_periods = {}
+#                    self._key_periods[key] = (periods[0][0], periods[-1][1])
 
         return True
 
@@ -462,7 +502,6 @@ class RWS_CAL(RawProductGeneratorBase):
             return False
 
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
-        ID_FIELD = 'calibration_id'
 
         key_periods = collections.defaultdict(list)
 
@@ -678,7 +717,6 @@ class RWS_ANC(RawProductGeneratorBase):
             return False
 
         INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
-        ID_FIELD = 'apid'
 
         key_periods = collections.defaultdict(list)
 
