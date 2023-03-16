@@ -72,6 +72,19 @@
             </Selected_Input>
           </List_of_Selected_Inputs>
         </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RWS_LRPOBS</File_Type>
+              <List_of_File_Names>
+                <File_Name>./temp/FLX_RWS_LRPOBS_20170101T060601_20170101T060620_20210201T013810_0019_012_046_0360_1B</File_Name>
+                <File_Name>./temp/FLX_RWS_LRPOBS_20170101T060620_20170101T060630_20210201T013810_0019_012_046_0360_1B</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
       </List_of_Inputs>
       <List_of_Outputs>
         <Output>
@@ -82,6 +95,12 @@
         </Output>
         <Output>
           <File_Type>RWS_H1_VAU</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>workspace</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_LR_OBS</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>
           <Baseline>00</Baseline>

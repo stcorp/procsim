@@ -37,6 +37,11 @@
           "type": "RWS_H1_VAU",
           "metadata_source": ".*RWS_H1PVAU.*", // Input to use
           "size": 0
+        },
+        {
+          "type": "RWS_LR_OBS",
+          "metadata_source": ".*RWS_LRPOBS.*", // Input to use
+          "size": 0
         }
       ],
       "exit_code": 0

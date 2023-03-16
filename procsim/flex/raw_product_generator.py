@@ -228,13 +228,33 @@ class RWS_EO(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
+        self._key_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        if not super().parse_inputs(input_products):
+            return False
+
+        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                self._key_periods = 4
+
+        return True
+
     def generate_output(self):
         super().generate_output()
+
+        if self._key_periods is not None:
+            print('NOTHING YET:', self._key_periods)
+            return
+
+        if 'data_takes' not in self._scenario_config:
+            return
 
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
@@ -708,7 +728,6 @@ class RWS_ANC(RawProductGeneratorBase):
         if self._key_periods is not None:
             for key, period in self._key_periods.items():
                 apid, sensor = key
-                print('CREATE', apid, period[0], period[1])
                 self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
