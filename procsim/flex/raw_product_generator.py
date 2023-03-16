@@ -234,7 +234,7 @@ class RWS_EO(RawProductGeneratorBase):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
-    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge/superclassify with CAL/ANC
         if not super().parse_inputs(input_products):
             return False
 
@@ -263,26 +263,24 @@ class RWS_EO(RawProductGeneratorBase):
                     stop_pos = hdr.slice_stop_position
                     key_periods[key].append((start, stop, start_pos, stop_pos))
 
-        if key_periods:
-            print('FOUND PERIODS:', key_periods)
-            self._key_periods = 4
-
         # check completeness for periods per (cal_id, sensor)
-#        for key, periods in key_periods.items():
-#            periods = sorted(periods)
-#            if len(periods) > 1 and periods[0][2] == 'begin_of_SA' and periods[-1][3] == 'end_of_SA':
-#                overlap = True
-#                for i in range(len(periods)-1):
-#                    period_end = periods[i][1]
-#                    next_period_start = periods[i+1][0]
-#                    if next_period_start > period_end:
-#                        overlap = False
-#                        break
-#
-#                if overlap:
-#                    if self._key_periods is None:
-#                        self._key_periods = {}
-#                    self._key_periods[key] = (periods[0][0], periods[-1][1])
+        for key, periods in key_periods.items():
+            periods = sorted(periods)
+
+            if len(periods) > 1 and periods[0][2] == 'on_grid' and periods[-1][3] == 'on_grid':
+                overlap = True
+
+                for i in range(len(periods)-1):
+                    period_end = periods[i][1]
+                    next_period_start = periods[i+1][0]
+                    if next_period_start > period_end:
+                        overlap = False
+                        break
+
+                if overlap:
+                    if self._key_periods is None:
+                        self._key_periods = {}
+                    self._key_periods[key] = (periods[0][0], periods[-1][1])
 
         return True
 
