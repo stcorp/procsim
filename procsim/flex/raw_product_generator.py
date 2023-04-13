@@ -301,12 +301,13 @@ class RWS_EO(RawProductGeneratorBase):
         data_takes_with_bounds = self._get_data_takes_with_bounds()
         for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
             self.read_scenario_parameters(data_take_config)
+            apid = data_take_config['apid']
             if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid)
             else:
-                self._create_product(data_take_start, data_take_stop, True)  # TODO complete?
+                self._create_product(data_take_start, data_take_stop, True, apid=apid)  # TODO complete?
 
-    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
@@ -327,6 +328,8 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.sensor_detector = sensor
+            if apid is not None:
+                self._hdr.apid = apid
 
             if complete:
                 self._hdr.completeness_assesment = 'complete'
@@ -367,7 +370,7 @@ class RWS_EO(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -407,7 +410,7 @@ class RWS_EO(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_OBS'):
-                    self._create_product(slice_start, slice_end, complete)
+                    self._create_product(slice_start, slice_end, complete, apid=apid)
             else:
                 intermediate = data_take_config['intermediate']
 
@@ -425,7 +428,7 @@ class RWS_EO(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('POBS')) or
                         (intermediate and self._output_type.endswith('IOBS'))):
-                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete)
+                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete, apid=apid)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -580,10 +583,11 @@ class RWS_CAL(RawProductGeneratorBase):
             slice_stop_position = 'end_of_SA'
 
             cal_id = calibration_config['calibration_id']
+            apid = calibration_config['apid']
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
 
             else:
                 intermediate = calibration_config['intermediate']
@@ -603,10 +607,10 @@ class RWS_CAL(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
 
     def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
-                        complete, slice_start_position, slice_stop_position, for_sensor=None):
+                        complete, slice_start_position, slice_stop_position, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
@@ -636,6 +640,8 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = cal_id
             self._hdr.sensor_detector = sensor
+            if apid is not None:
+                self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)
 

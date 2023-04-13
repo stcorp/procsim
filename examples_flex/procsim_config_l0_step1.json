@@ -34,12 +34,14 @@
 
       "data_takes": [
           { // one complete and two partial slices when sliced against grid
+                "apid": "4321",
                 "data_take_id": "8282",
                 "start": "2017-01-01T06:02:31.394000Z",
                 "stop": "2017-01-01T06:06:20.504000Z",
                 "intermediate": false
           },
           { // intermediate slice (fully inside single grid frame)
+                "apid": "4321",
                 "data_take_id": "8283",
                 "start": "2017-01-01T06:04:31.394000Z",
                 "stop": "2017-01-01T06:05:20.504000Z",
@@ -49,18 +51,21 @@
 
       "calibration_events": [ // TODO remove
             { // complete slice, as fully inside by begin/end_position
+                "apid": "4321",
                 "calibration_id": "15",
                 "start": "2017-01-01T06:01:31.394000Z",
                 "stop": "2017-01-01T06:03:44.504000Z",
                 "intermediate": false
             },
             { // partial slice, as not fully inside begin/end_position
+                "apid": "4321",
                 "calibration_id": "16",
                 "start": "2017-01-01T06:02:31.394000Z",
                 "stop": "2017-01-01T06:08:44.504000Z",
                 "intermediate": false
             },
             { // intermediate slice, with same period as previous
+                "apid": "4321",
                 "calibration_id": "17",
                 "start": "2017-01-01T06:02:31.394000Z",
                 "stop": "2017-01-01T06:08:44.504000Z",
