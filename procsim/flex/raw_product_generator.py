@@ -49,7 +49,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
         full_bin_file_name = os.path.join(full_dir_name, bin_file_name)
         self._add_file_to_product(full_bin_file_name, self._size_mb)
 
-        if True: #self._output_type != 'RAW___HKTM':
+        if True:  # self._output_type != 'RAW___HKTM':
             mph_file_name = name_gen.generate_mph_file_name()
             full_mph_file_name = os.path.join(full_dir_name, mph_file_name)
             self._hdr.write(full_mph_file_name)
