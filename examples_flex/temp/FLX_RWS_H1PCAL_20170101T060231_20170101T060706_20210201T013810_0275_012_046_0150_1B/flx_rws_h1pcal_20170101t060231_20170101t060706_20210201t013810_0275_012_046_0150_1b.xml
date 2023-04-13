@@ -93,7 +93,7 @@
       <eop:vendorSpecific>
         <eop:SpecificInformation>
           <eop:localAttribute>missionPhase</eop:localAttribute>
-          <eop:localValue>Commissioning</eop:localValue>
+          <eop:localValue>COMMISSIONING</eop:localValue>
         </eop:SpecificInformation>
       </eop:vendorSpecific>
       <eop:vendorSpecific>

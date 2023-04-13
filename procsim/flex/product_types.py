@@ -82,9 +82,6 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0__LINSUN', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__LINDAR', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__CTE___', 'l0', 'Level-0 Calibration Product'),
-    ProductType('L0__SCNVAL', 'l0', 'Level-0 Calibration Product'),
-    ProductType('L0__COREG_', 'l0', 'Level-0 Calibration Product'),
-    ProductType('L0__SPECEO', 'l0', 'Level-0 Calibration Product'),
     ProductType('L0__CLOUD_', 'l0', 'Level-0 Calibration Product'),
 
     ProductType('L0__SAT_TM', 'l0', 'Level-0 Satellite Telemetry Data Product'),

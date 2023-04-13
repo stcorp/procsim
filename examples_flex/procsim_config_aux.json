@@ -4,7 +4,7 @@
         {
             // Scenario to produce the AUX products, needed for the Level1 processor.
             "name": "Aux generator",
-            "mission_phase": "Commissioning",
+            "mission_phase": "COMMISSIONING",
             "file_name": "N/A",
             "processor_name": "auxgenerator",
             "processor_version": "01.00",

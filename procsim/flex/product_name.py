@@ -67,10 +67,6 @@ class ProductName:
     '''
     DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
-    MISSION_PHASES = [('Commissioning'), ('Interferometric'), ('Tomographic')]
-    GLOBAL_COVERAGE_IDS = ['__', '01', '02', '03', '04', '05', '06']
-    MAJOR_CYCLE_IDS = ['01', '02', '03', '04', '05', '06', '07']
-    REPEAT_CYCLE_IDS = ['01', '02', '03', '04', '05', '06', '07', 'DR', '__']
 
     @classmethod
     def str_to_time(cls, s):
