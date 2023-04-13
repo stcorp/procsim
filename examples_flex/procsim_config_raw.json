@@ -5,7 +5,7 @@
     "scenarios": [
         {
             "name": "Raw data generator, measurement mode",
-            "mission_phase": "Commissioning",
+            "mission_phase": "COMMISSIONING",
 
             "file_name": "N/A",
             "processor_name": "procsim",

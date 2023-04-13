@@ -5,7 +5,7 @@
     {
       // L0 slicer scenario.
       "name": "L0 step 1, Raw slice-based products",
-      "mission_phase": "Commissioning",
+      "mission_phase": "COMMISSIONING",
 
       // File_name must match with the first argument of procsim
       "file_name": "level0_task1.sh",

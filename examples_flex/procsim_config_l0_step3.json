@@ -5,7 +5,7 @@
     {
       // L0 slicer scenario.
       "name": "L0 step 3, merge complete slices for all sensors",
-      "mission_phase": "Commissioning",
+      "mission_phase": "COMMISSIONING",
 
       // File_name must match with the first argument of procsim
       "file_name": "level0_task3.sh",
