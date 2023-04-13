@@ -331,24 +331,6 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
-          <File_Type>L0__SCNVAL</File_Type>
-          <File_Name_Pattern />
-          <File_Dir>workspace</File_Dir>
-          <Baseline>00</Baseline>
-        </Output>
-        <Output>
-          <File_Type>L0__COREG_</File_Type>
-          <File_Name_Pattern />
-          <File_Dir>workspace</File_Dir>
-          <Baseline>00</Baseline>
-        </Output>
-        <Output>
-          <File_Type>L0__SPECEO</File_Type>
-          <File_Name_Pattern />
-          <File_Dir>workspace</File_Dir>
-          <Baseline>00</Baseline>
-        </Output>
-        <Output>
           <File_Type>L0__CLOUD_</File_Type>
           <File_Name_Pattern />
           <File_Dir>workspace</File_Dir>

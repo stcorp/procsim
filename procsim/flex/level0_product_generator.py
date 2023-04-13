@@ -316,9 +316,6 @@ class CAL(ProductGeneratorL0):
         'L0__LINSUN',
         'L0__LINDAR',
         'L0__CTE___',
-        'L0__SCNVAL',
-        'L0__COREG_',
-        'L0__SPECEO',
         'L0__CLOUD_',
     ]
 
@@ -338,9 +335,6 @@ class CAL(ProductGeneratorL0):
         'L0__LINSUN': 'Linearity_SunPoint',
         'L0__LINDAR': 'Linearity_Dark',
         'L0__CTE___': 'CTE_Monitoring',
-        'L0__SCNVAL': 'Image_Geo',
-        'L0__COREG_': 'Image_coreg',
-        'L0__SPECEO': 'Spectral_NaPoint_Bin',
         'L0__CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 

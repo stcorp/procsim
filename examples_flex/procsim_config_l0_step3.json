@@ -154,16 +154,6 @@
           "size": 0
         },
         {
-          "type": "L0__SCNVAL",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SPECEO",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
           "type": "L0__CLOUD_",
           "metadata_source": ".*RWS_H1_CAL.*", // Input to use
           "size": 0
