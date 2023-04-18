@@ -9,3 +9,4 @@ Example scripts/scenarios to generate a complete set of FLEX test products. When
 
 The 'workspace/' directory should now be filled. Note that for step 2, input products come from the 'temp' directory.
 
+The grep_joborder.sh script shows how to (crudely) check that a JobOrder file contains a certain string.
