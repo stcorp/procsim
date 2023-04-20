@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 import tabulate
 
-props = ['sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition', 'sliceStopPosition', 'completenessAssesment']
+props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition', 'sliceStopPosition', 'completenessAssesment']
 prefix = 'FLX_RWS'
 
 eop = '{http://www.opengis.net/eop/2.1}'
@@ -17,6 +17,6 @@ for f in os.listdir('workspace'):
             attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text
         lines.append([f] + [attrs[prop] for prop in props])
 
-lines = sorted(lines, key = lambda x: (x[0], x[2])) # sort on filename, frame nr
+lines = sorted(lines, key = lambda x: (x[1], x[2], x[3])) # sort on dataTakeID, sensor, frame nr
 
 print(tabulate.tabulate(lines, headers=['filename'] + props))

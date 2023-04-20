@@ -440,7 +440,7 @@ class RWS_EO(RawProductGeneratorBase):
             if self._raw_periods is not None:
                 assert len(self._raw_periods) == 1
 
-                raw_start, raw_end, raw_sensor = self._raw_periods[0]
+                raw_start, raw_end, raw_sensor = self._raw_periods[0]  # TODO how to pass sensor
 
                 subslice_start = max(slice_start, segment_start)
                 subslice_end = min(slice_end, segment_end)
@@ -449,15 +449,21 @@ class RWS_EO(RawProductGeneratorBase):
 
                 if complete:
                     if self._output_type.endswith('_OBS'):
-                        self._create_product(subslice_start, subslice_end, True, apid=apid)
+                        if subslice_start == segment_start:
+                            self._hdr.slice_start_position = 'begin_of_SA'
+                        elif subslice_end == segment_end:
+                            self._hdr.slice_stop_position = 'end_of_SA'
+                        self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
 
                 elif self._output_type.endswith('POBS'):
                     overlap = not (subslice_start > raw_end or subslice_end < raw_start)
                     if overlap:
                         if subslice_start > raw_start:
-                            self._create_product(subslice_start, raw_end, False, apid=apid)
+                            self._hdr.slice_stop_position = 'inside_SA'
+                            self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
                         else:
-                            self._create_product(raw_start, subslice_end, False, apid=apid)
+                            self._hdr.slice_start_position = 'inside_SA'
+                            self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
 
             else:
                 assert False # TODO fix
