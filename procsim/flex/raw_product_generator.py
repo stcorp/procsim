@@ -409,8 +409,6 @@ class RWS_EO(RawProductGeneratorBase):
 
         slice_edges = self._get_slice_edges(segment_start, segment_end)
 
-        print('SLICE EDGES', data_take_config['data_take_id'], len(slice_edges), segment_start, segment_end)
-
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
@@ -438,29 +436,57 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            complete = (segment_start <= slice_start and slice_end <= segment_end)
 
-            if complete:
-                if self._output_type.endswith('_OBS'):
-                    self._create_product(slice_start, slice_end, complete, apid=apid)
+            if self._raw_periods is not None:
+                assert len(self._raw_periods) == 1
+
+                raw_start, raw_end, raw_sensor = self._raw_periods[0]
+
+                subslice_start = max(slice_start, segment_start)
+                subslice_end = min(slice_end, segment_end)
+
+                complete = (raw_start < subslice_start and subslice_end < raw_end)
+
+                if complete:
+                    if self._output_type.endswith('_OBS'):
+                        self._create_product(subslice_start, subslice_end, True, apid=apid)
+
+                elif self._output_type.endswith('POBS'):
+                    overlap = not (subslice_start > raw_end or subslice_end < raw_start)
+                    if overlap:
+                        if subslice_start > raw_start:
+                            self._create_product(subslice_start, raw_end, False, apid=apid)
+                        else:
+                            self._create_product(raw_start, subslice_end, False, apid=apid)
+
             else:
-                intermediate = False
+                assert False # TODO fix
 
-                if segment_start > slice_start:
-                    if intermediate:
-                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
-                    else:
-                        self._hdr.slice_start_position = 'begin_of_SA'
 
-                if segment_end < slice_end:
-                    if intermediate:
-                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
-                    else:
-                        self._hdr.slice_stop_position = 'end_of_SA'
-
-                if ((not intermediate and self._output_type.endswith('POBS')) or
-                        (intermediate and self._output_type.endswith('IOBS'))):
-                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete, apid=apid)
+#            complete = (segment_start <= slice_start and slice_end <= segment_end)
+#
+#            if complete:
+#                if self._output_type.endswith('_OBS'):
+#                    print('SLICE CREATE COMPLETE')
+#                    self._create_product(slice_start, slice_end, complete, apid=apid)
+#            else:
+#                intermediate = False
+#
+#                if segment_start > slice_start:
+#                    if intermediate:
+#                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
+#                    else:
+#                        self._hdr.slice_start_position = 'begin_of_SA'
+#
+#                if segment_end < slice_end:
+#                    if intermediate:
+#                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
+#                    else:
+#                        self._hdr.slice_stop_position = 'end_of_SA'
+#
+#                if ((not intermediate and self._output_type.endswith('POBS')) or
+#                        (intermediate and self._output_type.endswith('IOBS'))):
+#                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete, apid=apid)
 
 
 class RWS_CAL(RawProductGeneratorBase):
