@@ -56,8 +56,7 @@
           {
               "apid": "4321",
               "start": "2023-04-11T07:30:00.000000Z",
-              "stop": "2023-04-11T10:40:00.000000Z",
-              "intermediate": false
+              "stop": "2023-04-11T10:40:00.000000Z"
           }
       ],
 
@@ -67,18 +66,8 @@
 
       "outputs": [
         {
-          "type": "RWS_LR_OBS",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        },
-        {
           "type": "RWS_H1_OBS",
           "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2_OBS",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
           "size": 0
         }
       ],

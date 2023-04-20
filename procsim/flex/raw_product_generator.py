@@ -238,9 +238,44 @@ class RWS_EO(RawProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
-        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
-
         key_periods = collections.defaultdict(list)
+
+        # slice raw products (step1)
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
+
+        for input in input_products:
+            print('---- GOTS ME', input.file_type)
+
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    print('---- FILERT', file)
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    print('---- NODIR', file)
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    key = (hdr.data_take_id, hdr.sensor_detector, hdr.slice_frame_nr)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    start_pos = hdr.slice_start_position
+                    stop_pos = hdr.slice_stop_position
+                    key_periods[key].append((start, stop, start_pos, stop_pos))
+
+        print('***STEP1', key_periods)
+
+
+
+
+
+        # merge partial into complete (step2)
+        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
 
         for input in input_products:
             if input.file_type in INPUTS:

@@ -53,67 +53,7 @@
             <Selected_Input>
               <File_Type>RAW_XS_HR1</File_Type>
               <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_HR1_20230411T073453_20230411T100258_20210201T013810.zip</File_Name>
-              </List_of_File_Names>
-            </Selected_Input>
-          </List_of_Selected_Inputs>
-        </Input>
-        <Input>
-          <Input_ID />
-          <Alternative_ID />
-          <List_of_Selected_Inputs>
-            <Selected_Input>
-              <File_Type>RAW_XS_HR2</File_Type>
-              <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_HR2_20230411T081911_20230411T100836_20210201T013810.zip</File_Name>
-              </List_of_File_Names>
-            </Selected_Input>
-          </List_of_Selected_Inputs>
-        </Input>
-        <Input>
-          <Input_ID />
-          <Alternative_ID />
-          <List_of_Selected_Inputs>
-            <Selected_Input>
-              <File_Type>RAW_XS_HR1</File_Type>
-              <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_HR1_20230411T100258_20230411T101247_20210201T013810.zip</File_Name>
-              </List_of_File_Names>
-            </Selected_Input>
-          </List_of_Selected_Inputs>
-        </Input>
-        <Input>
-          <Input_ID />
-          <Alternative_ID />
-          <List_of_Selected_Inputs>
-            <Selected_Input>
-              <File_Type>RAW_XS_LR_</File_Type>
-              <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_LR__20230411T073842_20230411T083017_20210201T013810.zip</File_Name>
-              </List_of_File_Names>
-            </Selected_Input>
-          </List_of_Selected_Inputs>
-        </Input>
-        <Input>
-          <Input_ID />
-          <Alternative_ID />
-          <List_of_Selected_Inputs>
-            <Selected_Input>
-              <File_Type>RAW_XS_HR2</File_Type>
-              <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_HR2_20230411T074008_20230411T081911_20210201T013810.zip</File_Name>
-              </List_of_File_Names>
-            </Selected_Input>
-          </List_of_Selected_Inputs>
-        </Input>
-        <Input>
-          <Input_ID />
-          <Alternative_ID />
-          <List_of_Selected_Inputs>
-            <Selected_Input>
-              <File_Type>RAW_XS_LR_</File_Type>
-              <List_of_File_Names>
-                <File_Name>./workspace/FLX_RAW_XS_LR__20230411T083017_20230411T103341_20210201T013810.zip</File_Name>
+                <File_Name>./workspace/FLX_RAW_XS_HR1_20230411T073453_20230411T100258_20210201T013810</File_Name>
               </List_of_File_Names>
             </Selected_Input>
           </List_of_Selected_Inputs>
