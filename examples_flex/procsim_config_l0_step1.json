@@ -35,13 +35,13 @@
       ],
 
       "data_takes": [
-          { // one complete and two partial slices when sliced against grid
+          {
                 "apid": "4321",
                 "data_take_id": "8256",
                 "start": "2023-04-11T08:12:57.000000Z",
                 "stop": "2023-04-11T08:26:13.000000Z"
           },
-          { // intermediate slice (fully inside single grid frame)
+          {
                 "apid": "4321",
                 "data_take_id": "8257",
                 "start": "2023-04-11T09:59:38.000000Z",

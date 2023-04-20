@@ -229,6 +229,7 @@ class RWS_EO(RawProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._key_periods = None
+        self._raw_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -238,21 +239,15 @@ class RWS_EO(RawProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
-        key_periods = collections.defaultdict(list)
-
         # slice raw products (step1)
         INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
 
         for input in input_products:
-            print('---- GOTS ME', input.file_type)
-
             if input.file_type in INPUTS:
                 for file in input.file_names:
-                    print('---- FILERT', file)
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
                         continue
-                    print('---- NODIR', file)
                     file, _ = os.path.splitext(file)    # Remove possible extension
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
@@ -264,17 +259,13 @@ class RWS_EO(RawProductGeneratorBase):
                     key = (hdr.data_take_id, hdr.sensor_detector, hdr.slice_frame_nr)
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    start_pos = hdr.slice_start_position
-                    stop_pos = hdr.slice_stop_position
-                    key_periods[key].append((start, stop, start_pos, stop_pos))
-
-        print('***STEP1', key_periods)
-
-
-
-
+                    if self._raw_periods is None:
+                        self._raw_periods = []
+                    self._raw_periods.append((start, stop))
 
         # merge partial into complete (step2)
+        key_periods = collections.defaultdict(list)
+
         INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
 
         for input in input_products:
@@ -322,6 +313,7 @@ class RWS_EO(RawProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        # step2
         if self._key_periods is not None:
             for key, period in self._key_periods.items():
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
@@ -333,10 +325,13 @@ class RWS_EO(RawProductGeneratorBase):
         if 'data_takes' not in self._scenario_config:
             return
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+        # slice data takes (step1 or without input products)
+#        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
+        for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
+            data_take_start = self._time_from_iso(data_take_config['start'])
+            data_take_stop = self._time_from_iso(data_take_config['stop'])
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid)
             else:
@@ -413,6 +408,8 @@ class RWS_EO(RawProductGeneratorBase):
             raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
 
         slice_edges = self._get_slice_edges(segment_start, segment_end)
+
+        print('SLICE EDGES', data_take_config['data_take_id'], len(slice_edges), segment_start, segment_end)
 
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
