@@ -412,7 +412,7 @@ class RWS_EO(RawProductGeneratorBase):
                 if self._output_type.endswith('_OBS'):
                     self._create_product(slice_start, slice_end, complete, apid=apid)
             else:
-                intermediate = data_take_config['intermediate']
+                intermediate = False
 
                 if segment_start > slice_start:
                     if intermediate:
@@ -590,7 +590,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
 
             else:
-                intermediate = calibration_config['intermediate']
+                intermediate = False
 
                 if cal_start > begin_pos:
                     if intermediate:
