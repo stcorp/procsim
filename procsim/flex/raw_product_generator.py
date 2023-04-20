@@ -256,12 +256,12 @@ class RWS_EO(RawProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    key = (hdr.data_take_id, hdr.sensor_detector, hdr.slice_frame_nr)
                     start = hdr.begin_position
                     stop = hdr.end_position
                     if self._raw_periods is None:
                         self._raw_periods = []
-                    self._raw_periods.append((start, stop))
+                    sensor = input.file_type[-3:].strip('_')
+                    self._raw_periods.append((start, stop, sensor))
 
         # merge partial into complete (step2)
         key_periods = collections.defaultdict(list)
