@@ -438,9 +438,8 @@ class RWS_EO(RawProductGeneratorBase):
 
 
             if self._raw_periods is not None:
-                assert len(self._raw_periods) == 1
-
-                raw_start, raw_end, raw_sensor = self._raw_periods[0]  # TODO how to pass sensor
+                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+                raw_start, raw_end, raw_sensor = [r for r in self._raw_periods if r[2] == output_sensor][0]  # TODO
 
                 subslice_start = max(slice_start, segment_start)
                 subslice_end = min(slice_end, segment_end)
@@ -881,9 +880,8 @@ class RWS_ANC(RawProductGeneratorBase):
             apid = event['apid']
 
             if self._raw_periods is not None:
-                assert len(self._raw_periods) == 1
-
-                start, stop, sensor = self._raw_periods[0]  # TODO how to pass sensor
+                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+                start, stop, sensor = [r for r in self._raw_periods if r[2] == output_sensor][0]  # TODO
 
                 for i in range(len(anx)-1):
                     # complete overlap of anx-to-anx window
