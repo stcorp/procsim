@@ -229,18 +229,44 @@ class RWS_EO(RawProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._key_periods = None
+        self._raw_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge/superclassify with CAL/ANC
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
-        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
+        # slice raw products (step1)
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
 
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    if self._raw_periods is None:
+                        self._raw_periods = []
+                    sensor = input.file_type[-3:].strip('_')
+                    self._raw_periods.append((start, stop, sensor))
+
+        # merge partial into complete (step2)
         key_periods = collections.defaultdict(list)
+
+        INPUTS = ['RWS_H1POBS', 'RWS_H2POBS', 'RWS_LRPOBS']
 
         for input in input_products:
             if input.file_type in INPUTS:
@@ -287,6 +313,7 @@ class RWS_EO(RawProductGeneratorBase):
     def generate_output(self):
         super().generate_output()
 
+        # step2
         if self._key_periods is not None:
             for key, period in self._key_periods.items():
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
@@ -298,10 +325,13 @@ class RWS_EO(RawProductGeneratorBase):
         if 'data_takes' not in self._scenario_config:
             return
 
-        data_takes_with_bounds = self._get_data_takes_with_bounds()
-        for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+        # slice data takes (step1 or without input products)
+#        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
+        for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
+            data_take_start = self._time_from_iso(data_take_config['start'])
+            data_take_stop = self._time_from_iso(data_take_config['stop'])
             if self._enable_slicing:
                 self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid)
             else:
@@ -406,29 +436,64 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            complete = (segment_start <= slice_start and slice_end <= segment_end)
 
-            if complete:
-                if self._output_type.endswith('_OBS'):
-                    self._create_product(slice_start, slice_end, complete, apid=apid)
+            if self._raw_periods is not None:
+                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+                if raw_periods:
+                    raw_start, raw_end, raw_sensor = raw_periods[0]
+
+                    subslice_start = max(slice_start, segment_start)
+                    subslice_end = min(slice_end, segment_end)
+
+                    complete = (raw_start < subslice_start and subslice_end < raw_end)
+
+                    if complete:
+                        if self._output_type.endswith('_OBS'):
+                            if subslice_start == segment_start:
+                                self._hdr.slice_start_position = 'begin_of_SA'
+                            elif subslice_end == segment_end:
+                                self._hdr.slice_stop_position = 'end_of_SA'
+                            self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+
+                    elif self._output_type.endswith('POBS'):
+                        overlap = not (subslice_start > raw_end or subslice_end < raw_start)
+                        if overlap:
+                            if subslice_start > raw_start:
+                                self._hdr.slice_stop_position = 'inside_SA'
+                                self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
+                            else:
+                                self._hdr.slice_start_position = 'inside_SA'
+                                self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
+
             else:
-                intermediate = data_take_config['intermediate']
+                assert False # TODO fix
 
-                if segment_start > slice_start:
-                    if intermediate:
-                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
-                    else:
-                        self._hdr.slice_start_position = 'begin_of_SA'
 
-                if segment_end < slice_end:
-                    if intermediate:
-                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
-                    else:
-                        self._hdr.slice_stop_position = 'end_of_SA'
-
-                if ((not intermediate and self._output_type.endswith('POBS')) or
-                        (intermediate and self._output_type.endswith('IOBS'))):
-                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete, apid=apid)
+#            complete = (segment_start <= slice_start and slice_end <= segment_end)
+#
+#            if complete:
+#                if self._output_type.endswith('_OBS'):
+#                    print('SLICE CREATE COMPLETE')
+#                    self._create_product(slice_start, slice_end, complete, apid=apid)
+#            else:
+#                intermediate = False
+#
+#                if segment_start > slice_start:
+#                    if intermediate:
+#                        self._hdr.slice_start_position = 'undetermined'  # TODO 'inside_SA'?
+#                    else:
+#                        self._hdr.slice_start_position = 'begin_of_SA'
+#
+#                if segment_end < slice_end:
+#                    if intermediate:
+#                        self._hdr.slice_stop_position = 'undetermined'  # TODO 'inside_SA'?
+#                    else:
+#                        self._hdr.slice_stop_position = 'end_of_SA'
+#
+#                if ((not intermediate and self._output_type.endswith('POBS')) or
+#                        (intermediate and self._output_type.endswith('IOBS'))):
+#                    self._create_product(max(slice_start, segment_start), min(slice_end, segment_end), complete, apid=apid)
 
 
 class RWS_CAL(RawProductGeneratorBase):
@@ -508,7 +573,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
@@ -590,7 +655,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
 
             else:
-                intermediate = calibration_config['intermediate']
+                intermediate = False
 
                 if cal_start > begin_pos:
                     if intermediate:
@@ -719,6 +784,7 @@ class RWS_ANC(RawProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._key_periods = None
+        self._raw_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -726,9 +792,34 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge with CAL, OE parse_inputs when done
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
+        # slice raw products (step1)
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']  # TODO merge EO/CAL
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    if self._raw_periods is None:
+                        self._raw_periods = []
+                    sensor = input.file_type[-3:].strip('_')
+                    self._raw_periods.append((start, stop, sensor))
+
+        # merge partial into complete (step2)
         INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
 
         key_periods = collections.defaultdict(list)
@@ -789,20 +880,41 @@ class RWS_ANC(RawProductGeneratorBase):
 
         for event in self._scenario_config['anc_events']:
             apid = event['apid']
-            start = self._time_from_iso(event['start'])
-            stop = self._time_from_iso(event['stop'])
 
-            for i in range(len(anx)-1):
-                # complete overlap of anx-to-anx window
-                if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                    self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+            if self._raw_periods is not None:
+                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+                if raw_periods:
+                    start, stop, sensor = raw_periods[0]
 
-                # partial overlap of anx-to-anx window
-                elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+                    for i in range(len(anx)-1):
+                        # complete overlap of anx-to-anx window
+                        if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
+                            self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
 
-                elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
+                        # partial overlap of anx-to-anx window
+                        elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
+                            self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx', for_sensor=sensor)
+
+                        elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
+                            self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb', for_sensor=sensor)
+
+            else:
+                assert False
+#                start = self._time_from_iso(event['start'])
+#                stop = self._time_from_iso(event['stop'])
+#
+#                for i in range(len(anx)-1):
+#                    # complete overlap of anx-to-anx window
+#                    if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
+#                        self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+#
+#                    # partial overlap of anx-to-anx window
+#                    elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
+#                        self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+#
+#                    elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
+#                        self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete,
                         slice_start_position, slice_stop_position, for_sensor=None):

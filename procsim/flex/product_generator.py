@@ -212,7 +212,7 @@ class ProductGeneratorBase(IProductGenerator):
         if not keep_zip:
             os.remove(archive_path)
 
-    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+    def parse_inputs(self, input_products: Iterable[JobOrderInput], ignore_missing=False) -> bool:
         '''
         For all files:
             - check if it is a (zipped) directory (all flex products except MPL and VFRA are directories)
@@ -254,8 +254,11 @@ class ProductGeneratorBase(IProductGenerator):
         self._hdr.product_baseline = str(self._job_config_baseline)
 
         if (pattern is not None) and (not mph_is_parsed):
-            self._logger.error('Cannot find matching product for [{}] to extract metadata from'.format(pattern))
-            return False
+            if ignore_missing:
+                self._logger.warning('Cannot find matching product for [{}] to extract metadata from'.format(pattern))
+            else:
+                self._logger.error('Cannot find matching product for [{}] to extract metadata from'.format(pattern))
+                return False
         return True
 
     def _parse_orbit_prediction_file(self, file_name: str) -> List[datetime.datetime]:
