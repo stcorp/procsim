@@ -70,6 +70,18 @@
             </Selected_Input>
           </List_of_Selected_Inputs>
         </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RAW_XS_LR_</File_Type>
+              <List_of_File_Names>
+                <File_Name>./workspace/FLX_RAW_XS_LR__20230411T073842_20230411T083017_20210201T013810</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
       </List_of_Inputs>
       <List_of_Outputs>
         <Output>
