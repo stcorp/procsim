@@ -783,6 +783,7 @@ class RWS_ANC(RawProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._key_periods = None
+        self._raw_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -793,6 +794,31 @@ class RWS_ANC(RawProductGeneratorBase):
         if not super().parse_inputs(input_products):
             return False
 
+        # slice raw products (step1)
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']  # TODO merge EO/CAL
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    if self._raw_periods is None:
+                        self._raw_periods = []
+                    sensor = input.file_type[-3:].strip('_')
+                    self._raw_periods.append((start, stop, sensor))
+
+        # merge partial into complete (step2)
         INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
 
         key_periods = collections.defaultdict(list)
@@ -853,20 +879,40 @@ class RWS_ANC(RawProductGeneratorBase):
 
         for event in self._scenario_config['anc_events']:
             apid = event['apid']
-            start = self._time_from_iso(event['start'])
-            stop = self._time_from_iso(event['stop'])
 
-            for i in range(len(anx)-1):
-                # complete overlap of anx-to-anx window
-                if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                    self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+            if self._raw_periods is not None:
+                assert len(self._raw_periods) == 1
 
-                # partial overlap of anx-to-anx window
-                elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+                start, stop, sensor = self._raw_periods[0]  # TODO how to pass sensor
 
-                elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                    self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
+                for i in range(len(anx)-1):
+                    # complete overlap of anx-to-anx window
+                    if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
+                        self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
+
+                    # partial overlap of anx-to-anx window
+                    elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
+                        self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx', for_sensor=sensor)
+
+                    elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
+                        self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb', for_sensor=sensor)
+
+            else:
+                assert False
+#                start = self._time_from_iso(event['start'])
+#                stop = self._time_from_iso(event['stop'])
+#
+#                for i in range(len(anx)-1):
+#                    # complete overlap of anx-to-anx window
+#                    if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
+#                        self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx')
+#
+#                    # partial overlap of anx-to-anx window
+#                    elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
+#                        self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx')
+#
+#                    elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
+#                        self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb')
 
     def _create_product(self, apid, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete,
                         slice_start_position, slice_stop_position, for_sensor=None):
