@@ -236,7 +236,7 @@ class RWS_EO(RawProductGeneratorBase):
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge/superclassify with CAL/ANC
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
         # slice raw products (step1)
@@ -439,30 +439,32 @@ class RWS_EO(RawProductGeneratorBase):
 
             if self._raw_periods is not None:
                 output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
-                raw_start, raw_end, raw_sensor = [r for r in self._raw_periods if r[2] == output_sensor][0]  # TODO
+                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+                if raw_periods:
+                    raw_start, raw_end, raw_sensor = raw_periods[0]
 
-                subslice_start = max(slice_start, segment_start)
-                subslice_end = min(slice_end, segment_end)
+                    subslice_start = max(slice_start, segment_start)
+                    subslice_end = min(slice_end, segment_end)
 
-                complete = (raw_start < subslice_start and subslice_end < raw_end)
+                    complete = (raw_start < subslice_start and subslice_end < raw_end)
 
-                if complete:
-                    if self._output_type.endswith('_OBS'):
-                        if subslice_start == segment_start:
-                            self._hdr.slice_start_position = 'begin_of_SA'
-                        elif subslice_end == segment_end:
-                            self._hdr.slice_stop_position = 'end_of_SA'
-                        self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                    if complete:
+                        if self._output_type.endswith('_OBS'):
+                            if subslice_start == segment_start:
+                                self._hdr.slice_start_position = 'begin_of_SA'
+                            elif subslice_end == segment_end:
+                                self._hdr.slice_stop_position = 'end_of_SA'
+                            self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
 
-                elif self._output_type.endswith('POBS'):
-                    overlap = not (subslice_start > raw_end or subslice_end < raw_start)
-                    if overlap:
-                        if subslice_start > raw_start:
-                            self._hdr.slice_stop_position = 'inside_SA'
-                            self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
-                        else:
-                            self._hdr.slice_start_position = 'inside_SA'
-                            self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
+                    elif self._output_type.endswith('POBS'):
+                        overlap = not (subslice_start > raw_end or subslice_end < raw_start)
+                        if overlap:
+                            if subslice_start > raw_start:
+                                self._hdr.slice_stop_position = 'inside_SA'
+                                self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
+                            else:
+                                self._hdr.slice_start_position = 'inside_SA'
+                                self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
 
             else:
                 assert False # TODO fix
@@ -571,7 +573,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
@@ -790,7 +792,7 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge with CAL, OE parse_inputs when done
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
         # slice raw products (step1)
@@ -881,19 +883,21 @@ class RWS_ANC(RawProductGeneratorBase):
 
             if self._raw_periods is not None:
                 output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
-                start, stop, sensor = [r for r in self._raw_periods if r[2] == output_sensor][0]  # TODO
+                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+                if raw_periods:
+                    start, stop, sensor = raw_periods[0]
 
-                for i in range(len(anx)-1):
-                    # complete overlap of anx-to-anx window
-                    if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                        self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
+                    for i in range(len(anx)-1):
+                        # complete overlap of anx-to-anx window
+                        if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
+                            self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
 
-                    # partial overlap of anx-to-anx window
-                    elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                        self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx', for_sensor=sensor)
+                        # partial overlap of anx-to-anx window
+                        elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
+                            self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx', for_sensor=sensor)
 
-                    elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                        self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb', for_sensor=sensor)
+                        elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
+                            self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb', for_sensor=sensor)
 
             else:
                 assert False
