@@ -436,7 +436,6 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-
             if self._raw_periods is not None:
                 output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
                 raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
@@ -467,8 +466,7 @@ class RWS_EO(RawProductGeneratorBase):
                                 self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
 
             else:
-                assert False # TODO fix
-
+                assert False  # TODO fix
 
 #            complete = (segment_start <= slice_start and slice_end <= segment_end)
 #
