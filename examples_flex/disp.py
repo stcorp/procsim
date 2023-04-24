@@ -17,6 +17,7 @@ for f in os.listdir('workspace'):
             attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text
         lines.append([f] + [attrs.get(prop, '_') for prop in props])
 
-lines = sorted(lines, key = lambda x: (x[0][:10], x[1], x[2], x[3])) # sort on filename start, dataTakeID, sensor, frame nr
+# sort on filename start, dataTakeID, sensor, frame nr
+lines = sorted(lines, key=lambda x: (x[0][:10], x[1], x[2], x[3]))
 
 print(tabulate.tabulate(lines, headers=['filename'] + props))
