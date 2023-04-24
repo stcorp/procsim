@@ -445,7 +445,7 @@ class RWS_EO(RawProductGeneratorBase):
                     subslice_start = max(slice_start, segment_start)
                     subslice_end = min(slice_end, segment_end)
 
-                    complete = (raw_start < subslice_start and subslice_end < raw_end)
+                    complete = (raw_start <= subslice_start and subslice_end <= raw_end)
 
                     if complete:
                         if self._output_type.endswith('_OBS'):
