@@ -337,12 +337,27 @@ class RWS_EO(RawProductGeneratorBase):
         else:
             assert False
 
+        # intermediate products: determine first/last data-take overlapping raw data
+        first_overlap = None
+        last_overlap = None
+        if raw_period and self._output_type.endswith('IOBS'):
+            for data_take_config in self._scenario_config['data_takes']:
+                data_take_start = self._time_from_iso(data_take_config['start'])
+                data_take_stop = self._time_from_iso(data_take_config['stop'])
+                if first_overlap is None or data_take_start < first_overlap:
+                    first_overlap = data_take_start
+                if last_overlap is None or data_take_start > last_overlap:
+                    last_overlap = data_take_stop
+
+            print('OVERLAP FIRST', first_overlap)
+            print('OVERLAP LAST', last_overlap)
+
+        # now slice each data-take
         for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
             data_take_start = self._time_from_iso(data_take_config['start'])
             data_take_stop = self._time_from_iso(data_take_config['stop'])
-
             self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period)
 
     def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
