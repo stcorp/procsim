@@ -342,10 +342,8 @@ class RWS_EO(RawProductGeneratorBase):
             apid = data_take_config['apid']
             data_take_start = self._time_from_iso(data_take_config['start'])
             data_take_stop = self._time_from_iso(data_take_config['stop'])
-            if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period)
-            else:
-                self._create_product(data_take_start, data_take_stop, True, apid=apid)  # TODO complete?
+
+            self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period)
 
     def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
