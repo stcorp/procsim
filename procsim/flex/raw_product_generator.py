@@ -319,7 +319,7 @@ class RWS_EO(RawProductGeneratorBase):
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
                 self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
 
-                self._create_product(period[0], period[1], True, sensor)
+                self._create_product(period[0], period[1], 'complete', sensor)
             return
 
         if 'data_takes' not in self._scenario_config:
@@ -357,7 +357,7 @@ class RWS_EO(RawProductGeneratorBase):
             data_take_stop = self._time_from_iso(data_take_config['stop'])
             self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period, first_overlap, last_overlap)
 
-    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, completeness, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
@@ -381,10 +381,7 @@ class RWS_EO(RawProductGeneratorBase):
             if apid is not None:
                 self._hdr.apid = apid
 
-            if complete:
-                self._hdr.completeness_assesment = 'complete'
-            else:
-                self._hdr.completeness_assesment = 'partial'
+            self._hdr.completeness_assesment = completeness
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -467,11 +464,16 @@ class RWS_EO(RawProductGeneratorBase):
                 subslice_end = min(slice_end, segment_end)
 
                 # intermediate: short and first/last slice in raw data
-                if self._output_type.endswith('IOBS') and (subslice_start > slice_start or subslice_end < slice_end):
+                short = (subslice_start > slice_start or subslice_end < slice_end)
+                if self._output_type.endswith('IOBS') and short:
                     if subslice_end == slice_end and segment_start == first_overlap:
-                        pass #self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                        self._hdr.slice_start_position = 'undetermined'
+                        self._hdr.slice_stop_position = 'on_grid'
+                        self._create_product(subslice_start, subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
                     elif subslice_start == slice_start and segment_start == last_overlap:
-                        pass #self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                        self._hdr.slice_start_position = 'on_grid'
+                        self._hdr.slice_stop_position = 'undetermined'
+                        self._create_product(subslice_start, subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
 
                 complete = (raw_start <= subslice_start and subslice_end <= raw_end)
 
@@ -484,7 +486,7 @@ class RWS_EO(RawProductGeneratorBase):
                             self._hdr.slice_start_position = 'begin_of_SA'
                         elif subslice_end == segment_end:
                             self._hdr.slice_stop_position = 'end_of_SA'
-                        self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                        self._create_product(subslice_start, subslice_end, 'complete', apid=apid, for_sensor=raw_sensor)
 
                 # partial: data-take is not covered by raw data
                 elif self._output_type.endswith('POBS'):
@@ -493,11 +495,11 @@ class RWS_EO(RawProductGeneratorBase):
                         if subslice_start > raw_start:
                             self._hdr.slice_start_position = 'on_grid'
                             self._hdr.slice_stop_position = 'inside_SA'
-                            self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
+                            self._create_product(subslice_start, raw_end, 'partial', apid=apid, for_sensor=raw_sensor)
                         else:
                             self._hdr.slice_start_position = 'inside_SA'
                             self._hdr.slice_stop_position = 'on_grid'
-                            self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
+                            self._create_product(raw_start, subslice_end, 'partial', apid=apid, for_sensor=raw_sensor)
 
 #            complete = (segment_start <= slice_start and slice_end <= segment_end)
 #
