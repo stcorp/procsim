@@ -327,6 +327,7 @@ class RWS_EO(RawProductGeneratorBase):
 
         # slice data takes (step1 or without input products)
 #        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
+
         for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
@@ -400,15 +401,8 @@ class RWS_EO(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid) -> None:
-        if segment_start is None or segment_end is None:
-            raise ScenarioError('Phenomenon begin/end times must be known')
-
-        if not self._anx_list:
-            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
-
+    def _get_slice_edges2(self, segment_start, segment_end):
         slice_edges = self._get_slice_edges(segment_start, segment_end)
-
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
@@ -418,6 +412,17 @@ class RWS_EO(RawProductGeneratorBase):
 
             if anx is None or slice_nr is None:
                 continue
+
+            yield (slice_start, slice_end, anx, slice_nr)
+
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid) -> None:
+        if segment_start is None or segment_end is None:
+            raise ScenarioError('Phenomenon begin/end times must be known')
+
+        if not self._anx_list:
+            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
+
+        for slice_start, slice_end, anx, slice_nr in self._get_slice_edges2(segment_start, segment_end):
             validity_start = slice_start - self._slice_overlap_start
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
@@ -445,8 +450,16 @@ class RWS_EO(RawProductGeneratorBase):
                     subslice_start = max(slice_start, segment_start)
                     subslice_end = min(slice_end, segment_end)
 
+                    # gather 'short' (potentially intermediate products)
+#                    if (subslice_start > slice_start or subslice_end < slice_end):
+#                        if subslice_start == slice_start:
+#                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'on_grid', 'undetermined'))
+#                        else:
+#                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'undetermined', 'on_grid'))
+
                     complete = (raw_start <= subslice_start and subslice_end <= raw_end)
 
+                    # complete: covered by raw data (even if 'short')
                     if complete:
                         if self._output_type.endswith('_OBS'):
                             if subslice_start == segment_start:
@@ -455,6 +468,7 @@ class RWS_EO(RawProductGeneratorBase):
                                 self._hdr.slice_stop_position = 'end_of_SA'
                             self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
 
+                    # partial: data-take is not covered by raw data
                     elif self._output_type.endswith('POBS'):
                         overlap = not (subslice_start > raw_end or subslice_end < raw_start)
                         if overlap:
@@ -464,6 +478,7 @@ class RWS_EO(RawProductGeneratorBase):
                             else:
                                 self._hdr.slice_start_position = 'inside_SA'
                                 self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
+
 
             else:
                 assert False  # TODO fix
