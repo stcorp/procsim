@@ -478,6 +478,8 @@ class RWS_EO(RawProductGeneratorBase):
                 # complete: covered by raw data (even if 'short')
                 if complete:
                     if self._output_type.endswith('_OBS'):
+                        self._hdr.slice_start_position = 'on_grid'
+                        self._hdr.slice_stop_position = 'on_grid'
                         if subslice_start == segment_start:
                             self._hdr.slice_start_position = 'begin_of_SA'
                         elif subslice_end == segment_end:
@@ -489,10 +491,12 @@ class RWS_EO(RawProductGeneratorBase):
                     overlap = not (subslice_start > raw_end or subslice_end < raw_start)
                     if overlap:
                         if subslice_start > raw_start:
+                            self._hdr.slice_start_position = 'on_grid'
                             self._hdr.slice_stop_position = 'inside_SA'
                             self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
                         else:
                             self._hdr.slice_start_position = 'inside_SA'
+                            self._hdr.slice_stop_position = 'on_grid'
                             self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
 
 #            complete = (segment_start <= slice_start and slice_end <= segment_end)
