@@ -347,10 +347,7 @@ class RWS_EO(RawProductGeneratorBase):
                 if first_overlap is None or data_take_start < first_overlap:
                     first_overlap = data_take_start
                 if last_overlap is None or data_take_start > last_overlap:
-                    last_overlap = data_take_stop
-
-            print('OVERLAP FIRST', first_overlap)
-            print('OVERLAP LAST', last_overlap)
+                    last_overlap = data_take_start
 
         # now slice each data-take
         for data_take_config in self._scenario_config['data_takes']:
@@ -358,7 +355,7 @@ class RWS_EO(RawProductGeneratorBase):
             apid = data_take_config['apid']
             data_take_start = self._time_from_iso(data_take_config['start'])
             data_take_stop = self._time_from_iso(data_take_config['stop'])
-            self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period)
+            self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period, first_overlap, last_overlap)
 
     def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
@@ -437,7 +434,7 @@ class RWS_EO(RawProductGeneratorBase):
 
             yield (slice_start, slice_end, anx, slice_nr)
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -469,12 +466,12 @@ class RWS_EO(RawProductGeneratorBase):
                 subslice_start = max(slice_start, segment_start)
                 subslice_end = min(slice_end, segment_end)
 
-                # gather 'short' (potentially intermediate products)
-#                    if (subslice_start > slice_start or subslice_end < slice_end):
-#                        if subslice_start == slice_start:
-#                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'on_grid', 'undetermined'))
-#                        else:
-#                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'undetermined', 'on_grid'))
+                # intermediate: short and first/last slice in raw data
+                if self._output_type.endswith('IOBS') and (subslice_start > slice_start or subslice_end < slice_end):
+                    if subslice_end == slice_end and segment_start == first_overlap:
+                        pass #self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                    elif subslice_start == slice_start and segment_start == last_overlap:
+                        pass #self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
 
                 complete = (raw_start <= subslice_start and subslice_end <= raw_end)
 
