@@ -319,7 +319,7 @@ class RWS_EO(RawProductGeneratorBase):
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
                 self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
 
-                self._create_product(period[0], period[1], True, sensor)
+                self._create_product(period[0], period[1], 'complete', sensor)
             return
 
         if 'data_takes' not in self._scenario_config:
@@ -327,17 +327,39 @@ class RWS_EO(RawProductGeneratorBase):
 
         # slice data takes (step1 or without input products)
 #        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
+
+        raw_period = None
+        if self._raw_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+            raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+            if raw_periods:
+                raw_period = raw_periods[0]
+        else:
+            assert False
+
+        # intermediate products: determine first/last data-take overlapping raw data
+        first_overlap = None
+        last_overlap = None
+        if raw_period and self._output_type.endswith('IOBS'):
+            raw_start, raw_end, _ = raw_period
+            for data_take_config in self._scenario_config['data_takes']:
+                data_take_start = self._time_from_iso(data_take_config['start'])
+                data_take_stop = self._time_from_iso(data_take_config['stop'])
+                if data_take_start < raw_end and data_take_stop > raw_start:
+                    if first_overlap is None or data_take_start < first_overlap:
+                        first_overlap = data_take_start
+                    if last_overlap is None or data_take_start > last_overlap:
+                        last_overlap = data_take_start
+
+        # now slice each data-take
         for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
             data_take_start = self._time_from_iso(data_take_config['start'])
             data_take_stop = self._time_from_iso(data_take_config['stop'])
-            if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid)
-            else:
-                self._create_product(data_take_start, data_take_stop, True, apid=apid)  # TODO complete?
+            self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period, first_overlap, last_overlap)
 
-    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, complete, for_sensor=None, apid=None):
+    def _create_product(self, acq_start: datetime.datetime, acq_stop: datetime.datetime, completeness, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
@@ -361,10 +383,7 @@ class RWS_EO(RawProductGeneratorBase):
             if apid is not None:
                 self._hdr.apid = apid
 
-            if complete:
-                self._hdr.completeness_assesment = 'complete'
-            else:
-                self._hdr.completeness_assesment = 'partial'
+            self._hdr.completeness_assesment = completeness
 
             self._create_raw_product(dir_name, name_gen)
 
@@ -400,15 +419,8 @@ class RWS_EO(RawProductGeneratorBase):
 
         return slice_edges
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid) -> None:
-        if segment_start is None or segment_end is None:
-            raise ScenarioError('Phenomenon begin/end times must be known')
-
-        if not self._anx_list:
-            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
-
+    def _get_slice_edges2(self, segment_start, segment_end):
         slice_edges = self._get_slice_edges(segment_start, segment_end)
-
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
@@ -418,6 +430,17 @@ class RWS_EO(RawProductGeneratorBase):
 
             if anx is None or slice_nr is None:
                 continue
+
+            yield (slice_start, slice_end, anx, slice_nr)
+
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
+        if segment_start is None or segment_end is None:
+            raise ScenarioError('Phenomenon begin/end times must be known')
+
+        if not self._anx_list:
+            raise ScenarioError('ANX must be configured for RWS product, either in the scenario or orbit prediction file')
+
+        for slice_start, slice_end, anx, slice_nr in self._get_slice_edges2(segment_start, segment_end):
             validity_start = slice_start - self._slice_overlap_start
             validity_end = slice_end + self._slice_overlap_end
             acq_start = max(validity_start, segment_start)
@@ -436,37 +459,54 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            if self._raw_periods is not None:
-                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
-                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
-                if raw_periods:
-                    raw_start, raw_end, raw_sensor = raw_periods[0]
+            if raw_period is not None:
+                raw_start, raw_end, raw_sensor = raw_period
 
-                    subslice_start = max(slice_start, segment_start)
-                    subslice_end = min(slice_end, segment_end)
+                subslice_start = max(slice_start, segment_start)
+                subslice_end = min(slice_end, segment_end)
 
-                    complete = (raw_start <= subslice_start and subslice_end <= raw_end)
+                raw_overlap = subslice_start < raw_end and subslice_end > raw_start   #not (subslice_start > raw_end or subslice_end < raw_start)
 
-                    if complete:
-                        if self._output_type.endswith('_OBS'):
-                            if subslice_start == segment_start:
-                                self._hdr.slice_start_position = 'begin_of_SA'
-                            elif subslice_end == segment_end:
-                                self._hdr.slice_stop_position = 'end_of_SA'
-                            self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                # intermediate: short and first/last slice in raw data
+                if raw_overlap:
+                    if self._output_type.endswith('IOBS'):
+                        raw_subslice_start = max(subslice_start, raw_start)
+                        raw_subslice_end = min(subslice_end, raw_end)
+                        short = (raw_subslice_start > slice_start or raw_subslice_end < slice_end)
+                        if short:
+                            if raw_subslice_end == slice_end and segment_start == first_overlap:
+                                self._hdr.slice_start_position = 'undetermined'
+                                self._hdr.slice_stop_position = 'on_grid'
+                                self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
 
-                    elif self._output_type.endswith('POBS'):
-                        overlap = not (subslice_start > raw_end or subslice_end < raw_start)
-                        if overlap:
-                            if subslice_start > raw_start:
-                                self._hdr.slice_stop_position = 'inside_SA'
-                                self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
-                            else:
-                                self._hdr.slice_start_position = 'inside_SA'
-                                self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
+                            elif short and raw_subslice_start == slice_start and segment_start == last_overlap:
+                                self._hdr.slice_start_position = 'on_grid'
+                                self._hdr.slice_stop_position = 'undetermined'
+                                self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
 
-            else:
-                assert False  # TODO fix
+                # complete: covered by raw data (even if 'short')
+                complete = (raw_start <= subslice_start and subslice_end <= raw_end)
+                if complete:
+                    if self._output_type.endswith('_OBS'):
+                        self._hdr.slice_start_position = 'on_grid'
+                        self._hdr.slice_stop_position = 'on_grid'
+                        if subslice_start == segment_start:
+                            self._hdr.slice_start_position = 'begin_of_SA'
+                        elif subslice_end == segment_end:
+                            self._hdr.slice_stop_position = 'end_of_SA'
+                        self._create_product(subslice_start, subslice_end, 'complete', apid=apid, for_sensor=raw_sensor)
+
+                # partial: data-take is not covered by raw data
+                elif raw_overlap:
+                    if self._output_type.endswith('POBS'):
+                        if subslice_start > raw_start:
+                            self._hdr.slice_start_position = 'on_grid'
+                            self._hdr.slice_stop_position = 'inside_SA'
+                            self._create_product(subslice_start, raw_end, 'partial', apid=apid, for_sensor=raw_sensor)
+                        else:
+                            self._hdr.slice_start_position = 'inside_SA'
+                            self._hdr.slice_stop_position = 'on_grid'
+                            self._create_product(raw_start, subslice_end, 'partial', apid=apid, for_sensor=raw_sensor)
 
 #            complete = (segment_start <= slice_start and slice_end <= segment_end)
 #

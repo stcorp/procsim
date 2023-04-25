@@ -74,6 +74,11 @@
           "size": 0
         },
         {
+          "type": "RWS_H1IOBS",
+          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "RWS_H1_VAU",
           "metadata_source": ".*RAW_XS_HR1.*", // Input to use
           "size": 0
@@ -94,6 +99,11 @@
           "size": 0
         },
         {
+          "type": "RWS_H2IOBS",
+          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "RWS_H2_VAU",
           "metadata_source": ".*RAW_XS_HR2.*", // Input to use
           "size": 0
@@ -110,6 +120,11 @@
         },
         {
           "type": "RWS_LRPOBS",
+          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RWS_LRIOBS",
           "metadata_source": ".*RAW_XS_LR_.*", // Input to use
           "size": 0
         },
