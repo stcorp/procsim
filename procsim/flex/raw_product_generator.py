@@ -328,13 +328,22 @@ class RWS_EO(RawProductGeneratorBase):
         # slice data takes (step1 or without input products)
 #        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
 
+        raw_period = None
+        if self._raw_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+            raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+            if raw_periods:
+                raw_period = raw_periods[0]
+        else:
+            assert False
+
         for data_take_config in self._scenario_config['data_takes']:
             self.read_scenario_parameters(data_take_config)
             apid = data_take_config['apid']
             data_take_start = self._time_from_iso(data_take_config['start'])
             data_take_stop = self._time_from_iso(data_take_config['stop'])
             if self._enable_slicing:
-                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid)
+                self._generate_sliced_output(data_take_config, data_take_start, data_take_stop, apid, raw_period)
             else:
                 self._create_product(data_take_start, data_take_stop, True, apid=apid)  # TODO complete?
 
@@ -415,7 +424,7 @@ class RWS_EO(RawProductGeneratorBase):
 
             yield (slice_start, slice_end, anx, slice_nr)
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -441,47 +450,40 @@ class RWS_EO(RawProductGeneratorBase):
                                 f'  validity {validity_start}  -  {validity_end}\n'
                                 f'  anx {anx}'))
 
-            if self._raw_periods is not None:
-                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
-                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
-                if raw_periods:
-                    raw_start, raw_end, raw_sensor = raw_periods[0]
+            if raw_period is not None:
+                raw_start, raw_end, raw_sensor = raw_period
 
-                    subslice_start = max(slice_start, segment_start)
-                    subslice_end = min(slice_end, segment_end)
+                subslice_start = max(slice_start, segment_start)
+                subslice_end = min(slice_end, segment_end)
 
-                    # gather 'short' (potentially intermediate products)
+                # gather 'short' (potentially intermediate products)
 #                    if (subslice_start > slice_start or subslice_end < slice_end):
 #                        if subslice_start == slice_start:
 #                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'on_grid', 'undetermined'))
 #                        else:
 #                            self._short_slices.append((subslice_start, subslice_end, apid, raw_sensor, 'undetermined', 'on_grid'))
 
-                    complete = (raw_start <= subslice_start and subslice_end <= raw_end)
+                complete = (raw_start <= subslice_start and subslice_end <= raw_end)
 
-                    # complete: covered by raw data (even if 'short')
-                    if complete:
-                        if self._output_type.endswith('_OBS'):
-                            if subslice_start == segment_start:
-                                self._hdr.slice_start_position = 'begin_of_SA'
-                            elif subslice_end == segment_end:
-                                self._hdr.slice_stop_position = 'end_of_SA'
-                            self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
+                # complete: covered by raw data (even if 'short')
+                if complete:
+                    if self._output_type.endswith('_OBS'):
+                        if subslice_start == segment_start:
+                            self._hdr.slice_start_position = 'begin_of_SA'
+                        elif subslice_end == segment_end:
+                            self._hdr.slice_stop_position = 'end_of_SA'
+                        self._create_product(subslice_start, subslice_end, True, apid=apid, for_sensor=raw_sensor)
 
-                    # partial: data-take is not covered by raw data
-                    elif self._output_type.endswith('POBS'):
-                        overlap = not (subslice_start > raw_end or subslice_end < raw_start)
-                        if overlap:
-                            if subslice_start > raw_start:
-                                self._hdr.slice_stop_position = 'inside_SA'
-                                self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
-                            else:
-                                self._hdr.slice_start_position = 'inside_SA'
-                                self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
-
-
-            else:
-                assert False  # TODO fix
+                # partial: data-take is not covered by raw data
+                elif self._output_type.endswith('POBS'):
+                    overlap = not (subslice_start > raw_end or subslice_end < raw_start)
+                    if overlap:
+                        if subslice_start > raw_start:
+                            self._hdr.slice_stop_position = 'inside_SA'
+                            self._create_product(subslice_start, raw_end, False, apid=apid, for_sensor=raw_sensor)
+                        else:
+                            self._hdr.slice_start_position = 'inside_SA'
+                            self._create_product(raw_start, subslice_end, False, apid=apid, for_sensor=raw_sensor)
 
 #            complete = (segment_start <= slice_start and slice_end <= segment_end)
 #
