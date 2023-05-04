@@ -1,6 +1,10 @@
 Procsim Changelog
 -----------------
 
+[v2.0.2] - 2023/05/04
+    - Many minor fixes based on feedback.
+    - Support for intermediate products.
+
 [v2.0.1] - 2023/03/16
     - implement step2 for EO products
 
