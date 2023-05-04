@@ -315,11 +315,12 @@ class RWS_EO(RawProductGeneratorBase):
 
         # step2
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
-                self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
-
-                self._create_product(period[0], period[1], 'complete', sensor)
+                if sensor == output_sensor:
+                    self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
+                    self._create_product(period[0], period[1], 'complete', sensor)
             return
 
         if 'data_takes' not in self._scenario_config:
@@ -662,9 +663,11 @@ class RWS_CAL(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 cal_id, sensor = key
-                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
+                if sensor == output_sensor:
+                    self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
             return
 
         if 'calibration_events' not in self._scenario_config:
@@ -906,9 +909,11 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 apid, sensor = key
-                self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
+                if sensor == output_sensor:
+                    self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
         if 'anc_events' not in self._scenario_config:
