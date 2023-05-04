@@ -369,9 +369,12 @@ class RWS_EO(RawProductGeneratorBase):
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
+            # anx_elapsed
             anx = self._get_anx(acq_start)
-            if anx is not None:
+            if anx is not None:  # step1
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            elif self._hdr.slice_frame_nr is not None:  # step2
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (self._hdr.slice_frame_nr-1) * self._slice_grid_spacing.seconds
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
