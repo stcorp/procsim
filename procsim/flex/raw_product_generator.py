@@ -104,7 +104,7 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.downlink_time = self._creation_date
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
