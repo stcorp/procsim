@@ -35,7 +35,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products):
+        if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
         period_types = collections.defaultdict(set)
