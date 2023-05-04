@@ -104,7 +104,7 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         name_gen.stop_time = stop
         name_gen.baseline_identifier = self._hdr.product_baseline
         name_gen.set_creation_date(self._creation_date)
-        name_gen.downlink_time = self._hdr.acquisition_date
+        name_gen.downlink_time = self._creation_date
 
         dir_name = name_gen.generate_path_name()
         self._hdr.product_type = self._output_type
@@ -315,11 +315,12 @@ class RWS_EO(RawProductGeneratorBase):
 
         # step2
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 self._hdr.data_take_id, sensor, self._hdr.slice_frame_nr = key
-                self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
-
-                self._create_product(period[0], period[1], 'complete', sensor)
+                if sensor == output_sensor:
+                    self._hdr.slice_start_position = self._hdr.slice_stop_position = 'on_grid'
+                    self._create_product(period[0], period[1], 'complete', sensor)
             return
 
         if 'data_takes' not in self._scenario_config:
@@ -368,9 +369,12 @@ class RWS_EO(RawProductGeneratorBase):
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
+            # anx_elapsed
             anx = self._get_anx(acq_start)
-            if anx is not None:
+            if anx is not None:  # step1
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            elif self._hdr.slice_frame_nr is not None:  # step2
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (self._hdr.slice_frame_nr-1) * self._slice_grid_spacing.seconds
             else:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
 
@@ -433,7 +437,8 @@ class RWS_EO(RawProductGeneratorBase):
 
             yield (slice_start, slice_end, anx, slice_nr)
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime,
+                                segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -465,7 +470,7 @@ class RWS_EO(RawProductGeneratorBase):
                 subslice_start = max(slice_start, segment_start)
                 subslice_end = min(slice_end, segment_end)
 
-                raw_overlap = subslice_start < raw_end and subslice_end > raw_start   #not (subslice_start > raw_end or subslice_end < raw_start)
+                raw_overlap = subslice_start < raw_end and subslice_end > raw_start
 
                 # intermediate: short and first/last slice in raw data
                 if raw_overlap:
@@ -662,9 +667,11 @@ class RWS_CAL(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 cal_id, sensor = key
-                self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
+                if sensor == output_sensor:
+                    self._create_product(cal_id, period[0], period[1], True, 'begin_of_SA', 'end_of_SA', sensor)
             return
 
         if 'calibration_events' not in self._scenario_config:
@@ -906,9 +913,11 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 apid, sensor = key
-                self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
+                if sensor == output_sensor:
+                    self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
         if 'anc_events' not in self._scenario_config:

@@ -1,6 +1,6 @@
 import os
 import xml.etree.ElementTree as ET
-
+import sys
 import tabulate
 
 props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition', 'sliceStopPosition', 'completenessAssesment']
@@ -8,10 +8,21 @@ prefix = 'FLX_RWS'
 
 eop = '{http://www.opengis.net/eop/2.1}'
 
+if len(sys.argv) > 1:
+    path = sys.argv[1]
+else:
+    path = 'workspace'
+
+if len(sys.argv) > 2:
+    filter_str = sys.argv[2]
+else:
+    filter_str = ''
+
 lines = []
-for f in os.listdir('workspace'):
-    if f.startswith(prefix):
-        tree = ET.parse(f'workspace/{f}/{f.lower()}.xml')
+
+for f in os.listdir(path):
+    if f.startswith(prefix) and filter_str in f:
+        tree = ET.parse(f'{path}/{f}/{f.lower()}.xml')
         attrs = {}
         for info in tree.findall(f'{eop}metaDataProperty/{eop}EarthObservationMetaData/{eop}vendorSpecific/{eop}SpecificInformation'):
             attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text
