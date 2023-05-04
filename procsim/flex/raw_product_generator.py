@@ -437,7 +437,8 @@ class RWS_EO(RawProductGeneratorBase):
 
             yield (slice_start, slice_end, anx, slice_nr)
 
-    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime, segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
+    def _generate_sliced_output(self, data_take_config: dict, segment_start: datetime.datetime,
+                                segment_end: datetime.datetime, apid, raw_period, first_overlap, last_overlap) -> None:
         if segment_start is None or segment_end is None:
             raise ScenarioError('Phenomenon begin/end times must be known')
 
@@ -469,7 +470,7 @@ class RWS_EO(RawProductGeneratorBase):
                 subslice_start = max(slice_start, segment_start)
                 subslice_end = min(slice_end, segment_end)
 
-                raw_overlap = subslice_start < raw_end and subslice_end > raw_start   #not (subslice_start > raw_end or subslice_end < raw_start)
+                raw_overlap = subslice_start < raw_end and subslice_end > raw_start
 
                 # intermediate: short and first/last slice in raw data
                 if raw_overlap:

@@ -8,9 +8,9 @@ prefix = 'FLX_RWS'
 
 eop = '{http://www.opengis.net/eop/2.1}'
 
-if len(sys.argv) >1 :
+if len(sys.argv) > 1:
     path = sys.argv[1]
-else :
+else:
     path = 'workspace'
 
 if len(sys.argv) > 2:
