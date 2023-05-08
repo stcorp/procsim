@@ -493,12 +493,16 @@ class RWS_EO(RawProductGeneratorBase):
                 complete = (raw_start <= subslice_start and subslice_end <= raw_end)
                 if complete:
                     if self._output_type.endswith('_OBS'):
-                        self._hdr.slice_start_position = 'on_grid'
-                        self._hdr.slice_stop_position = 'on_grid'
                         if subslice_start == segment_start:
                             self._hdr.slice_start_position = 'begin_of_SA'
-                        elif subslice_end == segment_end:
+                        else:
+                            self._hdr.slice_start_position = 'on_grid'
+
+                        if subslice_end == segment_end:
                             self._hdr.slice_stop_position = 'end_of_SA'
+                        else:
+                            self._hdr.slice_stop_position = 'on_grid'
+
                         self._create_product(subslice_start, subslice_end, 'complete', apid=apid, for_sensor=raw_sensor)
 
                 # partial: data-take is not covered by raw data
