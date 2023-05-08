@@ -84,7 +84,7 @@ def _compare_outputs(scenario, task):
     return scenario_output_types.issubset(task_output_types)
 
 
-def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_name) -> Tuple[dict, JobOrderTask]:
+def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_name, no_match_outputs) -> Tuple[dict, JobOrderTask]:
     # Find scenario from the list of scenarios in the cfg.
     #
     # If an explicit scenario name is given, use that and try to find a matching
@@ -127,7 +127,7 @@ def _find_fitting_scenario(task_filename, cfg, job: JobOrderParser, scenario_nam
                 continue
             task_found = True
             matching_inputs_found = True
-            if not _compare_outputs(scenario, job_task):
+            if not no_match_outputs and not _compare_outputs(scenario, job_task):
                 continue
             return scenario, job_task
 
@@ -310,6 +310,7 @@ def parse_command_line():
                         help='The file name of the job order')
     parser.add_argument('-s', '--scenario', metavar='scenario', dest='scenario_name',
                         help='force use of SCENARIO (normally derived from task-filename and joborder)')
+    parser.add_argument('--no-match-outputs', action='store_true', help="don't match task with scenario outputs")
     parser.add_argument('-l', '--log-level', dest='log_level',
                         choices=['debug', 'info', 'progress', 'warning', 'error'],
                         help='force log level')
@@ -318,11 +319,13 @@ def parse_command_line():
     if args.info_product is not None:
         print_product_info(args.info_product)
         sys.exit(0)
-    return args.task_filename, args.job_filename, args.config_filename, args.scenario_name, args.log_level
+
+    return (args.task_filename, args.job_filename, args.config_filename,
+            args.scenario_name, args.log_level, args.no_match_outputs)
 
 
 def main():
-    task_filename, job_filename, config_filename, scenario_name, log_level = parse_command_line()
+    task_filename, job_filename, config_filename, scenario_name, log_level, no_match_outputs = parse_command_line()
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
     try:
         # Program terminate/interrupt, will raise an exception which in turn will
@@ -337,7 +340,7 @@ def main():
         job = job_order_parser_factory(PROCESSOR_ICD, logger)
         job.read(job_filename)
 
-        scenario, job_task = _find_fitting_scenario(task_filename, config, job, scenario_name)
+        scenario, job_task = _find_fitting_scenario(task_filename, config, job, scenario_name, no_match_outputs)
 
         # Adjust log level
         stdout_levels = job.stdout_levels
