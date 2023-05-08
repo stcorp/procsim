@@ -478,27 +478,42 @@ class RWS_EO(RawProductGeneratorBase):
                         raw_subslice_start = max(subslice_start, raw_start)
                         raw_subslice_end = min(subslice_end, raw_end)
                         short = (raw_subslice_start > slice_start or raw_subslice_end < slice_end)
-                        if short:
-                            if raw_subslice_end == slice_end and segment_start == first_overlap:
-                                self._hdr.slice_start_position = 'undetermined'
-                                self._hdr.slice_stop_position = 'on_grid'
-                                self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
 
-                            elif short and raw_subslice_start == slice_start and segment_start == last_overlap:
-                                self._hdr.slice_start_position = 'on_grid'
-                                self._hdr.slice_stop_position = 'undetermined'
-                                self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
+                        if short:
+                            self._hdr.slice_start_position = 'undetermined'
+                            self._hdr.slice_stop_position = 'undetermined'
+
+                            # raw slice at end of grid frame
+                            if raw_subslice_end == slice_end:
+                                if segment_start == first_overlap:
+                                    self._hdr.slice_stop_position = 'on_grid'
+                                    self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
+
+                            # raw slice at start of grid frame
+                            elif raw_subslice_start == slice_start:
+                                if segment_start == last_overlap:
+                                    self._hdr.slice_start_position = 'on_grid'
+                                    self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
+
+                            # raw slice completely inside grid frame
+                            else:
+                                if segment_start == first_overlap and segment_start == last_overlap:
+                                    self._create_product(raw_subslice_start, raw_subslice_end, 'intermediate', apid=apid, for_sensor=raw_sensor)
 
                 # complete: covered by raw data (even if 'short')
                 complete = (raw_start <= subslice_start and subslice_end <= raw_end)
                 if complete:
                     if self._output_type.endswith('_OBS'):
-                        self._hdr.slice_start_position = 'on_grid'
-                        self._hdr.slice_stop_position = 'on_grid'
                         if subslice_start == segment_start:
                             self._hdr.slice_start_position = 'begin_of_SA'
-                        elif subslice_end == segment_end:
+                        else:
+                            self._hdr.slice_start_position = 'on_grid'
+
+                        if subslice_end == segment_end:
                             self._hdr.slice_stop_position = 'end_of_SA'
+                        else:
+                            self._hdr.slice_stop_position = 'on_grid'
+
                         self._create_product(subslice_start, subslice_end, 'complete', apid=apid, for_sensor=raw_sensor)
 
                 # partial: data-take is not covered by raw data
