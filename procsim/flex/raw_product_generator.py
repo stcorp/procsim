@@ -327,8 +327,6 @@ class RWS_EO(RawProductGeneratorBase):
             return
 
         # slice data takes (step1 or without input products)
-#        data_takes_with_bounds = self._get_data_takes_with_bounds()  # TODO do we need to bound these for flex? or add scenario option?
-
         raw_period = None
         if self._raw_periods is not None:
             output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
@@ -337,9 +335,6 @@ class RWS_EO(RawProductGeneratorBase):
                 raw_period = raw_periods[0]
         else:
             assert False
-
-#        print('YOO', raw_period)
-
 
         # intermediate products: determine first/last data-take overlapping raw data
         first_overlap = None
@@ -722,18 +717,55 @@ class RWS_CAL(RawProductGeneratorBase):
             return
 
         # slice events (step1 or without input products)
-        raw_period = None
         if self._raw_periods is not None:
             output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
             raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
             if raw_periods:
                 raw_period = raw_periods[0]
+            else:
+                return
         else:
             assert False
 
+        # intermediate products: determine first/last data-take overlapping raw data
+#        first_overlap = None
+#        last_overlap = None
+#        if raw_period and self._output_type.endswith('IOBS'):
+#            raw_start, raw_end, _ = raw_period
+#            for data_take_config in self._scenario_config['data_takes']:
+#                data_take_start = self._time_from_iso(data_take_config['start'])
+#                data_take_stop = self._time_from_iso(data_take_config['stop'])
+#                if data_take_start < raw_end and data_take_stop > raw_start:
+#                    if first_overlap is None or data_take_start < first_overlap:
+#                        first_overlap = data_take_start
+#                    if last_overlap is None or data_take_start > last_overlap:
+#                        last_overlap = data_take_start
 
-#        if raw_period is not None:
-#            print('YO', self._output_type, raw_period)
+        # now slice each event
+        for calibration_config in self._scenario_config['calibration_events']:
+            self.read_scenario_parameters(calibration_config)
+
+            cal_id = calibration_config['calibration_id']
+            apid = calibration_config['apid']
+            cal_start = self._time_from_iso(calibration_config['start'])
+            cal_stop = self._time_from_iso(calibration_config['stop'])
+
+            raw_start, raw_end, _ = raw_period
+            complete = (cal_start >= raw_start and cal_stop <= raw_end)
+
+            slice_start_position = 'begin_of_SA'
+            slice_stop_position = 'end_of_SA'
+
+            if complete:
+                if self._output_type.endswith('_CAL'):
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+
+            else:
+                if self._output_type.endswith('PCAL'):
+                    cal_start = max(cal_start, raw_start)
+                    cal_stop = min(cal_stop, raw_end)
+
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
 
 
         '''
