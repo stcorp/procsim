@@ -758,14 +758,25 @@ class RWS_CAL(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
 
             else:
                 if self._output_type.endswith('PCAL'):
+                    if cal_start > raw_start:
+                        slice_start_position = 'begin_of_SA'
+                    else:
+                        slice_start_position = 'inside_SA'
+
+                    if cal_stop < raw_end:
+                        slice_stop_position = 'end_of_SA'
+                    else:
+                        slice_stop_position = 'inside_SA'
+
                     cal_start = max(cal_start, raw_start)
                     cal_stop = min(cal_stop, raw_end)
 
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+
 
 
         '''
