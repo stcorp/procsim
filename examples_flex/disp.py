@@ -3,11 +3,10 @@ import xml.etree.ElementTree as ET
 import sys
 import tabulate
 
-props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition', 'sliceStopPosition', 'completenessAssesment']
+props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition', 'sliceStopPosition', 'completenessAssesment', 'calibrationID']
 prefix = 'FLX_RWS'
 
 eop = '{http://www.opengis.net/eop/2.1}'
-
 if len(sys.argv) > 1:
     path = sys.argv[1]
 else:
