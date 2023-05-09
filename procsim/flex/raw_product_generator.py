@@ -727,19 +727,23 @@ class RWS_CAL(RawProductGeneratorBase):
         else:
             assert False
 
-        # intermediate products: determine first/last data-take overlapping raw data
-#        first_overlap = None
-#        last_overlap = None
-#        if raw_period and self._output_type.endswith('IOBS'):
-#            raw_start, raw_end, _ = raw_period
-#            for data_take_config in self._scenario_config['data_takes']:
-#                data_take_start = self._time_from_iso(data_take_config['start'])
-#                data_take_stop = self._time_from_iso(data_take_config['stop'])
-#                if data_take_start < raw_end and data_take_stop > raw_start:
-#                    if first_overlap is None or data_take_start < first_overlap:
-#                        first_overlap = data_take_start
-#                    if last_overlap is None or data_take_start > last_overlap:
-#                        last_overlap = data_take_start
+        # intermediate products: determine first/last data-take/calibration event overlapping raw data
+        first_overlap = None
+        last_overlap = None
+        if self._output_type.endswith('ICAL'):
+            raw_start, raw_end, _ = raw_period
+            for events_config in (
+                self._scenario_config['data_takes'],
+                self._scenario_config['calibration_events'],
+            ):
+                for event_config in events_config:
+                    event_start = self._time_from_iso(event_config['start'])
+                    event_stop = self._time_from_iso(event_config['stop'])
+                    if event_start < raw_end and event_stop > raw_start:
+                        if first_overlap is None or event_start < first_overlap:
+                            first_overlap = event_start
+                        if last_overlap is None or event_start > last_overlap:
+                            last_overlap = event_start
 
         # now slice each event
         for calibration_config in self._scenario_config['calibration_events']:
@@ -752,30 +756,46 @@ class RWS_CAL(RawProductGeneratorBase):
 
             raw_start, raw_end, _ = raw_period
             complete = (cal_start >= raw_start and cal_stop <= raw_end)
+            intermediate = cal_start in (first_overlap, last_overlap)
 
             slice_start_position = 'begin_of_SA'
             slice_stop_position = 'end_of_SA'
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+                    self._create_product(cal_id, cal_start, cal_stop, 'complete', slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+
+                elif intermediate and self._output_type.endswith('ICAL'):
+                    if cal_start == first_overlap:
+                        slice_start_position = 'undetermined'
+                    else:
+                        slice_stop_position = 'undetermined'
+                    self._create_product(cal_id, cal_start, cal_stop, 'intermediate', slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
 
             else:
-                if self._output_type.endswith('PCAL'):
-                    if cal_start > raw_start:
-                        slice_start_position = 'begin_of_SA'
-                    else:
-                        slice_start_position = 'inside_SA'
+                if self._output_type.endswith('PCAL') or (intermediate and self._output_type.endswith('ICAL')):
 
-                    if cal_stop < raw_end:
-                        slice_stop_position = 'end_of_SA'
-                    else:
-                        slice_stop_position = 'inside_SA'
+                    if self._output_type.endswith('PCAL'):
+                        if cal_start < raw_start:
+                            slice_start_position = 'inside_SA'
+
+                        if cal_stop > raw_end:
+                            slice_stop_position = 'inside_SA'
+
+                        completeness = 'partial'
+
+                    elif self._output_type.endswith('ICAL'):
+                        if cal_start == first_overlap:
+                            slice_start_position = 'undetermined'
+                        else:
+                            slice_stop_position = 'undetermined'
+
+                        completeness = 'intermediate'
 
                     cal_start = max(cal_start, raw_start)
                     cal_stop = min(cal_stop, raw_end)
 
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+                    self._create_product(cal_id, cal_start, cal_stop, completeness, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
 
 
 
@@ -800,7 +820,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+                    self._create_product(cal_id, cal_start, cal_stop, 'complete', slice_start_position, slice_stop_position, apid=apid)
 
             else:
                 intermediate = False
@@ -820,11 +840,11 @@ class RWS_CAL(RawProductGeneratorBase):
 
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
-                    self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+                    self._create_product(cal_id, cal_start, cal_stop, 'partial', slice_start_position, slice_stop_position, apid=apid)
         '''
 
     def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
-                        complete, slice_start_position, slice_stop_position, for_sensor=None, apid=None):
+                        completeness, slice_start_position, slice_stop_position, for_sensor=None, apid=None):
         name_gen = self._create_name_generator(acq_start, acq_stop)
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
@@ -846,10 +866,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.set_validity_times(acq_start, acq_stop)
             self._hdr.acquisition_type = 'CALIBRATION'
-            if complete:
-                self._hdr.completeness_assesment = 'complete'
-            else:
-                self._hdr.completeness_assesment = 'partial'
+            self._hdr.completeness_assesment = completeness
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = cal_id
