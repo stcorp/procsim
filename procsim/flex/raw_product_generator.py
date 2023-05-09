@@ -755,6 +755,10 @@ class RWS_CAL(RawProductGeneratorBase):
             cal_stop = self._time_from_iso(calibration_config['stop'])
 
             raw_start, raw_end, _ = raw_period
+            raw_overlap = cal_start < raw_end and cal_stop > raw_start
+            if not raw_overlap:
+                continue
+
             complete = (cal_start >= raw_start and cal_stop <= raw_end)
             intermediate = cal_start in (first_overlap, last_overlap)
 
