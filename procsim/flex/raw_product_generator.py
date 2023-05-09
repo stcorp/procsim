@@ -338,6 +338,9 @@ class RWS_EO(RawProductGeneratorBase):
         else:
             assert False
 
+#        print('YOO', raw_period)
+
+
         # intermediate products: determine first/last data-take overlapping raw data
         first_overlap = None
         last_overlap = None
@@ -624,6 +627,7 @@ class RWS_CAL(RawProductGeneratorBase):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._key_periods = None
+        self._raw_periods = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -634,6 +638,31 @@ class RWS_CAL(RawProductGeneratorBase):
         if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
+        # slice raw products (step1)
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
+
+        for input in input_products:
+            if input.file_type in INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    if self._raw_periods is None:
+                        self._raw_periods = []
+                    sensor = input.file_type[-3:].strip('_')
+                    self._raw_periods.append((start, stop, sensor))
+
+        # merge partial into complete (step2)
         INPUTS = ['RWS_H1PCAL', 'RWS_H2PCAL', 'RWS_LRPCAL']
 
         key_periods = collections.defaultdict(list)
@@ -692,6 +721,22 @@ class RWS_CAL(RawProductGeneratorBase):
         if 'calibration_events' not in self._scenario_config:
             return
 
+        # slice events (step1 or without input products)
+        raw_period = None
+        if self._raw_periods is not None:
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+            raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+            if raw_periods:
+                raw_period = raw_periods[0]
+        else:
+            assert False
+
+
+#        if raw_period is not None:
+#            print('YO', self._output_type, raw_period)
+
+
+        '''
         for calibration_config in self._scenario_config['calibration_events']:
             self.read_scenario_parameters(calibration_config)
             cal_start = self._time_from_iso(calibration_config['start'])
@@ -733,6 +778,7 @@ class RWS_CAL(RawProductGeneratorBase):
                 if ((not intermediate and self._output_type.endswith('PCAL')) or
                         (intermediate and self._output_type.endswith('ICAL'))):
                     self._create_product(cal_id, cal_start, cal_stop, complete, slice_start_position, slice_stop_position, apid=apid)
+        '''
 
     def _create_product(self, cal_id: int, acq_start: datetime.datetime, acq_stop: datetime.datetime,
                         complete, slice_start_position, slice_stop_position, for_sensor=None, apid=None):
