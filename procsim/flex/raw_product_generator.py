@@ -767,18 +767,19 @@ class RWS_CAL(RawProductGeneratorBase):
 
             if complete:
                 if self._output_type.endswith('_CAL'):
-                    self._create_product(cal_id, cal_start, cal_stop, 'complete', slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+                    self._create_product(cal_id, cal_start, cal_stop, 'complete', slice_start_position,
+                                         slice_stop_position, apid=apid, for_sensor=output_sensor)
 
                 elif intermediate and self._output_type.endswith('ICAL'):
                     if cal_start == first_overlap:
                         slice_start_position = 'undetermined'
                     else:
                         slice_stop_position = 'undetermined'
-                    self._create_product(cal_id, cal_start, cal_stop, 'intermediate', slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
+                    self._create_product(cal_id, cal_start, cal_stop, 'intermediate', slice_start_position,
+                                         slice_stop_position, apid=apid, for_sensor=output_sensor)
 
             else:
                 if self._output_type.endswith('PCAL') or (intermediate and self._output_type.endswith('ICAL')):
-
                     if self._output_type.endswith('PCAL'):
                         if cal_start < raw_start:
                             slice_start_position = 'inside_SA'
@@ -788,7 +789,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
                         completeness = 'partial'
 
-                    elif self._output_type.endswith('ICAL'):
+                    else:
                         if cal_start == first_overlap:
                             slice_start_position = 'undetermined'
                         else:
@@ -799,9 +800,8 @@ class RWS_CAL(RawProductGeneratorBase):
                     cal_start = max(cal_start, raw_start)
                     cal_stop = min(cal_stop, raw_end)
 
-                    self._create_product(cal_id, cal_start, cal_stop, completeness, slice_start_position, slice_stop_position, apid=apid, for_sensor=output_sensor)
-
-
+                    self._create_product(cal_id, cal_start, cal_stop, completeness, slice_start_position,
+                                         slice_stop_position, apid=apid, for_sensor=output_sensor)
 
         '''
         for calibration_config in self._scenario_config['calibration_events']:
