@@ -59,8 +59,9 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     period_types[data_take_id, start, stop].add(input.file_type)
         self._output_periods = []
         for period, filetypes in period_types.items():
-            if len(filetypes) == len(self.INPUTS):  # all inputs available (eg three sensors)
-                self._output_periods.append(period)
+            if self.__class__.__name__ in ['EO', 'CAL'] or self._output_type == 'L0__VAU_TM':  # TODO in/out mapping?
+                if set(filetypes).issuperset(set(self.INPUTS)):  # all inputs available (eg three sensors)
+                    self._output_periods.append(period)
         return True
 
 

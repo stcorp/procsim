@@ -966,7 +966,7 @@ class RWS_ANC(RawProductGeneratorBase):
             return False
 
         # slice raw products (step1)
-        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']  # TODO merge EO/CAL
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_', 'RAW_XS_OBC']  # TODO merge EO/CAL
 
         for input in input_products:
             if input.file_type in INPUTS:
@@ -990,7 +990,7 @@ class RWS_ANC(RawProductGeneratorBase):
                     self._raw_periods.append((start, stop, sensor))
 
         # merge partial into complete (step2)
-        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU']  # TODO use as key instead of just sensor for multi types?
+        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU', 'RWS_XSPOBC', 'RWS_XSPITM']  # TODO use as key instead of just sensor for multi types?
 
         key_periods = collections.defaultdict(list)
 
@@ -1038,7 +1038,7 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR', 'XS': 'XS'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 apid, sensor = key
                 if sensor == output_sensor:
@@ -1054,7 +1054,7 @@ class RWS_ANC(RawProductGeneratorBase):
             apid = event['apid']
 
             if self._raw_periods is not None:
-                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR', 'XS': 'XS'}[self._output_type[4:6]]
                 raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
                 if raw_periods:
                     start, stop, sensor = raw_periods[0]
