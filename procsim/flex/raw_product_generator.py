@@ -1038,7 +1038,7 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR', 'XS': 'XS'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 apid, sensor = key
                 if sensor == output_sensor:
