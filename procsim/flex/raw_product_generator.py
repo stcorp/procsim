@@ -249,9 +249,11 @@ class RWS_EO(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
+
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
