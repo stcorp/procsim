@@ -962,9 +962,9 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def input_sensor(self):
         if self._output_type.endswith('OBC'):
-            return 'LR'
-        elif self._output_type.endswith('ITM'):
             return 'OBC'
+        elif self._output_type.endswith('ITM'):
+            return 'LR'
         else:
             return {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
 
@@ -1100,7 +1100,10 @@ class RWS_ANC(RawProductGeneratorBase):
         if for_sensor is not None:
             name_gen.downlink_time = acq_start  # TODO why needed for merged partial?
 
-        for sensor in ('LR', 'HR1', 'HR2'):
+        for sensor in ('LR', 'HR1', 'HR2', 'OBC'):
+            if sensor == 'OBC' and not self._output_type.endswith('OBC'):
+                continue
+
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
