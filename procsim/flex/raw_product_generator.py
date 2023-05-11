@@ -240,7 +240,7 @@ class RWS_EO(RawProductGeneratorBase):
             return False
 
         # slice raw products (step1)
-        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_', 'RAW_XS_OBC']
 
         for input in input_products:
             if input.file_type in INPUTS:
@@ -634,7 +634,7 @@ class RWS_CAL(RawProductGeneratorBase):
             return False
 
         # slice raw products (step1)
-        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_']
+        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_', 'RAW_XS_OBC']
 
         for input in input_products:
             if input.file_type in INPUTS:
