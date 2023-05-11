@@ -960,6 +960,14 @@ class RWS_ANC(RawProductGeneratorBase):
         gen, hdr, acq = super().get_params()
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
+    def input_sensor(self):
+        if self._output_type.endswith('OBC'):
+            return 'LR'
+        elif self._output_type.endswith('ITM'):
+            return 'OBC'
+        else:
+            return {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR'}[self._output_type[4:6]]
+
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge with CAL, OE parse_inputs when done
         # First copy the metadata from any input product (normally H or V)
         if not super().parse_inputs(input_products, ignore_missing=True):
@@ -1038,10 +1046,9 @@ class RWS_ANC(RawProductGeneratorBase):
         super().generate_output()
 
         if self._key_periods is not None:
-            output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR', 'XS': 'XS'}[self._output_type[4:6]]
             for key, period in self._key_periods.items():
                 apid, sensor = key
-                if sensor == output_sensor:
+                if sensor == self.input_sensor():
                     self._create_product(apid, period[0], period[1], True, 'anx', 'anx', sensor)
             return
 
@@ -1054,8 +1061,7 @@ class RWS_ANC(RawProductGeneratorBase):
             apid = event['apid']
 
             if self._raw_periods is not None:
-                output_sensor = {'H1': 'HR1', 'H2': 'HR2', 'LR': 'LR', 'XS': 'XS'}[self._output_type[4:6]]
-                raw_periods = [r for r in self._raw_periods if r[2] == output_sensor]
+                raw_periods = [r for r in self._raw_periods if r[2] == self.input_sensor()]
                 if raw_periods:
                     start, stop, sensor = raw_periods[0]
 
