@@ -195,6 +195,8 @@ class ProductName:
                 self.start_time = self.str_to_time(match_dict.get('vstart'))
                 self.stop_time = self.str_to_time(match_dict.get('vstop'))
                 self._compact_create_date = match_dict.get('create_date')
+                if self._compact_create_date is not None:
+                    self._creation_date = self.str_to_time(self._compact_create_date)
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
                 if self.downlink_time is None:
                     self.downlink_time = self.str_to_time(match_dict.get('create_date'))  # TODO acqdate/createdate/downlink?

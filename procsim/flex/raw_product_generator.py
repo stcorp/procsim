@@ -249,9 +249,11 @@ class RWS_EO(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
+
                     gen = product_name.ProductName(self._compact_creation_date_epoch)
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+
                     hdr = main_product_header.MainProductHeader()
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
@@ -1066,16 +1068,34 @@ class RWS_ANC(RawProductGeneratorBase):
                     start, stop, sensor = raw_periods[0]
 
                     for i in range(len(anx)-1):
+                        overlap = (start < anx[i+1] and stop > anx[i])
+                        if not overlap:
+                            continue
+
                         # complete overlap of anx-to-anx window
-                        if start <= anx[i] and stop >= anx[i+1] and self._output_type[-4] == '_':
-                            self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
+                        if start <= anx[i] and stop >= anx[i+1]:
+                            if self._output_type[-4] == '_':
+                                self._create_product(apid, anx[i], anx[i+1], True, 'anx', 'anx', for_sensor=sensor)
 
                         # partial overlap of anx-to-anx window
-                        elif anx[i] <= start <= anx[i+1] and self._output_type[-4] == 'P':
-                            self._create_product(apid, start, anx[i+1], False, 'inside_orb', 'anx', for_sensor=sensor)
+                        else:
+                            if self._output_type[-4] == 'P':
+                                if start > anx[i]:
+                                    slice_start_position = 'inside_orb'
+                                    slice_start = start
+                                else:
+                                    slice_start_position = 'anx'
+                                    slice_start = anx[i]
 
-                        elif anx[i] <= stop <= anx[i+1] and self._output_type[-4] == 'P':
-                            self._create_product(apid, anx[i], stop, False, 'anx', 'inside_orb', for_sensor=sensor)
+                                if stop < anx[i+1]:
+                                    slice_stop_position = 'inside_orb'
+                                    slice_stop = stop
+                                else:
+                                    slice_stop_position = 'anx'
+                                    slice_stop = anx[i+1]
+
+                                self._create_product(apid, slice_start, slice_stop, False,
+                                                     slice_start_position, slice_stop_position, for_sensor=sensor)
 
             else:
                 assert False
