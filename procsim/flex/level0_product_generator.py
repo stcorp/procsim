@@ -143,14 +143,14 @@ class EO(ProductGeneratorL0):
                 self._generate_product(start, stop)
 
         # generate output from scenario config
-        else:
-            data_takes_with_bounds = self._get_data_takes_with_bounds()
-            for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
-                self.read_scenario_parameters(data_take_config)
-                if self._enable_slicing:
-                    self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
-                else:
-                    assert False  # TODO
+#        else:
+#            data_takes_with_bounds = self._get_data_takes_with_bounds()
+#            for data_take_config, data_take_start, data_take_stop in data_takes_with_bounds:
+#                self.read_scenario_parameters(data_take_config)
+#                if self._enable_slicing:
+#                    self._generate_sliced_output(data_take_config, data_take_start, data_take_stop)
+#                else:
+#                    assert False  # TODO
 
     def _generate_product(self, start, stop):
         if self._hdr.data_take_id is None:
@@ -339,7 +339,8 @@ class CAL(ProductGeneratorL0):
         'L0__CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 
-    _ACQ_PARAMS = []
+    _ACQ_PARAMS = [
+    ]
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),
@@ -372,25 +373,28 @@ class CAL(ProductGeneratorL0):
 
         # generate output from inputs
         if self._output_periods is not None:
+            if self._hdr.acquisition_subtype != self.ACQ_SUBTYPE[self._output_type]:
+                return
+
             self._hdr.product_baseline = self._scenario_config['baseline']
             for cal_id, start, stop in self._output_periods:
                 self._generate_output(cal_id, start, stop)
 
         # generate output from scenario config
-        else:
-            for calibration_config in self._scenario_config['calibration_events']:
-                self.read_scenario_parameters(calibration_config)
-                cal_start = self._time_from_iso(calibration_config['start'])
-                cal_stop = self._time_from_iso(calibration_config['stop'])
-
-                begin_pos = self._hdr.begin_position
-                end_pos = self._hdr.end_position
-                if begin_pos is None or end_pos is None:
-                    raise ScenarioError('no begin_position or end_position')
-
-                complete = (cal_start >= begin_pos and cal_stop <= end_pos)
-                if complete:
-                    self._generate_output(calibration_config['calibration_id'], cal_start, cal_stop)
+#        else:
+#            for calibration_config in self._scenario_config['calibration_events']:
+#                self.read_scenario_parameters(calibration_config)
+#                cal_start = self._time_from_iso(calibration_config['start'])
+#                cal_stop = self._time_from_iso(calibration_config['stop'])
+#
+#                begin_pos = self._hdr.begin_position
+#                end_pos = self._hdr.end_position
+#                if begin_pos is None or end_pos is None:
+#                    raise ScenarioError('no begin_position or end_position')
+#
+#                complete = (cal_start >= begin_pos and cal_stop <= end_pos)
+#                if complete:
+#                    self._generate_output(calibration_config['calibration_id'], cal_start, cal_stop)
 
     def _generate_output(self, calibration_id: str, start, stop):
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
@@ -402,7 +406,6 @@ class CAL(ProductGeneratorL0):
 
         self._hdr.set_validity_times(start, stop)
         self._hdr.acquisition_type = 'CALIBRATION'
-        self._hdr.acquisition_subtype = self.ACQ_SUBTYPE[self._output_type]
         self._hdr.sensor_mode = 'CAL'
 
         # self._hdr.calibration_id = calibration_id
@@ -518,18 +521,18 @@ class ANC(ProductGeneratorL0):
                 self._generate_output(apid, start, stop)
 
         # generate output from scenario config
-        else:
-            anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
-
-            for event in self._scenario_config['anc_events']:
-                apid = event['apid']
-                start = self._time_from_iso(event['start'])
-                stop = self._time_from_iso(event['stop'])
-
-                for i in range(len(anx)-1):
-                    # complete overlap of anx-to-anx window
-                    if start <= anx[i] and stop >= anx[i+1]:
-                        self._generate_output(apid, anx[i], anx[i+1])
+#        else:
+#            anx = [self._time_from_iso(a) for a in self._scenario_config['anx']]
+#
+#            for event in self._scenario_config['anc_events']:
+#                apid = event['apid']
+#                start = self._time_from_iso(event['start'])
+#                stop = self._time_from_iso(event['stop'])
+#
+#                for i in range(len(anx)-1):
+#                    # complete overlap of anx-to-anx window
+#                    if start <= anx[i] and stop >= anx[i+1]:
+#                        self._generate_output(apid, anx[i], anx[i+1])
 
     def _generate_output(self, apid, start, stop):
         self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
