@@ -4,7 +4,7 @@
 
     "scenarios": [
         {
-            "name": "Raw data generator, measurement mode",
+            "name": "Raw data generator: DATA-DUMP 1",
             "mission_phase": "COMMISSIONING",
 
             "file_name": "N/A",
@@ -14,10 +14,10 @@
             "task_version": "N/A",
             "log_level": "debug",
 
-            "output_path": "workspace",
-//            "creation_date": "2021-02-01T05:00:00.000Z",  // Default is 'now' (current date)
-            "acquisition_date": "2021-02-01T01:38:10.000Z",
-            "acquisition_station": "SP",
+            "output_path": "RAW_output",
+            "creation_date": "2023-04-11T10:03:15.000Z",  // Default is 'now' (current date)
+            "acquisition_date": "2023-04-11T10:03:05.000Z",
+            "acquisition_station": "SVA",
             "zip_output": false,
             "keep_zip": true,
 
@@ -26,39 +26,162 @@
                   "type": "RAW_XS_HR1",
                   "begin_position": "2023-04-11T07:34:53.000Z",
                   "end_position": "2023-04-11T10:02:58.000Z",
-                  "size": 10
-              },
-              {
-                  "type": "RAW_XS_HR1",
-                  "begin_position": "2023-04-11T10:02:58.000Z",
-                  "end_position": "2023-04-11T10:12:47.000Z",
-                  "size": 10
+                  "size": 3
               },
               {
                   "type": "RAW_XS_HR2",
                   "begin_position": "2023-04-11T07:40:08.000Z",
                   "end_position": "2023-04-11T08:19:11.000Z",
-                  "size": 10
-              },
-              {
-                  "type": "RAW_XS_HR2",
-                  "begin_position": "2023-04-11T08:19:11.000Z",
-                  "end_position": "2023-04-11T10:08:36.000Z",
-                  "size": 10
+                  "size": 3
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T07:38:42.000Z",
                   "end_position": "2023-04-11T08:30:17.000Z",
-                  "size": 10
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_OBC",
+                  "begin_position": "2023-04-11T07:41:00.000Z",
+                  "end_position": "2023-04-11T10:03:00.000Z",
+                  "size": 3
+              }
+            ]
+        },
+		{
+            "name": "Raw data generator: DATA-DUMP 2",
+            "mission_phase": "COMMISSIONING",
+
+            "file_name": "N/A",
+            "processor_name": "procsim",
+            "processor_version": "1.2.0",
+            "task_name": "N/A",
+            "task_version": "N/A",
+            "log_level": "debug",
+
+            "output_path": "RAW_output",
+            "creation_date": "2023-04-11T11:01:20.000Z",  // Default is 'now' (current date)
+            "acquisition_date": "2023-04-11T11:01:10.000Z",
+            "acquisition_station": "KSE",
+            "zip_output": false,
+            "keep_zip": true,
+
+            "outputs": [
+              {
+                  "type": "RAW_XS_HR1",
+                  "begin_position": "2023-04-11T10:02:58.000Z",
+                  "end_position": "2023-04-11T10:51:47.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_HR2",
+                  "begin_position": "2023-04-11T08:19:11.000Z",
+                  "end_position": "2023-04-11T10:39:36.000Z",
+                  "size": 3
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T08:30:17.000Z",
-                  "end_position": "2023-04-11T10:33:41.000Z",
-                  "size": 10
+                  "end_position": "2023-04-11T11:00:41.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_OBC",
+                  "begin_position": "2023-04-11T10:03:00.000Z",
+                  "end_position": "2023-04-11T11:01:00.000Z",
+                  "size": 3
               }
             ]
-        }
+        },
+		{
+            "name": "Raw data generator: DATA-DUMP 3",
+            "mission_phase": "COMMISSIONING",
+
+            "file_name": "N/A",
+            "processor_name": "procsim",
+            "processor_version": "1.2.0",
+            "task_name": "N/A",
+            "task_version": "N/A",
+            "log_level": "debug",
+
+            "output_path": "RAW_output",
+            "creation_date": "2023-04-11T12:34:35.000Z",  // Default is 'now' (current date)
+            "acquisition_date": "2023-04-11T12:34:25.000Z",
+            "acquisition_station": "SVA",
+            "zip_output": false,
+            "keep_zip": true,
+
+            "outputs": [
+              {
+                  "type": "RAW_XS_HR1",
+                  "begin_position": "2023-04-11T10:51:47.000Z",
+                  "end_position": "2023-04-11T12:35:28.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_HR2",
+                  "begin_position": "2023-04-11T10:39:36.000Z",
+                  "end_position": "2023-04-11T11:25:37.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_LR_",
+                  "begin_position": "2023-04-11T11:00:41.000Z",
+                  "end_position": "2023-04-11T12:23:40.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_OBC",
+                  "begin_position": "2023-04-11T11:01:00.000Z",
+                  "end_position": "2023-04-11T12:15:42.000Z",
+                  "size": 3
+              }
+            ]
+        },
+		{
+            "name": "Raw data generator: DATA-DUMP 4",
+            "mission_phase": "COMMISSIONING",
+
+            "file_name": "N/A",
+            "processor_name": "procsim",
+            "processor_version": "1.2.0",
+            "task_name": "N/A",
+            "task_version": "N/A",
+            "log_level": "debug",
+
+            "output_path": "RAW_output",
+            "creation_date": "2023-04-11T13:14:00.000Z",  // Default is 'now' (current date)
+            "acquisition_date": "2023-04-11T13:20:04.000Z",
+            "acquisition_station": "KSE",
+            "zip_output": false,
+            "keep_zip": true,
+
+            "outputs": [
+              {
+                  "type": "RAW_XS_HR1",
+                  "begin_position": "2023-04-11T12:35:28.000Z",
+                  "end_position": "2023-04-11T12:59:31.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_HR2",
+                  "begin_position": "2023-04-11T11:25:37.000Z",
+                  "end_position": "2023-04-11T12:53:19.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_LR_",
+                  "begin_position": "2023-04-11T12:23:40.000Z",
+                  "end_position": "2023-04-11T13:02:59.000Z",
+                  "size": 3
+              },
+              {
+                  "type": "RAW_XS_OBC",
+                  "begin_position": "2023-04-11T12:15:42.000Z",
+                  "end_position": "2023-04-11T13:18:14.000Z",
+                  "size": 3
+              }
+            ]
+        }		
     ]
 }

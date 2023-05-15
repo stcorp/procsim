@@ -28,19 +28,64 @@
       "baseline": "1B",
 
       "outputs": [
+        //OBS
+		{
+          "type": "RWS_H1_OBS",
+          "metadata_source": ".*RWS_H1POBS.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_H2_OBS",
+          "metadata_source": ".*RWS_H2POBS.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_LR_OBS",
+          "metadata_source": ".*RWS_LRPOBS.*", // Input to use
+          "size": 0
+        },
+        //VAU
+        {
+          "type": "RWS_H1_VAU",
+          "metadata_source": ".*RWS_H1PVAU.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_H2_VAU",
+          "metadata_source": ".*RWS_H2PVAU.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_LR_VAU",
+          "metadata_source": ".*RWS_LRPVAU.*", // Input to use
+          "size": 0
+        },
+		//CAL
         {
           "type": "RWS_H1_CAL",
           "metadata_source": ".*RWS_H1PCAL.*", // Input to use
           "size": 0
         },
         {
-          "type": "RWS_H1_VAU",
-          "metadata_source": ".*RWS_H1PVAU.*", // Input to use
+          "type": "RWS_H2_CAL",
+          "metadata_source": ".*RWS_H2PCAL.*", // Input to use
           "size": 0
         },
         {
-          "type": "RWS_LR_OBS",
-          "metadata_source": ".*RWS_LRPOBS.*", // Input to use
+          "type": "RWS_LR_CAL",
+          "metadata_source": ".*RWS_LRPCAL.*", // Input to use
+          "size": 0
+        },
+        //ITM
+        {
+          "type": "RWS_XS_ITM",
+          "metadata_source": ".*RWS_XSPITM.*", // Input to use
+          "size": 0
+        },
+        //OBC
+        {
+          "type": "RWS_XS_OBC",
+          "metadata_source": ".*RWS_XSPOBC.*", // Input to use
           "size": 0
         }
       ],

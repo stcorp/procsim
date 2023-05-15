@@ -5,7 +5,7 @@ import tabulate
 
 props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition',
          'sliceStopPosition', 'completenessAssesment', 'calibrationID']
-prefix = 'FLX_RWS'
+prefix = 'FLX_'
 
 eop = '{http://www.opengis.net/eop/2.1}'
 if len(sys.argv) > 1:
