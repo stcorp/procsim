@@ -211,7 +211,7 @@ class MainProductHeader:
         product_type_info = product_types.find_product(type)
         if product_type_info is not None:
             self._product_type_info = product_type_info
-            self._processing_level = 'other: {}'.format(product_type_info.level.upper())
+            self._processing_level = 'other: {}'.format(product_type_info.level.replace('raws', 'rws').upper())  # TODO fix level?
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
