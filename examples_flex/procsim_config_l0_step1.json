@@ -61,19 +61,22 @@
                 "apid": "6543",
                 "calibration_id": "248",
                 "start": "2023-04-11T11:03:00.000000Z",
-                "stop": "2023-04-11T11:20:00.000000Z"
+                "stop": "2023-04-11T11:20:00.000000Z",
+                "calibration_type": "Dark_CU_NAPoint_NOM"
             },
             {
                 "apid": "6543",
                 "calibration_id": "249",
                 "start": "2023-04-11T11:20:05.000000Z",
-                "stop": "2023-04-11T11:30:00.000000Z"
+                "stop": "2023-04-11T11:30:00.000000Z",
+                "calibration_type": "Dark_CU_NAPoint_NOM"
             },
             {
                 "apid": "6543",
                 "calibration_id": "250",
                 "start": "2023-04-11T12:33:00.000000Z",
-                "stop": "2023-04-11T12:39:00.000000Z"
+                "stop": "2023-04-11T12:39:00.000000Z",
+                "calibration_type": "Dark_CU_NAPoint_NOM"
             }
         ],
 

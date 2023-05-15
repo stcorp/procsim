@@ -752,6 +752,9 @@ class RWS_CAL(RawProductGeneratorBase):
             self.read_scenario_parameters(calibration_config)
 
             cal_id = calibration_config['calibration_id']
+            cal_type = calibration_config['calibration_type']
+            self._hdr.acquisition_subtype = cal_type
+
             apid = calibration_config['apid']
             cal_start = self._time_from_iso(calibration_config['start'])
             cal_stop = self._time_from_iso(calibration_config['stop'])
