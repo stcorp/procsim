@@ -59,9 +59,9 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
                     period_types[data_take_id, start, stop].add(input.file_type)
         self._output_periods = []
         for period, filetypes in period_types.items():
-            if self.__class__.__name__ in ['EO', 'CAL'] or self._output_type == 'L0__VAU_TM':  # TODO in/out mapping?
-                if set(filetypes).issuperset(set(self.INPUTS)):  # all inputs available (eg three sensors)
-                    self._output_periods.append(period)
+            if len(set(filetypes)) == len(self.INPUTS):  # all inputs available (eg three sensors)
+                self._output_periods.append(period)
+
         return True
 
 
@@ -469,22 +469,13 @@ class ANC(ProductGeneratorL0):
         'RWS_LR_VAU',
         'RWS_H1_VAU',
         'RWS_H2_VAU',
-        # 'RWS_XS_ITM',
-        # 'RWS_XS_OBC',
     ]
 
     PRODUCTS = [
-        'L0__SAT_TM',
-        'L0__NAVATT',
-        'L0__PDHUTM',
-        'L0__ICUDTM',
         'L0__VAU_TM',
-        'L0__INSTTM',
-
         'L0__TST___',
         'L0__WRN___',
-        'L0__INV___',
-        'L0__UNK___',
+
     ]
 
     ID_FIELD = 'apid'
@@ -586,3 +577,26 @@ class ANC(ProductGeneratorL0):
 
         if self._zip_output:
             self.zip_folder(dir_name, self._zip_extension)
+
+
+class ANC_INSTTM(ANC):
+    INPUTS = [
+        'RWS_XS_ITM',
+    ]
+
+    PRODUCTS = [
+        'L0__INSTTM',
+    ]
+
+
+class ANC_OBC(ANC):
+    INPUTS = [
+        'RWS_XS_OBC',
+    ]
+
+    PRODUCTS = [
+        'L0__SAT_TM',
+        'L0__NAVATT',
+        'L0__PDHUTM',
+        'L0__ICUDTM',
+    ]

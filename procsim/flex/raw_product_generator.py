@@ -922,12 +922,18 @@ class RWS_ANC(RawProductGeneratorBase):
         'RWS_H1PVAU',
         'RWS_H2_VAU',
         'RWS_H2PVAU',
+    ]
 
-        'RWS_XS_ITM',
-        'RWS_XSPITM',
+    INPUTS_STEP1 = [
+        'RAW_XS_HR1',
+        'RAW_XS_HR2',
+        'RAW_XS_LR_'
+    ]
 
-        'RWS_XS_OBC',
-        'RWS_XSPOBC',
+    INPUTS_STEP2 = [
+        'RWS_LRPVAU',
+        'RWS_H1PVAU',
+        'RWS_H2PVAU',
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -976,10 +982,8 @@ class RWS_ANC(RawProductGeneratorBase):
             return False
 
         # slice raw products (step1)
-        INPUTS = ['RAW_XS_HR1', 'RAW_XS_HR2', 'RAW_XS_LR_', 'RAW_XS_OBC']  # TODO merge EO/CAL
-
         for input in input_products:
-            if input.file_type in INPUTS:
+            if input.file_type in self.INPUTS_STEP1:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -1000,12 +1004,10 @@ class RWS_ANC(RawProductGeneratorBase):
                     self._raw_periods.append((start, stop, sensor))
 
         # merge partial into complete (step2)
-        INPUTS = ['RWS_H1PVAU', 'RWS_H2PVAU', 'RWS_LRPVAU', 'RWS_XSPOBC', 'RWS_XSPITM']  # TODO use as key instead of just sensor for multi types?
-
         key_periods = collections.defaultdict(list)
 
         for input in input_products:
-            if input.file_type in INPUTS:
+            if input.file_type in self.INPUTS_STEP2:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -1097,8 +1099,8 @@ class RWS_ANC(RawProductGeneratorBase):
                                 self._create_product(apid, slice_start, slice_stop, False,
                                                      slice_start_position, slice_stop_position, for_sensor=sensor)
 
-            else:
-                assert False
+#            else:
+#                assert False
 #                start = self._time_from_iso(event['start'])
 #                stop = self._time_from_iso(event['stop'])
 #
@@ -1151,3 +1153,33 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)
+
+
+class RWS_ANC_ITM(RWS_ANC):
+    PRODUCTS = [
+        'RWS_XS_ITM',
+        'RWS_XSPITM',
+    ]
+
+    INPUTS_STEP1 = [
+        'RAW_XS_LR_'
+    ]
+
+    INPUTS_STEP2 = [
+        'RWS_XSPITM',
+    ]
+
+
+class RWS_ANC_OBC(RWS_ANC):
+    PRODUCTS = [
+        'RWS_XS_OBC',
+        'RWS_XSPOBC',
+    ]
+
+    INPUTS_STEP1 = [
+        'RAW_XS_OBC'
+    ]
+
+    INPUTS_STEP2 = [
+        'RWS_XSPOBC',
+    ]

@@ -33,129 +33,34 @@
           "metadata_source": ".*RWS_H1_OBS.*", // Input to use
           "size": 0
         },
-        {
-          "type": "L0__OBSMON",
-          "metadata_source": ".*RWS_H1_OBS.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__INSTTM",
-          "metadata_source": ".*RWS_XS_ITM.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SAT_TM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__NAVATT",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__PDHUTM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__ICUDTM",
-          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-        {
+		{
           "type": "L0__VAU_TM",
           "metadata_source": ".*RWS_H1_VAU.*", // Input to use
           "size": 0
         },
-        {
-          "type": "L0__TST___",
-          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+		{
+          "type": "L0__INSTTM",
+          "metadata_source": ".*RWS_XS_ITM.*", // Input to use
           "size": 0
         },
-        {
-          "type": "L0__WRN___",
-          "metadata_source": ".*RWS_H1_VAU.*", // Input to use
+		{
+          "type": "L0__SAT_TM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
           "size": 0
         },
-        {
-          "type": "L0__DARKNP",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+		{
+          "type": "L0__NAVATT",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
           "size": 0
         },
-        {
-          "type": "L0__DARKSR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+		{
+          "type": "L0__PDHUTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
           "size": 0
-        },
-        {
-          "type": "L0__DEFDAR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DARKOC",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DRKMTF",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DRKSTR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__SUN___",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__DEFSUN",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__MOON__",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__MOONSL",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINDES",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINSEA",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINSUN",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__LINDAR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__CTE___",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "L0__CLOUD_",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+       },
+		{
+          "type": "L0__ICUDTM",
+          "metadata_source": ".*RWS_XS_OBC.*", // Input to use
           "size": 0
         }
       ],

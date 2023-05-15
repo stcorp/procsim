@@ -1,145 +1,255 @@
 {
-  "mission": "flex",
-  "log_level": "debug",
-  "scenarios": [
+    "mission": "flex",
+    "log_level": "debug",
+    "scenarios": [
     {
-      // L0 slicer scenario.
-      "name": "L0 step 1, Raw slice-based products",
-      "mission_phase": "COMMISSIONING",
+        // L0 slicer scenario.
+        "name": "L0 step 1",
+        "mission_phase": "COMMISSIONING",
 
-      // File_name must match with the first argument of procsim
-      "file_name": "level0_task1.sh",
+        // File_name must match with the first argument of procsim
+        "file_name": "level0_task1.sh",
 
-      // Processor/task are used to find the right task in the job order
-      "processor_name": "l0preproc_sm",
-      "processor_version": "01.01",
-      "task_name": "Step1",
-      "task_version": "05.03L01",
+        // Processor/task are used to find the right task in the job order
+        "processor_name": "l0preproc_sm",
+        "processor_version": "01.01",
+        "task_name": "Step1",
+        "task_version": "05.03L01",
 
-      // Resources
-      "processing_time": 1,
-      "nr_cpu": 3,
-      "memory_usage": 10,
-      "disk_usage": 10,
+        // Resources
+        "processing_time": 1,
+        "nr_cpu": 3,
+        "memory_usage": 10,
+        "disk_usage": 10,
 
-      // Logging
-      "nr_progress_log_messages": 4,
+        // Logging
+        "nr_progress_log_messages": 4,
 
-      "keep_zip": true,
+        "keep_zip": true,
 
-      "anx": [
-          "2023-04-11T06:04:00.000000Z",
-          "2023-04-11T07:45:00.000000Z",
-          "2023-04-11T09:26:00.000000Z",
-          "2023-04-11T11:07:00.000000Z"
-      ],
+        "anx": [
+            "2023-04-11T06:04:00.000000Z",
+            "2023-04-11T07:45:00.000000Z",
+            "2023-04-11T09:26:00.000000Z",
+            "2023-04-11T11:07:00.000000Z",
+            "2023-04-11T12:48:00.000000Z"
+        ],
 
-      "data_takes": [
-          {
+        "data_takes": [
+            {
                 "apid": "4321",
                 "data_take_id": "8256",
                 "start": "2023-04-11T08:12:57.000000Z",
                 "stop": "2023-04-11T08:26:13.000000Z"
-          },
-          {
+            },
+            {
                 "apid": "4321",
                 "data_take_id": "8257",
                 "start": "2023-04-11T09:59:38.000000Z",
                 "stop": "2023-04-11T10:06:41.000000Z"
-          }
-      ],
+            },
+            {
+                "apid": "4321",
+                "data_take_id": "8258",
+                "start": "2023-04-11T10:21:00.000000Z",
+                "stop": "2023-04-11T10:22:30.000000Z"
+            }
+        ],
 
-      "calibration_events": [
-      ],
+        "calibration_events": [
+            {
+                "apid": "6543",
+                "calibration_id": "248",
+                "start": "2023-04-11T11:03:00.000000Z",
+                "stop": "2023-04-11T11:20:00.000000Z"
+            },
+            {
+                "apid": "6543",
+                "calibration_id": "249",
+                "start": "2023-04-11T11:20:05.000000Z",
+                "stop": "2023-04-11T11:30:00.000000Z"
+            },
+            {
+                "apid": "6543",
+                "calibration_id": "250",
+                "start": "2023-04-11T12:33:00.000000Z",
+                "stop": "2023-04-11T12:39:00.000000Z"
+            }
+        ],
 
-      "anc_events": [
-          {
-              "apid": "4321"
-          }
-      ],
+        "anc_events": [
+            {
+                "apid": "1234"
+            }
+        ],
 
-      "cycle_number": "012",
-      "relative_orbit_number": "046",
-      "baseline": "1B",
+        "cycle_number": "012",
+        "relative_orbit_number": "046",
+        "baseline": "1B",
 
-      "outputs": [
-        {
-          "type": "RWS_H1_OBS",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H1POBS",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H1IOBS",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H1_VAU",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H1PVAU",
-          "metadata_source": ".*RAW_XS_HR1.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2_OBS",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2POBS",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2IOBS",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2_VAU",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_H2PVAU",
-          "metadata_source": ".*RAW_XS_HR2.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_LR_OBS",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_LRPOBS",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_LRIOBS",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_LR_VAU",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        },
-        {
-          "type": "RWS_LRPVAU",
-          "metadata_source": ".*RAW_XS_LR_.*", // Input to use
-          "size": 0
-        }
-      ],
-      "exit_code": 0
+        "outputs": [
+            //OBS
+            //    - source: each deriving from correspnding HR1/HR2/LR RAW
+            //    - output coverage: the timespan of data_takes falling within the RAW time span
+            //    - cut: data_takes based and 180s gridding from preceding ANX 
+            {
+                "type": "RWS_H1_OBS",
+                "metadata_source": ".*RAW_XS_HR1.*", // Input to use
+                "size": 1
+            },
+            {
+                "type": "RWS_H1POBS",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H1IOBS",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2_OBS",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2POBS",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2IOBS",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LR_OBS",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LRPOBS",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LRIOBS",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            //CAL
+            //    - source: each deriving from correspnding HR1/HR2/LR RAW
+            //    - output coverage: the timespan of calibration_events falling within the RAW time span
+            //    - cut: calibration_events based
+            {
+                "type": "RWS_H1_CAL",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H1PCAL",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H1ICAL",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2_CAL",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2PCAL",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2ICAL",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LR_CAL",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LRPCAL",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LRICAL",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            //VAU: 
+            //    - source: each from correspnding HR1/HR2/LR RAW
+            //    - output coverage: fully covering source timespan
+            //    - cut: on each ANX included in the RAW time span
+            {
+                "type": "RWS_H1_VAU",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H1PVAU",
+                "metadata_source": ".*RAW_XS_HR1.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2_VAU",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_H2PVAU",
+                "metadata_source": ".*RAW_XS_HR2.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LR_VAU",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_LRPVAU",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            //ITM:
+            //    - source: from LR RAW
+            //    - output coverage: fully covering source timespan
+            //    - cut: on each ANX included in the RAW time span
+            {
+                "type": "RWS_XS_ITM",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_XSPITM",
+                "metadata_source": ".*RAW_XS_LR_.*",
+                "size": 1
+            },
+            //OBC:
+            //    - source: from OBC RAW
+            //    - output coverage: fully covering source timespan
+            //    - cut: on each ANX included in the RAW time span
+            {
+                "type": "RWS_XS_OBC",
+                "metadata_source": ".*RAW_XS_OBC.*",
+                "size": 1
+            },
+            {
+                "type": "RWS_XSPOBC",
+                "metadata_source": ".*RAW_XS_OBC.*",
+                "size": 1
+            }
+        ],
+        "exit_code": 0
     }
-  ]
+    ]
 }
