@@ -476,8 +476,6 @@ class ANC(ProductGeneratorL0):
         'L0__TST___',
         'L0__WRN___',
 
-#        'L0__INV___',
-#        'L0__UNK___',
     ]
 
     ID_FIELD = 'apid'
@@ -589,6 +587,7 @@ class ANC_INSTTM(ANC):
     PRODUCTS = [
         'L0__INSTTM',
     ]
+
 
 class ANC_OBC(ANC):
     INPUTS = [
