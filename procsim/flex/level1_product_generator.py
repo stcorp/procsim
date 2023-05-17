@@ -72,7 +72,12 @@ class EO(product_generator.ProductGeneratorBase):
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    self._output_period = (start, stop)
+
+                    # check overlap with joborder TOI (time-of-interest)
+                    overlap_start = max(start, self._job_toi_start)
+                    overlap_stop = min(stop, self._job_toi_stop)
+                    if overlap_stop > overlap_start:
+                        self._output_period = (overlap_start, overlap_stop)
 
         return True
 
@@ -85,6 +90,9 @@ class EO(product_generator.ProductGeneratorBase):
 
         start, stop = self._output_period
         self._logger.debug('EO {} from {} to {}'.format(self._hdr.data_take_id, start, stop))
+        self._hdr.set_validity_times(start, stop)
+        self._hdr.begin_position = start
+        self._hdr.end_position = stop
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
