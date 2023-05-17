@@ -25,13 +25,7 @@ _ACQ_PARAMS = []
 
 
 class ProductGeneratorL1(product_generator.ProductGeneratorBase):
-    '''
-    Locate combinations of three complete slices (one for each sensor) for the same period.
-    '''  # TODO unique datatake_id, cal_id, event_id?
-
     INPUTS = []
-
-    ID_FIELD = ''
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
@@ -53,10 +47,9 @@ class ProductGeneratorL1(product_generator.ProductGeneratorBase):
                     hdr.parse(mph_file_name)
                     if hdr.begin_position is None or hdr.end_position is None:
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
-                    data_take_id = getattr(hdr, self.ID_FIELD)
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    period_types[data_take_id, start, stop].add(input.file_type)
+                    self._output_period = (start, stop)
 
         return True
 
@@ -64,8 +57,6 @@ class ProductGeneratorL1(product_generator.ProductGeneratorBase):
 class EO(ProductGeneratorL1):
     INPUTS = [
     ]
-
-    ID_FIELD = 'data_take_id'
 
     PRODUCTS = [
         'L1B_OBS___',
@@ -95,9 +86,8 @@ class EO(ProductGeneratorL1):
 
 class CAL(ProductGeneratorL1):
     INPUTS = [
+        'L0__DARKNP',
     ]
-
-    ID_FIELD = 'calibration_id'
 
     PRODUCTS = [
         'RAC_DARKNP',
@@ -129,7 +119,7 @@ class CAL(ProductGeneratorL1):
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
 
-        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
+        self._output_period: Optional[[datetime.datetime, datetime.datetime]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -137,3 +127,33 @@ class CAL(ProductGeneratorL1):
 
     def generate_output(self):
         super().generate_output()
+
+        if self._output_period is None:
+            return
+
+        start, stop = self._output_period
+        self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
+
+        # Setup MPH fields. Validity time is not changed, should still be the
+        # theoretical slice start/end.
+        self._hdr.product_type = self._resolve_wildcard_product_type()
+
+        # Create name generator
+        name_gen = self._create_name_generator(self._hdr)
+        name_gen.downlink_time = datetime.datetime.now()  # TODO
+
+
+        # Create directory and files
+        dir_name = name_gen.generate_path_name()
+
+        self._hdr.initialize_product_list(dir_name)
+
+        self._logger.info('Create {}'.format(dir_name))
+        dir_name = os.path.join(self._output_path, dir_name)
+        os.makedirs(dir_name, exist_ok=True)
+
+#        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
+#        self._add_file_to_product(file_path, self._size_mb // 2)
+
+        file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
+        self._hdr.write(file_path)
