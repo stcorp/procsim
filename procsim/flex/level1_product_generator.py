@@ -44,7 +44,7 @@ class EO(product_generator.ProductGeneratorBase):
 
         self._orbital_period = constants.ORBITAL_PERIOD
 
-        self._output_period: Optional[[datetime.datetime, datetime.datetime]] = None
+        self._output_period: Optional[Tuple[datetime.datetime, datetime.datetime]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -74,13 +74,13 @@ class EO(product_generator.ProductGeneratorBase):
                     stop = hdr.end_position
 
                     # check overlap with joborder TOI (time-of-interest)
-                    overlap_start = max(start, self._job_toi_start)
-                    overlap_stop = min(stop, self._job_toi_stop)
-                    if overlap_stop > overlap_start:
-                        self._output_period = (overlap_start, overlap_stop)
+                    if self._job_toi_start is not None and self._job_toi_stop is not None:
+                        overlap_start = max(start, self._job_toi_start)
+                        overlap_stop = min(stop, self._job_toi_stop)
+                        if overlap_stop > overlap_start:
+                            self._output_period = (overlap_start, overlap_stop)
 
         return True
-
 
     def generate_output(self):
         super().generate_output()
@@ -149,7 +149,7 @@ class CAL(product_generator.ProductGeneratorBase):
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
 
-        self._output_period: Optional[[datetime.datetime, datetime.datetime]] = None
+        self._output_period: Optional[Tuple[datetime.datetime, datetime.datetime]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
