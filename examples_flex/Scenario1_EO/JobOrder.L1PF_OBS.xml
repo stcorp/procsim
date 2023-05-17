@@ -13,7 +13,12 @@
     <List_of_Stderr_Log_Levels />
     <Intermediate_Output_Enable>true</Intermediate_Output_Enable>
     <Processing_Station>ESR</Processing_Station>
-    <Request />
+    <Request>
+        <TOI>
+            <Start>2020-02-01T01:02:03.123456</Start>
+            <Stop>2025-02-01T01:02:03.456000</Stop>
+        </TOI>
+    </Request>
   </Processor_Configuration>
   <List_of_Tasks>
     <Task>
