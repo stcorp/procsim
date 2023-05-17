@@ -68,6 +68,10 @@ class EO(ProductGeneratorL1):
     ID_FIELD = 'data_take_id'
 
     PRODUCTS = [
+        'L1B_OBS___',
+        'ANC_ROTLOS',
+        'ANC_ATTRES',
+        'ANC_ORBRES',
     ]
 
     _ACQ_PARAMS = []
@@ -96,6 +100,23 @@ class CAL(ProductGeneratorL1):
     ID_FIELD = 'calibration_id'
 
     PRODUCTS = [
+        'RAC_DARKNP',
+        'RAC_DARKSR',
+        'RAC_DEFDAR',
+        'RAC_DEFRTS',
+        'RAC_DARKOC',
+        'RAC_DRKMTF',
+        'RAC_DRKSTR',
+        'RAC_SUN___',
+        'RAC_DEFSUN',
+        'RAC_MOON__',
+        'RAC_MOONSL',
+        'RAC_LINDES',
+        'RAC_CTE___',
+        'RAC_CLOUD_',
+
+        'SPC_SPECSD',
+        'SPC_SPECEO',
     ]
 
     _ACQ_PARAMS = [
