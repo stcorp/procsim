@@ -31,6 +31,11 @@
 
       "outputs": [
         {
+          "type": "L1B_OBS___",
+          "metadata_source": ".*L0__OBS___.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "RAC_DARKNP",
           "metadata_source": ".*L0__DARKNP.*", // Input to use
           "size": 0
