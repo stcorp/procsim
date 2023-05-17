@@ -97,6 +97,10 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0__INV___', 'l0', 'Level-0 Invalid Data Product'),
     ProductType('L0__UNK___', 'l0', 'Level-0 Unknown Data Product'),
 
+    ProductType('AUX_ORBSCT', 'aux', 'AUX_ORBSCT'),
+    ProductType('AUX_IERSBU', 'aux', 'AUX_IERSBU'),
+    ProductType('AUX_MET_A_', 'aux', 'AUX_MET_A_'),
+    ProductType('AUX_MET_F_', 'aux', 'AUX_MET_F_'),
 ]
 
 RAWS_PRODUCT_TYPES = []

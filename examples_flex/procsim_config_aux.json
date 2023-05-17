@@ -15,20 +15,20 @@
             "begin_position": "2021-02-01T00:00:00.000Z",
             "end_position": "2021-02-01T01:38:10.000Z",
 
-            "output_path": "workspace",
+            "output_path": "AUX_output",
 
             "outputs": [
                 {
-                    "type": "AUX_GCP_DB"
+                    "type": "AUX_ORBSCT"
                 },
                 {
-                    "type": "CFG_L0__PF"
+                    "type": "AUX_IERSBU"
                 },
                 {
-                    "type": "CFG_PF_BC_"
+                    "type": "AUX_MET_A_"
                 },
                 {
-                    "type": "CFG_TSKTBL"
+                    "type": "AUX_MET_F_"
                 }
             ]
         }
