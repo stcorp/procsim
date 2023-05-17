@@ -97,6 +97,35 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0__INV___', 'l0', 'Level-0 Invalid Data Product'),
     ProductType('L0__UNK___', 'l0', 'Level-0 Unknown Data Product'),
 
+    ProductType('AUX_ORBSCT', 'aux', 'Auxiliary Product'),
+    ProductType('AUX_IERSBU', 'aux', 'Auxiliary Product'),
+    ProductType('AUX_MET_A_', 'aux', 'Auxiliary Product'),
+    ProductType('AUX_MET_F_', 'aux', 'Auxiliary Product'),
+
+    ProductType('L1B_OBS___', 'l1', 'Level-1 Observation Product'),
+
+    ProductType('ANC_ROTLOS', 'l1', 'Level-1 Ancillary Product'),
+    ProductType('ANC_ATTRES', 'l1', 'Level-1 Ancillary Product'),
+    ProductType('ANC_ORBRES', 'l1', 'Level-1 Ancillary Product'),
+
+    ProductType('RAC_DARKNP', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DARKSR', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DEFDAR', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DEFRTS', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DARKOC', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DRKMTF', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DRKSTR', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_SUN___', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DEFSUN', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_MOON__', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_MOONSL', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_LINDES', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_CTE___', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_CLOUD_', 'l1', 'Level-1 Calibration Product'),
+
+    ProductType('SPC_SPECEO', 'l1', 'Level-1 Calibration Product'),
+    ProductType('SPC_SPECSD', 'l1', 'Level-1 Calibration Product'),
+
 ]
 
 RAWS_PRODUCT_TYPES = []

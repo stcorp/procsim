@@ -75,6 +75,11 @@ class Aux(product_generator.ProductGeneratorBase):
         'CFG_TSKTBL',
         'CFG_PF_BC_',
         'CFG_L0__PF',
+
+        'AUX_ORBSCT',
+        'AUX_IERSBU',
+        'AUX_MET_A_',
+        'AUX_MET_F_',
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -96,6 +101,11 @@ class Aux(product_generator.ProductGeneratorBase):
             'CFG_PF_BC_': ('products_baseline', 'xml'),
             'CFG_TSKTBL': ('tasktables', 'xml'),
             'CFG_L0__PF': ('l0params', 'xml'),
+
+            'AUX_ORBSCT': ('data', 'xml'),
+            'AUX_IERSBU': ('data', 'xml'),
+            'AUX_MET_A_': ('data', 'xml'),
+            'AUX_MET_F_': ('data', 'xml'),
         }
         suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
 #
