@@ -104,6 +104,10 @@ PRODUCT_TYPES: List[ProductType] = [
 
     ProductType('L1B_OBS___', 'l1', 'Level-1 Observation Product'),
 
+    ProductType('ANC_ROTLOS', 'l1', 'Level-1 Ancillary Product'),
+    ProductType('ANC_ATTRES', 'l1', 'Level-1 Ancillary Product'),
+    ProductType('ANC_ORBRES', 'l1', 'Level-1 Ancillary Product'),
+
     ProductType('RAC_DARKNP', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DARKSR', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DEFDAR', 'l1', 'Level-1 Calibration Product'),

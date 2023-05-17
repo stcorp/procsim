@@ -36,6 +36,21 @@
           "size": 0
         },
         {
+          "type": "ANC_ROTLOS",
+          "metadata_source": ".*L0__VAU_TM.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "ANC_ATTRES",
+          "metadata_source": ".*L0__VAU_TM.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "ANC_ORBRES",
+          "metadata_source": ".*L0__VAU_TM.*", // Input to use
+          "size": 0
+        },
+        {
           "type": "RAC_DARKNP",
           "metadata_source": ".*L0__DARKNP.*", // Input to use
           "size": 0
