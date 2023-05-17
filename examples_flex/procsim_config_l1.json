@@ -34,6 +34,11 @@
           "type": "RAC_DARKNP",
           "metadata_source": ".*L0__DARKNP.*", // Input to use
           "size": 0
+        },
+        {
+          "type": "RAC_DARKSR",
+          "metadata_source": ".*L0__DARKSR.*", // Input to use
+          "size": 0
         }
       ],
       "exit_code": 0

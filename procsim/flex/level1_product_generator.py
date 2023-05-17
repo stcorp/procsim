@@ -34,7 +34,7 @@ class ProductGeneratorL1(product_generator.ProductGeneratorBase):
 
         period_types = collections.defaultdict(set)
         for input in input_products:
-            if input.file_type in self.INPUTS:
+            if input.file_type[4:] == self._output_type[4:]:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -85,9 +85,6 @@ class EO(ProductGeneratorL1):
 
 
 class CAL(ProductGeneratorL1):
-    INPUTS = [
-        'L0__DARKNP',
-    ]
 
     PRODUCTS = [
         'RAC_DARKNP',
