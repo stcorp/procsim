@@ -1,0 +1,118 @@
+'''
+Copyright (C) 2021-2023 S[&]T, The Netherlands.
+
+Flex Level 1 product generators,
+format according to ESA-EOPG-EOEP-TN-0022
+'''
+import bisect
+import collections
+import datetime
+import os
+from typing import Iterable, List, Tuple, Optional
+
+from . import constants
+from procsim.core.exceptions import ScenarioError
+from procsim.core.job_order import JobOrderInput
+
+from . import main_product_header, product_generator, product_name
+
+_HDR_PARAMS = [
+    ('cycle_number', 'cycle_number', 'str'),
+    ('relative_orbit_number', 'relative_orbit_number', 'str'),
+]
+
+_ACQ_PARAMS = []
+
+
+class ProductGeneratorL1(product_generator.ProductGeneratorBase):
+    '''
+    Locate combinations of three complete slices (one for each sensor) for the same period.
+    '''  # TODO unique datatake_id, cal_id, event_id?
+
+    INPUTS = []
+
+    ID_FIELD = ''
+
+    def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
+        # First copy the metadata from any input product (normally H or V)
+        if not super().parse_inputs(input_products, ignore_missing=True):
+            return False
+
+        period_types = collections.defaultdict(set)
+        for input in input_products:
+            if input.file_type in self.INPUTS:
+                for file in input.file_names:
+                    # Skip non-directory products. These have already been parsed in the superclass.
+                    if not os.path.isdir(file):
+                        continue
+                    file, _ = os.path.splitext(file)    # Remove possible extension
+                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen.parse_path(file)
+                    mph_file_name = os.path.join(file, gen.generate_mph_file_name())
+                    hdr = main_product_header.MainProductHeader()
+                    hdr.parse(mph_file_name)
+                    if hdr.begin_position is None or hdr.end_position is None:
+                        raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
+                    data_take_id = getattr(hdr, self.ID_FIELD)
+                    start = hdr.begin_position
+                    stop = hdr.end_position
+                    period_types[data_take_id, start, stop].add(input.file_type)
+
+        return True
+
+
+class EO(ProductGeneratorL1):
+    INPUTS = [
+    ]
+
+    ID_FIELD = 'data_take_id'
+
+    PRODUCTS = [
+    ]
+
+    _ACQ_PARAMS = []
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
+        self._orbital_period = constants.ORBITAL_PERIOD
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
+
+    def generate_output(self):
+        super().generate_output()
+
+
+class CAL(ProductGeneratorL1):
+    INPUTS = [
+    ]
+
+    ID_FIELD = 'calibration_id'
+
+    PRODUCTS = [
+    ]
+
+    _ACQ_PARAMS = [
+    ]
+
+    GENERATOR_PARAMS: List[tuple] = [
+        ('orbital_period', '_orbital_period', 'float'),
+    ]
+
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
+        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
+
+    def get_params(self):
+        gen, hdr, acq = super().get_params()
+        return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
+
+    def generate_output(self):
+        super().generate_output()

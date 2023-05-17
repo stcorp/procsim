@@ -11,12 +11,14 @@ from procsim.core.iproduct_generator import IProductGenerator
 
 from . import aux_product_generator as aux
 from . import level0_product_generator as level0
+from . import level1_product_generator as level1
 from . import raw_product_generator as raw
 
 _GENERATORS = [
     aux.Aux,
     raw.RAW, raw.RAW_HKTM, raw.RWS_EO, raw.RWS_CAL, raw.RWS_ANC, raw.RWS_ANC_ITM, raw.RWS_ANC_OBC,
     level0.EO, level0.CAL, level0.ANC, level0.ANC_INSTTM, level0.ANC_OBC,
+    level1.EO, level1.CAL,
 ]
 
 
