@@ -100,7 +100,8 @@ class EO(product_generator.ProductGeneratorBase):
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
-        name_gen.downlink_time = datetime.datetime.now()  # TODO
+        name_gen.downlink_time = self._creation_date  # TODO remove
+        name_gen.set_creation_date(self._creation_date)
 
         # Create directory and files
         dir_name = name_gen.generate_path_name()
@@ -110,8 +111,9 @@ class EO(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-#        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
-#        self._add_file_to_product(file_path, self._size_mb // 2)
+        for sensor in ('lres', 'hre1', 'hre2'):
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+            self._add_file_to_product(file_path, self._size_mb // 2)
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
@@ -196,7 +198,8 @@ class CAL(product_generator.ProductGeneratorBase):
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
-        name_gen.downlink_time = datetime.datetime.now()  # TODO
+        name_gen.downlink_time = self._creation_date  # TODO remove
+        name_gen.set_creation_date(self._creation_date)
 
         # Create directory and files
         dir_name = name_gen.generate_path_name()
@@ -207,8 +210,9 @@ class CAL(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-#        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
-#        self._add_file_to_product(file_path, self._size_mb // 2)
+        for sensor in ('lres', 'hre1', 'hre2'):
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+            self._add_file_to_product(file_path, self._size_mb // 2)
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
