@@ -100,7 +100,8 @@ class EO(product_generator.ProductGeneratorBase):
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
-        name_gen.downlink_time = datetime.datetime.now()  # TODO
+        name_gen.downlink_time = self._creation_date  # TODO remove
+        name_gen.set_creation_date(self._creation_date)
 
         # Create directory and files
         dir_name = name_gen.generate_path_name()
@@ -196,7 +197,8 @@ class CAL(product_generator.ProductGeneratorBase):
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
-        name_gen.downlink_time = datetime.datetime.now()  # TODO
+        name_gen.downlink_time = self._creation_date  # TODO remove
+        name_gen.set_creation_date(self._creation_date)
 
         # Create directory and files
         dir_name = name_gen.generate_path_name()
