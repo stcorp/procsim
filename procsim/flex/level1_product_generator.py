@@ -111,8 +111,9 @@ class EO(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-#        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
-#        self._add_file_to_product(file_path, self._size_mb // 2)
+        for sensor in ('lres', 'hre1', 'hre2'):
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+            self._add_file_to_product(file_path, self._size_mb // 2)
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
@@ -209,8 +210,9 @@ class CAL(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-#        file_path = os.path.join(dir_name, name_gen.generate_binary_file_name())
-#        self._add_file_to_product(file_path, self._size_mb // 2)
+        for sensor in ('lres', 'hre1', 'hre2'):
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+            self._add_file_to_product(file_path, self._size_mb // 2)
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
         self._hdr.write(file_path)
