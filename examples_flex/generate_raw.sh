@@ -16,4 +16,8 @@ mkdir -p workspace
 
 # Generate raw data
 echo '  *** Generate raw data (measurement mode)'
-procsim -s "Raw data generator, measurement mode" procsim_config_raw.json
+
+procsim -s "Raw data generator: DATA-DUMP 1" procsim_config_raw.json
+procsim -s "Raw data generator: DATA-DUMP 2" procsim_config_raw.json
+procsim -s "Raw data generator: DATA-DUMP 3" procsim_config_raw.json
+procsim -s "Raw data generator: DATA-DUMP 4" procsim_config_raw.json
