@@ -19,17 +19,59 @@
 
             "outputs": [
                 {
-                    "type": "AUX_ORBSCT"
+                    "type": "MPL_ORBPRE"
                 },
                 {
-                    "type": "AUX_IERSBU"
+                    "type": "AUX_IERS_B"
                 },
                 {
                     "type": "AUX_MET_A_"
                 },
                 {
                     "type": "AUX_MET_F_"
-                }
+                },
+                {
+                    "type": "MPL_ORBSCT"
+                },
+                {
+                    "type": "AUX_CCPOIV"
+                },
+                {
+                    "type": "AUX_CCTEM_"
+                },
+                {
+                    "type": "AUX_CCCHDC"
+                },
+                {
+                    "type": "AUX_CCCHRF"
+                },
+                {
+                    "type": "AUX_CCCACF"
+                },
+                {
+                    "type": "AUX_CCCHNL"
+                },
+                {
+                    "type": "AUX_CCCASI"
+                },
+                {
+                    "type": "AUX_CCCHST"
+                },
+                {
+                    "type": "AUX_CCCHSD"
+                },
+                {
+                    "type": "AUX_CCFOCP"
+                },
+                {
+                    "type": "AUX_CCCALN"
+                },
+                {
+                    "type": "AUX_CCGAIN"
+                },
+                {
+                    "type": "AUX_IERS_A"
+                }	
             ]
         }
     ]

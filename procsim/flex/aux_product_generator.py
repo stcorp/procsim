@@ -76,10 +76,24 @@ class Aux(product_generator.ProductGeneratorBase):
         'CFG_PF_BC_',
         'CFG_L0__PF',
 
-        'AUX_ORBSCT',
-        'AUX_IERSBU',
+        'MPL_ORBPRE',
+        'MPL_ORBSCT',
+        'AUX_IERS_B',
         'AUX_MET_A_',
         'AUX_MET_F_',
+        'AUX_CCPOIV',
+        'AUX_CCTEM_',
+        'AUX_CCCHDC',
+        'AUX_CCCHRF',
+        'AUX_CCCACF',
+        'AUX_CCCHNL',
+        'AUX_CCCASI',
+        'AUX_CCCHST',
+        'AUX_CCCHSD',
+        'AUX_CCFOCP',
+        'AUX_CCCALN',
+        'AUX_CCGAIN',
+        'AUX_IERS_A',
     ]
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
@@ -102,10 +116,24 @@ class Aux(product_generator.ProductGeneratorBase):
             'CFG_TSKTBL': ('tasktables', 'xml'),
             'CFG_L0__PF': ('l0params', 'xml'),
 
-            'AUX_ORBSCT': ('data', 'xml'),
-            'AUX_IERSBU': ('data', 'xml'),
+            'MPL_ORBPRE': ('data', 'xml'),
+            'MPL_ORBSCT': ('data', 'xml'),
+            'AUX_IERS_B': ('data', 'xml'),
             'AUX_MET_A_': ('data', 'xml'),
             'AUX_MET_F_': ('data', 'xml'),
+            'AUX_CCPOIV': ('data', 'xml'),
+            'AUX_CCTEM_': ('data', 'xml'),
+            'AUX_CCCHDC': ('data', 'xml'),
+            'AUX_CCCHRF': ('data', 'xml'),
+            'AUX_CCCACF': ('data', 'xml'),
+            'AUX_CCCHNL': ('data', 'xml'),
+            'AUX_CCCASI': ('data', 'xml'),
+            'AUX_CCCHST': ('data', 'xml'),
+            'AUX_CCCHSD': ('data', 'xml'),
+            'AUX_CCFOCP': ('data', 'xml'),
+            'AUX_CCCALN': ('data', 'xml'),
+            'AUX_CCGAIN': ('data', 'xml'),
+            'AUX_IERS_A': ('data', 'xml'),
         }
         suffix, extension = DEFAULT_SUFFIX_EXTENSION[self._output_type]
 #
