@@ -111,8 +111,12 @@ class EO(product_generator.ProductGeneratorBase):
         dir_name = os.path.join(self._output_path, dir_name)
         os.makedirs(dir_name, exist_ok=True)
 
-        for sensor in ('lres', 'hre1', 'hre2'):
-            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+        if self._output_type == 'L1B_OBS___':
+            for sensor in ('lres', 'hre1', 'hre2'):
+                file_path = os.path.join(dir_name, name_gen.generate_binary_file_name('_'+sensor, extension='.nc'))
+                self._add_file_to_product(file_path, self._size_mb // 2)
+        else:
+            file_path = os.path.join(dir_name, name_gen.generate_binary_file_name(extension='.nc'))
             self._add_file_to_product(file_path, self._size_mb // 2)
 
         file_path = os.path.join(dir_name, name_gen.generate_mph_file_name())
