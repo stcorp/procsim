@@ -11,6 +11,8 @@
             "task_name": "generate",
             "task_version": "01.00",
 
+            "creation_date": "2023-04-11T10:03:15.000Z",
+
             "baseline": "1B",
             "begin_position": "2023-01-01T00:00:00.000Z",
             "end_position": "2024-01-01T00:00:00.000Z",
