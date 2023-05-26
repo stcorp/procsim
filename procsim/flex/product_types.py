@@ -125,7 +125,7 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAC_DARKNP', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DARKSR', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DEFDAR', 'l1', 'Level-1 Calibration Product'),
-    ProductType('RAC_DEFRTS', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_DEFSTR', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DARKOC', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DRKMTF', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_DRKSTR', 'l1', 'Level-1 Calibration Product'),
@@ -134,11 +134,13 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('RAC_MOON__', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_MOONSL', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_LINDES', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_LINSEA', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_LINSUN', 'l1', 'Level-1 Calibration Product'),
+    ProductType('RAC_LINDAR', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_CTE___', 'l1', 'Level-1 Calibration Product'),
     ProductType('RAC_CLOUD_', 'l1', 'Level-1 Calibration Product'),
 
     ProductType('SPC_SPECEO', 'l1', 'Level-1 Calibration Product'),
-    ProductType('SPC_SPECSD', 'l1', 'Level-1 Calibration Product'),
 
 ]
 
