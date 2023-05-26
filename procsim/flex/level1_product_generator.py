@@ -129,7 +129,7 @@ class CAL(product_generator.ProductGeneratorBase):
         'RAC_DARKNP',
         'RAC_DARKSR',
         'RAC_DEFDAR',
-        'RAC_DEFRTS',
+        'RAC_DEFSTR',
         'RAC_DARKOC',
         'RAC_DRKMTF',
         'RAC_DRKSTR',
@@ -138,10 +138,13 @@ class CAL(product_generator.ProductGeneratorBase):
         'RAC_MOON__',
         'RAC_MOONSL',
         'RAC_LINDES',
+        'RAC_LINSEA',
+        'RAC_LINSUN',
+        'RAC_LINDAR',
+
         'RAC_CTE___',
         'RAC_CLOUD_',
 
-        'SPC_SPECSD',
         'SPC_SPECEO',
     ]
 
