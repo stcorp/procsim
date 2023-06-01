@@ -186,7 +186,14 @@ class CAL(product_generator.ProductGeneratorBase):
                         raise ScenarioError('begin/end position not set in {}'.format(mph_file_name))
                     start = hdr.begin_position
                     stop = hdr.end_position
-                    self._output_period = (start, stop)
+
+                    # check overlap with joborder TOI (time-of-interest)
+                    if self._job_toi_start is not None and self._job_toi_stop is not None:
+                        overlap_start = max(start, self._job_toi_start)
+                        overlap_stop = min(stop, self._job_toi_stop)
+
+                        if overlap_stop > overlap_start:
+                            self._output_period = (overlap_start, overlap_stop)
 
         return True
 
