@@ -55,9 +55,11 @@ class EO(product_generator.ProductGeneratorBase):
         if not super().parse_inputs(input_products, ignore_missing=True):
             return False
 
+        overlapping = set()
+
         period_types = collections.defaultdict(set)
         for input in input_products:
-            if input.file_type == 'L0__OBS___':
+            if input.file_type in ('L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'):
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -75,10 +77,12 @@ class EO(product_generator.ProductGeneratorBase):
 
                     # check overlap with joborder TOI (time-of-interest)
                     if self._job_toi_start is not None and self._job_toi_stop is not None:
-                        overlap_start = max(start, self._job_toi_start)
-                        overlap_stop = min(stop, self._job_toi_stop)
-                        if overlap_stop > overlap_start:
-                            self._output_period = (overlap_start, overlap_stop)
+                        if start <= self._job_toi_start and stop >= self._job_toi_stop:
+                            overlapping.add(input.file_type)
+
+        if self._job_toi_start is not None and self._job_toi_stop is not None:
+            if len(overlapping) == 3:
+                self._output_period = (self._job_toi_start, self._job_toi_stop)
 
         return True
 
