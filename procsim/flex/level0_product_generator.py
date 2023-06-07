@@ -328,15 +328,15 @@ class CAL(ProductGeneratorL0):
         'L0__DARKOC': 'DarkSea_NAPoint',
         'L0__DRKMTF': 'Dark_CU_MoonPoint_MTF',
         'L0__DRKSTR': 'Dark_CU_MoonPoint_Stray',
-        'L0__SUN___': 'RadioMetric_SunPoint',
-        'L0__DEFSUN': 'RadioMetric_SunPoint_DefPixels',
+        'L0__SUN___': 'Radiometric_SunPoint',
+        'L0__DEFSUN': 'Radiometric_SunPoint_DefPixels',
         'L0__MOON__': 'Radiometric_MTF_MoonPoint',
         'L0__MOONSL': 'Straylight_MoonPoint',
         'L0__LINDES': 'Linearity_NaPoint_Desert',
         'L0__LINSEA': 'Linearity_NaPoint_Sea',
         'L0__LINSUN': 'Linearity_SunPoint',
         'L0__LINDAR': 'Linearity_Dark',
-        'L0__CTE___': 'CTE_Monitoring',
+        'L0__CTE___': 'CTE_monitoring',
         'L0__CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 
