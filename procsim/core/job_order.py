@@ -143,8 +143,10 @@ class JobOrderParser:
         return files
 
     def _parse(self, filename):
-        tree = et.parse(filename)
-        root = tree.getroot()
+        it = et.iterparse(filename)
+        for _, el in it:
+            _, _, el.tag = el.tag.rpartition('}')  # strip ns
+        root = it.root  # type: ignore
         proc = root.find('Processor_Configuration')
         if proc is None:
             raise ProcsimException('Job order error, Processor_Configuration missing')
