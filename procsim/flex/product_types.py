@@ -97,8 +97,6 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('L0__INV___', 'l0', 'Level-0 Invalid Data Product'),
     ProductType('L0__UNK___', 'l0', 'Level-0 Unknown Data Product'),
 
-    ProductType('MPL_ORBPRE', 'aux', 'Auxiliary Product'),
-    ProductType('MPL_ORBSCT', 'aux', 'Auxiliary Product'),
     ProductType('AUX_IERS_B', 'aux', 'Auxiliary Product'),
     ProductType('AUX_MET_A_', 'aux', 'Auxiliary Product'),
     ProductType('AUX_MET_F_', 'aux', 'Auxiliary Product'),
