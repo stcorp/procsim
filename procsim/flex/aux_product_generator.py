@@ -76,8 +76,6 @@ class Aux(product_generator.ProductGeneratorBase):
         'CFG_PF_BC_',
         'CFG_L0__PF',
 
-        'MPL_ORBPRE',
-        'MPL_ORBSCT',
         'AUX_IERS_B',
         'AUX_MET_A_',
         'AUX_MET_F_',
@@ -116,8 +114,6 @@ class Aux(product_generator.ProductGeneratorBase):
             'CFG_TSKTBL': ('tasktables', 'xml'),
             'CFG_L0__PF': ('l0params', 'xml'),
 
-            'MPL_ORBPRE': ('data', 'xml'),
-            'MPL_ORBSCT': ('data', 'xml'),
             'AUX_IERS_B': ('data', 'xml'),
             'AUX_MET_A_': ('data', 'xml'),
             'AUX_MET_F_': ('data', 'xml'),

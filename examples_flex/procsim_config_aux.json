@@ -21,9 +21,6 @@
 
             "outputs": [
                 {
-                    "type": "MPL_ORBPRE"
-                },
-                {
                     "type": "AUX_IERS_B"
                 },
                 {
@@ -31,9 +28,6 @@
                 },
                 {
                     "type": "AUX_MET_F_"
-                },
-                {
-                    "type": "MPL_ORBSCT"
                 },
                 {
                     "type": "AUX_CCPOIV"
