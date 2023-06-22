@@ -80,6 +80,8 @@ class ProductGeneratorBase(IProductGenerator):
         self._logger = logger
         self._output_type = output_config['type']
         self._size_mb = int(output_config.get('size', '0'))
+        self._file = output_config.get('file')
+
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
         self._meta_data_source_file = None
@@ -184,13 +186,29 @@ class ProductGeneratorBase(IProductGenerator):
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         CHUNK_SIZE = 2**20
-        size = size_mb * 2**20 if size_mb is not None else 0
-        file = open(file_path, 'wb')
-        while size > 0:
-            amount = min(size, CHUNK_SIZE)
-            file.write(os.urandom(max(amount, 0)))
-            size -= amount
-        file.close()
+        output_file = open(file_path, 'wb')
+
+        # if 'file' path specified copy contents
+        if self._file is not None:
+            input_file = open(self._file, 'rb')
+            while True:
+                data = input_file.read(CHUNK_SIZE)
+                if data:
+                    output_file.write(data)
+                else:
+                    break
+            input_file.close()
+
+        # otherwise look at 'size' (default 0) and write random data
+        else:
+            size = size_mb * 2**20 if size_mb is not None else 0
+
+            while size > 0:
+                amount = min(size, CHUNK_SIZE)
+                output_file.write(os.urandom(max(amount, 0)))
+                size -= amount
+
+        output_file.close()
 
     @staticmethod
     def zip_folder(full_dir_name: str, extension: Optional[str] = None) -> None:
