@@ -85,6 +85,12 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
+          <File_Type>RWS_H1ICAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step1_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
           <File_Type>RWS_H1_VAU</File_Type>
           <File_Name_Pattern />
           <File_Dir>L0Step1_output</File_Dir>
@@ -121,6 +127,12 @@
           <Baseline>00</Baseline>
         </Output>
         <Output>
+          <File_Type>RWS_H2ICAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step1_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
           <File_Type>RWS_H2_VAU</File_Type>
           <File_Name_Pattern />
           <File_Dir>L0Step1_output</File_Dir>
@@ -152,6 +164,12 @@
         </Output>
         <Output>
           <File_Type>RWS_LRPCAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step1_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>RWS_LRICAL</File_Type>
           <File_Name_Pattern />
           <File_Dir>L0Step1_output</File_Dir>
           <Baseline>00</Baseline>

@@ -24,6 +24,8 @@ from .work_simulator import WorkSimulator
 # configuration file if needed.
 PROCESSOR_ICD = 'ESA-EOPG-EEGS-ID-0083'
 
+EXIT_CODE_ERROR = 128  # CPF (flex) considers 0 < error_code < 128 to indicate warning
+
 
 def signal_term_handler(signal, frame):
     raise TerminateError('Program terminated (SIGTERM)')
@@ -193,9 +195,8 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
                     if job_output_cfg.type == product_type:
                         break
             generator = _output_generator_factory(mission, logger, job_output_cfg, scenario, output_cfg)
-            if generator is None:
-                sys.exit(1)
-            generators.append(generator)
+            if generator is not None:
+                generators.append(generator)
         else:
             logger.warning('Output product {} is disabled in scenario'.format(product_type))
     return generators
@@ -335,7 +336,7 @@ def main():
 
         config = _read_config(logger, config_filename)
         if config is None:
-            sys.exit(1)
+            sys.exit(EXIT_CODE_ERROR)
 
         job = job_order_parser_factory(PROCESSOR_ICD, logger)
         job.read(job_filename)
@@ -389,10 +390,16 @@ def main():
 
         logger.info('Task done, exit with code {}'.format(exit_code))
 
-    except (TerminateError, ScenarioError, GeneratorError, IOError):
+    except SystemExit:
+        raise
+
+    except KeyboardInterrupt:
+        exit_code = 130
+
+    except Exception:
         import traceback
         traceback.print_exc()
-        exit_code = 1
+        exit_code = EXIT_CODE_ERROR
         logger.error(str(sys.exc_info()[1]).strip("\n\r"))
         logger.info('Terminate with code {}'.format(exit_code))
 

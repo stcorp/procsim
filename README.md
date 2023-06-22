@@ -162,6 +162,8 @@ The parameters are described below.
 
   - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set or set to zero, an empty file is generated.
 
+  - `file` : file path, optional. If specified, 'data' file(s) are copied from the specified file. Overrides `size`.
+
   - `enable` : boolean, optional. When set to false, a warning is logged and this output product is not generated. Default is true.
 
   - `metadata_source` : string, optional. Regular expression, used to specify the input product which is used as a first source for the metadata in the output product. Think of parameters such as validity start/stop times, mission phase, etc., these are copied from the metadata source product.
