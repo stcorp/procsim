@@ -35,7 +35,9 @@ def product_generator_factory(logger, job_config, scenario_config, output_config
         raise ScenarioError('Output product type ("type": ...) must be specified')
     for gen in _GENERATORS:
         if product_type in gen.PRODUCTS:
-            return gen(logger, job_config, scenario_config, output_config)
+            if job_config is None or product_type == job_config.type:
+                return gen(logger, job_config, scenario_config, output_config)
+            else:
+                return
     logger.error('No generator for product \'{}\' in Flex plugin. Supported types are: {}'.format(
         product_type, list_supported_products()))
-    return None

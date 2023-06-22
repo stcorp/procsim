@@ -195,9 +195,8 @@ def _create_product_generators(logger: Logger, mission: str, job_task: Optional[
                     if job_output_cfg.type == product_type:
                         break
             generator = _output_generator_factory(mission, logger, job_output_cfg, scenario, output_cfg)
-            if generator is None:
-                sys.exit(EXIT_CODE_ERROR)
-            generators.append(generator)
+            if generator is not None:
+                generators.append(generator)
         else:
             logger.warning('Output product {} is disabled in scenario'.format(product_type))
     return generators
