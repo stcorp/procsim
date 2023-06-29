@@ -370,7 +370,7 @@ class RWS_EO(RawProductGeneratorBase):
                 continue
 
             # anx_elapsed
-            anx = self._get_anx(acq_start)
+            anx, orbitnum = self._get_anx_orbit(acq_start)
             if anx is not None:  # step1
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             elif self._hdr.slice_frame_nr is not None:  # step2
@@ -384,6 +384,10 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'EO'
+            if orbitnum is not None:
+                self._hdr.acquisitions[0].orbit_number = orbitnum
+
             if apid is not None:
                 self._hdr.apid = apid
 
@@ -428,7 +432,7 @@ class RWS_EO(RawProductGeneratorBase):
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
-            anx = self._get_anx(slice_middle)
+            anx, orbitnum = self._get_anx_orbit(slice_middle)
 
             slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
 
@@ -863,11 +867,13 @@ class RWS_CAL(RawProductGeneratorBase):
                 continue
 
             if self._hdr.anx_elapsed is None:
-                anx = self._get_anx(acq_start)
+                anx, orbitnum = self._get_anx_orbit(acq_start)
                 if anx is not None:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
                 else:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+                if orbitnum is not None:
+                    self._hdr.acquisitions[0].orbit_number = orbitnum
 
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
@@ -880,6 +886,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = cal_id
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'CAL'
             if apid is not None:
                 self._hdr.apid = apid
 
@@ -1133,11 +1140,13 @@ class RWS_ANC(RawProductGeneratorBase):
                 continue
 
             if self._hdr.anx_elapsed is None:
-                anx = self._get_anx(acq_start)
+                anx, orbitnum = self._get_anx_orbit(acq_start)
                 if anx is not None:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
                 else:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+                if orbitnum is not None:
+                    self._hdr.acquisitions[0].orbit_number = orbitnum
 
             dir_name = name_gen.generate_path_name()
 
@@ -1153,6 +1162,7 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'ANC'
             self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)

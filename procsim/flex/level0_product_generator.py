@@ -158,6 +158,8 @@ class EO(ProductGeneratorL0):
 
         self._logger.debug('Datatake {} from {} to {}'.format(self._hdr.data_take_id, start, stop))
 
+        self._hdr.sensor_mode = 'EO'
+
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
@@ -253,7 +255,6 @@ class EO(ProductGeneratorL0):
             acq_end = min(validity_end, segment_end)
             self._hdr.slice_frame_nr = slice_nr
             self._hdr.set_validity_times(validity_start, validity_end)
-            self._hdr.sensor_mode = 'EO'
 
             self._hdr.data_take_id = data_take_config['data_take_id']
             self._hdr.slice_frame_nr = slice_nr

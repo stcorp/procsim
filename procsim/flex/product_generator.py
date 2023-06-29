@@ -91,6 +91,8 @@ class ProductGeneratorBase(IProductGenerator):
         self._anx_list.extend([self._time_from_iso(anx) for anx in scenario_anx_list])
         self._anx_list.sort()
 
+        self.first_orbit = scenario_config.get('first_orbit')
+
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
         self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
@@ -300,17 +302,23 @@ class ProductGeneratorBase(IProductGenerator):
 
         return self._anx_list
 
-    def _get_anx(self, t: datetime.datetime) -> Optional[datetime.datetime]:
+    def _get_anx_orbit(self, t: datetime.datetime) -> Optional[datetime.datetime]:
         # Check whether a previous ANX can possibly be found.
         if not self._anx_list or t < self._anx_list[0]:
             self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')
-            return None
+            return None, None
         # Returns the latest ANX before the given time
         idx = bisect.bisect(self._anx_list, t) - 1
-        return self._anx_list[min(max(idx, 0), len(self._anx_list) - 1)]
+        idx2 = min(max(idx, 0), len(self._anx_list) - 1)
+        anx = self._anx_list[idx2]
+        if self.first_orbit is not None:
+            orbit = self.first_orbit + idx2
+        else:
+            orbit = None
+        return anx, orbit
 
     def _get_slice_frame_nr(self, start: datetime.datetime, spacing: datetime.timedelta) -> Optional[int]:
-        previous_anx = self._get_anx(start)
+        previous_anx, previous_orbitnum = self._get_anx_orbit(start)
         if previous_anx is None:
             return None
         slice_frame_per_orbit = round(ORBITAL_PERIOD / spacing)
@@ -320,7 +328,7 @@ class ProductGeneratorBase(IProductGenerator):
     def _get_slice_frame_interval(self,
                                   start: datetime.datetime,
                                   spacing: datetime.timedelta) -> Optional[Tuple[datetime.datetime, datetime.datetime]]:
-        previous_anx = self._get_anx(start)
+        previous_anx, previous_orbitnum = self._get_anx_orbit(start)
         slice_frame_nr = self._get_slice_frame_nr(start, spacing)
         if previous_anx is None or slice_frame_nr is None:
             return None
