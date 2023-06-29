@@ -338,7 +338,7 @@ class MainProductHeader:
 
         # Mandatory for L0, L1, L2A products
         sensors = [{'type': self._sensor_type, 'mode': self.sensor_mode}]
-        if (level == 'l0' or level == 'l1' or level == 'l2a'):
+        if level in ['raws', 'l0', 'l1', 'l2a']:
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
             for s in sensors:

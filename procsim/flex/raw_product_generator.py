@@ -384,6 +384,8 @@ class RWS_EO(RawProductGeneratorBase):
             self._hdr.initialize_product_list(dir_name)
             self._hdr.set_phenomenon_times(acq_start, acq_stop)
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'EO'
+
             if apid is not None:
                 self._hdr.apid = apid
 
@@ -880,6 +882,7 @@ class RWS_CAL(RawProductGeneratorBase):
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.calibration_id = cal_id
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'CAL'
             if apid is not None:
                 self._hdr.apid = apid
 
@@ -1153,6 +1156,7 @@ class RWS_ANC(RawProductGeneratorBase):
             self._hdr.slice_start_position = slice_start_position
             self._hdr.slice_stop_position = slice_stop_position
             self._hdr.sensor_detector = sensor
+            self._hdr.sensor_mode = 'ANC'
             self._hdr.apid = apid
 
             self._create_raw_product(dir_name, name_gen)
