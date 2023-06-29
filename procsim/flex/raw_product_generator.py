@@ -370,7 +370,7 @@ class RWS_EO(RawProductGeneratorBase):
                 continue
 
             # anx_elapsed
-            anx = self._get_anx(acq_start)
+            anx, orbitnum = self._get_anx_orbit(acq_start)
             if anx is not None:  # step1
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
             elif self._hdr.slice_frame_nr is not None:  # step2
@@ -430,7 +430,7 @@ class RWS_EO(RawProductGeneratorBase):
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
-            anx = self._get_anx(slice_middle)
+            anx, orbitnum = self._get_anx_orbit(slice_middle)
 
             slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
 
@@ -865,7 +865,7 @@ class RWS_CAL(RawProductGeneratorBase):
                 continue
 
             if self._hdr.anx_elapsed is None:
-                anx = self._get_anx(acq_start)
+                anx, orbitnum = self._get_anx_orbit(acq_start)
                 if anx is not None:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
                 else:
@@ -1136,7 +1136,7 @@ class RWS_ANC(RawProductGeneratorBase):
                 continue
 
             if self._hdr.anx_elapsed is None:
-                anx = self._get_anx(acq_start)
+                anx, orbitnum = self._get_anx_orbit(acq_start)
                 if anx is not None:
                     self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
                 else:
