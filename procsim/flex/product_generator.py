@@ -302,7 +302,7 @@ class ProductGeneratorBase(IProductGenerator):
 
         return self._anx_list
 
-    def _get_anx_orbit(self, t: datetime.datetime) -> Optional[datetime.datetime]:
+    def _get_anx_orbit(self, t: datetime.datetime) -> Tuple[Optional[datetime.datetime], Optional[int]]:
         # Check whether a previous ANX can possibly be found.
         if not self._anx_list or t < self._anx_list[0]:
             self._logger.warning(f'No previous ANX found for {t} in ANX list {self._anx_list}.')

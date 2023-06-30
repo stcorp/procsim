@@ -177,7 +177,7 @@ class EO(ProductGeneratorL0):
         name_gen.set_creation_date(self._creation_date)
 
         if self._hdr.anx_elapsed is None:
-            anx = self._get_anx(start)
+            anx, orbitnum = self._get_anx_orbit(start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
             else:
@@ -245,7 +245,7 @@ class EO(ProductGeneratorL0):
         for slice_start, slice_end in slice_edges:
             # Get the ANX and slice number from the middle of the slice to treat merged slices accurately.
             slice_middle = slice_start + (slice_end - slice_start) / 2
-            anx = self._get_anx(slice_middle)
+            anx, orbitnum = self._get_anx_orbit(slice_middle)
             slice_nr = self._get_slice_frame_nr(slice_middle, self._slice_grid_spacing)
             if anx is None or slice_nr is None:
                 continue
@@ -418,7 +418,7 @@ class CAL(ProductGeneratorL0):
         name_gen.set_creation_date(self._creation_date)
 
         if self._hdr.anx_elapsed is None:
-            anx = self._get_anx(start)
+            anx, orbitnum = self._get_anx_orbit(start)
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
             else:
@@ -558,7 +558,7 @@ class ANC(ProductGeneratorL0):
 #            name_gen.use_short_name = True
 
         if self._hdr.anx_elapsed is None:
-            anx = self._get_anx(start)  # TODO copy-pasting
+            anx, orbitnum = self._get_anx_orbit(start)  # TODO copy-pasting
             if anx is not None:
                 self._hdr.anx_elapsed = name_gen.anx_elapsed = (start - anx).total_seconds()
             else:
