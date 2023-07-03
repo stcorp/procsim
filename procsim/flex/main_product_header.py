@@ -150,7 +150,12 @@ class MainProductHeader:
         self.processing_centre_code = 'ESR'
         self.downlink_station_code = 'KSE'
         self.archive_station_code = 'ESR'
+
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
+        for pr in product_types.PRODUCT_TYPES:
+            if pr.level == 'aux':
+                self.auxiliary_ds_file_names.append(pr.type + '_FileName')
+
         self.reference_documents = []
 
         self.completeness_assesment: Optional[str] = None
