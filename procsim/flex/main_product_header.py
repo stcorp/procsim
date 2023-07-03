@@ -465,7 +465,7 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
-        if level != 'raw':
+        if level != 'raw':  # TODO check applicability
             add_vendor_specific('missionPhase', self.mission_phase)
             add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
             add_vendor_specific('Task_Table_Name', 'Task Table Name')
@@ -473,8 +473,13 @@ class MainProductHeader:
             add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
             add_vendor_specific('Cycle_Number', self.cycle_number)
             add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
-            add_vendor_specific('dataTakeID', self.data_take_id)
-            add_vendor_specific('calibrationID', self.calibration_id)
+            if self.data_take_id is not None:
+                add_vendor_specific('dataTakeID', self.data_take_id)
+                add_vendor_specific('specialCalibration_in_L1EO', 'Image_Geo')
+
+            if self.calibration_id is not None:
+                add_vendor_specific('calibrationID', self.calibration_id)
+                add_vendor_specific('calibrationSpare', 'text')
             add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
             add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
             if self.anx_elapsed is not None:
