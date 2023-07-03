@@ -193,8 +193,8 @@ class MainProductHeader:
         self.sensor_mode = None
 
         # L1, L2a
-        self.footprint_polygon: Optional[str] = None
-        self.center_points: Optional[str] = None
+        self.footprint_polygon: Optional[str] = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
+        self.center_points: Optional[str] = '-7.492090 -63.27095'
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
@@ -370,7 +370,31 @@ class MainProductHeader:
         observed_property = et.SubElement(mph, om + 'observedProperty')  # Observed property (Mandatory but empty)
         observed_property.set(xsi + 'nil', 'true')
         observed_property.set('nilReason', 'inapplicable')
+
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
+        if level == 'l1':
+            footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
+            footprint.set(gml + 'id', self.eop_identifier + '_5')
+            multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
+            multi_surface = et.SubElement(multi_extent_of, gml + 'MultiSurface')
+            multi_surface.set(gml + 'id', self.eop_identifier + '_6')
+            surface_member = et.SubElement(multi_surface, gml + 'surfaceMember')
+            polygon = et.SubElement(surface_member, gml + 'Polygon')
+            polygon.set(gml + 'id', self.eop_identifier + '_7')
+            exterior = et.SubElement(polygon, gml + 'exterior')
+            linear_ring = et.SubElement(exterior, gml + 'LinearRing')
+            pos_list = et.SubElement(linear_ring, gml + 'posList')  # Footprint points
+            pos_list.text = self.footprint_polygon
+            #
+            # TODO! This is a discrepancy between spec and example!!
+            #
+            # center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
+            center_of = et.SubElement(footprint, eop + 'centerOf')  # Acquisition centre representation structure
+
+            point = et.SubElement(center_of, gml + 'Point')
+            point.set(gml + 'id', self.eop_identifier + '_8')
+            pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
+            pos.text = self.center_points
 
         result = et.SubElement(mph, om + 'result')  # Observation result
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
