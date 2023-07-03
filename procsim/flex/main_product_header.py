@@ -150,7 +150,12 @@ class MainProductHeader:
         self.processing_centre_code = 'ESR'
         self.downlink_station_code = 'KSE'
         self.archive_station_code = 'ESR'
+
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
+        for pr in product_types.PRODUCT_TYPES:
+            if pr.level == 'aux':
+                self.auxiliary_ds_file_names.append(pr.type + '_FileName')
+
         self.reference_documents = []
 
         self.completeness_assesment: Optional[str] = None
@@ -187,9 +192,12 @@ class MainProductHeader:
         # L0, L1, L2a
         self.sensor_mode = None
 
+        self.special_calibration: Optional[str] = None
+
         # L1, L2a
-        self.footprint_polygon: Optional[str] = None
-        self.center_points: Optional[str] = None
+        self.footprint_polygon: Optional[str] = ('-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 '
+                                                 '-8.176149 -63.278503 -8.015716 -63.764648')
+        self.center_points: Optional[str] = '-7.492090 -63.27095'
 
         for key, value in mph_namespaces.items():
             et.register_namespace(key, value)
@@ -365,7 +373,31 @@ class MainProductHeader:
         observed_property = et.SubElement(mph, om + 'observedProperty')  # Observed property (Mandatory but empty)
         observed_property.set(xsi + 'nil', 'true')
         observed_property.set('nilReason', 'inapplicable')
+
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
+        if level in ['l0', 'l1', 'l2a']:
+            footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
+            footprint.set(gml + 'id', self.eop_identifier + '_5')
+            multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
+            multi_surface = et.SubElement(multi_extent_of, gml + 'MultiSurface')
+            multi_surface.set(gml + 'id', self.eop_identifier + '_6')
+            surface_member = et.SubElement(multi_surface, gml + 'surfaceMember')
+            polygon = et.SubElement(surface_member, gml + 'Polygon')
+            polygon.set(gml + 'id', self.eop_identifier + '_7')
+            exterior = et.SubElement(polygon, gml + 'exterior')
+            linear_ring = et.SubElement(exterior, gml + 'LinearRing')
+            pos_list = et.SubElement(linear_ring, gml + 'posList')  # Footprint points
+            pos_list.text = self.footprint_polygon
+            #
+            # TODO! This is a discrepancy between spec and example!!
+            #
+            # center_of = et.SubElement(feature_of_interest, eop + 'centerOf')  # Acquisition centre representation structure
+            center_of = et.SubElement(footprint, eop + 'centerOf')  # Acquisition centre representation structure
+
+            point = et.SubElement(center_of, gml + 'Point')
+            point.set(gml + 'id', self.eop_identifier + '_8')
+            pos = et.SubElement(point, gml + 'pos')  # Coordinates of the centre of the acquisition
+            pos.text = self.center_points
 
         result = et.SubElement(mph, om + 'result')  # Observation result
         earth_observation_result = et.SubElement(result, eop + 'EarthObservationResult')
@@ -465,7 +497,7 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
-        if level != 'raw':
+        if level != 'raw':  # TODO check applicability
             add_vendor_specific('missionPhase', self.mission_phase)
             add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
             add_vendor_specific('Task_Table_Name', 'Task Table Name')
@@ -474,23 +506,31 @@ class MainProductHeader:
             add_vendor_specific('Cycle_Number', self.cycle_number)
             add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
             add_vendor_specific('dataTakeID', self.data_take_id)
-            add_vendor_specific('calibrationID', self.calibration_id)
+            add_vendor_specific('specialCalibration_in_L1EO', self.special_calibration)
+
+            if self.calibration_id is not None:
+                add_vendor_specific('calibrationID', self.calibration_id)
+                add_vendor_specific('calibrationSpare', 'text')
             add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
             add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
             if self.anx_elapsed is not None:
                 add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
             add_vendor_specific('Baseline', self.product_baseline)
-        if level in ('raw', 'raws'):
+
+        if level in ('raw', 'raws', 'l0'):
             add_vendor_specific('numOfISPs', self.nr_instrument_source_packets)
             add_vendor_specific('numOfISPsWithErrors', self.nr_instrument_source_packets_erroneous)
             add_vendor_specific('numOfCorruptedISPs', self.nr_instrument_source_packets_corrupt)
             add_vendor_specific('numOfTFs', self.nr_transfer_frames)
             add_vendor_specific('numOfTFsWithErrors', self.nr_transfer_frames_erroneous)
             add_vendor_specific('numOfCorruptedTFs', self.nr_transfer_frames_corrupt)
+
         if level == 'raws':
             add_vendor_specific('apid', self.apid)
-            add_vendor_specific('sensorDetector', self.sensor_detector)
             add_vendor_specific('completenessAssesment', self.completeness_assesment)
+
+        add_vendor_specific('sensorDetector', self.sensor_detector)
+
         if level in ('raws', 'l0'):
             add_vendor_specific('sliceStartPosition', self.slice_start_position)
             add_vendor_specific('sliceStopPosition', self.slice_stop_position)

@@ -98,6 +98,8 @@ class EO(product_generator.ProductGeneratorBase):
         self._hdr.begin_position = start
         self._hdr.end_position = stop
 
+        self._hdr.special_calibration = 'Image_Geo'
+
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
         self._hdr.product_type = self._resolve_wildcard_product_type()
