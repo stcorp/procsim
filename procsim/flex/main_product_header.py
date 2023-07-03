@@ -192,6 +192,8 @@ class MainProductHeader:
         # L0, L1, L2a
         self.sensor_mode = None
 
+        self.special_calibration = None
+
         # L1, L2a
         self.footprint_polygon: Optional[str] = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
         self.center_points: Optional[str] = '-7.492090 -63.27095'
@@ -372,7 +374,7 @@ class MainProductHeader:
         observed_property.set('nilReason', 'inapplicable')
 
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
-        if level == 'l1':
+        if level in ['l0', 'l1', 'l2a']:
             footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
             footprint.set(gml + 'id', self.eop_identifier + '_5')
             multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
@@ -502,9 +504,8 @@ class MainProductHeader:
             add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
             add_vendor_specific('Cycle_Number', self.cycle_number)
             add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
-            if self.data_take_id is not None:
-                add_vendor_specific('dataTakeID', self.data_take_id)
-                add_vendor_specific('specialCalibration_in_L1EO', 'Image_Geo')
+            add_vendor_specific('dataTakeID', self.data_take_id)
+            add_vendor_specific('specialCalibration_in_L1EO', self.special_calibration)
 
             if self.calibration_id is not None:
                 add_vendor_specific('calibrationID', self.calibration_id)
@@ -514,17 +515,21 @@ class MainProductHeader:
             if self.anx_elapsed is not None:
                 add_vendor_specific('ANX_elapsed_time', '%.3f' % self.anx_elapsed)
             add_vendor_specific('Baseline', self.product_baseline)
-        if level in ('raw', 'raws'):
+
+        if level in ('raw', 'raws', 'l0'):
             add_vendor_specific('numOfISPs', self.nr_instrument_source_packets)
             add_vendor_specific('numOfISPsWithErrors', self.nr_instrument_source_packets_erroneous)
             add_vendor_specific('numOfCorruptedISPs', self.nr_instrument_source_packets_corrupt)
             add_vendor_specific('numOfTFs', self.nr_transfer_frames)
             add_vendor_specific('numOfTFsWithErrors', self.nr_transfer_frames_erroneous)
             add_vendor_specific('numOfCorruptedTFs', self.nr_transfer_frames_corrupt)
+
         if level == 'raws':
             add_vendor_specific('apid', self.apid)
-            add_vendor_specific('sensorDetector', self.sensor_detector)
             add_vendor_specific('completenessAssesment', self.completeness_assesment)
+
+        add_vendor_specific('sensorDetector', self.sensor_detector)
+
         if level in ('raws', 'l0'):
             add_vendor_specific('sliceStartPosition', self.slice_start_position)
             add_vendor_specific('sliceStopPosition', self.slice_stop_position)
