@@ -192,10 +192,11 @@ class MainProductHeader:
         # L0, L1, L2a
         self.sensor_mode = None
 
-        self.special_calibration = None
+        self.special_calibration: Optional[str] = None
 
         # L1, L2a
-        self.footprint_polygon: Optional[str] = '-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 -8.176149 -63.278503 -8.015716 -63.764648'
+        self.footprint_polygon: Optional[str] = ('-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 '
+                                                 '-8.176149 -63.278503 -8.015716 -63.764648')
         self.center_points: Optional[str] = '-7.492090 -63.27095'
 
         for key, value in mph_namespaces.items():
