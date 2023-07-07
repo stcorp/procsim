@@ -1,0 +1,97 @@
+{
+  "mission": "flex",
+  "log_level": "debug",
+  "scenarios": [
+    {
+      // L0 slicer scenario.
+      "name": "L0 step 2, merge partial slices",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task2.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_smStep2",
+      "processor_version": "01.01",
+      "task_name": "Step2",
+      "task_version": "05.03",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
+        //OBS
+		{
+          "type": "RWS_H1_OBS",
+          "metadata_source": ".*RWS_H1POBS.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_H2_OBS",
+          "metadata_source": ".*RWS_H2POBS.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_LR_OBS",
+          "metadata_source": ".*RWS_LRPOBS.*", // Input to use
+          "size": 0
+        },
+        //VAU
+        {
+          "type": "RWS_H1_VAU",
+          "metadata_source": ".*RWS_H1PVAU.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_H2_VAU",
+          "metadata_source": ".*RWS_H2PVAU.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "RWS_LR_VAU",
+          "metadata_source": ".*RWS_LRPVAU.*", // Input to use
+          "size": 0
+        },
+		//CAL
+        {
+          "type": "RWS_H1_CAL",
+          "metadata_source": ".*RWS_H1PCAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RWS_H2_CAL",
+          "metadata_source": ".*RWS_H2PCAL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RWS_LR_CAL",
+          "metadata_source": ".*RWS_LRPCAL.*", // Input to use
+          "size": 0
+        },
+      //ITM
+        {
+          "type": "RWS_XS_ITM",
+          "metadata_source": ".*RWS_XSPITM.*", // Input to use
+          "size": 0
+        },
+      //OBC
+        {
+          "type": "RWS_XS_OBC",
+          "metadata_source": ".*RWS_XSPOBC.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    }
+  ]
+}
