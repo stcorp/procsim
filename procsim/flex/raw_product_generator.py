@@ -866,14 +866,13 @@ class RWS_CAL(RawProductGeneratorBase):
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
-            if self._hdr.anx_elapsed is None:
-                anx, orbitnum = self._get_anx_orbit(acq_start)
-                if anx is not None:
-                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-                else:
-                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-                if orbitnum is not None:
-                    self._hdr.acquisitions[0].orbit_number = orbitnum
+            anx, orbitnum = self._get_anx_orbit(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+            if orbitnum is not None:
+                self._hdr.acquisitions[0].orbit_number = orbitnum
 
             dir_name = name_gen.generate_path_name()
             self._hdr.product_type = self._output_type
@@ -1139,14 +1138,13 @@ class RWS_ANC(RawProductGeneratorBase):
             if for_sensor is not None and sensor != for_sensor:
                 continue
 
-            if self._hdr.anx_elapsed is None:
-                anx, orbitnum = self._get_anx_orbit(acq_start)
-                if anx is not None:
-                    self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
-                else:
-                    self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
-                if orbitnum is not None:
-                    self._hdr.acquisitions[0].orbit_number = orbitnum
+            anx, orbitnum = self._get_anx_orbit(acq_start)
+            if anx is not None:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = (acq_start - anx).total_seconds()
+            else:
+                self._hdr.anx_elapsed = name_gen.anx_elapsed = 0  # TODO
+            if orbitnum is not None:
+                self._hdr.acquisitions[0].orbit_number = orbitnum
 
             dir_name = name_gen.generate_path_name()
 
