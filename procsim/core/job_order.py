@@ -5,6 +5,7 @@ Read JobOrders, according to ESA-EOPG-EEGS-ID-0083 v1.3
 '''
 import os
 import re
+import glob
 import subprocess
 import datetime
 from typing import List, Optional
@@ -132,6 +133,9 @@ class JobOrderParser:
     def _find_matching_files(self, pattern):
         # Return list of all files matching 'pattern'.
         # For now, assume the path is 'fixed' and the regex does not contain slashes.
+        # The pattern can be a globbing pattern - handle this separately
+        if '?' in pattern or '*' in pattern:
+            return glob.glob(pattern)
         rootdir = os.path.dirname(os.path.abspath(pattern))
         files = []
         if os.path.isdir(rootdir):
