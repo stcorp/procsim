@@ -18,7 +18,7 @@
   <List_of_Tasks>
     <Task>
       <Task_Name>Step1</Task_Name>
-      <Task_Version>05.03L01</Task_Version>
+      <Task_Version>01.00</Task_Version>
       <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
       <Amount_of_RAM>1073741824</Amount_of_RAM>
       <Disk_Space>1073741824</Disk_Space>
