@@ -3,44 +3,39 @@
   <jobOrderId>2010</jobOrderId>
   <processorName>l1_step2_sm</processorName>
   <processorVersion>01.01</processorVersion>
-  <orderType>OFFL</orderType>
+  <processingNode>MyNode</processingNode>
   <processingParameters>
     <parameter name="Orbit_Number">1234</parameter>
   </processingParameters>
-  <tasks>
-    <task name="Step2">
-      <inputs>
-        <!-- Generated products -->
-        <input>
-          <file>workspace/2000/BIO_TEST_CPF_L1VFRA_20210201T002533_20210201T002554_00_??????.EOF</file>
-        </input>
-        <input>
-          <file>workspace/1000/BIO_S1_RAW__0S_20210201T002528_20210201T002715_T_G___M01_C___T000_F001_00_??????</file>
-        </input>
-        <input>
-          <file>workspace/1000/BIO_S1_RAW__0M_20210201T002528_20210201T002715_T_G___M01_C___T000_F____00_??????</file>
-        </input>
-        <input>
-          <file>workspace/1000/BIO_AUX_ATT____20210201T002512_20210201T002715_00_??????</file>
-        </input>
-        <input>
-          <file>workspace/1000/BIO_AUX_ORB____20210201T002512_20210201T002715_00_??????</file>
-        </input>
-        <!-- Other (external) aux files -->
-        <input>
-          <file>data/aux/BIO_AUX_INS____20210201T000000_20210201T013810_01_??????</file>
-        </input>
-        <input>
-          <file>data/aux/BIO_AUX_PP1____20210201T000000_20210201T013810_01_??????</file>
-        </input>
-        <input>
-          <file>data/aux/BIO_AUX_TEC____20210201T000000_20210201T013810_01_??????</file>
-        </input>
-        <input>
-          <file>data/aux/BIO_AUX_GMF____20210201T000000_20210201T013810_01_??????</file>
-        </input>
-      </inputs>
-      <exitCode>0</exitCode>
-    </task>
-  </tasks>
+  <inputs>
+    <!-- Generated products -->
+    <input>
+      <product>../../workspace/2000/BIO_TEST_CPF_L1VFRA_20210201T002533_20210201T002554_00_??????.EOF</product>
+    </input>
+    <input>
+      <product>../../workspace/1000/BIO_S1_RAW__0S_20210201T002528_20210201T002715_T_G___M01_C___T000_F001_00_??????</product>
+    </input>
+    <input>
+      <product>../../workspace/1000/BIO_S1_RAW__0M_20210201T002528_20210201T002715_T_G___M01_C___T000_F____00_??????</product>
+    </input>
+    <input>
+      <product>../../workspace/1000/BIO_AUX_ATT____20210201T002512_20210201T002715_00_??????</product>
+    </input>
+    <input>
+      <product>../../workspace/1000/BIO_AUX_ORB____20210201T002512_20210201T002715_00_??????</product>
+    </input>
+    <!-- Other (external) aux files -->
+    <input>
+      <product>../../data/aux/BIO_AUX_INS____20210201T000000_20210201T013810_01_??????</product>
+    </input>
+    <input>
+      <product>../../data/aux/BIO_AUX_PP1____20210201T000000_20210201T013810_01_??????</product>
+    </input>
+    <input>
+      <product>../../data/aux/BIO_AUX_TEC____20210201T000000_20210201T013810_01_??????</product>
+    </input>
+    <input>
+      <product>../../data/aux/BIO_AUX_GMF____20210201T000000_20210201T013810_01_??????</product>
+    </input>
+  </inputs>
 </pvmlJob>

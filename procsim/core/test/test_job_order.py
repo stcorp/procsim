@@ -102,7 +102,7 @@ class JobOrderParserTest(unittest.TestCase):
 
         self.assertEqual(len(sim.tasks), 1)
         self.assertEqual(sim.tasks[0].name, 'Step1')
-        self.assertEqual(sim.tasks[0].version, '05.03L01')
+        self.assertEqual(sim.tasks[0].version, '01.00')
         self.assertEqual(sim.tasks[0].amount_of_ram_mb, 1073741824)
         self.assertEqual(sim.tasks[0].disk_space_mb, 1073741824)
         self.assertEqual(sim.tasks[0].nr_cpu_cores, 1)

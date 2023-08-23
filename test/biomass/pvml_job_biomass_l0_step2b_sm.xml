@@ -3,7 +3,7 @@
   <jobOrderId>1001</jobOrderId>
   <processorName>l0_sm</processorName>
   <processorVersion>01.01</processorVersion>
-  <orderType>OFFL</orderType>
+  <processingNode>MyNode</processingNode>
   <processingParameters>
     <parameter name="Acquisition_Station">ESRIN</parameter>
     <parameter name="Product_Counter">0</parameter>
@@ -11,31 +11,21 @@
     <parameter name="Processing_Stage_Flag">N</parameter>
     <parameter name="originator_ID">TST</parameter>
   </processingParameters>
-  <tasks>
-    <task name="Step2">
-      <inputs>
-        <input>
-          <file>workspace/1/BIO_RAWS025_10_20210201T002432_20210201T002539_D20210201T013810_00_??????.zip</file>
-        </input>
-        <input>
-          <file>workspace/1/BIO_RAWS026_10_20210201T002432_20210201T002539_D20210201T013810_00_??????.zip</file>
-        </input>
-        <input>
-          <file>workspace/1/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
-        </input>
-        <input>
-          <file>workspace/1/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
-        </input>
-      </inputs>
-      <exitCode>0</exitCode>
-    </task>
-    <task name="Step4">
-      <inputs>
-        <input>
-          <file>workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</file>
-        </input>
-      </inputs>
-      <exitCode>0</exitCode>
-    </task>
-  </tasks>
+  <inputs>
+    <input>
+      <product>../../workspace/1/BIO_RAWS025_10_20210201T002432_20210201T002539_D20210201T013810_00_??????.zip</product>
+    </input>
+    <input>
+      <product>../../workspace/1/BIO_RAWS026_10_20210201T002432_20210201T002539_D20210201T013810_00_??????.zip</product>
+    </input>
+    <input>
+      <product>../../workspace/1/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
+    </input>
+    <input>
+      <product>../../workspace/1/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
+    </input>
+    <input>
+      <product>../../workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
+    </input>
+  </inputs>
 </pvmlJob>

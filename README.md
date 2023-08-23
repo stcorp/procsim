@@ -110,7 +110,7 @@ An example scenario:
       "processor_name": "l0_ec",
       "processor_version": "01.01",
       "task_name": "Step5",
-      "task_version": "05.03L01",
+      "task_version": "01.00",
 
       "log_level": "debug",
       "logging": [

@@ -1,179 +1,218 @@
 <?xml version="1.0"?>
 <pvmlConfig>
   <name>Biomass</name>
-  <taskTablePath>test/biomass/tasktables</taskTablePath>
-  <workspaceDirectory>workspace</workspaceDirectory>
-  <taskTableSchema>test/biomass/tasktable.xsd</taskTableSchema>
-  <jobOrderSchema>procsim/core/job_order_ESA-EOPG-EEGS-ID-0083.xsd</jobOrderSchema>
-  <ProcessorInterfaceVersion>1</ProcessorInterfaceVersion>
-  <processingStation>GAT</processingStation>  <!-- This value will be used to populate the corresponding entry in the JobOrder file.-->
+  <interfaceBackend>EEGS</interfaceBackend>
+  <taskTablePath>tasktables</taskTablePath>
+  <workspaceDirectory>../../workspace</workspaceDirectory>
+  <taskTableSchema>tasktable.xsd</taskTableSchema>
+  <jobOrderSchema>joborder.xsd</jobOrderSchema>
+  <processingStation>GAT</processingStation>
   <splitLoggingLevel>false</splitLoggingLevel>
   <globalBreakpointEnable>false</globalBreakpointEnable>
-  <alternateBreakpointElementName>true</alternateBreakpointElementName>
   <useTroubleshooting>true</useTroubleshooting>
-  <listFilenameUsesOrderId>false</listFilenameUsesOrderId>
 
-  <outputBackend>file</outputBackend>
-  <outputBackendOptions>
-    <option name="archive">archive</option>
-  </outputBackendOptions>
   <productTypes>
-    <!-- For each product type that is included in a TaskTable where `Destination=DB`, there should be an entry -->
-    <!-- Note: the productType names are file_types in the task tables! Consider renaming...-->
     <!-- Raw -->
     <productType name="RAW_022_10">
       <matchExpression><![CDATA[.*RAW_022_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_023_10">
       <matchExpression><![CDATA[.*RAW_023_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_024_10">
       <matchExpression><![CDATA[.*RAW_024_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_025_10">
       <matchExpression><![CDATA[.*RAW_025_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_026_10">
       <matchExpression><![CDATA[.*RAW_026_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_027_10">
       <matchExpression><![CDATA[.*RAW_027_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_028_10">
       <matchExpression><![CDATA[.*RAW_028_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_035_10">
       <matchExpression><![CDATA[.*RAW_035_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="RAW_036_10">
       <matchExpression><![CDATA[.*RAW_036_10.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
 
     <productType name="RAWS025_10">
       <matchExpression><![CDATA[.*RAWS025_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS026_10">
       <matchExpression><![CDATA[.*RAWS026_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS027_10">
       <matchExpression><![CDATA[.*RAWS027_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS028_10">
       <matchExpression><![CDATA[.*RAWS028_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS035_10">
       <matchExpression><![CDATA[.*RAWS035_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS036_10">
       <matchExpression><![CDATA[.*RAWS036_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
     <productType name="RAWS022_10">
       <matchExpression><![CDATA[.*RAWS022_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS023_10">
       <matchExpression><![CDATA[.*RAWS023_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RAWS024_10">
       <matchExpression><![CDATA[.*RAWS024_10.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
     <productType name="RAW___HKTM">
       <matchExpression><![CDATA[.*RAW___HKTM.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
 
     <!-- Level 0 -->
     <productType name="Sx_RAW__0S">
       <matchExpression><![CDATA[.*S[x123]_RAW__[0-9]S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_RAWP_0M">
       <matchExpression><![CDATA[.*S[x123]_RAWP_[0-9]M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_RAW__0M">
       <matchExpression><![CDATA[.*S[x123]_RAW__[0-9]M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RO_RAW__0S">
       <matchExpression><![CDATA[.*RO_RAW__0S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RO_RAWP_0M">
       <matchExpression><![CDATA[.*RO_RAWP_0M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="RO_RAW__0M">
       <matchExpression><![CDATA[.*RO_RAW__0M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="AC_RAW__0A">
       <matchExpression><![CDATA[.*AC_RAW__0A.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="EC_RAWP_0S">
       <matchExpression><![CDATA[.*EC_RAWP_0S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="EC_RAW__0S">
       <matchExpression><![CDATA[.*EC_RAW__0S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="EC_RAWP_0M">
       <matchExpression><![CDATA[.*EC_RAWP_0M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="EC_RAW__0M">
       <matchExpression><![CDATA[.*EC_RAW__0M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
     <!-- Aux (level 0) -->
     <productType name="AUX_ATT___">
       <matchExpression><![CDATA[.*AUX_ATT___.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="AUX_ORB___">
       <matchExpression><![CDATA[.*AUX_ORB___.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
     <!-- Aux (other) -->
     <productType name="AUX_PP1___">
       <matchExpression><![CDATA[.*AUX_PP1___.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="AUX_PPS___">
       <matchExpression><![CDATA[.*AUX_PPS___.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="AUX_TEC___">
       <matchExpression><![CDATA[.*AUX_TEC___.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="AUX_GMF___">
       <matchExpression><![CDATA[.*AUX_GMF___.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="AUX_INS___">
       <matchExpression><![CDATA[.*AUX_INS___.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
     <productType name="AUX_PP2_2A">
       <matchExpression><![CDATA[.*AUX_PP2_2A.*]]></matchExpression>
+      <baseline>1</baseline>
     </productType>
 
     <!-- Level 1 -->
     <productType name="CPF_L1VFRA">
       <matchExpression><![CDATA[.*CPF_L1VFRA.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_SCS__1S">
       <matchExpression><![CDATA[.*S[x123]_SCS__1S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_SCS__1M">
       <matchExpression><![CDATA[.*S[x123]_SCS__1M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_DGM__1S">
       <matchExpression><![CDATA[.*S[x123]_DGM__1S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_STA__1S">
       <matchExpression><![CDATA[.*S[x123]_STA__1S.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="Sx_STA__1M">
       <matchExpression><![CDATA[.*S[x123]_STA__1M.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
     <!-- Level 2a -->
     <productType name="FP_FD__L2A">
       <matchExpression><![CDATA[.*FP_FD__L2A.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="FP_FH__L2A">
       <matchExpression><![CDATA[.*FP_FH__L2A.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
     <productType name="FP_GN__L2A">
       <matchExpression><![CDATA[.*FP_GN__L2A.*]]></matchExpression>
+      <baseline>0</baseline>
     </productType>
 
   </productTypes>

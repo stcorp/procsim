@@ -3,7 +3,7 @@
   <jobOrderId>20</jobOrderId>
   <processorName>l0preproc_ro</processorName>
   <processorVersion>01.01</processorVersion>
-  <orderType>OFFL</orderType>
+  <processingNode>MyNode</processingNode>
   <processingParameters>
     <parameter name="Acquisition_Station">ESRIN</parameter>
     <parameter name="Product_Counter">0</parameter>
@@ -11,26 +11,21 @@
     <parameter name="Processing_Stage_Flag">N</parameter>
     <parameter name="originator_ID">TST</parameter>
   </processingParameters>
-  <tasks>
-    <task name="Step1">
-      <inputs>
-        <input>
-          <file >data/raw_ro/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
-        </input>
-        <input>
-          <file >data/raw_ro/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
-        </input>
-        <input>
-          <file >data/raw_ro/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</file>
-        </input>
-        <input>
-          <file >data/raw_ro/BIO_RAW_027_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</file>
-        </input>
-        <input>
-          <file >data/raw_ro/BIO_RAW_028_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</file>
-        </input>
-      </inputs>
-      <exitCode>0</exitCode>
-    </task>
-  </tasks>
+  <inputs>
+    <input>
+      <product>../../data/raw_ro/BIO_RAW_022_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</product>
+    </input>
+    <input>
+      <product>../../data/raw_ro/BIO_RAW_023_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</product>
+    </input>
+    <input>
+      <product>../../data/raw_ro/BIO_RAW_024_10_20210201T000000_20210201T013810_D20210201T013810_01_??????.zip</product>
+    </input>
+    <input>
+      <product>../../data/raw_ro/BIO_RAW_027_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</product>
+    </input>
+    <input>
+      <product>../../data/raw_ro/BIO_RAW_028_10_20210201T002432_20210201T002932_D20210201T013810_01_??????.zip</product>
+    </input>
+  </inputs>
 </pvmlJob>

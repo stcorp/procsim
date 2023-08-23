@@ -3,24 +3,19 @@
   <jobOrderId>3000</jobOrderId>
   <processorName>l1_sta</processorName>
   <processorVersion>01.01</processorVersion>
-  <orderType>OFFL</orderType>
+  <processingNode>MyNode</processingNode>
   <processingParameters>
     <parameter name="Orbit_Number">1234</parameter>
   </processingParameters>
-  <tasks>
-    <task name="Step1">
-      <inputs>
-        <!-- Generated products -->
-        <input>
-          <file>workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C01_T000_F001_00_??????</file>
-          <file>workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C02_T000_F001_00_??????</file>
-          <file>workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C03_T000_F001_00_??????</file>
-        </input>
-        <input>
-          <file>data/aux/BIO_AUX_PPS____20210201T000000_20210201T013810_01_??????</file>
-        </input>
-      </inputs>
-      <exitCode>0</exitCode>
-    </task>
-  </tasks>
+  <inputs>
+    <!-- Generated products -->
+    <input>
+      <product>../../workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C01_T000_F001_00_??????</product>
+      <product>../../workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C02_T000_F001_00_??????</product>
+      <product>../../workspace/2010/BIO_S1_SCS__1S_20210201T002533_20210201T002554_T_G___M01_C03_T000_F001_00_??????</product>
+    </input>
+    <input>
+      <product>../../data/aux/BIO_AUX_PPS____20210201T000000_20210201T013810_01_??????</product>
+    </input>
+  </inputs>
 </pvmlJob>
