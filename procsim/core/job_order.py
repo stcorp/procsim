@@ -133,11 +133,11 @@ class JobOrderParser:
     def _find_matching_files(self, pattern):
         # Return list of all files matching 'pattern'.
         # For now, assume the path is 'fixed' and the regex does not contain slashes.
-        # The pattern can be a globbing pattern - handle this separately
-        if '?' in pattern or '*' in pattern:
-            return glob.glob(pattern)
+        # The pattern can be a globbing pattern - try first to see if this produces results
+        files = glob.glob(pattern)
+        if len(files) > 0:
+            return files
         rootdir = os.path.dirname(os.path.abspath(pattern))
-        files = []
         if os.path.isdir(rootdir):
             for file in os.scandir(rootdir):
                 if re.match(pattern, file.path) or os.path.abspath(pattern) == file.path:
