@@ -12,19 +12,19 @@
     <parameter name="originator_ID">TST</parameter>
   </processingParameters>
   <inputs>
-    <input>
+    <input product_type="RAWS025_10">
       <product>../../workspace/2/BIO_RAWS025_10_20210201T003458_20210201T003645_D20210201T013810_00_??????.zip</product>
     </input>
-    <input>
+    <input product_type="RAWS026_10">
       <product>../../workspace/2/BIO_RAWS026_10_20210201T003458_20210201T003645_D20210201T013810_00_??????.zip</product>
     </input>
-    <input>
+    <input product_type="RAWS023_10">
       <product>../../workspace/2/BIO_RAWS023_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
     </input>
-    <input>
+    <input product_type="RAWS024_10">
       <product>../../workspace/2/BIO_RAWS024_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
     </input>
-    <input>
+    <input product_type="RAWS022_10">
       <product>../../workspace/1/BIO_RAWS022_10_20210201T000000_20210201T013810_D20210201T013810_00_??????.zip</product>
     </input>
   </inputs>

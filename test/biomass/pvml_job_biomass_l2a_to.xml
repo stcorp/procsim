@@ -9,12 +9,12 @@
   </processingParameters>
   <inputs>
     <!-- Generated products -->
-    <input>
+    <input product_type="Sx_STA__1S">
       <product>../../workspace/3000/BIO_S1_STA__1S_20210201T002533_20210201T002554_T_G___M01_C01_T000_F001_00_??????</product>
       <product>../../workspace/3000/BIO_S1_STA__1S_20210201T002533_20210201T002554_T_G___M01_C02_T000_F001_00_??????</product>
       <product>../../workspace/3000/BIO_S1_STA__1S_20210201T002533_20210201T002554_T_G___M01_C03_T000_F001_00_??????</product>
     </input>
-    <input>
+    <input product_type="AUX_PP2_2A">
       <product>../../data/aux/BIO_AUX_PP2_2A_20210201T000000_20210201T013810_01_??????</product>
     </input>
   </inputs>
