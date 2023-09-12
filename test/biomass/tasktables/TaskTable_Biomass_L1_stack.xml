@@ -105,12 +105,12 @@
              How to specify that? -->
         <Output>
           <File_Type>Sx_STA__1S</File_Type>
-          <File_Name_Pattern>BIO_S?_STA__1S*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_STA__1S.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>Sx_STA__1M</File_Type>
-          <File_Name_Pattern>BIO_S?_STA__1M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_STA__1M.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

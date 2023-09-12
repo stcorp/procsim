@@ -113,17 +113,17 @@
       <List_of_Outputs>
         <Output>
           <File_Type>FP_FD__L2A</File_Type>
-          <File_Name_Pattern>BIO_FP_FD__L2A*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_FP_FD__L2A.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>FP_FH__L2A</File_Type>
-          <File_Name_Pattern>BIO_FP_FH__L2A*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_FP_FH__L2A.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>FP_GN__L2A</File_Type>
-          <File_Name_Pattern>BIO_FP_GN__L2A*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_FP_GN__L2A.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

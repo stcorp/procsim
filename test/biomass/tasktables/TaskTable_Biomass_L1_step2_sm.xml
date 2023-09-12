@@ -267,17 +267,17 @@
       <List_of_Outputs>
         <Output>
           <File_Type>Sx_SCS__1S</File_Type>
-          <File_Name_Pattern>BIO_S?_SCS__1S*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_SCS__1S.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>Sx_SCS__1M</File_Type>
-          <File_Name_Pattern>BIO_S?_SCS__1M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_SCS__1M.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>Sx_DGM__1S</File_Type>
-          <File_Name_Pattern>BIO_S?_DGM__1S*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_DGM__1S.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

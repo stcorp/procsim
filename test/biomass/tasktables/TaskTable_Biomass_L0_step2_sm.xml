@@ -154,12 +154,12 @@
       <List_of_Outputs>
         <Output>
           <File_Type>Sx_RAW__0S</File_Type>
-          <File_Name_Pattern>BIO_S?_RAW__0S*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_RAW__0S*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>Sx_RAWP_0M</File_Type>
-          <File_Name_Pattern>BIO_S?_RAWP_0M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_RAWP_0M*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>
@@ -238,7 +238,7 @@
       <List_of_Outputs>
         <Output>
           <File_Type>Sx_RAW__0M</File_Type>
-          <File_Name_Pattern>BIO_S?_RAW__0M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_S[x123]_RAW__0M*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>
@@ -421,12 +421,12 @@
       <List_of_Outputs>
         <Output>
           <File_Type>AUX_ATT___</File_Type>
-          <File_Name_Pattern>BIO_AUX_ATT___*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_AUX_ATT___.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>AUX_ORB___</File_Type>
-          <File_Name_Pattern>BIO_AUX_ORB___*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_AUX_ORB___.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

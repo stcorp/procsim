@@ -111,7 +111,7 @@
       <List_of_Outputs>
         <Output>
           <File_Type>CPF_L1VFRA</File_Type>
-          <File_Name_Pattern>BIO_CPF_L1VFRA*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_.{4}_CPF_L1VFRA.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

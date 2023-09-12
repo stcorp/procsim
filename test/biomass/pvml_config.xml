@@ -10,6 +10,7 @@
   <splitLoggingLevel>false</splitLoggingLevel>
   <globalBreakpointEnable>false</globalBreakpointEnable>
   <useTroubleshooting>true</useTroubleshooting>
+  <useRegexOutputPattern>true</useRegexOutputPattern>
 
   <productTypes>
     <!-- Raw -->

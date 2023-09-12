@@ -154,12 +154,12 @@
       <List_of_Outputs>
         <Output>
           <File_Type>RO_RAW__0S</File_Type>
-          <File_Name_Pattern>BIO_RO_RAW__0S*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RO_RAW__0S.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>RO_RAWP_0M</File_Type>
-          <File_Name_Pattern>BIO_RO_RAWP_0M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RO_RAWP_0M.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>
@@ -238,7 +238,7 @@
       <List_of_Outputs>
         <Output>
           <File_Type>RO_RAW__0M</File_Type>
-          <File_Name_Pattern>BIO_RO_RAW__0M*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RO_RAW__0M.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>
@@ -344,7 +344,7 @@
       <List_of_Outputs>
         <Output>
           <File_Type>AC_RAW__0A</File_Type>
-          <File_Name_Pattern>BIO_AC_RAW__0A*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_AC_RAW__0A.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>

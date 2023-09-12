@@ -178,27 +178,27 @@
       <List_of_Outputs>
         <Output>
           <File_Type>RAWS022_10</File_Type>
-          <File_Name_Pattern>BIO_RAWS022_10*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RAWS022_10.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>RAWS023_10</File_Type>
-          <File_Name_Pattern>BIO_RAWS023_10*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RAWS023_10.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>RAWS024_10</File_Type>
-          <File_Name_Pattern>BIO_RAWS024_10*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RAWS024_10.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>RAWS035_10</File_Type>
-          <File_Name_Pattern>BIO_RAWS035_10*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RAWS035_10.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
         <Output>
           <File_Type>RAWS036_10</File_Type>
-          <File_Name_Pattern>BIO_RAWS036_10*</File_Name_Pattern>
+          <File_Name_Pattern>BIO_RAWS036_10.*</File_Name_Pattern>
           <Destination>External</Destination>
         </Output>
       </List_of_Outputs>
