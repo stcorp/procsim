@@ -1,4 +1,5 @@
 # Procsim
+
 Procsim is a tool to simulate satellite data processor tasks.
 
 In the Payload Data Ground Segment (PDGS) of a satellite mission, the data processing functionality is handled by at least one Processing Facility (PF) which integrates one or more processors.
@@ -13,68 +14,76 @@ Procsim does not do any 'real' processing, but reads and interprets the JobOrder
 
 During execution, logging is produced, with log levels according to those specified in the JobOrder. However, log levels can be overruled on the command line or in the configuration file. The program exits with an exit code which can be specified.
 
-# Supported missions
+## Supported missions
+
 Procsim consists of a common core and mission-specific plugins containing the mission-specific code.
 Currently, the following missions are supported:
+
 - Biomass
 - FLEX
 
-# Installation instructions
+## Installation instructions
+
 To use procsim, you will need:
 
- - A Unix-based operating system (e.g. Linux).
-
- - Python version 3.6 or higher.
-
- - The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2-utils package using the package manager of your Unix distribution or download/install the package from http://xmlsoft.org/. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
+- A Unix-based operating system (e.g. Linux).
+- Python version 3.6 or higher.
+- The xmllint program, included with most Linux distributions. If missing, you can either install the libxml2-utils package using the package manager of your Unix distribution or download/install the package from <http://xmlsoft.org/>. After installation, make sure that the xmllint executable is in your executable path (i.e. the directory location where it is in should be in your PATH environment setting).
 
 Procsim is distributed as a source distribution created using `setuptools`. It can be installed in several ways, for example using pip or by invoking setup.py manually. Note: installation using setup.py requires super user privileges in most cases.
 
 Using setup.py:
+
+```bash
+tar xvf <procsim_package_name>.tgz
+cd <procsim_package_name>
+python3 setup.py install
 ```
-$ tar xvf <procsim_package_name>.tgz
-$ cd <procsim_package_name>
-$ python3 setup.py install
-```
+
 If setup.py fails due to permission errors, use
-```
-$ sudo python3 setup.py install
+
+```bash
+sudo python3 setup.py install
 ```
 
 Using pip:
-```
-$ pip install <procsim_pacakge>.tgz
+
+```bash
+pip install <procsim_pacakge>.tgz
 ```
 
 Procsim is a command-line based tool. To test the installation, enter:
- ```
-$ procsim --version
- ```
 
-# Usage
+```bash
+procsim --version
+```
+
+## Usage
+
 For every Task to be simulated, you need:
 
- - a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn call `procsim`.
-
- - a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
+- a shell script that will be called by the PF, instead of the 'real' processor task. This script should in turn call `procsim`.
+- a 'scenario', describing the desired behavior of procsim for this specific Task. The scenarios are defined in configuration files.
 
 ## Shell script
+
 The PF calls the processor with only one argument, the name of the JobOrder file. The shell script, used to redirect the PF's call, should call procsim with the following arguments:
 
-  - `-t`, followed by the name of the script, as called by the PF
-
-  - `-j`, followed by the name of the job order file
-
-  - the name of the procsim configuration file.
+- `-t`, followed by the name of the script, as called by the PF
+- `-j`, followed by the name of the job order file
+- the name of the procsim configuration file.
 
 The script will look like this:
-```
+
+```bash
 #!/bin/sh
 procsim -t $0 -j $1 <path_to_config/configfile>
 ```
+
 Optionally, you can specify a specific scenario using `-s`, followed by the name of the scenario.
 
 ## Scenario configuration
+
 Procsim can act as a stub for all kind of processors. Its behavior is determined by a 'scenario'. A scenario specifies e.g. the amount of resources (CPU/memory/disk) to be used, the time procsim should sleep and the output products to be generated.
 
 The scenarios are described in JSON configuration files. C-style comments and trailing comma's at the end of lists and objects are allowed. Date/time points should be specified as strings in ISO format, such as `"2021-02-01T00:24:32.000Z"`. Time periods, such as the slice period, are in seconds with type float.
@@ -82,7 +91,8 @@ The scenarios are described in JSON configuration files. C-style comments and tr
 A configuration file can contain one or multiple scenarios. The scenario is selected by automatically using the combination of task file name (i.e. the name of the executable called by the PF) and the JobOrder contents, or manually using an additional command line parameter.
 
 The configuration file is structured as following:
-```
+
+```json
 {
   "mission": "biomass",
   "log_level": "debug",
@@ -91,17 +101,17 @@ The configuration file is structured as following:
   ]
 }
 ```
+
 A JSON editor with syntax checking and coloring, such as Visual Studio Code, is recommended to create and edit the configuration files.
 The configuration parameters are described below.
 
 - `mission` : string, mandatory. Must match the name of plugin, in this case biomass.
-
 - `log_level` : string, optional. Log level, can be debug, info, progress, warning, error. Overrules the level in the jobOrder, if any. Default is 'info'.
-
 - `scenarios` : array of objects, mandatory. This section contains one or more scenarios.
 
 An example scenario:
-```
+
+```json
     {
       // Task #5
       "name": "L0 step 5, Consolidation of External Calibration Standard products",
@@ -138,45 +148,36 @@ An example scenario:
       "exit_code": 0
     },
 ```
+
 The parameters are described below.
 
 - `name` : string, mandatory. Used for logging, and can be specified on the command line to select a specific scenario.
-
 - `file_name` : string, mandatory. Must match the `-t` command line parameter.
-
 - `processor_name`, `processor_version`, `task_name` and `task_version` : string, mandatory. Used to find the matching task in the JobOrder and must match the corresponding fields in the JobOrder.
-
 - `log_level` : string, optional. Log level, can be debug, info, progress, warning, error. Overrules the `log_level` in the root of the configuration, if any, or the level in the jobOrder, if any. Default is 'info'.
-
 - `logging` : array of objects, optional. Procsim produces many log messages, formatted and filtered according to the settings in the JobOrder. An optional list with additional log messages can be specified and will be logged.
-
   - `level` : string, optional. Specifies the log level and can be `"debug", "info", "progress", "warning" or "error"`.
-
   - `message` : string, mandatory. The message to be logged.
-
 - `processing_time`, `nr_progress_log_messages`, `nr_cpu`, `memory_usage`, `disk_usage` : number, optional. After reading the configuration and the job order, procsim will 'work' for a while, consuming memory, disk space and CPU cycles, and producing progress log messages. The defaults are zero (no cpu-time spent, no memory/disk used, no progress log messages produced). Note that resouce usage is limited by the values in the JobOrder, if present.
 
 - `outputs` : array, mandatory. The section 'outputs' contains one or more output products to be generated. Per product, you can specify:
-
   - `type` : string, mandatory. Specifies the product type. Procsim contains 'product generators' for many product types. Use the command `procsim -i` to get a list with supported product types.
-
   - `size` : number, optional. Specifies the size of the product's 'data' file(s) in MB. In case of products with multiple binary files, `size` specifies the total size, divided over the separate files. If not set or set to zero, an empty file is generated.
-
   - `file` : file path, optional. If specified, 'data' file(s) are copied from the specified file. Overrides `size`.
-
   - `enable` : boolean, optional. When set to false, a warning is logged and this output product is not generated. Default is true.
-
   - `metadata_source` : string, optional. Regular expression, used to specify the input product which is used as a first source for the metadata in the output product. Think of parameters such as validity start/stop times, mission phase, etc., these are copied from the metadata source product.
 
 - `exit_code` : number, optional. Default is 0.
 
 ### Metadata parameters
+
 Most metadata will be copied from an input source. Some metadata is set by the output product generator, such as the product type, the processor name and the processor version (all read from the scenario) and the baseline version (read from the JobOrder). Some output product generators set additional fields as well, such as the 'slice number'.
 
 Metadata parameter values can be specified in the scenario. If already read from the `metadata_source`, they will be overwritten. Parameter values can be placed in the scenario 'root' (common for all output products) or in a specific output section.
 
 Example:
-```
+
+```json
       "mission_phase": "Tomographic",
       "outputs": [
         {
@@ -186,15 +187,18 @@ Example:
           "operational_mode": "AC",
         },
 ```
+
 This scenario sets the mission_phase to "Tomographic" for all output products, and the swath and operational mode of the AC_RAW__0A product to "AC".
 
 ### Generator specific parameters
+
 Some generators have specific parameters, such as ```enable_slicing``` for the RAWSxxx_10 generator. These parameters can be placed on either the scenario level or in a specific output section, as with the metadata parameters.
 
 A list with all supported parameters for a specific output type can be retrieved using `procsim -i [product_type]`.
 
 Example:
-```
+
+```bash
 $ procsim -i AC_RAW__0A
 
 AC_RAW__0A product generator details:
@@ -237,15 +241,18 @@ Supported scenario parameters for product type AC_RAW__0A are:
    - zip_extension (str)
    - leading_margin (float)
    - trailing_margin (float)
-   ```
+```
 
-# Sample code
+## Sample code
+
 Directory `examples` contains examples of scenario configurations, job orders and scripts to demonstrate them.
 
-# Program flow
+## Program flow
+
 The next section describes the program flow during normal execution of procsim.
 
 ### Init phase
+
 - Parse command line arguments.
 - Install signal handler. On 'SIGTERM' or 'SIGINT', a log message is produced and the program terminates.
 - Parse scenario configuration file.
@@ -259,9 +266,11 @@ The next section describes the program flow during normal execution of procsim.
   - user log messages, as defined in the scenario.
 
 ### Processing
+
 - 'Processing' starts: procsim eats resources for the specified amount of time. Note that limits in the job order (i.e. regarding cpu/memory usage) prevail over the scenario resource parameters.
 
 ### Output generation
+
 - Generate intermediate files, if specified in the job order.
 - For every output product specified in the job order:
   - Walk over input products. For every input:
@@ -273,24 +282,29 @@ The next section describes the program flow during normal execution of procsim.
   - Generate output products.
 
 ### Program termination
+
 - The program exits with the exit code as defined in the scenario (default 0).
 
+## Running in a container
 
-# Running in a container
 A Dockerfile, to create a container image from source, is provided in the release package. The container wraps the procsim application and the Python interpreter, allowing the tool to run 'anywhere'.
 The container image can be build using Podman (provided by Red Hat Linux) or Docker. Use the following command in the directory where Dockerfile is located:
+
+```bash
+podman build -t procsim .
 ```
-$ podman build -t procsim .
-```
+
 <!-- Note that this requires internet access, as the base image is loaded from the Docker repository.
 As an alternative, you can import the exported image:
 ```
 $ podman load -i <package_name>_docker_image.tar
 ``` -->
 After that, you can use the Dockerized procsim container. You can run
+
+```bash
+podman run --rm procsim -v
 ```
-$ podman run --rm procsim -v
-```
+
 to show the version number. The script ```examples/generate_L0_container.sh``` shows a usage example.
 
 Note: replace ```podman``` with ```docker``` to use Docker instead of podman.
