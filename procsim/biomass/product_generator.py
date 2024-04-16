@@ -379,7 +379,7 @@ class ProductGeneratorBase(IProductGenerator):
             val = int(val)
         elif ptype == 'float':
             val = float(val)
-            if type(old_val) == datetime.timedelta:
+            if type(old_val) is datetime.timedelta:
                 val = datetime.timedelta(0, val)    # We expect seconds here
         elif ptype == 'array of str':
             pass

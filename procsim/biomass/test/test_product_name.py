@@ -247,7 +247,7 @@ class ProductNameTest(unittest.TestCase):
                 self.assertEqual(pn.baseline_identifier, d.baseline)
                 self.assertEqual(pn.version_nr, d.version_nr)
             else:
-                assert()
+                assert False, f'Unknown level {d.level}'
 
     def testMissingParams(self):
         pn = ProductName()
