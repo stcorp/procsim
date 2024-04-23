@@ -46,6 +46,15 @@ jobs:
         pip install -e .
         test/biomass/test_no_pvml.sh
 
+    - name: Test FLEX
+      run: |
+        pip install -e .
+        cd examples_flex
+        ./run_all_test_scenario.sh --no-wait
+        ./run_cal_test_scenario.sh
+        ./generate_aux.sh
+        ./generate_raw.sh
+
     - name: Build
       id: pack_tarball
       run: |
