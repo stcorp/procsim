@@ -465,7 +465,7 @@ class ProductGeneratorBase(IProductGenerator):
         Setup some mandatory metadata
         '''
         if self._creation_date is None:
-            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
+            self._creation_date = get_current_utc_datetime()
 
         self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],

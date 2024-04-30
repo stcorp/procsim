@@ -416,7 +416,7 @@ class MainProductHeader:
         meta_data_property = et.SubElement(mph, eop + 'metaDataProperty')  # Observation metadata
         earth_observation_meta_data = et.SubElement(meta_data_property, eop + 'EarthObservationMetaData')
         et.SubElement(earth_observation_meta_data, eop + 'identifier').text = self.eop_identifier
-        et.SubElement(earth_observation_meta_data, eop + 'creationDate').text = _time_as_iso(datetime.datetime.now())
+        et.SubElement(earth_observation_meta_data, eop + 'creationDate').text = _time_as_iso(utils.get_current_utc_datetime())
         et.SubElement(earth_observation_meta_data, eop + 'doi').text = self.doi  # Digital Object Identifier
         et.SubElement(earth_observation_meta_data, eop + 'acquisitionType').text = self.acquisition_type
         if self.acquisition_subtype is not None:

@@ -99,7 +99,7 @@ class Acquisition:
         # L0, L1
         self.orbit_number: int = 0
         self.last_orbit_number: int = 0
-        self.anx_date = datetime.datetime.now(tz=datetime.timezone.utc)
+        self.anx_date = utils.get_current_utc_datetime()
         self.start_time: int = 0           # in ms since ANX
         self.completion_time: int = 0      # in ms since ANX
         self.instrument_config_id: int = 0

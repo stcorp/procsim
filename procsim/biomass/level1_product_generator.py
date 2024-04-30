@@ -12,6 +12,7 @@ from typing import Iterable, List, Optional, Tuple
 from xml.etree import ElementTree as et
 
 import re
+from procsim.core import utils
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
 
@@ -329,7 +330,7 @@ class Level1PreProcessor(product_generator.ProductGeneratorBase):
         # Create a name generator, give it the right values and generate the product name.
         name_gen = self._create_name_generator(self._hdr)
         if self._creation_date is None:
-            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
+            self._creation_date = utils.get_current_utc_datetime()
         name_gen.set_creation_date(self._creation_date)
         name_gen.file_class = self._file_class
         name_gen.baseline_identifier = self._hdr.product_baseline

@@ -10,6 +10,7 @@ import re
 from typing import Optional
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
+from procsim.core import utils
 
 from . import constants, product_types
 
@@ -165,7 +166,7 @@ class ProductName:
         If set to None, use 'now'.
         '''
         if time is None:
-            time = datetime.datetime.now(tz=datetime.timezone.utc)
+            time = utils.get_current_utc_datetime()
         self._creation_date = time
         sec = int((time - self._compact_create_date_epoch).total_seconds())
         date36 = ''

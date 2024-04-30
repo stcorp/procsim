@@ -4,6 +4,8 @@ Copyright (C) 2021 S[&]T, The Netherlands.
 Common XML/JSON helper functions
 '''
 
+import datetime
+import os
 import re
 
 
@@ -62,3 +64,13 @@ def remove_trailing_commas(json_like):
     objects_fixed = trailing_object_commas_re.sub("}", json_like)
     # Now fix arrays/lists [] and return the result
     return trailing_array_commas_re.sub("]", objects_fixed)
+
+
+def get_current_utc_datetime() -> datetime.datetime:
+    """
+    Helper method, returns the current UTC datetime.
+    Can be overridden in tests using environment variable CURRENT_UTC_DATETIME=<some time>.
+    """
+    if 'CURRENT_UTC_DATETIME' in os.environ:
+        return datetime.datetime.strptime(os.environ['CURRENT_UTC_DATETIME'], '%Y%m%dT%H%M%S').replace(tzinfo=datetime.timezone.utc)
+    return datetime.datetime.now(datetime.timezone.utc)

@@ -11,6 +11,7 @@ from xml.etree import ElementTree as et
 
 from procsim.biomass.constants import ORBITAL_PERIOD
 from procsim.biomass.product_types import ORBPRE_PRODUCT_TYPES
+from procsim.core import utils
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
 from procsim.core.job_order import JobOrderInput, JobOrderOutput
@@ -432,7 +433,7 @@ class ProductGeneratorBase(IProductGenerator):
         Setup some mandatory metadata
         '''
         if self._creation_date is None:
-            self._creation_date = datetime.datetime.now(tz=datetime.timezone.utc)
+            self._creation_date = utils.get_current_utc_datetime()
 
         self._hdr.set_processing_parameters(
             self._scenario_config['processor_name'],
