@@ -22,3 +22,9 @@ env/
 
 # IDE configurations
 .vscode/
+
+# Test files
+examples_flex/AUX_output
+examples_flex/RAW_output
+examples_flex/bck*
+examples_flex/tmp*
