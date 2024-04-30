@@ -25,7 +25,7 @@ for f in os.listdir(path):
         tree = ET.parse(f'{path}/{f}/{f.lower()}.xml')
         attrs = {}
         for info in tree.findall(f'{eop}metaDataProperty/{eop}EarthObservationMetaData/{eop}vendorSpecific/{eop}SpecificInformation'):
-            attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text
+            attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text  # type: ignore
         lines.append([f] + [attrs.get(prop, '_') for prop in props])
 
 # sort on filename start, dataTakeID, sensor, frame nr
