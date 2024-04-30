@@ -8,6 +8,7 @@ import argparse
 import importlib
 import json
 import os
+import random
 import signal
 import sys
 from typing import List, Optional, Tuple
@@ -328,6 +329,10 @@ def parse_command_line():
 def main():
     task_filename, job_filename, config_filename, scenario_name, log_level, no_match_outputs = parse_command_line()
     logger = Logger('', '', '', Logger.LEVELS, [])  # Create temporary logger
+
+    # init random generator with fixed seed to ensure reproducibility.
+    random.seed(0)
+
     try:
         # Program terminate/interrupt, will raise an exception which in turn will
         # result in a log message.

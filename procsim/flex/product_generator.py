@@ -4,6 +4,7 @@ Copyright (C) 2021-2023 S[&]T, The Netherlands.
 import bisect
 import datetime
 import os
+import random
 import re
 import shutil
 from typing import Dict, Iterable, List, Optional, Tuple
@@ -202,12 +203,15 @@ class ProductGeneratorBase(IProductGenerator):
             input_file.close()
 
         # otherwise look at 'size' (default 0) and write random data
+        # use randbytes if available (Python >= 3.9), otherwise fall back to os.urandom
         else:
             size = size_mb * 2**20 if size_mb is not None else 0
-
             while size > 0:
                 amount = min(size, CHUNK_SIZE)
-                output_file.write(os.urandom(max(amount, 0)))
+                if hasattr(random, 'randbytes'):
+                    output_file.write(random.randbytes(amount))
+                else:
+                    output_file.write(os.urandom(amount))
                 size -= amount
 
         output_file.close()
