@@ -16,12 +16,12 @@ from procsim.core.job_order import JobOrderInput
 
 from . import main_product_header, product_generator, product_name
 
-_HDR_PARAMS = [
+_HDR_PARAMS: List[tuple] = [
     ('cycle_number', 'cycle_number', 'str'),
     ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
 
-_ACQ_PARAMS = []
+_ACQ_PARAMS: List[tuple] = []
 
 
 class ProductGeneratorL0(product_generator.ProductGeneratorBase):
@@ -29,13 +29,18 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
     Locate combinations of three complete slices (one for each sensor) for the same period.
     '''  # TODO unique datatake_id, cal_id, event_id?
 
-    INPUTS = []
+    INPUTS: List[str] = []
 
     ID_FIELD = ''
 
+    def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
+        super().__init__(logger, job_config, scenario_config, output_config)
+
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
+
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
         period_types = collections.defaultdict(set)
@@ -104,7 +109,7 @@ class EO(ProductGeneratorL0):
         'L0__OBSMON',
     ]
 
-    _ACQ_PARAMS = []
+    _ACQ_PARAMS: List[tuple] = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),
@@ -341,7 +346,7 @@ class CAL(ProductGeneratorL0):
         'L0__CLOUD_': 'Radiometric_NaPoint_Cloud',
     }
 
-    _ACQ_PARAMS = [
+    _ACQ_PARAMS: List[tuple] = [
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -364,7 +369,7 @@ class CAL(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -398,7 +403,7 @@ class CAL(ProductGeneratorL0):
 #                if complete:
 #                    self._generate_output(calibration_config['calibration_id'], cal_start, cal_stop)
 
-    def _generate_output(self, calibration_id: str, start, stop):
+    def _generate_output(self, calibration_id: int, start, stop):
         self._logger.debug('Calibration {} from {} to {}'.format(self._hdr.calibration_id, start, stop))
 
         # Setup MPH fields. Validity time is not changed, should still be the
@@ -486,7 +491,7 @@ class ANC(ProductGeneratorL0):
 
     ID_FIELD = 'apid'
 
-    _ACQ_PARAMS = []
+    _ACQ_PARAMS: List[tuple] = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('enable_slicing', '_enable_slicing', 'bool'),
@@ -508,7 +513,7 @@ class ANC(ProductGeneratorL0):
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
         self._zip_output = False
-        self._output_periods: Optional[List[Tuple[str, datetime.datetime, datetime.datetime]]] = None
+        self._output_periods: Optional[List[Tuple[int, datetime.datetime, datetime.datetime]]] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -537,8 +542,8 @@ class ANC(ProductGeneratorL0):
 #                    if start <= anx[i] and stop >= anx[i+1]:
 #                        self._generate_output(apid, anx[i], anx[i+1])
 
-    def _generate_output(self, apid, start, stop):
-        self._logger.debug('Ancillary {} from {} to {}'.format(apid, start, stop))
+    def _generate_output(self, apid: int, start, stop):
+        self._logger.debug(f'Ancillary {apid} from {start} to {stop}')
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.

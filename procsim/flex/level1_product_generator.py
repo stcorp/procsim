@@ -4,8 +4,6 @@ Copyright (C) 2021-2023 S[&]T, The Netherlands.
 Flex Level 1 product generators,
 format according to ESA-EOPG-EOEP-TN-0022
 '''
-import bisect
-import collections
 import datetime
 import os
 from typing import Iterable, List, Tuple, Optional
@@ -21,7 +19,7 @@ _HDR_PARAMS = [
     ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
 
-_ACQ_PARAMS = []
+_ACQ_PARAMS: List[tuple] = []
 
 
 class EO(product_generator.ProductGeneratorBase):
@@ -33,7 +31,7 @@ class EO(product_generator.ProductGeneratorBase):
         'ANC_ORBRES',
     ]
 
-    _ACQ_PARAMS = []
+    _ACQ_PARAMS: List[tuple] = []
 
     GENERATOR_PARAMS: List[tuple] = [
         ('orbital_period', '_orbital_period', 'float'),
@@ -51,13 +49,12 @@ class EO(product_generator.ProductGeneratorBase):
         return gen + self.GENERATOR_PARAMS, hdr + _HDR_PARAMS, acq + _ACQ_PARAMS + self._ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
-        # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        # First copy the metadata from any input product
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
         overlapping = set()
 
-        period_types = collections.defaultdict(set)
         for input in input_products:
             if input.file_type in ('L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'):
                 for file in input.file_names:
@@ -154,7 +151,7 @@ class CAL(product_generator.ProductGeneratorBase):
         'SPC_SPECEO',
     ]
 
-    _ACQ_PARAMS = [
+    _ACQ_PARAMS: List[tuple] = [
     ]
 
     GENERATOR_PARAMS: List[tuple] = [
@@ -172,10 +169,9 @@ class CAL(product_generator.ProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
-        period_types = collections.defaultdict(set)
         for input in input_products:
             if input.file_type[4:] == self._output_type[4:]:
                 for file in input.file_names:

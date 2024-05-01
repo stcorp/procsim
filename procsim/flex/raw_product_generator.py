@@ -236,7 +236,7 @@ class RWS_EO(RawProductGeneratorBase):
         return gen + self.GENERATOR_PARAMS, hdr + self.HDR_PARAMS, acq + self.ACQ_PARAMS
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge/superclassify with CAL/ANC
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
         # slice raw products (step1)
@@ -636,7 +636,7 @@ class RWS_CAL(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
         # slice raw products (step1)
@@ -987,7 +987,7 @@ class RWS_ANC(RawProductGeneratorBase):
 
     def parse_inputs(self, input_products: Iterable[JobOrderInput]) -> bool:  # TODO merge with CAL, OE parse_inputs when done
         # First copy the metadata from any input product (normally H or V)
-        if not super().parse_inputs(input_products, ignore_missing=True):
+        if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
         # slice raw products (step1)
