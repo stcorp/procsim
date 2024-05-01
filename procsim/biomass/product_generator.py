@@ -196,7 +196,7 @@ class ProductGeneratorBase(IProductGenerator):
     @staticmethod
     def zip_folder(full_dir_name: str, extension: Optional[str] = None) -> None:
         root_dir, base_dir = os.path.split(os.path.normpath(full_dir_name))
-        old_name = shutil.make_archive(full_dir_name, 'zip', root_dir, base_dir)
+        old_name = shutil.make_archive(full_dir_name, 'zip', root_dir or None, base_dir)
         if extension is not None:
             new_name = os.path.splitext(old_name)[0] + extension
             os.rename(old_name, new_name)
