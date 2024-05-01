@@ -1,0 +1,260 @@
+<Job_Order xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaName="ESA-EOPG-EEGS-ID-0083" schemaVersion="1.0" xsi:noNamespaceSchemaLocation="job_order_ESA-EOPG-EEGS-ID-0083.xsd">
+  <Processor_Configuration>
+    <File_Class>Todo</File_Class>
+    <Processor_Name>l0preproc_smStep3_ITM</Processor_Name>
+    <Processor_Version>01.01</Processor_Version>
+    <Processing_Node>MyNode</Processing_Node>
+    <List_of_Stdout_Log_Levels>
+      <Stdout_Log_Level>ERROR</Stdout_Log_Level>
+      <Stdout_Log_Level>WARNING</Stdout_Log_Level>
+      <Stdout_Log_Level>PROGRESS</Stdout_Log_Level>
+      <Stdout_Log_Level>INFO</Stdout_Log_Level>
+    </List_of_Stdout_Log_Levels>
+    <List_of_Stderr_Log_Levels />
+    <Intermediate_Output_Enable>true</Intermediate_Output_Enable>
+    <Processing_Station>ESR</Processing_Station>
+    <Request />
+  </Processor_Configuration>
+  <List_of_Tasks>
+    <Task>
+      <Task_Name>Step3_ITM</Task_Name>
+      <Task_Version>05.03</Task_Version>
+      <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
+      <Amount_of_RAM>1073741824</Amount_of_RAM>
+      <Disk_Space>1073741824</Disk_Space>
+      <List_of_Proc_Parameters>
+        <Proc_Parameter>
+          <Name>Product_Counter</Name>
+          <Value>0</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Processing_Stage_Flag</Name>
+          <Value>N</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>originator_ID</Name>
+          <Value>TST</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Orbit_Number</Name>
+          <Value>1024</Value>
+        </Proc_Parameter>
+        <Proc_Parameter>
+          <Name>Acquisition_Station</Name>
+          <Value>ESR</Value>
+        </Proc_Parameter>
+      </List_of_Proc_Parameters>
+      <List_of_Cfg_Files />
+      <List_of_Inputs>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
+            <Selected_Input>
+              <File_Type>RWS_XS_ITM</File_Type>
+              <List_of_File_Names>
+                <File_Name>./L0Step2_output/FLX_RWS_XS_ITM_20230411T074500_20230411T092600_20230411T074500_6060_012_046_0000_1B</File_Name>
+              </List_of_File_Names>
+            </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
+		  <Selected_Input>
+              <File_Type>MPL_ORBPRE</File_Type>
+              <List_of_File_Names>
+                <File_Name>./AUX_output/FLX_MPL_ORBPRE_20230101T000000_20240101T000000_20230523T145942_1B</File_Name>
+              </List_of_File_Names>
+		  </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
+        <Input>
+          <Input_ID />
+          <Alternative_ID />
+          <List_of_Selected_Inputs>
+		  <Selected_Input>
+              <File_Type>AUX_IERS_B</File_Type>
+              <List_of_File_Names>
+                <File_Name>./AUX_output/FLX_AUX_IERS_B_20230101T000000_20240101T000000_20230523T145942_1B</File_Name>
+              </List_of_File_Names>
+		  </Selected_Input>
+          </List_of_Selected_Inputs>
+        </Input>
+      </List_of_Inputs>
+      <List_of_Outputs>
+        <Output>
+          <File_Type>L0__OBS___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__VAU_TM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__INSTTM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SAT_TM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__NAVATT</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__PDHUTM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__ICUDTM</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DARKNP</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DARKSR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DEFDAR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DARKOC</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DRKMTF</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DRKSTR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SUN___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__DEFSUN</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__MOON__</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__MOONSL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINDES</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINSEA</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINSUN</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__LINDAR</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__CTE___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SCNVAL</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__COREG_</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__SPECEO</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__CLOUD_</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+		<Output>
+          <File_Type>L0__TST___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+        <Output>
+          <File_Type>L0__WRN___</File_Type>
+          <File_Name_Pattern />
+          <File_Dir>L0Step3_output</File_Dir>
+          <Baseline>00</Baseline>
+        </Output>
+      </List_of_Outputs>
+      <List_of_Intermediate_Outputs>
+      </List_of_Intermediate_Outputs>
+    </Task>
+  </List_of_Tasks>
+</Job_Order>

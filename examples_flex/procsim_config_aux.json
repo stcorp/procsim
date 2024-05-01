@@ -11,7 +11,7 @@
             "task_name": "generate",
             "task_version": "01.00",
 
-            "creation_date": "2023-04-11T10:03:15.000Z",
+            "creation_date": "2023-05-23T14:59:42.000Z",
 
             "baseline": "1B",
             "begin_position": "2023-01-01T00:00:00.000Z",
@@ -20,6 +20,9 @@
             "output_path": "AUX_output",
 
             "outputs": [
+                //{
+                //    "type": "MPL_ORBPRE"
+                //},
                 {
                     "type": "AUX_IERS_B"
                 },
@@ -29,6 +32,9 @@
                 {
                     "type": "AUX_MET_F_"
                 },
+                //{
+                //    "type": "MPL_ORBSCT"
+                //},
                 {
                     "type": "AUX_CCPOIV"
                 },

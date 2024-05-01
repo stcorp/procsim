@@ -26,25 +26,25 @@
                   "type": "RAW_XS_HR1",
                   "begin_position": "2023-04-11T07:34:53.000Z",
                   "end_position": "2023-04-11T10:02:58.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_HR2",
                   "begin_position": "2023-04-11T07:40:08.000Z",
                   "end_position": "2023-04-11T08:19:11.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T07:38:42.000Z",
                   "end_position": "2023-04-11T08:30:17.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_OBC",
                   "begin_position": "2023-04-11T07:41:00.000Z",
                   "end_position": "2023-04-11T10:03:00.000Z",
-                  "size": 3
+                  "size": 1
               }
             ]
         },
@@ -71,25 +71,25 @@
                   "type": "RAW_XS_HR1",
                   "begin_position": "2023-04-11T10:02:58.000Z",
                   "end_position": "2023-04-11T10:51:47.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_HR2",
                   "begin_position": "2023-04-11T08:19:11.000Z",
                   "end_position": "2023-04-11T10:39:36.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T08:30:17.000Z",
                   "end_position": "2023-04-11T11:00:41.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_OBC",
                   "begin_position": "2023-04-11T10:03:00.000Z",
                   "end_position": "2023-04-11T11:01:00.000Z",
-                  "size": 3
+                  "size": 1
               }
             ]
         },
@@ -116,25 +116,25 @@
                   "type": "RAW_XS_HR1",
                   "begin_position": "2023-04-11T10:51:47.000Z",
                   "end_position": "2023-04-11T12:35:28.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_HR2",
                   "begin_position": "2023-04-11T10:39:36.000Z",
                   "end_position": "2023-04-11T11:25:37.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T11:00:41.000Z",
                   "end_position": "2023-04-11T12:23:40.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_OBC",
                   "begin_position": "2023-04-11T11:01:00.000Z",
                   "end_position": "2023-04-11T12:15:42.000Z",
-                  "size": 3
+                  "size": 1
               }
             ]
         },
@@ -150,7 +150,7 @@
             "log_level": "debug",
 
             "output_path": "RAW_output",
-            "creation_date": "2023-04-11T13:14:00.000Z",  // Default is 'now' (current date)
+            "creation_date": "2023-04-11T13:20:14.000Z",  // Default is 'now' (current date)
             "acquisition_date": "2023-04-11T13:20:04.000Z",
             "acquisition_station": "KSE",
             "zip_output": false,
@@ -161,25 +161,25 @@
                   "type": "RAW_XS_HR1",
                   "begin_position": "2023-04-11T12:35:28.000Z",
                   "end_position": "2023-04-11T12:59:31.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_HR2",
                   "begin_position": "2023-04-11T11:25:37.000Z",
                   "end_position": "2023-04-11T12:53:19.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_LR_",
                   "begin_position": "2023-04-11T12:23:40.000Z",
                   "end_position": "2023-04-11T13:02:59.000Z",
-                  "size": 3
+                  "size": 1
               },
               {
                   "type": "RAW_XS_OBC",
                   "begin_position": "2023-04-11T12:15:42.000Z",
                   "end_position": "2023-04-11T13:18:14.000Z",
-                  "size": 3
+                  "size": 1
               }
             ]
         }		

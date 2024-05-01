@@ -11,10 +11,10 @@
       "file_name": "level0_task3.sh",
 
       // Processor/task are used to find the right task in the job order
-      "processor_name": "l0preproc_sm",
+      "processor_name": "l0preproc_smStep3_OBS",
       "processor_version": "01.01",
-      "task_name": "Step3",
-      "task_version": "01.00",
+      "task_name": "Step3_OBS",
+      "task_version": "05.03",
 
       "creation_date": "2023-04-11T10:03:15.000Z",
 
@@ -34,17 +34,221 @@
           "type": "L0__OBS___",
           "metadata_source": ".*RWS_H1_OBS.*", // Input to use
           "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+	{
+      // L0 slicer scenario.
+      "name": "L0 step 3, merge complete slices for all sensors",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task3.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_smStep3_CAL",
+      "processor_version": "01.01",
+      "task_name": "Step3_CAL",
+      "task_version": "05.03",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
+		{
+          "type": "L0__DARKNP",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
         },
+		{
+          "type": "L0__DARKSR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__DEFDAR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__DARKOC",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__DRKMTF",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__DRKSTR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__SUN___",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__DEFSUN",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__MOON__",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__MOONSL",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__LINDES",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__LINSEA",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__LINSUN",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__LINDAR",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__CTE___",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        },
+		{
+          "type": "L0__CLOUD_",
+          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+	{
+      // L0 slicer scenario.
+      "name": "L0 step 3, merge complete slices for all sensors",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task3.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_smStep3_VAU",
+      "processor_version": "01.01",
+      "task_name": "Step3_VAU",
+      "task_version": "05.03",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
 		{
           "type": "L0__VAU_TM",
           "metadata_source": ".*RWS_H1_VAU.*", // Input to use
           "size": 0
-        },
+        }
+      ],
+      "exit_code": 0
+    },
+	{
+      // L0 slicer scenario.
+      "name": "L0 step 3, merge complete slices for all sensors",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task3.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_smStep3_ITM",
+      "processor_version": "01.01",
+      "task_name": "Step3_ITM",
+      "task_version": "05.03",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
 		{
           "type": "L0__INSTTM",
           "metadata_source": ".*RWS_XS_ITM.*", // Input to use
           "size": 0
-        },
+        }
+      ],
+      "exit_code": 0
+    },
+	{
+      // L0 slicer scenario.
+      "name": "L0 step 3, merge complete slices for all sensors",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level0_task3.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "l0preproc_smStep3_OBC",
+      "processor_version": "01.01",
+      "task_name": "Step3_OBC",
+      "task_version": "05.03",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
 		{
           "type": "L0__SAT_TM",
           "metadata_source": ".*RWS_XS_OBC.*", // Input to use
@@ -63,16 +267,6 @@
 		{
           "type": "L0__ICUDTM",
           "metadata_source": ".*RWS_XS_OBC.*", // Input to use
-          "size": 0
-        },
-		{
-          "type": "L0__DARKNP",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
-          "size": 0
-        },
-		{
-          "type": "L0__DARKSR",
-          "metadata_source": ".*RWS_H1_CAL.*", // Input to use
           "size": 0
         }
       ],

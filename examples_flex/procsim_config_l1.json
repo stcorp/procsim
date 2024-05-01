@@ -14,7 +14,7 @@
       "processor_name": "l1preproc_sm",
       "processor_version": "01.01",
       "task_name": "L1",
-      "task_version": "01.00",
+      "task_version": "05.03L01",
 
       "creation_date": "2023-04-11T10:03:15.000Z",
 
@@ -58,6 +58,81 @@
         {
           "type": "RAC_DARKSR",
           "metadata_source": ".*L0__DARKSR.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_DARKOC",
+          "metadata_source": ".*L0__DARKOC.*", // Input to use
+          "size": 0
+        },
+        //{
+        //  "type": "RAC_DARKSS",
+        //  "metadata_source": ".*L0__DARKSS.*", // Input to use
+        //  "size": 0
+        //},
+        {
+          "type": "RAC_DRKMTF",
+          "metadata_source": ".*L0__DRKMTF.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_DRKSTR",
+          "metadata_source": ".*L0__DRKSTR.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_MOON__",
+          "metadata_source": ".*L0__MOON__.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_MOONSL",
+          "metadata_source": ".*L0__MOONSL.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_SUN___",
+          "metadata_source": ".*L0__SUN___.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_DEFSUN",
+          "metadata_source": ".*L0__DEFSUN.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_DEFDAR",
+          "metadata_source": ".*L0__DEFDAR.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_CLOUD_",
+          "metadata_source": ".*L0__CLOUD_.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_LINDES",
+          "metadata_source": ".*L0__LINDES.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_LINSEA",
+          "metadata_source": ".*L0__LINSEA.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_LINSUN",
+          "metadata_source": ".*L0__LINSUN.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_LINDAR",
+          "metadata_source": ".*L0__LINDAR.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "RAC_CTE___",
+          "metadata_source": ".*L0__CTE___.*", // Input to use
           "size": 0
         }
       ],
