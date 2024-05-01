@@ -26,6 +26,7 @@ _ACQ_PARAMS: List[tuple] = []
 
 class ProductGeneratorL0(product_generator.ProductGeneratorBase):
     '''
+    Base class for Level-0 product generators.
     Locate combinations of three complete slices (one for each sensor) for the same period.
     '''  # TODO unique datatake_id, cal_id, event_id?
 
@@ -73,7 +74,7 @@ class ProductGeneratorL0(product_generator.ProductGeneratorBase):
 class EO(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
-    generating Level-0 slice based products.
+    generating Level-0 EO slice based products.
 
     Input is a set of (incomplete) RWS slices.
 
@@ -277,7 +278,7 @@ class EO(ProductGeneratorL0):
 class CAL(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
-    generating Level-0 slice based products.
+    generating Level-0 Calibration slice based products.
 
     Input is a set of (incomplete) RWS slices.
 
@@ -451,7 +452,7 @@ class CAL(ProductGeneratorL0):
 class ANC(ProductGeneratorL0):
     '''
     This class implements the ProductGeneratorBase and is responsible for
-    generating Level-0 slice based products.
+    generating Level-0 Ancillary slice based products.
 
     Input is a set of (incomplete) RWS slices.
 

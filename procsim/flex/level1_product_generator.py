@@ -23,6 +23,9 @@ _ACQ_PARAMS: List[tuple] = []
 
 
 class EO(product_generator.ProductGeneratorBase):
+    """
+    This class is responsible for generating the Level 1 EO products.
+    """
 
     PRODUCTS = [
         'L1B_OBS___',
