@@ -58,7 +58,7 @@ class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
             self.zip_folder(full_dir_name, self._zip_extension)
 
     def _create_name_generator(self, acq_start, acq_stop):
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen = product_name.ProductName()
 
         name_gen.file_type = self._output_type
         name_gen.start_time = acq_start
@@ -98,7 +98,7 @@ class UnslicedRawGeneratorBase(RawProductGeneratorBase):
         stop = self._hdr.end_position
 
         # Construct product name and set metadata fields
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop
@@ -250,7 +250,7 @@ class RWS_EO(RawProductGeneratorBase):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
 
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
 
@@ -277,7 +277,7 @@ class RWS_EO(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
@@ -649,7 +649,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
@@ -675,7 +675,7 @@ class RWS_CAL(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
@@ -998,7 +998,7 @@ class RWS_ANC(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
@@ -1022,7 +1022,7 @@ class RWS_ANC(RawProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()

@@ -66,7 +66,6 @@ class ProductName:
     '''
     This class is responsible for creating and parsing directory/file names.
     '''
-    DEFAULT_COMPACT_DATE_EPOCH = datetime.datetime(2000, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
     DATETIME_FORMAT = '%Y%m%dT%H%M%S'
 
     @classmethod
@@ -81,7 +80,7 @@ class ProductName:
     def time_to_str(cls, t):
         return t.strftime(cls.DATETIME_FORMAT)
 
-    def __init__(self, compact_create_date_epoch: Optional[datetime.datetime] = None):
+    def __init__(self):
         # Common
         self.start_time: Optional[datetime.datetime] = None
         self.stop_time: Optional[datetime.datetime] = None
@@ -90,10 +89,8 @@ class ProductName:
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
         self.anx_elapsed: Optional[float] = None
-        self._compact_create_date_epoch = compact_create_date_epoch or self.DEFAULT_COMPACT_DATE_EPOCH
         self._file_type = None
         self._level = None
-        self._compact_create_date = None
         self._frame_slice_nr_str = None
         self.use_short_name = False
 
@@ -162,21 +159,11 @@ class ProductName:
 
     def set_creation_date(self, time: Optional[datetime.datetime]):
         '''
-        Convert to 'compact create date, see the spec.
         If set to None, use 'now'.
         '''
         if time is None:
             time = utils.get_current_utc_datetime()
         self._creation_date = time
-        sec = int((time - self._compact_create_date_epoch).total_seconds())
-        date36 = ''
-        for i in range(6):
-            sec, x = divmod(sec, 36)
-            if x < 10:
-                date36 = str(x) + date36
-            else:
-                date36 = chr(x + 65 - 10) + date36
-        self._compact_create_date = date36
 
     def parse_path(self, path):
         # Extract parameters from path name, return True if successful.
@@ -195,9 +182,9 @@ class ProductName:
                 self.file_type = match_dict.get('type')
                 self.start_time = self.str_to_time(match_dict.get('vstart'))
                 self.stop_time = self.str_to_time(match_dict.get('vstop'))
-                self._compact_create_date = match_dict.get('create_date')
-                if self._compact_create_date is not None:
-                    self._creation_date = self.str_to_time(self._compact_create_date)
+                create_date = match_dict.get('create_date')
+                if create_date is not None:
+                    self._creation_date = self.str_to_time(create_date)
                 self.downlink_time = self.str_to_time(match_dict.get('downlink_time'))
                 if self.downlink_time is None:
                     self.downlink_time = self.str_to_time(match_dict.get('create_date'))  # TODO acqdate/createdate/downlink?
@@ -338,4 +325,4 @@ class ProductName:
             print('downlink time:     ', self.downlink_time)
 
         print('baseline ID:       ', self.baseline_identifier)
-        print('compact date:      ', self._compact_create_date)
+        print('creation date:     ', self._creation_date)

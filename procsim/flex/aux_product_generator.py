@@ -12,7 +12,6 @@ from .product_generator import GeneratedFile
 
 _GENERATOR_PARAMS = [
     ('output_path', '_output_path', 'str'),
-    ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
     ('files', '_files', 'array of str'),
     ('zip_output', '_zip_output', 'bool'),
 ]
@@ -169,7 +168,7 @@ class Aux(product_generator.ProductGeneratorBase):
         if self._hdr.validity_stop is None:
             self._hdr.validity_stop = stop
 
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
         name_gen.start_time = start
         name_gen.stop_time = stop

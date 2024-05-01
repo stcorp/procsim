@@ -59,7 +59,6 @@ class ProductGeneratorBase(IProductGenerator):
     # These parameters are common for ALL product generators
     _COMMON_GENERATOR_PARAMS: List[tuple] = [
         ('output_path', '_output_path', 'str'),
-        ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
         ('creation_date', '_creation_date', 'date'),
         ('zip_extension', '_zip_extension', 'str'),
         ('begin_end_position_from_toi', '_begin_end_position_from_toi', 'bool'),
@@ -97,7 +96,6 @@ class ProductGeneratorBase(IProductGenerator):
 
         # Parameters that can be set in scenario
         self._output_path: str = '.' if job_config is None else job_config.dir
-        self._compact_creation_date_epoch = product_name.ProductName.DEFAULT_COMPACT_DATE_EPOCH
         self._creation_date: Optional[datetime.datetime] = None
         self._zip_extension = '.zip'
         self._begin_end_position_from_toi = False
@@ -120,7 +118,7 @@ class ProductGeneratorBase(IProductGenerator):
         the 'phenomenon' times, which seem to contain the correct times.
         '''
 
-        name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+        name_gen = product_name.ProductName()
 
         name_gen.file_type = hdr.product_type
         name_gen.start_time = hdr.begin_position
@@ -247,7 +245,7 @@ class ProductGeneratorBase(IProductGenerator):
             - unzip product if it's a zip archive
             - extract metadata if this product matches self.meta_data_source
         '''
-        gen = product_name.ProductName(self._compact_creation_date_epoch)
+        gen = product_name.ProductName()
         pattern = self._meta_data_source
         mph_is_parsed = False
         for input in input_products:
@@ -255,7 +253,7 @@ class ProductGeneratorBase(IProductGenerator):
                 root, ext = os.path.splitext(file)
                 if os.path.isfile(file) and ext.lower() == self._zip_extension:
                     # Sanity check: only raw products should be zipped
-                    name_gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    name_gen = product_name.ProductName()
                     name_gen.parse_path(file)
                     if name_gen.level != 'raw':
                         self._logger.warning('{} should not be a zip!'.format(os.path.basename(file)))

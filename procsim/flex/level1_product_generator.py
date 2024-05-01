@@ -62,7 +62,7 @@ class EO(product_generator.ProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
@@ -179,7 +179,7 @@ class CAL(product_generator.ProductGeneratorBase):
                     if not os.path.isdir(file):
                         continue
                     file, _ = os.path.splitext(file)    # Remove possible extension
-                    gen = product_name.ProductName(self._compact_creation_date_epoch)
+                    gen = product_name.ProductName()
                     gen.parse_path(file)
                     mph_file_name = os.path.join(file, gen.generate_mph_file_name())
                     hdr = main_product_header.MainProductHeader()
