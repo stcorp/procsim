@@ -13,7 +13,6 @@ from xml.etree import ElementTree as et
 from procsim.core.utils import get_current_utc_datetime
 
 from .constants import ORBITAL_PERIOD
-from .product_types import ORBPRE_PRODUCT_TYPES
 
 from procsim.core.exceptions import GeneratorError, ScenarioError
 from procsim.core.iproduct_generator import IProductGenerator
@@ -264,9 +263,7 @@ class ProductGeneratorBase(IProductGenerator):
                     self.unzip(file, keep_zip, logger=self._logger)
                 if not os.path.isdir(root):
                     # Handle single file products.
-                    if input.file_type in ORBPRE_PRODUCT_TYPES and not self._anx_list:
-                        # Only parse orbit prediction files if no ANX information was present in the scenario.
-                        self._parse_orbit_prediction_file(file)
+                    raise GeneratorError(f'Error: {file} is not a directory')
                 file = root
                 if not mph_is_parsed and pattern is not None and re.match(pattern, file):
                     self._logger.debug('Parse {} for {}'.format(os.path.basename(file), self._output_type))
