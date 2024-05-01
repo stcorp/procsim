@@ -89,17 +89,17 @@ class ProductName:
         self.relative_orbit_number: Optional[str]
         self.cycle_number: Optional[str]
         self.anx_elapsed: Optional[float] = None
-        self._file_type = None
-        self._level = None
-        self._frame_slice_nr_str = None
+        self._file_type: Optional[str] = None
+        self._level: Optional[str] = None
+        self._frame_slice_nr_str: Optional[str] = None
         self.use_short_name = False
 
         # Raw only
         self.downlink_time: Optional[datetime.datetime]
 
         # MPL and VFRA only
-        self._file_class = None
-        self._version_nr = None
+        self._file_class: Optional[str] = None
+        self._version_nr: Optional[str] = None
 
     @property
     def file_type(self):
