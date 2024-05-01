@@ -29,7 +29,7 @@ _GENERATORS = [
 def list_supported_products():
     list = []
     for gen in _GENERATORS:
-        list.append(gen.PRODUCTS)
+        list.append(gen.PRODUCTS)  # type: ignore
     return list
 
 
@@ -38,7 +38,7 @@ def product_generator_factory(logger, job_config, scenario_config, output_config
     if product_type is None:
         raise ScenarioError('Output product type ("type": ...) must be specified')
     for gen in _GENERATORS:
-        if product_type in gen.PRODUCTS:
+        if product_type in gen.PRODUCTS:  # type: ignore
             return gen(logger, job_config, scenario_config, output_config)
     logger.error('No generator for product \'{}\' in Biomass plugin. Supported types are: {}'.format(
         product_type, list_supported_products()))

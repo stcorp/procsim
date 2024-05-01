@@ -7,7 +7,7 @@ import bisect
 import collections
 import datetime
 import os
-from typing import List, Tuple, Iterable
+from typing import List, Optional, Tuple, Iterable
 
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
@@ -23,7 +23,7 @@ _HDR_PARAMS = [
     ('cycle_number', 'cycle_number', 'str'),
     ('relative_orbit_number', 'relative_orbit_number', 'str'),
 ]
-_ACQ_PARAMS = []
+_ACQ_PARAMS: List[tuple] = []
 
 
 class RawProductGeneratorBase(product_generator.ProductGeneratorBase):
@@ -218,7 +218,7 @@ class RWS_EO(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = []
+    ACQ_PARAMS: List[tuple] = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -228,8 +228,8 @@ class RWS_EO(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
-        self._key_periods = None
-        self._raw_periods = None
+        self._key_periods: Optional[dict] = None
+        self._raw_periods: Optional[list] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -617,7 +617,7 @@ class RWS_CAL(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = []
+    ACQ_PARAMS: List[tuple] = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -627,8 +627,8 @@ class RWS_CAL(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
-        self._key_periods = None
-        self._raw_periods = None
+        self._key_periods: Optional[dict] = None
+        self._raw_periods: Optional[list] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
@@ -960,7 +960,7 @@ class RWS_ANC(RawProductGeneratorBase):
         ('num_isp_corrupt', 'nr_instrument_source_packets_corrupt', 'int')
     ]
 
-    ACQ_PARAMS = []
+    ACQ_PARAMS: List[tuple] = []
 
     def __init__(self, logger, job_config, scenario_config: dict, output_config: dict):
         super().__init__(logger, job_config, scenario_config, output_config)
@@ -970,8 +970,8 @@ class RWS_ANC(RawProductGeneratorBase):
         self._slice_overlap_end = constants.SLICE_OVERLAP_END
         self._slice_minimum_duration = constants.SLICE_MINIMUM_DURATION
         self._orbital_period = constants.ORBITAL_PERIOD
-        self._key_periods = None
-        self._raw_periods = None
+        self._key_periods: Optional[dict] = None
+        self._raw_periods: Optional[list] = None
 
     def get_params(self):
         gen, hdr, acq = super().get_params()
