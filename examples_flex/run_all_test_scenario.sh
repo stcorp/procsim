@@ -27,7 +27,7 @@ wait_for_keypress() {
 
 # Create clean workspace
 # Check if any of the directories exist
-if [ -d "RAW_output" ] || [ -d "L0Step1_output" ] || [ -d "L0Step2_output" ] || [ -d "L0Step3_output" ]; then
+if [ -d "RAW_output" ] || [ -d "L0Step1_output" ] || [ -d "L0Step2_output" ] || [ -d "L0Step3_output" ] || [ -d "L1_output" ]; then
 
   # Set the backup folder name
   backup_folder="bck_$(date +%Y%m%d_%H%M%S)"
@@ -50,12 +50,17 @@ if [ -d "RAW_output" ] || [ -d "L0Step1_output" ] || [ -d "L0Step2_output" ] || 
   if [ -d "L0Step3_output" ]; then
     mv L0Step3_output "$backup_folder"
   fi
+
+  if [ -d "L1_output" ]; then
+    mv L1_output "$backup_folder"
+  fi
 fi
 
 mkdir RAW_output
 mkdir L0Step1_output
 mkdir L0Step2_output
 mkdir L0Step3_output
+mkdir L1_output
 
 # Generate raw data
 echo ' '
