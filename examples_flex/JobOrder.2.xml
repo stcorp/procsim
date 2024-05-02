@@ -1,7 +1,7 @@
 <Job_Order xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaName="ESA-EOPG-EEGS-ID-0083" schemaVersion="1.0" xsi:noNamespaceSchemaLocation="job_order_ESA-EOPG-EEGS-ID-0083.xsd">
   <Processor_Configuration>
     <File_Class>Todo</File_Class>
-    <Processor_Name>l0preproc_sm</Processor_Name>
+    <Processor_Name>l0preproc_smStep2</Processor_Name>
     <Processor_Version>01.01</Processor_Version>
     <Processing_Node>MyNode</Processing_Node>
     <List_of_Stdout_Log_Levels>
@@ -18,7 +18,7 @@
   <List_of_Tasks>
     <Task>
       <Task_Name>Step2</Task_Name>
-      <Task_Version>01.00</Task_Version>
+      <Task_Version>05.03</Task_Version>
       <Number_of_CPU_Cores>1</Number_of_CPU_Cores>
       <Amount_of_RAM>1073741824</Amount_of_RAM>
       <Disk_Space>1073741824</Disk_Space>
