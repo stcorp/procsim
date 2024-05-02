@@ -257,8 +257,15 @@ class ProductName:
 
         return name
 
+    def _path_to_lower(self, path: str) -> str:
+        """
+        Convert path to lowercase, but keep 't' in datetime strings
+        uppercase, according to ESA-EOPG-EOEP-TN-0015 page 47.
+        """
+        return re.sub(pattern=r'(\d{8})t(\d{6})', repl=r'\1T\2', string=path.lower())
+
     def generate_mph_file_name(self):
-        return self.generate_path_name().lower() + '.xml'
+        return self._path_to_lower(self.generate_path_name()) + '.xml'
 
     def generate_binary_file_name(self, suffix=None, extension='.dat'):
         if suffix is None:
@@ -311,7 +318,7 @@ class ProductName:
                 extension,
             )
 
-        return name.lower()
+        return self._path_to_lower(name)
 
     def dump_info(self, path=None):
         if path:
