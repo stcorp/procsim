@@ -2,11 +2,11 @@
 Copyright (C) 2021 S[&]T, The Netherlands.
 '''
 import datetime
+import re
 import unittest
 from typing import List
 
 from procsim.flex.product_name import ProductName
-from procsim.core.exceptions import GeneratorError, ScenarioError
 
 
 class _TestData():
@@ -15,7 +15,7 @@ class _TestData():
         self.level = level
         self.dir = dir
         self.bin = bin
-        self.mph = dir.lower() + '.xml'
+        self.mph = re.sub(pattern=r'(\d{8})t(\d{6})', repl=r'\1T\2', string=dir.lower()) + '.xml'
         self.type = type
         self.start = start
         self.stop = stop
@@ -32,7 +32,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         level='raw',
         dir='FLX_RAW___HKTM_20170101T060131_20170101T060706_O12345',
-        bin='flx_raw___hktm_20170101t060131_20170101t060706_o12345.dat',
+        bin='flx_raw___hktm_20170101T060131_20170101T060706_o12345.dat',
         type='RAW___HKTM',
         start=datetime.datetime(2017, 1, 1, 6, 1, 31, tzinfo=datetime.timezone.utc),
         stop=datetime.datetime(2017, 1, 1, 6, 7, 6, tzinfo=datetime.timezone.utc),
@@ -41,7 +41,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         level='raw',
         dir='FLX_RAW_XS_HR2_20170101T060131_20170101T060706_20210201T013810',
-        bin='flx_raw_xs_hr2_20170101t060131_20170101t060706_20210201t013810.dat',
+        bin='flx_raw_xs_hr2_20170101T060131_20170101T060706_20210201T013810.dat',
         type='RAW_XS_HR2',
         start=datetime.datetime(2017, 1, 1, 6, 1, 31, tzinfo=datetime.timezone.utc),
         stop=datetime.datetime(2017, 1, 1, 6, 7, 6, tzinfo=datetime.timezone.utc),
@@ -50,7 +50,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         level='raws',
         dir='FLX_RWS_LRPVAU_20170101T065131_20170101T073812_20210201T013810_2801_012_046_3090_1B',
-        bin='flx_rws_lrpvau_20170101t065131_20170101t073812_20210201t013810_2801_012_046_3090_1b.dat',
+        bin='flx_rws_lrpvau_20170101T065131_20170101T073812_20210201T013810_2801_012_046_3090_1b.dat',
         type='RWS_LRPVAU',
         start=datetime.datetime(2017, 1, 1, 6, 51, 31, tzinfo=datetime.timezone.utc),
         stop=datetime.datetime(2017, 1, 1, 7, 38, 12, tzinfo=datetime.timezone.utc),
@@ -64,7 +64,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         level='l0',
         dir='FLX_L0__DEFDAR_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1B',
-        bin='flx_l0__defdar_20170101t060131_20170101t060344_20230213t104618_0133_012_046_0090_1b_hre1.dat',
+        bin='flx_l0__defdar_20170101T060131_20170101T060344_20230213T104618_0133_012_046_0090_1b_hre1.dat',
         type='L0__DEFDAR',
         start=datetime.datetime(2017, 1, 1, 6, 1, 31, tzinfo=datetime.timezone.utc),
         stop=datetime.datetime(2017, 1, 1, 6, 3, 44, tzinfo=datetime.timezone.utc),
@@ -79,7 +79,7 @@ _TEST_DATA: List[_TestData] = [
     _TestData(
         level='aux',
         dir='FLX_AUX_GCP_DB_20170101T060131_20170101T060706_20230215T081342_1B',
-        bin='flx_aux_gcp_db_20170101t060131_20170101t060706_20230215t081342_1b_gcp_database.xml',
+        bin='flx_aux_gcp_db_20170101T060131_20170101T060706_20230215T081342_1b_gcp_database.xml',
         type='AUX_GCP_DB',
         start=datetime.datetime(2017, 1, 1, 6, 1, 31, tzinfo=datetime.timezone.utc),
         stop=datetime.datetime(2017, 1, 1, 6, 7, 6, tzinfo=datetime.timezone.utc),
