@@ -1,5 +1,17 @@
-Procsim Changelog
------------------
+# Procsim Changelog
+
+[v2.1.14]
+    - Allow file matching pattern in joborders to be either a regexp or globbing pattern
+    - Random data in binary files now generated with fixed seed
+    - Force fixed create/produced date using environment variable, such as `export CURRENT_UTC_DATETIME=20210101T000000`
+    - Updates scenarios in `examples_flex` with the latest versions from ESA
+    - Updated Biomass tests to run with either the new PVML or stand-alone
+
+[v2.1.13]
+    - Various fixes for FLEX
+
+[v2.1.5]
+    - For L1 EO and CAL, check for full coverage of each relevant input type with the TOI (if no TOI is in the joborder, nothing is produced).
 
 [v2.0.2] - 2023/05/04
     - Many minor fixes based on feedback.
@@ -17,12 +29,12 @@ Procsim Changelog
 
 [v1.9.0] - 2022/07/12
     - Chg: Issue 43, support (only) the new L2a products.
-           - added support for FP_GN__L2A
-           - dropped support for AGB_GN_L2A, FD_COV_L2A, FH_COH_L2A, FP_VBG_L2A, FP_ACM_L2A
+           - added support for `FP_GN__L2A`
+           - dropped support for `AGB_GN_L2A`, `FD_COV_L2A`, `FH_COH_L2A`, `FP_VBG_L2A`, `FP_ACM_L2A`
 
 [v1.8.0] - 2022/07/12
     - Fix: Use frame_status instead of frame_Status
-    - Fix: Issue 34, DataTakeID parameter not included in the MPH of RAWS<PID>_<PC> products
+    - Fix: Issue 34, DataTakeID parameter not included in the MPH of `RAWS<PID>_<PC>` products
     - Fix: Issue 35, Error while generating virtual frame product CPF_L1VFRA
     - Chg: Issue 37, support for multiple data takes
     - Fix: Issue 41, Issue during L1 processing simulation
@@ -33,7 +45,7 @@ Procsim Changelog
     - Fix: Use MPH format in scenario for global coverage, major/repeat cycle, etc.
 
 [v1.6.2] - 2022/04/20
-    - Fix: Issue 29, dataTakeID not included in the output AUX_ORB___ and AUX_ATT___ products
+    - Fix: Issue 29, dataTakeID not included in the output `AUX_ORB___` and `AUX_ATT___` products
 
 [v1.6.1] - 2022/03/25
     - Fix: Issue 27, MPL file formats are now properly recognized.
