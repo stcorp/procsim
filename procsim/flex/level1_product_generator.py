@@ -79,6 +79,10 @@ class EO(product_generator.ProductGeneratorBase):
                     if self._job_toi_start is not None and self._job_toi_stop is not None:
                         if start <= self._job_toi_start and stop >= self._job_toi_stop:
                             overlapping.add(input.file_type)
+                        else:
+                            self._logger.debug(f'Input {input.file_type} {start.replace(tzinfo=None)} - {stop.replace(tzinfo=None)} '
+                                               f'not fully covers the job order TOI: {self._job_toi_start.replace(tzinfo=None)}'
+                                               f' - {self._job_toi_stop.replace(tzinfo=None)}')
 
         if self._job_toi_start is not None and self._job_toi_stop is not None:
             if len(overlapping) == 3:
@@ -90,6 +94,7 @@ class EO(product_generator.ProductGeneratorBase):
         super().generate_output()
 
         if self._output_period is None:
+            self._logger.warning(f'No output period known, skipping generation of {self._output_type} product.')
             return
 
         start, stop = self._output_period
@@ -199,6 +204,9 @@ class CAL(product_generator.ProductGeneratorBase):
 
                         if overlap_stop > overlap_start:
                             self._output_period = (overlap_start, overlap_stop)
+
+        if self._job_toi_start is None or self._job_toi_stop is None:
+            self._logger.warning(f'No TOI specified in joborder, this is required to generate {self._output_type}.')
 
         return True
 
