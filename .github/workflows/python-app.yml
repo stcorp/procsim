@@ -49,6 +49,7 @@ jobs:
     - name: Test FLEX
       run: |
         pip install -e .
+        pip install tabulate
         cd examples_flex
         ./generate_aux.sh
         ./run_all_test_scenario.sh --no-wait
