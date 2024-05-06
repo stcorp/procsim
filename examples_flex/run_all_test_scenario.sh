@@ -28,9 +28,9 @@ wait_for_keypress() {
 # Create clean workspace.
 # Backup existing directories if they exist, then create fresh directories
 directories=("RAW_output" "L0Step1_output" "L0Step2_output" "L0Step3_output" "L1_output")
+backup_folder="bck_$(date +%Y%m%d_%H%M%S)"
 for dir in "${directories[@]}"; do
   if [ -d "$dir" ]; then
-    backup_folder="bck_$(date +%Y%m%d_%H%M%S)"
     mkdir -p "$backup_folder"
     mv "$dir" "$backup_folder"
   else
