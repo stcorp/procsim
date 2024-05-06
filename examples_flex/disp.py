@@ -1,4 +1,5 @@
 import os
+import re
 import xml.etree.ElementTree as ET
 import sys
 import tabulate
@@ -6,6 +7,15 @@ import tabulate
 props = ['dataTakeID', 'sensorDetector', 'slicingGridFrameNumber', 'sliceStartPosition',
          'sliceStopPosition', 'completenessAssesment', 'calibrationID']
 prefix = 'FLX_'
+
+
+def _path_to_lower(path: str) -> str:
+    """
+    Convert path to lowercase, but keep 't' in datetime strings
+    uppercase, according to ESA-EOPG-EOEP-TN-0015 page 47.
+    """
+    return re.sub(pattern=r'(\d{8})t(\d{6})', repl=r'\1T\2', string=path.lower())
+
 
 eop = '{http://www.opengis.net/eop/2.1}'
 if len(sys.argv) > 1:
@@ -22,7 +32,7 @@ lines = []
 
 for f in os.listdir(path):
     if f.startswith(prefix) and filter_str in f:
-        tree = ET.parse(f'{path}/{f}/{f.lower()}.xml')
+        tree = ET.parse(f'{path}/{f}/{_path_to_lower(f)}.xml')
         attrs = {}
         for info in tree.findall(f'{eop}metaDataProperty/{eop}EarthObservationMetaData/{eop}vendorSpecific/{eop}SpecificInformation'):
             attrs[info.find(f'{eop}localAttribute').text] = info.find(f'{eop}localValue').text  # type: ignore
