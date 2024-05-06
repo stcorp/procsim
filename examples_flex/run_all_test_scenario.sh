@@ -33,9 +33,8 @@ for dir in "${directories[@]}"; do
   if [ -d "$dir" ]; then
     mkdir -p "$backup_folder"
     mv "$dir" "$backup_folder"
-  else
-    mkdir "$dir"
   fi
+  mkdir "$dir"
 done
 
 # Generate raw data
