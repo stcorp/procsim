@@ -25,42 +25,18 @@ wait_for_keypress() {
 }
 
 
-# Create clean workspace
-# Check if any of the directories exist
-if [ -d "RAW_output" ] || [ -d "L0Step1_output" ] || [ -d "L0Step2_output" ] || [ -d "L0Step3_output" ] || [ -d "L1_output" ]; then
-
-  # Set the backup folder name
-  backup_folder="bck_$(date +%Y%m%d_%H%M%S)"
-
-  # Create the backup folder and move the directories into it
-  mkdir "$backup_folder"
-
-  if [ -d "RAW_output" ]; then
-    mv RAW_output "$backup_folder"
+# Create clean workspace.
+# Backup existing directories if they exist, then create fresh directories
+directories=("RAW_output" "L0Step1_output" "L0Step2_output" "L0Step3_output" "L1_output")
+for dir in "${directories[@]}"; do
+  if [ -d "$dir" ]; then
+    backup_folder="bck_$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$backup_folder"
+    mv "$dir" "$backup_folder"
+  else
+    mkdir "$dir"
   fi
-
-  if [ -d "L0Step1_output" ]; then
-    mv L0Step1_output "$backup_folder"
-  fi
-
-  if [ -d "L0Step2_output" ]; then
-    mv L0Step2_output "$backup_folder"
-  fi
-
-  if [ -d "L0Step3_output" ]; then
-    mv L0Step3_output "$backup_folder"
-  fi
-
-  if [ -d "L1_output" ]; then
-    mv L1_output "$backup_folder"
-  fi
-fi
-
-mkdir RAW_output
-mkdir L0Step1_output
-mkdir L0Step2_output
-mkdir L0Step3_output
-mkdir L1_output
+done
 
 # Generate raw data
 echo ' '
