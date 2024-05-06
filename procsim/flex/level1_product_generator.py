@@ -107,7 +107,7 @@ class EO(product_generator.ProductGeneratorBase):
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.product_type = self._output_type
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)
@@ -221,7 +221,7 @@ class CAL(product_generator.ProductGeneratorBase):
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.product_type = self._output_type
 
         # Create name generator
         name_gen = self._create_name_generator(self._hdr)

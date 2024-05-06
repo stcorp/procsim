@@ -168,7 +168,7 @@ class EO(ProductGeneratorL0):
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.product_type = self._output_type
         self._hdr.set_phenomenon_times(start, stop)
 
         # Determine and set the slice number if not set already.
@@ -409,7 +409,7 @@ class CAL(ProductGeneratorL0):
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.product_type = self._output_type
         self._hdr.set_phenomenon_times(start, stop)
 
         self._hdr.set_validity_times(start, stop)
@@ -548,7 +548,7 @@ class ANC(ProductGeneratorL0):
 
         # Setup MPH fields. Validity time is not changed, should still be the
         # theoretical slice start/end.
-        self._hdr.product_type = self._resolve_wildcard_product_type()
+        self._hdr.product_type = self._output_type
         self._hdr.set_phenomenon_times(start, stop)
 
         self._hdr.set_validity_times(start, stop)
