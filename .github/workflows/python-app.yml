@@ -50,10 +50,10 @@ jobs:
       run: |
         pip install -e .
         cd examples_flex
+        ./generate_aux.sh
         ./run_all_test_scenario.sh --no-wait
         ./run_cal_test_scenario.sh
-        ./generate_aux.sh
-        ./generate_raw.sh
+        ./all_disp.sh
 
     - name: Build
       id: pack_tarball
