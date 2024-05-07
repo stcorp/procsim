@@ -135,19 +135,19 @@ class MainProductHeader:
         self.apid: Optional[str] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
-        self._processing_level = 'Other: L1'
+        self._processing_level: Optional[str] = 'Other: L1B'
 
         self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
         ]
-        self.doi = '10.5270/FLX-xxxxxxx'    # Digital Object Identifier
-        self.acquisition_type = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
-        self.acquisition_subtype = None     # set for CALIBRATION
-        self.product_status = 'ARCHIVED'     # REJECTED, etc..
-        self.product_status_subtype = 'ON-LINE'
-        self.processing_centre_code = 'ESR'
-        self.downlink_station_code = 'KSE'
-        self.archive_station_code = 'ESR'
+        self.doi: Optional[str] = '10.5270/FLX-xxxxxxx'    # Digital Object Identifier
+        self.acquisition_type: Optional[str] = 'NOMINAL'   # OTHER, CALIBRATION or NOMINAL
+        self.acquisition_subtype: Optional[str] = None     # set for CALIBRATION
+        self.product_status: Optional[str] = 'ARCHIVED'     # REJECTED, etc..
+        self.product_status_subtype: Optional[str] = 'ON-LINE'
+        self.processing_centre_code: Optional[str] = 'ESR'
+        self.downlink_station_code: Optional[str] = 'KSE'
+        self.archive_station_code: Optional[str] = 'ESR'
 
         self.auxiliary_ds_file_names = []  # TODO l1 or higher or 'not needed' in spec?
         for pr in product_types.PRODUCT_TYPES:

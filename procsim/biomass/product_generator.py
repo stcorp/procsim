@@ -55,7 +55,7 @@ class ProductGeneratorBase(IProductGenerator):
     ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
     # These parameters are common for ALL product generators
-    _COMMON_GENERATOR_PARAMS = [
+    _COMMON_GENERATOR_PARAMS: List[tuple] = [
         ('output_path', '_output_path', 'str'),
         ('compact_creation_date_epoch', '_compact_creation_date_epoch', 'date'),
         ('creation_date', '_creation_date', 'date'),
@@ -65,7 +65,7 @@ class ProductGeneratorBase(IProductGenerator):
         ('toi_stop_offset', '_toi_stop_offset', 'float')
     ]
 
-    _COMMON_HDR_PARAMS = [
+    _COMMON_HDR_PARAMS: List[tuple] = [
         ('baseline', 'product_baseline', 'int'),
         ('begin_position', 'begin_position', 'date'),
         ('end_position', 'end_position', 'date')
@@ -82,7 +82,7 @@ class ProductGeneratorBase(IProductGenerator):
         self._size_mb = int(output_config.get('size', '0'))
         self._meta_data_source: Optional[str] = output_config.get('metadata_source')
         self._hdr = main_product_header.MainProductHeader()
-        self._meta_data_source_file = None
+        self._meta_data_source_file: Optional[str] = None
         # Get anx list from config. Can be located at either scenario or product level
         self._anx_list = []
         scenario_anx_list = output_config.get('anx', []) or scenario_config.get('anx', [])
