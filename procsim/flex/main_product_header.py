@@ -121,8 +121,6 @@ class MainProductHeader:
         self.begin_position: Optional[datetime.datetime] = None
         self.end_position: Optional[datetime.datetime] = None
         self.time_position: Optional[datetime.datetime] = None
-        self.validity_start: Optional[datetime.datetime] = None
-        self.validity_stop: Optional[datetime.datetime] = None
         self.product_baseline: Optional[str] = None
         self.processing_date: Optional[datetime.datetime] = None
         self.processor_name: Optional[str] = None
@@ -252,8 +250,6 @@ class MainProductHeader:
             - Validity start time for AUX
             - Frame start time of first image in the Stack for *L2A
         '''
-        self.validity_start = start
-        self.validity_stop = stop
 
     def set_processing_parameters(self, name: str, version: str):
         self.processor_name = name
@@ -314,8 +310,6 @@ class MainProductHeader:
         # Some parameters have no default and MUST be set prior to generation
         if self.begin_position is None or self.end_position is None:
             raise ScenarioError('Begin/end position must be set before creating MPH')
-#        if self.validity_start is None or self.validity_stop is None:  # TODO
-#            raise ScenarioError('Validity start/stop must be set before creating MPH')
         if not self.eop_identifier:
             raise ScenarioError('The eop_identifier (file name) must be set before creating MPH')
 

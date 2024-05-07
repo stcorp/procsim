@@ -163,10 +163,6 @@ class Aux(product_generator.ProductGeneratorBase):
 
     def _generate_product(self) -> None:
         start, stop = self._hdr.begin_position, self._hdr.end_position
-        if self._hdr.validity_start is None:
-            self._hdr.validity_start = start
-        if self._hdr.validity_stop is None:
-            self._hdr.validity_stop = stop
 
         name_gen = product_name.ProductName()
         name_gen.file_type = self._output_type
