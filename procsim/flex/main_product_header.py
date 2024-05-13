@@ -115,6 +115,8 @@ class MainProductHeader:
     _browse_type = 'QUICKLOOK'
     processing_mode = 'NOMINAL'
 
+    _PROCESSOR_NAMES = ['AF', 'L0PF', 'L1PF', 'L1CPF', 'L2PF']
+
     def __init__(self):
         # These parameters MUST be set (no defaults)
         self.eop_identifier: Optional[str] = None
@@ -187,12 +189,12 @@ class MainProductHeader:
         acquisition = Acquisition()
         self.acquisitions = [acquisition]
 
-        # L0, L1, L2a
+        # L0, L1, L2
         self.sensor_mode = None
 
         self.special_calibration: Optional[str] = None
 
-        # L1, L2a
+        # L1, L2
         self.footprint_polygon: Optional[str] = ('-8.015716 -63.764648 -6.809171 -63.251038 -6.967323 -62.789612 '
                                                  '-8.176149 -63.278503 -8.015716 -63.764648')
         self.center_points: Optional[str] = '-7.492090 -63.27095'
@@ -217,7 +219,7 @@ class MainProductHeader:
         product_type_info = product_types.find_product(type)
         if product_type_info is not None:
             self._product_type_info = product_type_info
-            self._processing_level = 'other: {}'.format(product_type_info.level.replace('raws', 'rws').upper())  # TODO fix level?
+            self._processing_level = 'other: {}'.format(product_type_info.level.replace('raws', 'rws').upper())  # FIXME: this is wrong!!
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
@@ -233,10 +235,9 @@ class MainProductHeader:
     def set_phenomenon_times(self, start, end):
         '''
         Start/stop are UTC start date and time:
-            - Acquisition sensing time for RAW, L0
-            - Acquisition Zero Doppler Time for L1
-            - Validity start time for AUX
-            - Acquisition Zero Doppler Time, start of first image in the Stack for L2A
+        - Downlink start/stop Time for RAW;
+        - Smallest/Greatest time found inside the data (Sensing Start/Stop Time) for RAW-slices, L0, L1, L2;
+        - Validity Start/Stop Time for AUX
         '''
         self.begin_position = start
         self.end_position = end
@@ -340,7 +341,7 @@ class MainProductHeader:
 
         # Mandatory for L0, L1, L2A products
         sensors = [{'type': self._sensor_type, 'mode': self.sensor_mode}]
-        if level in ['raws', 'l0', 'l1', 'l2a']:
+        if level in ['raws', 'l0', 'l1', 'l2']:
             sensor = et.SubElement(earth_observation_equipment, eop + 'sensor')  # Sensor description
             Sensor = et.SubElement(sensor, eop + 'Sensor')  # Nested element for sensor description
             for s in sensors:
@@ -350,7 +351,7 @@ class MainProductHeader:
                 sensor_mode.set('codeSpace', 'urn:esa:eop:FLORIS:operationalMode')
                 sensor_mode.text = s['mode']
 
-        if level in ['raws', 'l0', 'l1', 'l2a']:
+        if level in ['raws', 'l0', 'l1', 'l2']:
             acquisition_params = et.SubElement(earth_observation_equipment, eop + 'acquisitionParameters')
             acquisition = et.SubElement(acquisition_params, eop + 'Acquisition')
             for acq in self.acquisitions:
@@ -369,7 +370,7 @@ class MainProductHeader:
         observed_property.set('nilReason', 'inapplicable')
 
         feature_of_interest = et.SubElement(mph, om + 'featureOfInterest')  # Observed area
-        if level in ['l0', 'l1', 'l2a']:
+        if level in ['l0', 'l1', 'l2']:
             footprint = et.SubElement(feature_of_interest, eop + 'Footprint')
             footprint.set(gml + 'id', self.eop_identifier + '_5')
             multi_extent_of = et.SubElement(footprint, eop + 'multiExtentOf')  # Footprint representation structure, coordinates in posList
@@ -585,7 +586,7 @@ class MainProductHeader:
         if _sensor_name != self._sensor_name:
             raise ParseError(Instrument)
 
-        # Mandatory for L0, L1, L2A products
+        # Mandatory for L0, L1, L2 products
         sensors = []
         # TODO: check if the 'sensor' element is mandatory, even if there are no sensors.
         sensor = earth_observation_equipment.find(eop + 'sensor')
@@ -620,7 +621,7 @@ class MainProductHeader:
         if feature_of_interest is None:
             raise ParseError(feature_of_interest)
 
-        # Mandatory for L1, *L2A products
+        # Mandatory for L1, *L2 products
         footprint = feature_of_interest.find(eop + 'Footprint')
         if footprint is not None:
             # footprint.set(gml + 'id', self.eop_identifier + '_6')

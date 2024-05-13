@@ -8,6 +8,8 @@ import datetime
 import os
 from typing import Iterable, List, Tuple, Optional
 
+from procsim.flex.product_types import find_product
+
 from . import constants
 from procsim.core.exceptions import ScenarioError
 from procsim.core.job_order import JobOrderInput
@@ -32,6 +34,11 @@ class EO(product_generator.ProductGeneratorBase):
         'ANC_ROTLOS',
         'ANC_ATTRES',
         'ANC_ORBRES',
+        'L1C_FLORIS',
+        'L1C_FLXSYN',
+        'L1C_OBS___',
+        'L2__FLORIS',
+        'L2__OBS___',
     ]
 
     _ACQ_PARAMS: List[tuple] = []
@@ -56,10 +63,18 @@ class EO(product_generator.ProductGeneratorBase):
         if not super()._parse_inputs(input_products, ignore_missing=True):
             return False
 
-        overlapping = set()
+        overlapping: set[str] = set()
+
+        # Determine inputs that should overlap with the job TOI
+        product = find_product(self._output_type)
+        assert product is not None
+        if product.level == 'l1':
+            mandatory_input_types = {'L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'}
+        else:
+            mandatory_input_types = {'L1B_OBS___'}
 
         for input in input_products:
-            if input.file_type in ('L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'):
+            if input.file_type in mandatory_input_types:
                 for file in input.file_names:
                     # Skip non-directory products. These have already been parsed in the superclass.
                     if not os.path.isdir(file):
@@ -79,13 +94,16 @@ class EO(product_generator.ProductGeneratorBase):
                     if self._job_toi_start is not None and self._job_toi_stop is not None:
                         if start <= self._job_toi_start and stop >= self._job_toi_stop:
                             overlapping.add(input.file_type)
+                            self._logger.debug(f'Input {input.file_type} {start.replace(tzinfo=None)} - {stop.replace(tzinfo=None)} '
+                                               f'covers the job order TOI: {self._job_toi_start.replace(tzinfo=None)}'
+                                               f' - {self._job_toi_stop.replace(tzinfo=None)}')
                         else:
                             self._logger.debug(f'Input {input.file_type} {start.replace(tzinfo=None)} - {stop.replace(tzinfo=None)} '
                                                f'not fully covers the job order TOI: {self._job_toi_start.replace(tzinfo=None)}'
                                                f' - {self._job_toi_stop.replace(tzinfo=None)}')
 
         if self._job_toi_start is not None and self._job_toi_stop is not None:
-            if len(overlapping) == 3:
+            if overlapping == mandatory_input_types:
                 self._output_period = (self._job_toi_start, self._job_toi_stop)
 
         return True
@@ -214,6 +232,7 @@ class CAL(product_generator.ProductGeneratorBase):
         super().generate_output()
 
         if self._output_period is None:
+            self._logger.warning(f'No output period known, skipping generation of {self._output_type} product.')
             return
 
         start, stop = self._output_period
@@ -230,7 +249,6 @@ class CAL(product_generator.ProductGeneratorBase):
 
         # Create directory and files
         dir_name = name_gen.generate_path_name()
-
         self._hdr.initialize_product_list(dir_name)
 
         self._logger.info('Create {}'.format(dir_name))
