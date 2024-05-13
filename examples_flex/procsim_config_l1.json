@@ -137,6 +137,88 @@
         }
       ],
       "exit_code": 0
+    },
+    {
+      // L1C FO scenario.
+      "name": "L1C FO product generation",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level1_task1.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "L1CPF",
+      "processor_version": "01.01",
+      "task_name": "L1C_FO",
+      "task_version": "05.03L01",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
+        {
+          "type": "L1C_FLORIS",
+          "metadata_source": ".*L1B_OBS___.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L1C_OBS___",
+          "metadata_source": ".*L1B_OBS___.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      // L1C scenario.
+      "name": "L1C product generation",
+      "mission_phase": "COMMISSIONING",
+
+      // File_name must match with the first argument of procsim
+      "file_name": "level1_task1.sh",
+
+      // Processor/task are used to find the right task in the job order
+      "processor_name": "L1CPF",
+      "processor_version": "01.01",
+      "task_name": "L1C",
+      "task_version": "05.03L01",
+
+      "creation_date": "2023-04-11T10:03:15.000Z",
+
+      // Resources
+      "processing_time": 1,
+      "nr_cpu": 3,
+      "memory_usage": 10,
+      "disk_usage": 10,
+
+      // Logging
+      "nr_progress_log_messages": 4,
+
+      "baseline": "1B",
+
+      "outputs": [
+        {
+          "type": "L1C_FLXSYN",
+          "metadata_source": ".*L1B_OBS___.*", // Input to use
+          "size": 0
+        },
+        {
+          "type": "L1C_OBS___",
+          "metadata_source": ".*L1B_OBS___.*", // Input to use
+          "size": 0
+        }
+      ],
+      "exit_code": 0
     }
   ]
 }
