@@ -15,7 +15,6 @@ fi
 
 # If the command line argument '--no-wait' is given, the script will not wait for a keypress.
 wait_for_keypress() {
-  echo "arg=$no_wait"
   if [ "$no_wait" = false ]; then
     echo ' '
     echo ' '
