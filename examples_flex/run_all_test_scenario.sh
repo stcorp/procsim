@@ -267,8 +267,6 @@ echo ' '
 echo '  ************************************ L1C ************************************ '
 echo ' L1C Slice 0 --> ./level1.sh JobOrder.L1CPF_OBS_1.xml'
 wait_for_keypress
-echo ' '
-echo '  ************************************ L0 STEP 3: Slice 9 --> '
  ./level1.sh Scenario/JobOrder.L1CPF_OBS_1.xml
 
 echo ' '
@@ -277,6 +275,4 @@ echo ' '
 echo '  ************************************ L1C ************************************ '
 echo ' L1C Slice 0 FLORIS only --> ./level1.sh JobOrder.L1CPF_FO_OBS_1.xml'
 wait_for_keypress
-echo ' '
-echo '  ************************************ L0 STEP 3: Slice 9 --> '
  ./level1.sh Scenario/JobOrder.L1CPF_FO_OBS_1.xml
