@@ -165,15 +165,16 @@ class ProductGeneratorBase(IProductGenerator):
         self._generate_bin_file(file_path, size_mb)
 
     def _generate_bin_file(self, file_path: str, size_mb: Optional[int]) -> None:
-        '''Generate binary file starting with a short ASCII header, followed by
-        size (in MB) random data bytes.'''
+        '''
+        if 'file' path specified copy contents, otherwise look at 'size' (default 0)
+        and write random data use randbytes if available (Python >= 3.9),
+        otherwise fall back to os.urandom.
+        '''
         # Make sure encompassing folder exists.
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         CHUNK_SIZE = 2**20
         output_file = open(file_path, 'wb')
-
-        # if 'file' path specified copy contents
         if self._file is not None:
             input_file = open(self._file, 'rb')
             while True:
@@ -183,10 +184,8 @@ class ProductGeneratorBase(IProductGenerator):
                 else:
                     break
             input_file.close()
-
-        # otherwise look at 'size' (default 0) and write random data
-        # use randbytes if available (Python >= 3.9), otherwise fall back to os.urandom
         else:
+            output_file.write(b'Dummy data\n')
             size = size_mb * 2**20 if size_mb is not None else 0
             while size > 0:
                 amount = min(size, CHUNK_SIZE)
