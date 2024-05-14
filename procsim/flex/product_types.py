@@ -141,9 +141,9 @@ PRODUCT_TYPES: List[ProductType] = [
     ProductType('SPC_SPECEO', 'l1', 'Level-1 Calibration Product'),
 
     # Level 1C/2 products
-    ProductType('L1C_FLORIS', 'l1c', 'Level-1C Observation Product'),
-    ProductType('L1C_FLXSYN', 'l1c', 'Level-2 Observation Product'),
-    ProductType('L1C_OBS___', 'l1c', 'Level-2 Observation Product'),
+    ProductType('L1C_FLORIS', 'l1', 'Level-1C Observation Product'),
+    ProductType('L1C_FLXSYN', 'l1', 'Level-2 Observation Product'),
+    ProductType('L1C_OBS___', 'l1', 'Level-2 Observation Product'),
 
     ProductType('L2__OBS___', 'l2', 'Level-2 Observation Product'),
     ProductType('L2__FLORIS', 'l2', 'Level-1 Observation Product'),
