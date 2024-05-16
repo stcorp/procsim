@@ -476,10 +476,14 @@ class MainProductHeader:
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self._processing_level
 
+        format = 'dat'
         if level == 'aux':
-            et.SubElement(processing_info, eop + 'nativeProductFormat').text = 'xml'
-        else:
-            et.SubElement(processing_info, eop + 'nativeProductFormat').text = 'dat'
+            format = 'xml'
+        elif level == 'raw' or level == 'raws' or level == 'l0':
+            format = 'dat'
+        elif level == 'l1' or level == 'l2':
+            format = 'nc'
+        et.SubElement(processing_info, eop + 'nativeProductFormat').text = format
 
         if level not in ['aux']:
             for name in self.auxiliary_ds_file_names:
