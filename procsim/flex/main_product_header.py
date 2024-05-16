@@ -485,7 +485,9 @@ class MainProductHeader:
             for name in self.auxiliary_ds_file_names:
                 et.SubElement(processing_info, eop + 'auxiliaryDataSetFileName').text = name
 
-        et.SubElement(processing_info, eop + 'processingMode').text = self.processing_mode
+        processingMode = et.SubElement(processing_info, eop + 'processingMode')
+        processingMode.text = self.processing_mode
+        processingMode.set('codeSpace', 'urn:esa:eop:FLEX:processingMode')
 
         # add vendor-specific metadata
         def add_vendor_specific(attr, value):
