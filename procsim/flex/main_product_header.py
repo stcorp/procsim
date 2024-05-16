@@ -467,7 +467,7 @@ class MainProductHeader:
         if self.processing_date is None or self.processor_name is None or \
                 self.processor_version is None or self._processing_level is None:
             raise ScenarioError('Processing parameters must be set prior to generating MPH')
-        et.SubElement(processing_info, eop + 'processingDate').text = _time_as_iso_short(self.processing_date)
+        et.SubElement(processing_info, eop + 'processingDate').text = _time_as_iso(self.processing_date)
         et.SubElement(processing_info, eop + 'processorName').text = self.processor_name
         et.SubElement(processing_info, eop + 'processorVersion').text = self.processor_version
         et.SubElement(processing_info, eop + 'processingLevel').text = self._processing_level
@@ -738,7 +738,11 @@ class MainProductHeader:
             raise ParseError(processing_info)
         self.processing_centre_code = processing_info.findtext(eop + 'processingCenter')
         # proc_center.set('codeSpace', 'urn:esa:eop:Biomass:facility')
-        processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
+        try:
+            processing_date = _time_from_iso_short(processing_info.findtext(eop + 'processingDate'))
+        except ValueError:
+            processing_date = _time_from_iso(processing_info.findtext(eop + 'processingDate'))
+
         if processing_date is None:
             raise ParseError(processing_date)
         self.processing_date = processing_date
