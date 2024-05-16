@@ -137,7 +137,7 @@ class MainProductHeader:
         self.apid: Optional[str] = None
 
         self._product_type_info: Optional[product_types.ProductType] = None
-        self._processing_level: Optional[str] = 'Other: L1B'
+        self._processing_level: Optional[str] = 'other: L1B'
 
         self.products: List[Dict[str, Any]] = [
             {'file_name': 'product filename'},   # First product is mandatory and does not have the size/representation fields
@@ -216,10 +216,14 @@ class MainProductHeader:
         '''
         Type must be one of the predefined FLEX types
         '''
+        ALLOWED_PROCESSING_LEVELS = ['RAW', 'RWS', 'L0', 'L1B', 'L1C', 'L2', 'RAC', 'GEC', 'SPC', 'AUX', 'ANC']
         product_type_info = product_types.find_product(type)
         if product_type_info is not None:
             self._product_type_info = product_type_info
-            self._processing_level = 'other: {}'.format(product_type_info.level.replace('raws', 'rws').upper())  # FIXME: this is wrong!!
+            level = product_type_info.type[:3]
+            level = level.replace('CFG', 'AUX').replace('L0_', 'L0').replace('L2_', 'L2')
+            assert level in ALLOWED_PROCESSING_LEVELS, f'Unknown product type {product_type_info.type}'
+            self._processing_level = 'other: ' + level
         else:
             raise ScenarioError('Unknown product type {}'.format(type))
 
