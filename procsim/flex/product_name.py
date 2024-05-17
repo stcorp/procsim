@@ -87,6 +87,7 @@ class ProductName:
         self.baseline_identifier: Optional[str]
         self.suffix: Optional[str]
         self.relative_orbit_number: Optional[str]
+        self.duration: Optional[int] = None
         self.cycle_number: Optional[str]
         self.anx_elapsed: Optional[float] = None
         self._file_type: Optional[str] = None
@@ -191,7 +192,9 @@ class ProductName:
                 self.baseline_identifier = match_dict.get('baseline')
                 self.cycle_number = match_dict.get('cyclenr')
                 self.relative_orbit_number = match_dict.get('relorbit')
-
+                duration_str = match_dict.get('duration')
+                if duration_str is not None:
+                    self.duration = int(duration_str)
                 anx_elapsed = match_dict.get('anx_elapsed')
                 if anx_elapsed is not None:
                     self.anx_elapsed = float(anx_elapsed)
@@ -240,15 +243,16 @@ class ProductName:
             if self.downlink_time is None:
                 raise ScenarioError('acquisition_date must be set')
 
-            if self.stop_time is not None and self.start_time is not None:
-                td = self.stop_time.replace(microsecond=0) - self.start_time.replace(microsecond=0)
-                duration = int(td.total_seconds())  # TODO now both here and in mph.. move to product_generator?
-            else:
-                duration = 0
+            if self.duration is None:
+                if self.stop_time is not None and self.start_time is not None:
+                    td = self.stop_time.replace(microsecond=0) - self.start_time.replace(microsecond=0)
+                    self.duration = int(td.total_seconds())  # TODO now both here and in mph.. move to product_generator?
+                else:
+                    self.duration = 0
 
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}'.format(
                 self.time_to_str(self.downlink_time),
-                duration,
+                self.duration,
                 self.cycle_number,
                 self.relative_orbit_number,
                 int(self.anx_elapsed or 0),
@@ -302,14 +306,16 @@ class ProductName:
             )
 
         else:  # raws, l0
-            if self.stop_time is not None and self.start_time is not None:
-                duration = int((self.stop_time - self.start_time).total_seconds())
-            else:
-                duration = 0
+            if self.duration is None:
+                if self.stop_time is not None and self.start_time is not None:
+                    # TODO: This differs from the previous calculation. Find out which one is correct.
+                    self.duration = int((self.stop_time - self.start_time).total_seconds())
+                else:
+                    self.duration = 0
 
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
-                duration,
+                self.duration,
                 self.cycle_number,
                 self.relative_orbit_number,
                 int(self.anx_elapsed or 0),
