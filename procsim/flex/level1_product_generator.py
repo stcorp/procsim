@@ -29,17 +29,23 @@ class EO(product_generator.ProductGeneratorBase):
     This class is responsible for generating the Level 1 EO products.
     """
 
-    PRODUCTS = [
+    LEVEL1B_PRODUCTS = [
         'L1B_OBS___',
         'ANC_ROTLOS',
         'ANC_ATTRES',
-        'ANC_ORBRES',
+        'ANC_ORBRES'
+    ]
+    LEVEL1C_PRODUCTS = [
         'L1C_FLORIS',
         'L1C_FLXSYN',
-        'L1C_OBS___',
-        'L2__FLORIS',
-        'L2__OBS___',
+        'L1C_OBS___'
     ]
+    LEVEL2_PRODUCTS = [
+        'L2__FLORIS',
+        'L2__OBS___'
+    ]
+
+    PRODUCTS = LEVEL1B_PRODUCTS + LEVEL1C_PRODUCTS + LEVEL2_PRODUCTS
 
     _ACQ_PARAMS: List[tuple] = []
 
@@ -68,9 +74,9 @@ class EO(product_generator.ProductGeneratorBase):
         # Determine inputs that should overlap with the job TOI
         product = find_product(self._output_type)
         assert product is not None
-        if product.level == 'l1':
+        if self._output_type in self.LEVEL1B_PRODUCTS:
             mandatory_input_types = {'L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'}
-        else:
+        elif self._output_type in self.LEVEL1C_PRODUCTS:
             mandatory_input_types = {'L1B_OBS___'}
 
         for input in input_products:
@@ -105,6 +111,11 @@ class EO(product_generator.ProductGeneratorBase):
         if self._job_toi_start is not None and self._job_toi_stop is not None:
             if overlapping == mandatory_input_types:
                 self._output_period = (self._job_toi_start, self._job_toi_stop)
+            else:
+                self._logger.warning(f'Not all mandatory input types {mandatory_input_types} are fully covering the job order TOI, '
+                                     f'skipping generation of {self._output_type}.')
+        else:
+            self._logger.warning(f'No TOI specified in joborder, this is required to generate {self._output_type}.')
 
         return True
 
