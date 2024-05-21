@@ -1,7 +1,7 @@
 '''
 Copyright (C) 2021-2023 S[&]T, The Netherlands.
 
-Flex Level 1 product generators,
+Flex Level 1/2 product generators,
 format according to ESA-EOPG-EOEP-TN-0022
 '''
 import datetime
@@ -26,7 +26,9 @@ _ACQ_PARAMS: List[tuple] = []
 
 class EO(product_generator.ProductGeneratorBase):
     """
-    This class is responsible for generating the Level 1 EO products.
+    This class is responsible for generating the Level 1/2 EO products.
+    To generate any output product, a set of mandatory input products,
+    with times overlapping the job TOI, is required.
     """
 
     LEVEL1B_PRODUCTS = [
@@ -164,6 +166,12 @@ class EO(product_generator.ProductGeneratorBase):
 
 
 class CAL(product_generator.ProductGeneratorBase):
+    """
+    This class is responsible for generating the Level 1/2 calibration products.
+
+    To generate any output product, a set of mandatory input products,
+    with times overlapping the job TOI, is required.
+    """
 
     PRODUCTS = [
         'RAC_DARKNP',
