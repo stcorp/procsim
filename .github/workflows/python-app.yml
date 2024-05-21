@@ -55,6 +55,7 @@ jobs:
         ./run_all_test_scenario.sh --no-wait
         ./run_cal_test_scenario.sh
         ./all_disp.sh
+        ./run_l1c_l2_test_scenario.sh
 
     - name: Build
       id: pack_tarball
