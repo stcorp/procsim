@@ -267,12 +267,20 @@ echo ' '
 echo '  ************************************ L1C ************************************ '
 echo ' L1C Slice 0 --> ./level1.sh JobOrder.L1CPF_OBS_1.xml'
 wait_for_keypress
- ./level1.sh Scenario/JobOrder.L1CPF_OBS_1.xml
+./level1.sh Scenario/JobOrder.L1CPF_OBS_1.xml
 
 echo ' '
 echo ' '
 echo ' '
-echo '  ************************************ L1C ************************************ '
+echo '  ******************************* L1C Floris only ***************************** '
 echo ' L1C Slice 0 FLORIS only --> ./level1.sh JobOrder.L1CPF_FO_OBS_1.xml'
 wait_for_keypress
- ./level1.sh Scenario/JobOrder.L1CPF_FO_OBS_1.xml
+./level1.sh Scenario/JobOrder.L1CPF_FO_OBS_1.xml
+
+echo ' '
+echo ' '
+echo ' '
+echo '  ******************************* L1C Floris only ***************************** '
+echo ' L2 Slice 0 --> ./level2.sh JobOrder.L2_OBS_1.xml'
+wait_for_keypress
+./level2.sh Scenario/JobOrder.L2_OBS_1.xml
