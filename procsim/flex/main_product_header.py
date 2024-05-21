@@ -821,10 +821,6 @@ class MainProductHeader:
             'sliceStopPosition': 'slice_stop_position',
 
         }
-#            add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
-#            add_vendor_specific('Task_Table_Name', 'Task Table Name')
-#            add_vendor_specific('Task_Table_Version', 'xx.yy')
-#            add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
 
         for vendor_specific in earth_observation_meta_data.findall(eop + 'vendorSpecific'):
             specific_info = vendor_specific.find(eop + 'SpecificInformation')
