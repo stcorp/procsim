@@ -502,12 +502,16 @@ class MainProductHeader:
                 et.SubElement(specific_information, eop + 'localAttribute').text = attr
                 et.SubElement(specific_information, eop + 'localValue').text = value
 
-        if level != 'raw':  # TODO check applicability
-            add_vendor_specific('missionPhase', self.mission_phase)
-            add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
+        add_vendor_specific('missionPhase', self.mission_phase)
+        add_vendor_specific('Ref_Doc', 'Product_Definition_Format_xx.yy')  # TODO fill in ref_doc, task_table stuff?
+
+        if level != 'raw':
             add_vendor_specific('Task_Table_Name', 'Task Table Name')
             add_vendor_specific('Task_Table_Version', 'xx.yy')
-            add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+
+        add_vendor_specific('Duration', '%.3f' % (self.end_position - self.begin_position).total_seconds())
+
+        if level != 'raw':
             add_vendor_specific('Cycle_Number', self.cycle_number)
             add_vendor_specific('Relative_Orbit_Number', self.relative_orbit_number)
             add_vendor_specific('dataTakeID', self.data_take_id)
