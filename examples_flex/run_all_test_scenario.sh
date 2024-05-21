@@ -280,7 +280,7 @@ wait_for_keypress
 echo ' '
 echo ' '
 echo ' '
-echo '  ******************************* L1C Floris only ***************************** '
+echo '  ******************************* L2  ************************************ '
 echo ' L2 Slice 0 --> ./level2.sh JobOrder.L2_OBS_1.xml'
 wait_for_keypress
 ./level2.sh Scenario/JobOrder.L2_OBS_1.xml
