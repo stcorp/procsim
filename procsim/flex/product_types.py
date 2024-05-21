@@ -147,6 +147,17 @@ PRODUCT_TYPES: List[ProductType] = [
 
     ProductType('L2__OBS___', 'l2', 'Level-2 Observation Product'),
     ProductType('L2__FLORIS', 'l2', 'Level-2 Observation Product'),
+
+    # Sentinel 3 auxiliary types (TODO: generate these?)
+    ProductType('AUX_S3OL1B', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3SL1B', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3OLCI', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3SLST', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3_LWM', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3_OOM', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3_TRM', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3_CLM', 'aux', 'Sentinel 3 Auxiliary Product'),
+    ProductType('AUX_S3_CLU', 'aux', 'Sentinel 3 Auxiliary Product'),
 ]
 
 
