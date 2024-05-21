@@ -1,5 +1,19 @@
 # Procsim Changelog
 
+[v2.1.15]
+    - Added support for FLEX L1C products
+    - Added support for FLEX L2 products
+    - Added tests for L1C and L2
+    - Physical file names have uppercase 'T' in date-times
+    - Always write some bytes, even if output size is set to 0
+    - In MPH, field nativeProductFormat is now 'nc' for L1 and L2 products
+    - In MPH, field calibrationSpare is unsigned int, not string
+    - In MPH, also include fields missionPhase, Ref_Doc and Duration for raw products
+    - FIX: In MPH, time field 'processingDate' has milliseconds now
+    - FIX: In MPH, field processingLevel had incorrect values
+    - FIX: In MPH, field processingMode has codeSpace in its tag now
+    - FIX: do not re-calculate duration using start/stop times
+
 [v2.1.14]
     - Allow file matching pattern in joborders to be either a regexp or globbing pattern
     - Random data in binary files now generated with fixed seed
