@@ -80,6 +80,8 @@ class EO(product_generator.ProductGeneratorBase):
             mandatory_input_types = {'L0__OBS___', 'L0__NAVATT', 'L0__VAU_TM'}
         elif self._output_type in self.LEVEL1C_PRODUCTS:
             mandatory_input_types = {'L1B_OBS___'}
+        else:
+            mandatory_input_types = {'L1C_FLXSYN'}
 
         for input in input_products:
             if input.file_type in mandatory_input_types:
