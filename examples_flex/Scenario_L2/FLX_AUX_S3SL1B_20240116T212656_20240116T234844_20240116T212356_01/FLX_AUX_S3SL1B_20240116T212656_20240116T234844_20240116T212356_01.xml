@@ -1,0 +1,86 @@
+<opt:EarthObservation xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:om="http://www.opengis.net/om/2.0" xmlns:eop="http://www.opengis.net/eop/2.1" xmlns:opt="http://www.opengis.net/opt/2.1" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:swe="http://www.opengis.net/swe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_1">
+    <om:phenomenonTime>
+        <gml:TimePeriod gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_2">
+            <gml:beginPosition>2024-01-16T21:26:56.000Z</gml:beginPosition>
+            <gml:endPosition>2024-01-16T23:48:44.000Z</gml:endPosition>
+        </gml:TimePeriod>
+    </om:phenomenonTime>
+    <om:resultTime>
+        <gml:TimeInstant gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_3">
+            <gml:timePosition>2024-01-16T23:48:44.000Z</gml:timePosition>
+        </gml:TimeInstant>
+    </om:resultTime>
+    <om:validTime>
+        <gml:TimePeriod gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_4">
+            <gml:beginPosition>2024-01-16T21:26:56.000Z</gml:beginPosition>
+            <gml:endPosition>2024-01-16T23:48:44.000Z</gml:endPosition>
+        </gml:TimePeriod>
+    </om:validTime>
+    <om:procedure>
+        <eop:EarthObservationEquipment gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_5">
+            <eop:platform>
+                <eop:Platform>
+                    <eop:shortName>FLEX</eop:shortName>
+                </eop:Platform>
+            </eop:platform>
+            <eop:instrument>
+                <eop:Instrument>
+                    <eop:shortName>FLORIS</eop:shortName>
+                </eop:Instrument>
+            </eop:instrument>
+        </eop:EarthObservationEquipment>
+    </om:procedure>
+    <om:observedProperty nilReason="inapplicable"/>
+    <om:featureOfInterest/>
+    <om:result>
+        <eop:EarthObservationResult gml:id="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01_10">
+            <eop:product>
+                <eop:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01">
+                            <ows:RequestMessage></ows:RequestMessage>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:version>01</eop:version>
+                </eop:ProductInformation>
+            </eop:product>
+            <eop:product>
+                <eop:ProductInformation>
+                    <eop:fileName>
+                        <ows:ServiceReference xlink:href="./flx_aux_s3sl1b_20240116t212656_20240116t234844_20240116t212356_01_S3B_SL_1_RBT____20240116T212356_20240116T212656_20240116T234844_0180_088_300_0540_PS2_O_NR_004.SEN3.zip">
+                            <ows:RequestMessage></ows:RequestMessage>
+                        </ows:ServiceReference>
+                    </eop:fileName>
+                    <eop:size uom="bytes">352819420</eop:size>
+                </eop:ProductInformation>
+            </eop:product>
+        </eop:EarthObservationResult>
+    </om:result>
+    <eop:metaDataProperty>
+        <eop:EarthObservationMetaData>
+            <eop:identifier>FLX_AUX_S3SL1B_20240116T212656_20240116T234844_20240116T212356_01</eop:identifier>
+            <eop:creationDate>2024-01-16T21:23:56.000Z</eop:creationDate>
+            <eop:doi>10.5270/FLX-xxxxxxx</eop:doi>
+            <eop:acquisitionType>OTHER</eop:acquisitionType>
+            <eop:productType>AUX_S3SL1B</eop:productType>
+            <eop:status>ARCHIVED</eop:status>
+            <eop:statusSubType>ON-LINE</eop:statusSubType>
+            <eop:archivedIn>
+                <eop:ArchivingInformation>
+                    <eop:archivingCenter codeSpace="urn:esa:eop:FLEX:stationCode">ESR</eop:archivingCenter>
+                    <eop:archivingDate>2024-01-16T21:23:56.000Z</eop:archivingDate>
+                </eop:ArchivingInformation>
+            </eop:archivedIn>
+            <eop:processing>
+                <eop:ProcessingInformation>
+                    <eop:processingCenter codeSpace="urn:esa:eop:FLEX:facility">ESR</eop:processingCenter>
+                    <eop:processingDate>2024-01-16T21:23:56.000Z</eop:processingDate>
+                    <eop:processorName>flx-dpc</eop:processorName>
+                    <eop:processorVersion>2.1.0</eop:processorVersion>
+                    <eop:processingLevel>other: AUX</eop:processingLevel>
+                    <eop:processingMode codeSpace="urn:esa:eop:FLEX:processingModes">NOMINAL</eop:processingMode>
+                </eop:ProcessingInformation>
+            </eop:processing>
+        </eop:EarthObservationMetaData>
+    </eop:metaDataProperty>
+</opt:EarthObservation>

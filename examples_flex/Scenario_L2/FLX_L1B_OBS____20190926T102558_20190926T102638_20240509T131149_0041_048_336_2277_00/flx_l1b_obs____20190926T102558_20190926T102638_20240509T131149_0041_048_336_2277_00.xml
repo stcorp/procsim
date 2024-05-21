@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../schematron/schematron_skeleton_for_eop.xsl"?>
+<opt:EarthObservation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:opt="http://www.opengis.net/opt/2.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:om="http://www.opengis.net/om/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:eop="http://www.opengis.net/eop/2.1" gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_1" xsi:schemaLocation="http://www.opengis.net/opt/2.1/xsd/opt.xsd">
+  <om:phenomenonTime>
+    <gml:TimePeriod gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_2">
+      <gml:beginPosition>2019-09-26T10:25:57.846Z</gml:beginPosition>
+      <gml:endPosition>2019-09-26T10:26:38.475Z</gml:endPosition>
+    </gml:TimePeriod>
+  </om:phenomenonTime>
+  <om:resultTime>
+    <gml:TimeInstant gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_3">
+      <gml:timePosition>2019-09-26T10:26:38.475Z</gml:timePosition>
+    </gml:TimeInstant>
+  </om:resultTime>
+  <om:procedure>
+    <eop:EarthObservationEquipment gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_4">
+      <eop:platform>
+        <eop:Platform>
+          <eop:shortName>FLEX</eop:shortName>
+        </eop:Platform>
+      </eop:platform>
+      <eop:instrument>
+        <eop:Instrument>
+          <eop:shortName>FLORIS</eop:shortName>
+        </eop:Instrument>
+      </eop:instrument>
+      <eop:sensor>
+        <eop:Sensor>
+          <eop:sensorType>OPTICAL</eop:sensorType>
+          <eop:operationalMode codeSpace="urn:esa:eop:FLORIS:operationalMode">EO</eop:operationalMode>
+        </eop:Sensor>
+      </eop:sensor>
+      <eop:acquisitionParameters>
+        <eop:Acquisition>
+          <eop:orbitNumber>18431</eop:orbitNumber>
+          <eop:lastOrbitNumber>18431</eop:lastOrbitNumber>
+          <eop:orbitDirection>DESCENDING</eop:orbitDirection>
+          <eop:illuminationAzimuthAngle uom="deg">0048.5</eop:illuminationAzimuthAngle>
+          <eop:acrossTrackIncidenceAngle uom="deg">000.0</eop:acrossTrackIncidenceAngle>
+          <eop:alongTrackIncidenceAngle uom="deg">000.2</eop:alongTrackIncidenceAngle>
+          <eop:pitch uom="deg">000.0</eop:pitch>
+          <eop:roll uom="deg">000.0</eop:roll>
+          <eop:yaw uom="deg">000.0</eop:yaw>
+        </eop:Acquisition>
+      </eop:acquisitionParameters>
+    </eop:EarthObservationEquipment>
+  </om:procedure>
+  <om:observedProperty xsi:nil="true" nilReason="inapplicable"/>
+  <om:featureOfInterest>
+    <eop:Footprint gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_5">
+      <eop:multiExtentOf>
+        <gml:MultiSurface gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_6">
+          <gml:surfaceMember>
+            <gml:Polygon gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_7">
+              <gml:exterior>
+                <gml:LinearRing>
+                  <gml:posList>+44.311690 +000.983544 +44.175812 +000.935789 +43.922100 +000.847115 +43.668335 +000.759017 +43.414518 +000.671486 +43.160650 +000.584513 +42.906730 +000.498087 +42.652760 +000.412199 +42.398741 +000.326841 +42.144673 +000.242003 +41.890556 +000.157677 +41.804145 +000.129121 +41.804145 +000.129121 +41.775401 +000.283976 +41.743763 +000.452969 +41.711891 +000.621724 +41.679781 +000.790262 +41.647429 +000.958604 +41.614831 +001.126769 +41.581985 +001.294779 +41.548887 +001.462654 +41.515531 +001.630413 +41.481916 +001.798078 +41.462467 +001.894451 +41.465001 +001.895357 +41.718335 +001.986330 +41.971609 +002.077894 +42.224821 +002.170060 +42.477971 +002.262837 +42.731059 +002.356237 +42.984082 +002.450268 +43.237040 +002.544942 +43.489933 +002.640270 +43.742759 +002.736262 +43.826177 +002.768087 +43.961257 +002.819777 +43.992228 +002.663788 +44.026564 +002.489399 +44.060636 +002.314890 +44.094459 +002.140244 +44.128044 +001.965442 +44.161397 +001.790464 +44.194525 +001.615291 +44.227427 +001.439898 +44.260095 +001.264260 +44.292517 +001.088350 +44.311690 +000.983544</gml:posList>
+                </gml:LinearRing>
+              </gml:exterior>
+            </gml:Polygon>
+          </gml:surfaceMember>
+        </gml:MultiSurface>
+      </eop:multiExtentOf>
+      <eop:centerOf>
+        <gml:Point gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_8">
+          <gml:pos>+43.888124 +002.455891</gml:pos>
+        </gml:Point>
+      </eop:centerOf>
+    </eop:Footprint>
+  </om:featureOfInterest>
+  <om:result>
+    <eop:EarthObservationResult gml:id="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00_9">
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00">
+              <ows:RequestMessage/>
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:version></eop:version>
+          <eop:timeliness>NOMINAL</eop:timeliness>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="flx_l1b_obs____20190926t102558_20190926t102638_20240509t131149_0041_048_336_2277_00_hre1.nc">
+              <ows:RequestMessage/>
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">230907112</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="flx_l1b_obs____20190926t102558_20190926t102638_20240509t131149_0041_048_336_2277_00_hre2.nc">
+              <ows:RequestMessage/>
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">428536387</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+      <eop:product>
+        <eop:ProductInformation>
+          <eop:fileName>
+            <ows:ServiceReference xlink:href="flx_l1b_obs____20190926t102558_20190926t102638_20240509t131149_0041_048_336_2277_00_lres.nc">
+              <ows:RequestMessage/>
+            </ows:ServiceReference>
+          </eop:fileName>
+          <eop:size uom="bytes">376537026</eop:size>
+        </eop:ProductInformation>
+      </eop:product>
+    </eop:EarthObservationResult>
+  </om:result>
+  <eop:metaDataProperty>
+    <eop:EarthObservationMetaData>
+      <eop:identifier>FLX_L1B_OBS____20190926T102558_20190926T102638_20240509T131149_0041_048_336_2277_00</eop:identifier>
+      <eop:creationDate>2024-05-09T13:22:50.238Z</eop:creationDate>
+      <eop:doi>10.5270/FLX-xxxxxxx</eop:doi>
+      <eop:acquisitionType>NOMINAL</eop:acquisitionType>
+      <eop:productType>L1B_OBS___</eop:productType>
+      <eop:status>ARCHIVED</eop:status>
+      <eop:statusSubType>ON-LINE</eop:statusSubType>
+      <eop:downlinkedTo>
+        <eop:DownlinkInformation>
+          <eop:acquisitionStation codeSpace="urn:esa:eop:FLEX:stationCode">NULL</eop:acquisitionStation>
+          <eop:acquisitionDate>2000-01-30T12:00:00.0000</eop:acquisitionDate>
+        </eop:DownlinkInformation>
+      </eop:downlinkedTo>
+      <eop:archivedIn>
+        <eop:ArchivingInformation>
+          <eop:archivingCenter codeSpace="urn:esa:eop:FLEX:stationCode">NULL</eop:archivingCenter>
+          <eop:archivingDate>2000-01-30T12:00:00.0000</eop:archivingDate>
+        </eop:ArchivingInformation>
+      </eop:archivedIn>
+      <eop:productQualityDegradation uom="%"> 0</eop:productQualityDegradation>
+      <eop:productQualityReportURL></eop:productQualityReportURL>
+      <eop:processing>
+        <eop:ProcessingInformation>
+          <eop:processingCenter codeSpace="urn:esa:eop:FLEX:facility">NULL</eop:processingCenter>
+          <eop:processingDate>2024-05-09T13:22:50.238Z</eop:processingDate>
+          <eop:processorName>L1PF</eop:processorName>
+          <eop:processorVersion>02.03</eop:processorVersion>
+          <eop:processingLevel>other: L1B</eop:processingLevel>
+          <eop:nativeProductFormat>NetCDF</eop:nativeProductFormat>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_IERS_A/FLX_AUX_IERS_A_20190830T000000_20200828T000000_20200806T000000_01/flx_aux_iers_a_20190830T000000_20200828T000000_20200806T000000_01.txt</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/MPL_ORBSCT/FLX_MPL_ORBSCT_20160312T215721_29990101T000000_0001.xml</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/archive/rolling/CFG/FLX_CFG_DEMCFG_20000101T000000_29990101T000000_20230531T134619_02.EOF</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_S3_LWM/FLX_AUX_S3_LWM_20000101T000000_20991231T235959_20151214T120000_01</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_S3_OOM/FLX_AUX_S3_OOM_20000101T000000_20991231T235959_20151214T120000_01</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_S3_TRM/FLX_AUX_S3_TRM_20000101T000000_20991231T235959_20151214T120000_01</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_S3_CLM/FLX_AUX_S3_CLM_20000101T000000_20991231T235959_20151214T120000_01</eop:auxiliaryDataSetFileName>
+          <eop:auxiliaryDataSetFileName>/data_pwa/cpf/wd/flex-cpf-ipfhost04/L1B_PROC_02_03_L1B_OBS_TSK_03_02_03_2098/input/AUX_S3_CLU/FLX_AUX_S3_CLU_20000101T000000_20991231T235959_20151214T120000_01</eop:auxiliaryDataSetFileName>
+          <eop:processingMode codeSpace="urn:esa:eop:FLEX:processingModes">NOMINAL</eop:processingMode>
+        </eop:ProcessingInformation>
+      </eop:processing>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>missionPhase</eop:localAttribute>
+          <eop:localValue>COMMISSIONING</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Ref_Doc</eop:localAttribute>
+          <eop:localValue>Product_Definition_Format_xx.yy</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Task_Table_Name</eop:localAttribute>
+          <eop:localValue>Task Table Name</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Task_Table_Version</eop:localAttribute>
+          <eop:localValue>xx.yy</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Duration</eop:localAttribute>
+          <eop:localValue>0040</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Cycle_Number</eop:localAttribute>
+          <eop:localValue>0048</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Relative_Orbit_Number</eop:localAttribute>
+          <eop:localValue>336</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>dataTakeID</eop:localAttribute>
+          <eop:localValue>8</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>slicingGridFrameNumber</eop:localAttribute>
+          <eop:localValue>10</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>alongtrackCoordinate</eop:localAttribute>
+          <eop:localValue>0000</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>ANX_elapsed_time</eop:localAttribute>
+          <eop:localValue>2277</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>Baseline</eop:localAttribute>
+          <eop:localValue>01</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfISPs</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfISPsWithErrors</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfCorruptedISPs</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfTFs</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfTFsWithErrors</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>numOfCorruptedTFs</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+      <eop:vendorSpecific>
+        <eop:SpecificInformation>
+          <eop:localAttribute>apid</eop:localAttribute>
+          <eop:localValue>0</eop:localValue>
+        </eop:SpecificInformation>
+      </eop:vendorSpecific>
+    </eop:EarthObservationMetaData>
+  </eop:metaDataProperty>
+</opt:EarthObservation>
