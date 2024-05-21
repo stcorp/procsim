@@ -250,10 +250,11 @@ class ProductName:
                 else:
                     self.duration = 0
 
+            assert self.cycle_number
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}'.format(
                 self.time_to_str(self.downlink_time),
                 self.duration,
-                self.cycle_number,
+                self.cycle_number[-3:],
                 self.relative_orbit_number,
                 int(self.anx_elapsed or 0),
                 self.baseline_identifier,
@@ -313,10 +314,11 @@ class ProductName:
                 else:
                     self.duration = 0
 
+            assert self.cycle_number
             name = self._generate_prefix() + '_{}_{:04}_{}_{}_{:04}_{}{}{}'.format(
                 self.time_to_str(self.downlink_time),
                 self.duration,
-                self.cycle_number,
+                self.cycle_number[-3:],  # last 3 characters
                 self.relative_orbit_number,
                 int(self.anx_elapsed or 0),
                 self.baseline_identifier,
