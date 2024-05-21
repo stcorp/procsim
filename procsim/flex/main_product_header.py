@@ -515,7 +515,7 @@ class MainProductHeader:
 
             if self.calibration_id is not None:
                 add_vendor_specific('calibrationID', self.calibration_id)
-                add_vendor_specific('calibrationSpare', 'text')
+                add_vendor_specific('calibrationSpare', 0)  # must be unsigned int
             add_vendor_specific('slicingGridFrameNumber', self.slice_frame_nr)
             add_vendor_specific('alongtrackCoordinate', self.along_track_coordinate)
             if self.anx_elapsed is not None:
